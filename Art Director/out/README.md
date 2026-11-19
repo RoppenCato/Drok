@@ -1,0 +1,1 @@
+What goes back to the game: one folder per delivery, out\<name>\, with the files, their data, a before and after picture and a NOTES.md. Victor, GD copies each folder whole. Empty until Robin has answered the startup questions (2026-11-20).

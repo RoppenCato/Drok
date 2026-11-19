@@ -15,6 +15,8 @@ files' scale, where the canvas library is, the player's atlas, the stage picture
 | `look.js` | a quick judging picture: pictures on a ground line beside our player at the real size and at a zoom | `node tools/look.js out.png [--bg file.png] [--zoom 2] a.png b.png` |
 | `sheet.js` | a contact sheet of a render: a row per action, a column per frame, the feet lined up | `node tools/sheet.js <render dir> sheet.png` |
 | `board.js` | a contact sheet of a folder of pictures (reference boards, screenshots) | `node tools/board.js <dir> board.jpg [columns] [cell px]` |
+| `numbered.js` | a numbered board of pictures of mixed shapes in columns, a big number on each and a line under it, to ask Robin with (Leonard, AD, 2026-11-20) | `node tools/numbered.js board.jpg --cols 3 --title "..." --labels "a\|b\|c" 1.jpg 2.jpg 3.jpg` |
+| `commons_fetch.py` | chosen Wikimedia Commons pictures into a folder at 960 px, the licence checked per file (public domain or CC0 only), with `_fetched.json` (from the Survival game's studio) | `python -I tools/commons_fetch.py <out dir> <list file> [width]` |
 | `concepts.js` | two to four concept stills side by side with a big number and a label each, as one picture | `node tools/concepts.js pick.png --labels "a|b|c" 1.png 2.png 3.png` |
 | `player.js` | our player for scale, from the atlas in `paths.json`; a code-drawn stand-in until one exists (a module) | `const { player, load } = require('./player.js')` |
 | `chrome.js` | the game's HUD, title pill, big button and panel drawn plainly at the judging size (a module; redraw to the game's layout) | `const C = require('./chrome.js'); C.hud(g, 'Title')` |

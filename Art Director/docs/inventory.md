@@ -10,14 +10,22 @@ order; this file says what exists and how good it is.
 
 ## The first three jobs, by value
 
-1. (the one still: the hero on the first place's ground beside one monster, at the judging size, with the chrome on)
-2. (the hero's action set from the approved still)
-3. (the first place's kit)
+None is started. Each waits for Robin's answers (the setting, question 5; the look, question 20; gear on the hero,
+question 21) and for Victor, GD's word that the setting is in the brief.
+
+1. The look: three real and different stills of the first hunting ground with the hero and one monster, at 412 by 915,
+   with the chrome on. Robin picks.
+2. The one still made all the way from his pick, then the hero's action set from it.
+3. The first hunting ground's kit.
 
 ## Assets
 
 | Asset | Where | What it is | State | What needs work |
 | --- | --- | --- | --- | --- |
-| Jelly Slime | `out\slime\`, the game's `assets\slime\` | the first monster of the meadows: one drop body with a big face; stand 6, move 6, attack1 12, hit1 1, die1 8; 1024 by 2048, 106 KB | in the game (commit abc1234, 2026-11-01); design mine, not yet judged by Robin | the blow frame reads late at real speed; worth a second look once in the game |
+| (none yet) | | The game runs on stand-in shapes; the control test needs no art. | | |
 
-(The row above is an example from the board world game; delete it when the first real row goes in.)
+## Not assets, but kept
+
+| What | Where | Note |
+| --- | --- | --- |
+| The "which kind of dark?" board | `docs\reference\dark-fantasy\` | nine public-domain pictures to ask Robin with (2026-11-20); the licences in `docs\reference\README.md` |
