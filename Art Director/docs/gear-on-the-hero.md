@@ -90,6 +90,16 @@ in front or behind), and the game places the small pictures there.
 Way 4, modelled: the pieces a player can read at this size each get their own shape, and a rare sword costs kilobytes,
 so the game can hold as many as the design wants. Way 2 if Robin wants every big piece to show exactly.
 
+## What Robin's picks of 2026-11-20 add
+
+Reported by Victor, GD the same day; the brief follows.
+
+- The theme is vibrant pirate. So the stiff pieces are a cutlass or an axe, a buckler, and a hat or a bandana rather
+  than a helmet; the body looks are coats, sashes and breastplates. Nothing in the four ways changes.
+- Gear has sets. A set fits way 4 well: a set is a whole-body look, and wearing the full set is when the look shows.
+- Gear has rarities. One colour for each, used for the glow on a drop on the ground, on the piece in the bag and on
+  the hero's weapon.
+
 ## What I asked Victor, GD
 
 1. How many facings will the game play, four or eight, and will it flip the side ones? (Flipping swaps the sword hand,

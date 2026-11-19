@@ -10,13 +10,14 @@ order; this file says what exists and how good it is.
 
 ## The first three jobs, by value
 
-None is started. Each waits for Robin's answers (the theme, question 5, open between "Dark fantasy" and "Maybe vibrant
-pirate"; the look, question 20; gear on the hero, question 21) and for Victor, GD's word that the theme is in the brief.
+None is started. The theme is picked: vibrant pirate (Robin, 2026-11-20). Each still waits for Robin's answers (what
+the hero is after and what the Warrior fights with; the look, question 20; gear on the hero, question 21) and for
+Victor, GD's word to go.
 
-1. The look: three real and different stills of the first hunting ground with the hero and one monster, at 412 by 915,
-   with the chrome on. Robin picks.
+1. The look: three real and different stills of the first island with the hero and one beast, at 412 by 915, with the
+   chrome on. Robin picks.
 2. The one still made all the way from his pick, then the hero's action set from it.
-3. The first hunting ground's kit.
+3. The first island's kit. (The sea chart of islands is big work of its own: three concepts when its turn comes.)
 
 ## Assets
 
@@ -28,4 +29,5 @@ pirate"; the look, question 20; gear on the hero, question 21) and for Victor, G
 
 | What | Where | Note |
 | --- | --- | --- |
-| The two look boards, dark and bright | `docs\reference\dark-fantasy\`, `docs\reference\bright-sea\` | eighteen public-domain pictures to ask Robin with (2026-11-20); the licences in `docs\reference\README.md` |
+| The two look boards, dark and bright | `docs\reference\dark-fantasy\`, `docs\reference\bright-sea\` | eighteen public-domain pictures to ask Robin with (2026-11-20); the dark nine set aside since he picked the theme; the licences in `docs\reference\README.md` |
+| The pirate-world study board | `docs\reference\pirate-world\` | nine public-domain pictures the studio learns from: crews, sea beasts, old sea charts (2026-11-20) |

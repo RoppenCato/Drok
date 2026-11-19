@@ -6,13 +6,23 @@ date)". The game's `..\Game Developer\docs\state\art.md` (not written yet) and `
 on budgets, file form and what is needed; this sheet is what the studio builds to.
 
 **Where this stands on 2026-11-20:** nothing is drawn. Robin said on 2026-11-19: "Ask me everything else, and do not
-build anything before I have answered." The theme, what the hero is after and what the Warrior fights with (open
-question 5 of the brief) are not answered. No still is made until Victor, GD says the theme is in the brief.
+build anything before I have answered." The theme is picked (below). What the hero is after and what the Warrior
+fights with are not answered yet. The hero and the first stills wait until Victor, GD sends those; references and
+question 20 go ahead.
 
 ## What Robin has decided
 
-- **The theme is not settled.** (Robin, 2026-11-19): the art direction "will be "Dark fantasy"". (Robin, 2026-11-20):
-  "Maybe vibrant pirate is a better theme". A "maybe", so neither is decided. Victor, GD asks it (question 5).
+- **The theme: vibrant pirate** (Robin, 2026-11-20, his pick from four choices in Victor, GD's chat, as Victor, GD
+  reported it to me the same day; the brief follows when his questionnaire is done). The words of the choice he
+  picked: "Vibrant pirate: bright seas, green islands, colourful crews and beasts. Nothing of dark fantasy comes
+  back." It replaces his "Dark fantasy" of 2026-11-19.
+- **The world** (Robin, 2026-11-20, his pick, reported the same way): a sea chart of islands. Each island is a hunting
+  ground with its own levels; he travels by tapping the chart, with no ship to steer. So there is a chart screen, and
+  a world map is big work: three concepts when its turn comes.
+- **Hunting** (Robin, 2026-11-20, his pick, reported the same way): hunting grounds by level, rare spawns and bosses on
+  timers on the real clock. So a rare monster and a boss must read as rare at a glance.
+- **Gear** (Robin, 2026-11-20, his pick, reported the same way): ranks, rarities, affixes, uniques, sets, chests and
+  keyed vaults; no talent trees. So: a colour for each rarity, sets that show as a look, chests and vault doors as art.
 - **The phone** (Robin, 2026-11-20): "Android with chrome".
 - **Fighting** (Robin, 2026-11-20, his pick): a target with auto-attack; the hero swings by himself while in reach.
 - **The Warrior's kit** (Robin, 2026-11-20, his pick): rage built by hitting, Charge, Cleave or Whirlwind, and one
@@ -29,15 +39,17 @@ question 5 of the brief) are not answered. No still is made until Victor, GD say
 
 ## The sentence
 
-*(decide with Robin: one sentence for the look. What it is drawn like, what it feels like. It waits for the theme
-(question 5) and for which pictures he likes (question 20, asked on 2026-11-20 with the two boards in
-`docs\reference\`, nine dark and nine bright). Written in his words once he has chosen from the three stills.)*
+*(decide with Robin: one sentence for the look. What it is drawn like, what it feels like. The theme is his: "bright
+seas, green islands, colourful crews and beasts". Which pictures he likes is question 20, asked on 2026-11-20 with the
+boards in `docs\reference\`. Written in his words once he has chosen from the three stills.)*
 
 ## The look
 
-- **Colour.** (decide with Robin: how dark or how bright, and how much colour; one palette per hunting ground; which
-  one thing may burn. Rare loot's colour by rarity is a likely answer to the last.) Chosen, never computed. No grey
-  from a formula: dark and grey are not the same thing, and neither are bright and pastel.
+- **Colour.** Bright and saturated: "vibrant" is his word. (decide with Robin: how much colour sits in the ground
+  against the figures; one palette per island; which one thing may burn. Rare loot's colour by rarity is a likely
+  answer to the last.) Chosen, never computed. Bright is not pastel: in Zite a flat pastel look was "a bit of a mobile
+  game" to him (`docs\rules.md` 16). When everything is bright, the figures must still win: the ground a step quieter
+  than what stands on it.
 - **Line.** (decide with Robin: an ink line, a painted edge, or none.) Tested at the real size on the real screen.
 - **Light.** (decide with Robin: the hour, how much the dark hides.) One light over the whole form; the shade cooler
   than the light. Whether a figure is ever flipped by the game decides if the light may come from one side
@@ -46,8 +58,8 @@ question 5 of the brief) are not answered. No still is made until Victor, GD say
   left alone.
 - **Shapes.** A monster is one shape that shows which way it faces from above; the hero is one body with one weapon
   shape that reads at a glance.
-- **Places.** Quiet underfoot where the fighting is; props in clusters, every repeat its own size and lean. (decide with
-  Robin: the mood of the first hunting ground, once the setting is in the brief.)
+- **Places.** Islands. Quiet underfoot where the fighting is; props in clusters, every repeat its own size and lean.
+  (decide with Robin: the first island and its mood.)
 - **The interface.** (decide with Robin: its material and how much of the screen it takes.) It belongs to the world.
 
 ## How the game draws (found 2026-11-20, from the game's README and `docs\platform.md`)
