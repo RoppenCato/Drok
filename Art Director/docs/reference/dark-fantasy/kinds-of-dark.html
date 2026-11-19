@@ -1,6 +1,6 @@
-<title>Kinds of Dark</title>
+<title>Dark and Bright</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Nine old paintings and book pictures, numbered, to say which kinds of dark fit the game and which do not.">
+<meta name="description" content="Eighteen old paintings and prints, numbered, nine dark and nine bright, to say which looks fit the game and which do not.">
 <!--
   The template's pick page (C:\dev\2D game template\sites\pick.html, 2026-11-04), filled for the first question about
   the look (Leonard, AD, 2026-11-20). The pictures sit beside this file and are published under "files". Robin answers
@@ -8,10 +8,10 @@
 -->
 <script type="application/json" id="config">
 {
-  "title": "Which kind of dark?",
-  "note": "Answer in the chat with numbers: the ones you like, and the ones you do not. Tap a picture to see it full size. These are old paintings and book pictures, free for anyone to use. They show kinds of dark, not what the game will look like.",
+  "title": "Which of these do you like the look of?",
+  "note": "Answer in the chat with numbers: the ones you like, and the ones you do not. Tap a picture to see it full size. These are old paintings and prints, free for anyone to use. They show kinds of look, dark and bright, not what the game will look like.",
   "items": [
-    { "n": 1, "label": "Scratchy ink line, pale wash", "line": "Arthur Rackham, 1910. A nervous pen line, tinted thin. Gnarled and crawling; every creature a little ugly.", "src": "1-rackham-rhinegold.jpg" },
+    { "head": "Kinds of dark", "n": 1, "label": "Scratchy ink line, pale wash", "line": "Arthur Rackham, 1910. A nervous pen line, tinted thin. Gnarled and crawling; every creature a little ugly.", "src": "1-rackham-rhinegold.jpg" },
     { "n": 2, "label": "Pale mist, fine pencil marks", "line": "Theodor Kittelsen, 1906. Soft and grey; the monster is the hill itself. Eerie and quiet more than grim.", "src": "2-kittelsen-forest-troll.jpg" },
     { "n": 3, "label": "Black and white, engraved", "line": "Gustave Doré, 1857. Grim and real, the light cut out of black. Almost no colour at all.", "src": "3-dore-dark-forest.jpg" },
     { "n": 4, "label": "Clean outline, flat colour", "line": "Ivan Bilibin, 1900. Folk-tale dark: strong shapes, every colour chosen. Reads well when it is small.", "src": "4-bilibin-baba-yaga.jpg" },
@@ -19,7 +19,16 @@
     { "n": 6, "label": "Fire against black, huge", "line": "John Martin, about 1851. Loud: red light on black rock, a world coming down.", "src": "6-martin-day-of-wrath.jpg" },
     { "n": 7, "label": "Brown fog, a ruin, almost no colour", "line": "Caspar David Friedrich, about 1810. Bare trees and a ruin at dusk. Lonely and still.", "src": "7-friedrich-abbey.jpg" },
     { "n": 8, "label": "A painted knight at dusk", "line": "Viktor Vasnetsov, 1882. A hero in a real, painted world: bones in the grass and a low sun.", "src": "8-vasnetsov-knight.jpg" },
-    { "n": 9, "label": "Cold stone, still water, painted", "line": "Arnold Böcklin, 1883. Solid and painted: pale rock, black trees, flat water. Grave, not scary.", "src": "9-boecklin-isle-of-the-dead.jpg" }
+    { "n": 9, "label": "Cold stone, still water, painted", "line": "Arnold Böcklin, 1883. Solid and painted: pale rock, black trees, flat water. Grave, not scary.", "src": "9-boecklin-isle-of-the-dead.jpg" },
+    { "head": "Kinds of bright", "n": 10, "label": "Painted pirates, hot evening light", "line": "Howard Pyle, 1905. Pirates as the old story books painted them: gold light, deep blue, everything a little larger than life.", "src": "10-pyle-attack-on-a-galleon.jpg" },
+    { "n": 11, "label": "Bold painted adventure, hard shadows", "line": "N. C. Wyeth, 1911, for Treasure Island. Solid painted figures, strong sun and hard shadow. Adventure with weight.", "src": "11-wyeth-treasure-island.jpg" },
+    { "n": 12, "label": "Flat leafy jungle, bold shapes", "line": "Henri Rousseau, 1891. A jungle of flat leaves, each one its own shape. Rich and a little strange.", "src": "12-rousseau-surprised.jpg" },
+    { "n": 13, "label": "Hot flat colour, the tropics", "line": "Paul Gauguin, 1891. Colour pushed hot and flat: orange hills, pink paths. Nothing grey anywhere.", "src": "13-gauguin-tahitian-landscape.jpg" },
+    { "n": 14, "label": "Bright watercolour, turquoise sea", "line": "Winslow Homer, 1899. Loose watercolour: white sails, turquoise water, a lot of light and air.", "src": "14-homer-sloop-nassau.jpg" },
+    { "n": 15, "label": "Glowing sea, golden light", "line": "Ivan Aivazovsky, 1850. A sea lit from behind, gold and green. Bright, but grand and serious.", "src": "15-aivazovsky-ninth-wave.jpg" },
+    { "n": 16, "label": "Clean outline, flat colour, at sea", "line": "Katsushika Hokusai, about 1831. A print: one clean line and a few flat colours. Reads at any size.", "src": "16-hokusai-great-wave.jpg" },
+    { "n": 17, "label": "A green glowing wave, painted real", "line": "Albert Bierstadt, 1878. Painted real: a green wave glowing against a dark sky. Bright and dark at once.", "src": "17-bierstadt-turquoise-sea.jpg" },
+    { "n": 18, "label": "One small figure, big flat colour", "line": "Howard Pyle, 1909. One small man on a huge flat field of yellow. Bright can be lonely too.", "src": "18-pyle-marooned.jpg" }
   ]
 }
 </script>
@@ -38,7 +47,8 @@
   .pic:focus-visible { outline: 3px solid var(--badge); outline-offset: -3px; }
   .pic img { display: block; width: 100%; height: auto; }
   .n { position: absolute; top: 10px; left: 10px; width: 56px; height: 56px; border-radius: 50%; background: var(--badge); color: var(--badgefg); font-weight: 800; font-size: 32px; line-height: 50px; text-align: center; border: 3px solid var(--badgeline); box-shadow: 0 2px 6px var(--shadow); }
-  h2 { font-size: 18px; margin: 0; padding: 0 14px; }
+  h3 { font-size: 18px; margin: 0; padding: 0 14px; }
+  .head { grid-column: 1 / -1; font-size: 20px; font-weight: 800; margin: 12px 0 0; padding: 0 0 6px; border-bottom: 2px solid var(--line); }
   .card p { padding: 0 14px; }
   #big { position: fixed; inset: 0; background: var(--veil); overflow: auto; z-index: 9; cursor: zoom-out; }
   #big img { display: block; margin: 0 auto; max-width: none; }
@@ -55,12 +65,13 @@
   $('title').textContent = CFG.title || 'Pick one'; $('note').textContent = CFG.note || 'Answer in the chat with the number.';
   const big = $('big'), bigimg = $('bigimg'), bign = $('bign');
   (CFG.items || []).forEach((it, i) => {
+    if (it.head) { const hd = document.createElement('div'); hd.className = 'head'; hd.setAttribute('role', 'heading'); hd.setAttribute('aria-level', '2'); hd.textContent = it.head; $('grid').append(hd); }
     const n = it.n !== undefined ? it.n : i + 1, card = document.createElement('article'); card.className = 'card';
     const fig = document.createElement('button'); fig.className = 'pic'; fig.type = 'button'; fig.setAttribute('aria-label', `Show picture ${n} at full size`);
     const img = document.createElement('img'); img.src = it.src; img.alt = `${n}. ${it.label || ''}`; img.loading = 'lazy';
     const badge = document.createElement('span'); badge.className = 'n'; badge.textContent = n;
     fig.append(img, badge); fig.onclick = () => { bigimg.src = it.src; bigimg.alt = img.alt; bign.textContent = n; big.hidden = false; };
-    const h = document.createElement('h2'); h.textContent = `${n}. ${it.label || ''}`;
+    const h = document.createElement('h3'); h.textContent = `${n}. ${it.label || ''}`;
     const p = document.createElement('p'); p.textContent = it.line || '';
     card.append(fig, h, p); $('grid').append(card);
   });

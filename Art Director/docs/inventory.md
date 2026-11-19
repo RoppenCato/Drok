@@ -10,8 +10,8 @@ order; this file says what exists and how good it is.
 
 ## The first three jobs, by value
 
-None is started. Each waits for Robin's answers (the setting, question 5; the look, question 20; gear on the hero,
-question 21) and for Victor, GD's word that the setting is in the brief.
+None is started. Each waits for Robin's answers (the theme, question 5, open between "Dark fantasy" and "Maybe vibrant
+pirate"; the look, question 20; gear on the hero, question 21) and for Victor, GD's word that the theme is in the brief.
 
 1. The look: three real and different stills of the first hunting ground with the hero and one monster, at 412 by 915,
    with the chrome on. Robin picks.
@@ -28,4 +28,4 @@ question 21) and for Victor, GD's word that the setting is in the brief.
 
 | What | Where | Note |
 | --- | --- | --- |
-| The "which kind of dark?" board | `docs\reference\dark-fantasy\` | nine public-domain pictures to ask Robin with (2026-11-20); the licences in `docs\reference\README.md` |
+| The two look boards, dark and bright | `docs\reference\dark-fantasy\`, `docs\reference\bright-sea\` | eighteen public-domain pictures to ask Robin with (2026-11-20); the licences in `docs\reference\README.md` |

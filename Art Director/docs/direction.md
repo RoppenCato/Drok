@@ -6,12 +6,17 @@ date)". The game's `..\Game Developer\docs\state\art.md` (not written yet) and `
 on budgets, file form and what is needed; this sheet is what the studio builds to.
 
 **Where this stands on 2026-11-20:** nothing is drawn. Robin said on 2026-11-19: "Ask me everything else, and do not
-build anything before I have answered." The setting, what the hero is after and what the Warrior fights with (open
-question 5 of the brief) are not answered. No still is made until Victor, GD says the setting is in the brief.
+build anything before I have answered." The theme, what the hero is after and what the Warrior fights with (open
+question 5 of the brief) are not answered. No still is made until Victor, GD says the theme is in the brief.
 
 ## What Robin has decided
 
-- **The look** (Robin, 2026-11-19): "Dark fantasy".
+- **The theme is not settled.** (Robin, 2026-11-19): the art direction "will be "Dark fantasy"". (Robin, 2026-11-20):
+  "Maybe vibrant pirate is a better theme". A "maybe", so neither is decided. Victor, GD asks it (question 5).
+- **The phone** (Robin, 2026-11-20): "Android with chrome".
+- **Fighting** (Robin, 2026-11-20, his pick): a target with auto-attack; the hero swings by himself while in reach.
+- **The Warrior's kit** (Robin, 2026-11-20, his pick): rage built by hitting, Charge, Cleave or Whirlwind, and one
+  defensive cooldown. So the hero needs a charge, a wide swing and a guard besides his plain attack.
 - **The view** (Robin, 2026-11-19): "Top-down 2.5D view, like Zelda. Movement must feel smooth and snappy."
 - **The screen** (Robin, 2026-11-19): "Played on my phone, portrait, with one thumb."
 - **The hero** (Robin, 2026-11-19): "One class to start: Warrior." "A long-lived character with permanent unlocks.
@@ -24,15 +29,15 @@ question 5 of the brief) are not answered. No still is made until Victor, GD say
 
 ## The sentence
 
-*(decide with Robin: one sentence for the look. What it is drawn like, what it feels like. "Dark fantasy" is his; which
-kind of dark is open question 20, asked on 2026-11-20 with the board in `docs\reference\`. Written in his words once he
-has chosen from the three stills.)*
+*(decide with Robin: one sentence for the look. What it is drawn like, what it feels like. It waits for the theme
+(question 5) and for which pictures he likes (question 20, asked on 2026-11-20 with the two boards in
+`docs\reference\`, nine dark and nine bright). Written in his words once he has chosen from the three stills.)*
 
 ## The look
 
-- **Colour.** (decide with Robin: how dark and how much colour; one palette per hunting ground; which one thing may
-  burn. Rare loot's colour by rarity is a likely answer to the last.) Chosen, never computed. No grey from a formula:
-  a dark game needs this rule most, because dark and grey are not the same thing.
+- **Colour.** (decide with Robin: how dark or how bright, and how much colour; one palette per hunting ground; which
+  one thing may burn. Rare loot's colour by rarity is a likely answer to the last.) Chosen, never computed. No grey
+  from a formula: dark and grey are not the same thing, and neither are bright and pastel.
 - **Line.** (decide with Robin: an ink line, a painted edge, or none.) Tested at the real size on the real screen.
 - **Light.** (decide with Robin: the hour, how much the dark hides.) One light over the whole form; the shade cooler
   than the light. Whether a figure is ever flipped by the game decides if the light may come from one side
@@ -57,14 +62,14 @@ has chosen from the three stills.)*
   placed by data, things sorted by where their feet are. No backdrop planes as in a side-on fight.
 - What stands today is the starter's 3 by 3 board of stand-in squares. The first thing built is a control test with
   stand-in shapes, which needs no art.
-- Robin runs it from a link on his phone (the home Wi-Fi link or a public page: open question 4). The AI opens every
-  page with `?mute=1`.
+- Robin runs it from a link on his phone: the home Wi-Fi link for the control test, a public page when chapter 1
+  starts (Robin, 2026-11-20, his pick). The AI opens every page with `?mute=1`.
 - The game's rules for cheap drawing: few atlases, every frame trimmed, no reading the canvas back, no filter or blur
   per frame, memory counted in decoded pixels.
 
 ## The judging size and screen
 
-412 by 915 portrait, on Robin's phone (which phone, and the weakest it must run on: open question 3). Every judging
+412 by 915 portrait, on Robin's phone: "Android with chrome" (Robin, 2026-11-20); no weaker phone named. Every judging
 picture is a crop of the screen at that size with the game's chrome on.
 
 The hero's height on screen: (decide with Robin: the first still shows two sizes). A starting guess (mine): about 64
