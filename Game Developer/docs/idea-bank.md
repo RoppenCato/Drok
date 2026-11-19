@@ -16,9 +16,8 @@ The startup questions, numbered 1 to 24, stand in `..\..\Drok-brief.md` under "O
 All of these are Claude's suggestions from Robin's brainstorm of 2026-11-19. Robin: "not decided: ask me". The number
 in brackets is the startup question that asks about it.
 
-1. Target-based combat with auto-attack, not aimed swings. Fits one thumb: the thumb steers and presses skills, the
-   hero swings by himself. (6)
-2. The Warrior's kit: rage built by hitting, Charge, Cleave or Whirlwind, one defensive cooldown. (7)
+1. _(decided 2026-11-20, see "Decided": the target with auto-attack)_
+2. _(decided 2026-11-20, see "Decided": the Warrior's kit)_ Still open inside it: Cleave or Whirlwind.
 3. Carry over from Zite (`RoppenCato/Zite`) the ideas, not the code or the art, of: gear ranks, rarities, affixes,
    uniques and sets, chests and keyed vaults, talent trees. (11)
 4. Each monster has one rare signature drop. A monster book that fills in as he hunts, as the unlock layer that is
@@ -38,7 +37,11 @@ questions 5, 9, 20 and 21.
 
 ## Decided (moved to the brief; kept here as a record)
 
-- _(date: the question, the decision in Robin's words)_
+- 2026-11-20: fighting (question 6). Robin picked "A": a target with auto-attack, not aimed swings.
+- 2026-11-20: the Warrior's kit (question 7). Robin picked "A": rage built by hitting, Charge, Cleave or Whirlwind,
+  one defensive cooldown; the control test gets two skill buttons, Charge and Cleave.
+- 2026-11-20: the repo, the name, the phone, the link and the Sound Director's start (questions 1 to 4 and 8); his
+  words are in the brief.
 
 ## Turned down (so it is not raised twice)
 

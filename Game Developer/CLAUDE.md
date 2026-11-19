@@ -8,7 +8,7 @@ decisions, each with his name and the date), read first. Undecided ideas go to `
 ## What is yours
 
 - The code, the rules and their tests, the builds, the server if the game has one, the budgets for art and sound, the
-  docs in `docs\`, the commits and the pushes of the repo `(no repo yet)`. Commit your own files and the studios' drops you
+  docs in `docs\`, the commits and the pushes of the repo `https://github.com/RoppenCato/Drok`. Commit your own files and the studios' drops you
   copied in; the studios commit their own folders.
 - **Never edit `..\Art Director` or `..\Sound Director`.** Ask Leonard, AD and Hugh, SD for what you need
   (the form: `docs\requests.md`), in the plan's order, and take their calls as made (Robin, 2026-11-01). Copy a drop

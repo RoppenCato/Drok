@@ -11,7 +11,7 @@ C:\dev\Drok\Sound Director   Hugh, SD   everything heard; delivers into its out\
 
 **The design is `C:\dev\Drok\Drok-brief.md`**: Robin's decisions, each with his name and the date, and the open
 questions. Read it first every session. Undecided ideas go to `Game Developer\docs\idea-bank.md`, never into the brief.
-The repo is `(no repo yet)`; the Game Developer commits and pushes; a studio commits only its own folder.
+The repo is `https://github.com/RoppenCato/Drok` (Robin, 2026-11-20); the Game Developer commits and pushes; a studio commits only its own folder.
 
 ## Names
 
