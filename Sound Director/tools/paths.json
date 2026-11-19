@@ -1,0 +1,7 @@
+{
+  "_comment": "Where things are on this PC. The Node and Ruby tools read this file; the .cmd files carry the same Sonic Pi folder in a line at their top. engine_session is the name Windows gives Sonic Pi's engine in the Volume Mixer (tools/appmute.ps1 mutes it for silent renders). viewer_port: give each studio its own if two games' viewers run at once.",
+  "sonic_pi": "C:/Program Files/Sonic Pi",
+  "ffmpeg": "C:/dev/ffmpeg/bin/ffmpeg.exe",
+  "engine_session": "Sonic Pi - SuperSonic",
+  "viewer_port": 8778
+}

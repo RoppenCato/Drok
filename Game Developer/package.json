@@ -1,0 +1,29 @@
+{
+  "name": "drok",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A 2D game for a phone's browser, installable as a PWA: the rules as a pure function, a Phaser client, built with Vite.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p rules/tsconfig.json && tsc -p tsconfig.json",
+    "icons": "node tools/make-icons.mjs"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "phaser": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.0.5"
+  }
+}

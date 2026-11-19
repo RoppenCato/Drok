@@ -1,0 +1,24 @@
+# The game's repo: code, docs, the studios' deliveries. Nothing heavy, nothing that can be rebuilt.
+node_modules/
+dist/
+dev-dist/
+*.tsbuildinfo
+.vite/
+
+# The studios' scratch and sources that are rebuilt or too big
+*/work/
+*/Inspiration/
+Art Director/out/**/*.blend
+Art Director/out/**/frames/
+Sound Director/out/**/*.wav
+Sound Director/work/
+
+# Raw Mixamo files never go into a public repo (Robin downloads them on his own account)
+**/mixamo/*.fbx
+**/mixamo/*.dae
+
+# Local only
+.env
+*.log
+Thumbs.db
+.DS_Store

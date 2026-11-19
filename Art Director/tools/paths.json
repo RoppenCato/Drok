@@ -1,0 +1,20 @@
+{
+  "_note": "The studio's paths and sizes, read by tools/paint.js (every script goes through it). Set these in the first session. Paths are relative to the studio folder unless absolute; use forward slashes, even on Windows.",
+  "game": "../Game Developer",
+  "judge": { "w": 412, "h": 915 },
+  "_judge": "Robin's judging size: the game's design size in CSS pixels, portrait or landscape (docs/direction.md).",
+  "filePx": 2,
+  "_filePx": "The files' scale: 2 means 2x files drawn at half size in CSS pixels. Written into every atlas as meta.filePx.",
+  "facing": "left",
+  "canvas": "C:/dev/SG/Game Developer/node_modules/@napi-rs/canvas",
+  "_canvas": "Where @napi-rs/canvas is, if it is not installed in the studio with npm i @napi-rs/canvas.",
+  "blender": "",
+  "_blender": "blender.exe, if tools/blender.js should not look for it under Program Files.",
+  "player": { "atlas": "out/hero/hero.json", "height": 100 },
+  "_player": "Our player for scale in every judging picture: the atlas json, and the height in CSS pixels of the code-drawn stand-in used until it exists.",
+  "stage": { "file": "work/stage/fight.png", "at": [590, 1270] },
+  "_stage": "The judging scene at the files' scale, and where a thing's feet go in it, in file pixels (compare.js, anim_gif.js).",
+  "ink": "#2b2320",
+  "flat": "#8fd84a",
+  "_colours": "The ink line's colour and the flat ground colour of the quick judging pictures; change them to the game's."
+}

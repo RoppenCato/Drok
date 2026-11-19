@@ -1,0 +1,182 @@
+<!doctype html>
+<!--
+  THE SOUND BOARD: Robin's phone page for a game's music and sounds. One page, one JSON block, the audio beside it.
+  Copy it into the game as <game>\Sound Director\viewer\listen.html; the Sound Director keeps it current.
+
+  HOW IT WORKS
+  The JSON block below (the script with id "board", type application/json) is the whole content: the title, the
+  studio's name, the tabs (one per place or chapter, plus "Sounds") and one row per delivery, newest first. A row has: "tab", "name", "file"
+  (one audio file, looping in the player fixed at the bottom; "loop": false plays it once) or "files" (a list: one button
+  each, for a sound's variations; "gain" 0..1 plays them at the game's gain), "notes" (what to listen for, with times),
+  "state" (current, kept, candidate, delivered, archived, test; archived rows fold away) and "verdict" (Robin's words, or
+  NEW <date> with the question for him). Files are relative paths published beside this page; MP3 or OGG, never WAV.
+
+  HOW TO PUBLISH (the Artifact tool, from the Sound Director's session)
+  1. Fill in the JSON block: the game's name, your name, the tabs, the rows.
+  2. Publish this file with the audio under `files`:
+       Artifact publish, file_path: viewer/listen.html, icon: "music",
+       files: { "music-title/full.mp3": "out/music/title/full.mp3", "sfx-ui/preview.mp3": "out/sfx/ui/preview.mp3" }
+     Key: the path a row names; value: the file on disk.
+  3. The result gives the page's URL: write it in docs/pipeline.md.
+  HOW TO UPDATE
+  Edit the JSON block, then republish the same file_path with url: <the page's URL> and the new or changed audio under
+  `files`. Files passed are added or replaced; files left out are kept; a value of null removes one. A row Robin turned
+  down comes off the page (state "archived" while the pick is fresh, then delete the row and null its file).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drok Sound</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;1,500&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+  /* layout: tabs by place at the top, a list of rows under each (current first, older ones folded), one player fixed at the bottom */
+  :root {
+    --bg: #eef0e8; --card: #f7f8f3; --fg: #23281f; --muted: #5f6858; --line: #cfd6c4; --accent: #4f7a2e; --warm: #b4651f; --ink-on-accent: #fbfdf7; --kept: #3f6f8a;
+    --display: "Lora", Georgia, "Times New Roman", serif; --body: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #171a14; --card: #20241c; --fg: #e6e9df; --muted: #a2ab98; --line: #343b2d; --accent: #8cbf5d; --warm: #e29a5a; --ink-on-accent: #141710; --kept: #7fb0cc; color-scheme: dark; } }
+  :root[data-theme="dark"] { --bg: #171a14; --card: #20241c; --fg: #e6e9df; --muted: #a2ab98; --line: #343b2d; --accent: #8cbf5d; --warm: #e29a5a; --ink-on-accent: #141710; --kept: #7fb0cc; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.45; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 22px 16px 130px; }
+  header { margin-bottom: 14px; }
+  .eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  h1 { font-family: var(--display); font-weight: 500; font-size: 28px; margin: 2px 0 2px; overflow-wrap: anywhere; }
+  header p { margin: 0; color: var(--muted); font-size: 14px; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 14px 0 12px; }
+  .tabs button { font: inherit; font-size: 14px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--fg); cursor: pointer; }
+  .tabs button.on { background: var(--accent); color: var(--ink-on-accent); border-color: var(--accent); }
+  .tabs button:focus-visible, .play:focus-visible { outline: 2px solid var(--warm); outline-offset: 2px; }
+  .list { display: grid; gap: 8px; }
+  .row { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; min-width: 0; }
+  .row.playing { border-color: var(--accent); }
+  .row.old { opacity: .85; }
+  .row > div { min-width: 0; }
+  .play { font: inherit; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--accent); color: var(--ink-on-accent); cursor: pointer; font-size: 18px; flex: none; }
+  .play.sfx { background: var(--card); color: var(--fg); width: auto; height: auto; border-radius: 8px; padding: 8px 12px; font-size: 14px; }
+  .row h3 { font-family: var(--display); font-style: italic; font-weight: 500; font-size: 18px; margin: 0; overflow-wrap: anywhere; }
+  .row .line { font-size: 14px; color: var(--muted); margin: 2px 0 0; overflow-wrap: anywhere; }
+  .row .verdict { font-size: 13px; color: var(--muted); font-style: italic; margin: 2px 0 0; }
+  .pill { display: inline-block; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; padding: 2px 7px; border-radius: 10px; background: var(--line); color: var(--fg); vertical-align: middle; margin-left: 6px; font-style: normal; font-family: var(--body); }
+  .pill.current { background: var(--accent); color: var(--ink-on-accent); } .pill.kept { background: var(--kept); color: #fff; } .pill.candidate { background: var(--warm); color: var(--ink-on-accent); }
+  details.older { margin-top: 6px; } details.older summary { cursor: pointer; color: var(--muted); font-size: 14px; padding: 6px 2px; } details.older .list { margin-top: 8px; }
+  .sfxgrid { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line); padding: 10px 16px; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+  .bar .inner { max-width: 640px; margin: 0 auto; }
+  .bar .now { font-size: 13px; color: var(--muted); margin-bottom: 4px; min-height: 1.2em; overflow-wrap: anywhere; }
+  .bar audio { width: 100%; display: block; }
+  .about { font-size: 13px; color: var(--muted); margin-top: 18px; }
+  .howto { margin-top: 10px; font-size: 14px; color: var(--muted); } .howto summary { cursor: pointer; color: var(--fg); font-weight: 600; } .howto ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+  .empty { color: var(--muted); font-style: italic; padding: 10px 2px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<!-- THE CONTENT: edit this block, nothing else. Rows newest first within a tab. -->
+<script id="board" type="application/json">
+{
+  "title": "Drok Sound",
+  "studio": "Hugh, SD",
+  "intro": "Every track and sound for Drok, by place, the newest first. Tap play; the player stays at the bottom. What you turn down is cleared away.",
+  "howto": [
+    "Hear it here first: the tab named in my message, the play button on its row; single sounds under Sounds, one button per variation. The phone's own speaker is the right judge.",
+    "Pick by letter: tell me the letter you like (A, B or C), or what is wrong with all of them. Your pick becomes the game's; the others are cleared away.",
+    "In the game: once a sound is wired in, my message says the screen and the moment to try it."
+  ],
+  "about": "Made by Hugh, SD in Sonic Pi 5 and from recordings. These files are for listening; the game gets its own format.",
+  "tabs": ["Title", "Sounds"],
+  "rows": [
+    { "tab": "Title", "name": "The title, A: bells", "file": "music-title-a/full.mp3", "notes": "G major, 108. The hook on bells (0:00), the second idea (0:18), the hook back (0:36). 0:55 a loop.", "state": "candidate", "verdict": "NEW 10 Nov: A, B or C?" },
+    { "tab": "Sounds", "name": "Tap: a button pressed", "files": ["sfx-ui/tap-1.ogg", "sfx-ui/tap-2.ogg", "sfx-ui/tap-3.ogg"], "gain": 0.31, "notes": "A soft wooden tick, 50 ms, dull on purpose; 10 dB under the die.", "state": "delivered", "verdict": "NEW 10 Nov: is it pleasant the hundredth time?" }
+  ]
+}
+</script>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow" id="eyebrow">The sound studio</div>
+    <h1 id="title">Sound</h1>
+    <p id="intro"></p>
+    <details class="howto" id="howto" hidden><summary>How to test a sound</summary><ol id="howto-list"></ol></details>
+  </header>
+  <nav class="tabs" id="tabs" aria-label="places"></nav>
+  <div id="panel"></div>
+  <p class="about" id="about"></p>
+</div>
+<div class="bar"><div class="inner"><div class="now" id="now">Nothing playing</div><audio id="player" controls loop preload="none"></audio></div></div>
+
+<script>
+'use strict';
+const $ = (s) => document.querySelector(s);
+const el = (tag, attrs, ...kids) => { const e = document.createElement(tag); for (const k in attrs || {}) { if (k === 'class') e.className = attrs[k]; else if (k.startsWith('on')) e.addEventListener(k.slice(2), attrs[k]); else e.setAttribute(k, attrs[k]); } for (const k of kids) if (k != null) e.append(k); return e; };
+
+// ---- the content: the JSON block ----
+let B;
+try { B = JSON.parse($('#board').textContent); }
+catch (e) { $('#panel').append(el('p', { class: 'empty' }, 'The JSON block does not parse: ' + e.message)); throw e; }
+const rows = Array.isArray(B.rows) ? B.rows : [];
+const tabs = (Array.isArray(B.tabs) && B.tabs.length ? B.tabs : []).slice();
+for (const r of rows) if (r.tab && !tabs.includes(r.tab)) tabs.push(r.tab);      // a row's tab the list forgot still shows
+document.title = B.title || 'Sound';
+$('#title').textContent = B.title || 'Sound';
+$('#eyebrow').textContent = B.studio ? 'The sound studio: ' + B.studio : 'The sound studio';
+$('#intro').textContent = B.intro || '';
+if (Array.isArray(B.howto) && B.howto.length) { $('#howto').hidden = false; for (const h of B.howto) $('#howto-list').append(el('li', {}, h)); }
+$('#about').textContent = B.about || '';
+const KEY = 'sound-board-tab:' + (B.title || '');
+
+// ---- the player at the bottom: one file at a time, looping unless the row says not ----
+const player = $('#player'), now = $('#now'); let playingFile = null;
+function play(row, rowEl) {
+  if (playingFile === row.file && !player.paused) { player.pause(); return; }
+  playingFile = row.file; player.src = row.file; player.loop = row.loop !== false; player.play().catch(() => {});
+  now.textContent = (row.tab ? row.tab + ' · ' : '') + row.name;
+  document.querySelectorAll('.row').forEach(r => r.classList.remove('playing')); if (rowEl) rowEl.classList.add('playing');
+  document.querySelectorAll('.play.music').forEach(b => b.textContent = '▶'); if (rowEl) rowEl.querySelector('.play').textContent = '‖';
+}
+player.addEventListener('pause', () => { document.querySelectorAll('.play.music').forEach(b => b.textContent = '▶'); });
+player.addEventListener('play', () => { const r = document.querySelector('.row.playing .play'); if (r) r.textContent = '‖'; });
+
+// ---- the rows ----
+const pill = (s) => el('span', { class: 'pill ' + (s || '') }, s || 'new');
+function trackRow(r) {
+  const row = el('div', { class: 'row' + (r.state === 'archived' ? ' old' : '') });
+  const btn = el('button', { class: 'play music', type: 'button', 'aria-label': 'play ' + r.name, onclick: () => play(r, row) }, '▶');
+  row.append(btn, el('div', {}, el('h3', {}, r.name, pill(r.state)), r.notes ? el('p', { class: 'line' }, r.notes) : null, r.verdict ? el('p', { class: 'verdict' }, r.verdict) : null));
+  if (playingFile === r.file) row.classList.add('playing');
+  return row;
+}
+function soundRow(r) {                      // several files: one button each, played at once at the row's gain
+  const grid = el('div', { class: 'sfxgrid' });
+  r.files.forEach((f, i) => {
+    const a = new Audio(f); a.preload = 'auto'; a.volume = r.gain == null ? 1 : Math.max(0, Math.min(1, r.gain));
+    grid.append(el('button', { class: 'play sfx', type: 'button', onclick: () => { a.currentTime = 0; a.play().catch(() => {}); } }, (r.files.length > 1 ? String(i + 1) : 'play')));
+  });
+  const row = el('div', { class: 'row' + (r.state === 'archived' ? ' old' : '') });
+  row.append(el('div', {}), el('div', {}, el('h3', {}, r.name, pill(r.state)), r.notes ? el('p', { class: 'line' }, r.notes) : null, r.verdict ? el('p', { class: 'verdict' }, r.verdict) : null, grid));
+  return row;
+}
+const rowEl = (r) => Array.isArray(r.files) && r.files.length ? soundRow(r) : trackRow(r);
+const slug = (g) => String(g).replace(/\W+/g, '-').toLowerCase();
+function show(g) {
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.g === g));
+  const panel = $('#panel'); panel.innerHTML = '';
+  const items = rows.filter(r => r.tab === g), live = items.filter(r => r.state !== 'archived'), old = items.filter(r => r.state === 'archived');
+  if (!items.length) panel.append(el('p', { class: 'empty' }, 'Nothing here yet.'));
+  if (live.length) panel.append(el('div', { class: 'list' }, ...live.map(rowEl)));
+  if (old.length) panel.append(el('details', { class: 'older' }, el('summary', {}, old.length + ' older version' + (old.length > 1 ? 's' : '')), el('div', { class: 'list' }, ...old.map(rowEl))));
+  try { localStorage.setItem(KEY, g); } catch (e) {}
+  if (location.hash !== '#' + slug(g)) history.replaceState(null, '', '#' + slug(g));
+}
+tabs.forEach(g => $('#tabs').append(el('button', { type: 'button', 'data-g': g, onclick: () => show(g) }, g)));
+if (!tabs.length) $('#panel').append(el('p', { class: 'empty' }, 'No tabs yet: add them to the JSON block.'));
+else {
+  let start = tabs[0];
+  try { const h = location.hash.slice(1), fromHash = tabs.find(g => slug(g) === h); start = fromHash || localStorage.getItem(KEY) || start; if (!tabs.includes(start)) start = tabs[0]; } catch (e) {}
+  show(start);
+}
+</script>
+</body>
+</html>

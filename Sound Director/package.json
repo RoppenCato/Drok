@@ -1,0 +1,15 @@
+{
+  "name": "sound-director",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The sound studio's tools. Most need nothing but Node 24; the study tools (tools/transcribe.js) need the packages below. Run npm install in this folder once; node_modules is not committed.",
+  "type": "commonjs",
+  "dependencies": {
+    "@spotify/basic-pitch": "^1.0.1",
+    "@tensorflow/tfjs": "^4.22.0",
+    "node-web-audio-api": "^2.2.0"
+  },
+  "optionalDependencies": {
+    "lamejs": "^1.2.1"
+  }
+}
