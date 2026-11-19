@@ -5,24 +5,60 @@ Written by Leonard, AD from the brief, from the game's own docs, and from asking
 date)". The game's `..\Game Developer\docs\state\art.md` (not written yet) and `docs\art-demands.md` are the authority
 on budgets, file form and what is needed; this sheet is what the studio builds to.
 
-**Where this stands on 2026-11-20:** nothing is drawn. Robin said on 2026-11-19: "Ask me everything else, and do not
-build anything before I have answered." The theme is picked (below). What the hero is after and what the Warrior
-fights with are not answered yet. The hero and the first stills wait until Victor, GD sends those; references and
-question 20 go ahead.
+**Where this stands on 2026-11-20:** nothing is drawn. Every startup question is answered, the Art Director's two
+included (20 and 21, below). Next is the three stills of the look; they wait only for Victor, GD's word to go.
+
+## What Robin picked about the look and the gear (Robin, 2026-11-20, in the Art Director's chat)
+
+His picks from choice boxes; the choices were written by Leonard, AD, and the words below are the choices'.
+
+- **The look: "Clean line, flat colour"**: "One clear outline and a few strong, flat colours, like a print or a
+  cartoon (pictures 12, 13, 16). Reads best when things are small on a phone." He did not tick "Story-book painted" or
+  "Light and glow". Pictures 12, 13 and 16 are Rousseau's jungle, Gauguin's Tahiti and Hokusai's wave in
+  `docs\reference\bright-sea\`.
+- **Games he loves the look of**: Zelda: The Wind Waker, MapleStory, World of Warcraft. He did not tick Sea of
+  Thieves. MapleStory is a look reference here; in Zite it was not.
+- **Not this**: "Pale pastel phone-game look", "Grim and realistic", "Pixel art". He did not tick "Cute with huge
+  heads", so round and big-headed is allowed.
+- **Gear on the hero: "The big pieces"**: "Every cutlass, buckler and hat has its own shape. Coats and armour come in a
+  handful of looks, and a full set shows as its own look. Boots, gloves and rings show only in the bag."
+- **Rare drops: "No glow on the hero"**: "The rarity colour shows only on the ground and in the bag."
+
+What his three games share (mine, from looking, nothing of theirs is ever taken): chunky figures with big heads, hands
+and weapons; colour that is chosen and saturated, in large clean areas with one shade; simple faces; very little
+texture noise. Those are studied for how they solve a problem; no asset of theirs is used.
 
 ## What Robin has decided
 
-- **The theme: vibrant pirate** (Robin, 2026-11-20, his pick from four choices in Victor, GD's chat, as Victor, GD
-  reported it to me the same day; the brief follows when his questionnaire is done). The words of the choice he
-  picked: "Vibrant pirate: bright seas, green islands, colourful crews and beasts. Nothing of dark fantasy comes
-  back." It replaces his "Dark fantasy" of 2026-11-19.
-- **The world** (Robin, 2026-11-20, his pick, reported the same way): a sea chart of islands. Each island is a hunting
-  ground with its own levels; he travels by tapping the chart, with no ship to steer. So there is a chart screen, and
-  a world map is big work: three concepts when its turn comes.
-- **Hunting** (Robin, 2026-11-20, his pick, reported the same way): hunting grounds by level, rare spawns and bosses on
-  timers on the real clock. So a rare monster and a boss must read as rare at a glance.
-- **Gear** (Robin, 2026-11-20, his pick, reported the same way): ranks, rarities, affixes, uniques, sets, chests and
-  keyed vaults; no talent trees. So: a colour for each rarity, sets that show as a look, chests and vault doors as art.
+All from the brief, `..\..\Drok-brief.md`. "His pick" means he picked a choice Victor, GD had written; the words are
+the choice's.
+
+- **The theme: vibrant pirate** (Robin, 2026-11-20, his pick). "Bright seas, green islands, colourful crews and
+  beasts. Nothing of dark fantasy comes back." It replaces his "Dark fantasy" of 2026-11-19.
+- **The hero** (Robin, 2026-11-20, his pick): "Make a name". A nobody from a harbour town hunts the islands' beasts
+  for bounty and loot, on his way to captain. So he starts plain and poor, and the gear he finds is what makes him
+  look like somebody.
+- **What the Warrior fights with** (Robin, 2026-11-20, his pick): cutlass and buckler.
+- **The world** (Robin, 2026-11-20, his pick): a sea chart of islands. Each island is a hunting ground with its own
+  levels; he travels by tapping the chart, with no ship to steer. So there is a chart screen, and the chart is big
+  work: three concepts when its turn comes.
+- **Day and night** (Robin, 2026-11-20, his pick): always day for now. Each island has its own fixed light and mood.
+  So an island's light is part of its kit, and a sprite never needs a night version.
+- **Hunting** (Robin, 2026-11-20, his pick): hunting grounds by level, rare spawns and bosses on timers on the real
+  clock. So a rare monster and a boss must read as rare at a glance.
+- **Gear** (Robin, 2026-11-20, his pick): ranks, rarities, affixes, uniques, sets, chests and keyed vaults; no talent
+  trees. So: a colour for each rarity, sets that show as a look, chests and vault doors as art.
+- **The monster book** (Robin, 2026-11-20, his pick): each monster has one rare signature drop, and a book fills in as
+  he hunts. So every monster needs a picture for its page, and its signature drop an icon.
+- **Loot** (Robin, 2026-11-19): "Needs to have coloroed effects for rarity." (Robin, 2026-11-20, his pick): money and
+  items drop on the ground and fly to him when he walks close.
+- **How the player is guided** (Robin, 2026-11-20, his pick): light quests. A few people in the harbour give hunting
+  tasks ("30 crabs", "5 shells") with ! and ? marks. So: a few harbour people, and the two marks.
+- **The screen** (Robin, 2026-11-20, his pick): skills in an arc in the bottom corner under his thumb; bag, chart and
+  character as small buttons at the top.
+- **Chapter 1** (Robin, 2026-11-20, his pick): "Harbour town plus island". One island with three monsters, levelling 1
+  to 5, loot with rarities, one chest, a small harbour town with a shop, and the sea chart between the two. "Real art
+  and sound for just that."
 - **The phone** (Robin, 2026-11-20): "Android with chrome".
 - **Fighting** (Robin, 2026-11-20, his pick): a target with auto-attack; the hero swings by himself while in reach.
 - **The Warrior's kit** (Robin, 2026-11-20, his pick): rage built by hitting, Charge, Cleave or Whirlwind, and one
@@ -32,25 +68,22 @@ question 20 go ahead.
 - **The hero** (Robin, 2026-11-19): "One class to start: Warrior." "A long-lived character with permanent unlocks.
   Levelling up, finding things, opening chests, chances of rare items, meaningful progression."
 - **The interface** (Robin, 2026-11-19): "Buttons at the bottom or sides, covering as little of the screen as possible."
-- **Loot** (Robin, 2026-11-19, on loot lying on the ground, still an idea in the bank): "Needs to have coloroed effects
-  for rarity."
 - "The feel I want is the grind of WoW, MapleStory and Priston Tale" (Robin, 2026-11-19) is about the grind, not the
   look. In Zite he said MapleStory was not a look reference. Asked again for Drok on 2026-11-20.
 
 ## The sentence
 
-*(decide with Robin: one sentence for the look. What it is drawn like, what it feels like. The theme is his: "bright
-seas, green islands, colourful crews and beasts". Which pictures he likes is question 20, asked on 2026-11-20 with the
-boards in `docs\reference\`. Written in his words once he has chosen from the three stills.)*
+A draft (mine), until he has chosen from the three stills: *a bright pirate world drawn with one clean line and flat,
+strong colour: chunky figures and big simple shapes, like a cartoon that reads at a glance on a phone.*
 
 ## The look
 
-- **Colour.** Bright and saturated: "vibrant" is his word. (decide with Robin: how much colour sits in the ground
-  against the figures; one palette per island; which one thing may burn. Rare loot's colour by rarity is a likely
-  answer to the last.) Chosen, never computed. Bright is not pastel: in Zite a flat pastel look was "a bit of a mobile
-  game" to him (`docs\rules.md` 16). When everything is bright, the figures must still win: the ground a step quieter
-  than what stands on it.
-- **Line.** (decide with Robin: an ink line, a painted edge, or none.) Tested at the real size on the real screen.
+- **Colour.** Bright and saturated, in a few strong flat colours (his picks above). Never pale pastel, never grim
+  (his picks). (decide with Robin, on the stills: how much colour sits in the ground against the figures; one palette
+  per island.) Chosen, never computed. When everything is bright, the figures must still win: the ground a step
+  quieter than what stands on it. The rarity colours burn on the ground and in the bag, not on the hero (his pick).
+- **Line.** One clear outline (his pick). (decide with Robin, on the stills: its weight and colour on figures; thinner
+  and coloured on props, `docs\rules.md` 17.) Tested at the real size on the real screen.
 - **Light.** (decide with Robin: the hour, how much the dark hides.) One light over the whole form; the shade cooler
   than the light. Whether a figure is ever flipped by the game decides if the light may come from one side
   (`docs\rules.md` 25).
@@ -90,9 +123,12 @@ hero, and the thumb covers part of the bottom.
 
 ## Facings, and how gear shows on the hero
 
-Open question 21 of the brief. Seen from above, a figure needs more than one facing: four (down, up, and a side the game
-may flip) or eight. (decide with Victor, GD: how many the game plays, and whether it flips.) (decide with Robin: which
-pieces of gear he wants to see on the hero.) The ways and what each costs are in `docs\gear-on-the-hero.md`.
+Seen from above, a figure needs more than one facing: four (down, up, and a side the game may flip) or eight. (decide
+with Victor, GD: how many the game plays, and whether it flips.) Robin picked "The big pieces" (above): every cutlass,
+buckler and hat its own shape, coats and armour in a handful of looks, a full set as its own look, small pieces in the
+bag only, and no glow on the hero. That is way 4 of `docs\gear-on-the-hero.md`. Drawn or modelled is the studios' to
+settle: I lean modelled with a flat cel finish, which gives his clean line and flat colour in every facing from one
+source; it waits for Victor, GD's answers.
 
 ## The action set for figures
 

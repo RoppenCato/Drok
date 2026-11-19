@@ -10,9 +10,9 @@ order; this file says what exists and how good it is.
 
 ## The first three jobs, by value
 
-None is started. The theme is picked: vibrant pirate (Robin, 2026-11-20). Each still waits for Robin's answers (what
-the hero is after and what the Warrior fights with; the look, question 20; gear on the hero, question 21) and for
-Victor, GD's word to go.
+None is started. Robin has answered everything (2026-11-20): vibrant pirate, a nobody who makes a name, cutlass and
+buckler, clean line and flat colour, the big pieces of gear showing. The first job waits only for Victor, GD's word to
+go, and for his answers on facings and on drawing at the phone's own pixels.
 
 1. The look: three real and different stills of the first island with the hero and one beast, at 412 by 915, with the
    chrome on. Robin picks.

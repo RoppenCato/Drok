@@ -92,13 +92,28 @@ so the game can hold as many as the design wants. Way 2 if Robin wants every big
 
 ## What Robin's picks of 2026-11-20 add
 
-Reported by Victor, GD the same day; the brief follows.
+All in the brief.
 
-- The theme is vibrant pirate. So the stiff pieces are a cutlass or an axe, a buckler, and a hat or a bandana rather
-  than a helmet; the body looks are coats, sashes and breastplates. Nothing in the four ways changes.
+- The theme is vibrant pirate, and the Warrior fights with cutlass and buckler. So the stiff pieces are the cutlass,
+  the buckler, and a hat or a bandana rather than a helmet; the body looks are coats, sashes and breastplates. Nothing
+  in the four ways changes.
+- The hero is a nobody who makes a name. Gear is how that shows, so it matters more here than in most games that he
+  looks different at level 30 than at level 1.
 - Gear has sets. A set fits way 4 well: a set is a whole-body look, and wearing the full set is when the look shows.
 - Gear has rarities. One colour for each, used for the glow on a drop on the ground, on the piece in the bag and on
   the hero's weapon.
+
+## What Robin picked (Robin, 2026-11-20, in the Art Director's chat)
+
+His picks from choice boxes; the choices were written by Leonard, AD.
+
+- **"The big pieces"**: "Every cutlass, buckler and hat has its own shape. Coats and armour come in a handful of looks,
+  and a full set shows as its own look. Boots, gloves and rings show only in the bag." That is way 4. He did not pick
+  "Everything" (way 2) or "Little".
+- **"No glow on the hero"**: "The rarity colour shows only on the ground and in the bag." So a rare cutlass must look
+  rare by its shape and colour alone.
+- For the look he picked "Clean line, flat colour". A model rendered with a flat cel finish (flat colour, one shade,
+  an ink outline) gives that in every facing, so my lean toward modelled stands. Still to settle with Victor, GD.
 
 ## What I asked Victor, GD
 
