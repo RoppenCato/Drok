@@ -1,0 +1,5 @@
+# The Art Director's own ignores (the repo's .gitignore is at the root)
+__pycache__/
+# the models' raw renders: made again in ten seconds by concepts/look/a_build.py
+concepts/**/a-render.png
+concepts/**/a-close-render.png

@@ -1,0 +1,66 @@
+<title>Three Looks</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="The same beach three times, in three different hands, at phone size, for Robin to pick the look of the game.">
+<!--
+  The template's pick page (C:\dev\2D game template\sites\pick.html, 2026-11-04), filled for the look of Drok
+  (Leonard, AD, 2026-11-20), with a close-up under each still. The pictures sit beside this file and are published
+  under "files". Robin answers in the chat with the number. Tapping a picture shows it full size.
+-->
+<script type="application/json" id="config">
+{
+  "title": "Three looks for Drok",
+  "note": "The same beach and the same moment, three times, each in a different hand. Each picture is your phone's screen. Under it are the hero and the crab at three times the size. Answer in the chat with the number. Tap a picture to see it full size.",
+  "pick": "Leonard, AD would pick 1 for how the game is built, and give it the thicker line and bigger eyes of 2. You decide.",
+  "items": [
+    { "n": 1, "label": "Toy-box models", "line": "Small 3D models, flat colour, a thin line; the ground has no line. The hand of The Wind Waker. One model gives every side of the hero and every frame, and a new cutlass or hat is one small model. Rounder and softer than a drawing. The heaviest files.", "src": "1.png", "close": "1-close.png" },
+    { "n": 2, "label": "Sticker cartoon", "line": "Drawn, with a thick dark line, candy colour and big eyes. The hand of MapleStory. The most charm in the face, and the clearest at phone size. Every figure and every piece of gear is drawn once for each side he turns to: the most hand work.", "src": "2.png", "close": "2-close.png" },
+    { "n": 3, "label": "Painted print", "line": "Drawn, with a thin deep-blue line, hot flat colour, and pattern in the leaves and the waves. After the pictures you picked (12, 13 and 16). A taller hero with a bigger blade. Looks like nobody else's game. The same drawing work as 2, and the busiest ground.", "src": "3.png", "close": "3-close.png" }
+  ]
+}
+</script>
+<style>
+  :root { --bg: #f1ece2; --card: #ffffff; --fg: #2a2436; --muted: #6b6273; --line: #c9c0b0; --badge: #f4c14a; --badgefg: #2a2030; --badgeline: #2a2030; --stage: #000000; --veil: rgba(0,0,0,0.92); --shadow: rgba(0,0,0,0.35); --note: #fff6d8; color-scheme: light; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #1c1a22; --card: #26232e; --fg: #f0e8d8; --muted: #a79fb0; --line: #3a3544; --badge: #f4c14a; --badgefg: #2a2030; --badgeline: #2a2030; --stage: #000000; --veil: rgba(0,0,0,0.92); --shadow: rgba(0,0,0,0.35); --note: #322c22; color-scheme: dark; } }
+  :root[data-theme="dark"] { --bg: #1c1a22; --card: #26232e; --fg: #f0e8d8; --muted: #a79fb0; --line: #3a3544; --badge: #f4c14a; --badgefg: #2a2030; --badgeline: #2a2030; --stage: #000000; --veil: rgba(0,0,0,0.92); --shadow: rgba(0,0,0,0.35); --note: #322c22; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: "Nunito", "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 1320px; margin: 0 auto; padding-block: 16px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1 { font-size: 22px; margin: 0 0 6px; text-wrap: balance; }
+  p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.45; }
+  .pickline { margin-top: 10px; padding: 10px 12px; background: var(--note); border: 1px solid var(--line); border-radius: 10px; color: var(--fg); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: grid; gap: 8px; padding-bottom: 12px; align-content: start; min-width: 0; }
+  .pic { position: relative; margin: 0; background: var(--stage); cursor: zoom-in; border: 0; padding: 0; width: 100%; display: block; }
+  .pic:focus-visible { outline: 3px solid var(--badge); outline-offset: -3px; }
+  .pic img { display: block; width: 100%; height: auto; }
+  .n { position: absolute; top: 10px; left: 10px; width: 56px; height: 56px; border-radius: 50%; background: var(--badge); color: var(--badgefg); font-weight: 800; font-size: 32px; line-height: 50px; text-align: center; border: 3px solid var(--badgeline); box-shadow: 0 2px 6px var(--shadow); }
+  h2 { font-size: 18px; margin: 0; padding: 0 14px; }
+  .card p { padding: 0 14px; }
+  .cap { font-size: 13px; }
+  #big { position: fixed; inset: 0; background: var(--veil); overflow: auto; z-index: 9; cursor: zoom-out; }
+  #big img { display: block; margin: 0 auto; max-width: none; }
+  #big .n { position: fixed; top: calc(10px + env(safe-area-inset-top, 0px)); left: calc(10px + env(safe-area-inset-left, 0px)); }
+</style>
+<main>
+  <h1 id="title">Pick one</h1>
+  <p id="note"></p>
+  <p class="pickline" id="pick"></p>
+  <div class="grid" id="grid"></div>
+</main>
+<div id="big" role="dialog" aria-label="The picture at full size" hidden><span class="n" id="bign"></span><img id="bigimg" alt=""></div>
+<script>
+  const CFG = JSON.parse(document.getElementById('config').textContent), $ = id => document.getElementById(id);
+  $('title').textContent = CFG.title || 'Pick one'; $('note').textContent = CFG.note || 'Answer in the chat with the number.'; $('pick').textContent = CFG.pick || ''; $('pick').hidden = !CFG.pick;
+  const big = $('big'), bigimg = $('bigimg'), bign = $('bign');
+  const pic = (src, alt, n, badge) => { const b = document.createElement('button'); b.className = 'pic'; b.type = 'button'; b.setAttribute('aria-label', `Show ${alt} at full size`); const img = document.createElement('img'); img.src = src; img.alt = alt; img.loading = 'lazy'; b.append(img); if (badge) { const s = document.createElement('span'); s.className = 'n'; s.textContent = n; b.append(s); } b.onclick = () => { bigimg.src = src; bigimg.alt = alt; bign.textContent = n; big.hidden = false; }; return b; };
+  (CFG.items || []).forEach((it, i) => {
+    const n = it.n !== undefined ? it.n : i + 1, card = document.createElement('article'); card.className = 'card';
+    const h = document.createElement('h2'); h.textContent = `${n}. ${it.label || ''}`;
+    const p = document.createElement('p'); p.textContent = it.line || '';
+    card.append(pic(it.src, `look ${n}, ${it.label || ''}`, n, true), h, p);
+    if (it.close) { const c = document.createElement('p'); c.className = 'cap'; c.textContent = 'The hero and the crab at three times the size:'; card.append(c, pic(it.close, `look ${n} close up`, n, false)); }
+    $('grid').append(card);
+  });
+  big.onclick = () => { big.hidden = true; };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') big.hidden = true; });
+</script>

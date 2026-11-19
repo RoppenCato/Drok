@@ -5,8 +5,10 @@ Written by Leonard, AD from the brief, from the game's own docs, and from asking
 date)". The game's `..\Game Developer\docs\state\art.md` (not written yet) and `docs\art-demands.md` are the authority
 on budgets, file form and what is needed; this sheet is what the studio builds to.
 
-**Where this stands on 2026-11-20:** nothing is drawn. Every startup question is answered, the Art Director's two
-included (20 and 21, below). Next is the three stills of the look; they wait only for Victor, GD's word to go.
+**Where this stands on 2026-11-20:** every startup question is answered, the Art Director's two included (20 and 21,
+below). Victor, GD gave the word, and three stills of the look were sent to Robin the same day (`concepts\look\`:
+toy-box models, sticker cartoon, painted print). **Waiting for his pick.** Nothing is built from any of them, and
+nothing below about line, colour or proportion is settled until he has picked.
 
 ## What Robin picked about the look and the gear (Robin, 2026-11-20, in the Art Director's chat)
 
