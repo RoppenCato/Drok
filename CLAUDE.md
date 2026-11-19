@@ -35,9 +35,13 @@ the names). Robin may rename anyone; write the new name here and in the template
   (SendUserFile), every build a link he can open, and every message says exactly how to test the thing.
 - **Don't ask about everything.** Decide, mark it "mine", show it. Ask when a decision is his (the design, a felt
   number, a pick between concepts or songs, an install, a cost), and ask with pictures when there is something to pick.
-- **Ask in plain words, in the chat.** Never a button, a choice box or a "next step" card (Robin, 2026-11-04, FapleGlory:
-  "Stop asking me with buttons like that... Its better you ask me a question and i just respond via chat."). In the
-  app's wrap-up, the recap only; the question goes at the end of the message, and he answers in his own words.
+- **A round of several questions with choices goes as a questionnaire** (the choice boxes, up to four questions a
+  page, the recommended choice first, "Leave till later" where there is room, his own words always possible). Robin,
+  2026-11-20, in this game, after nine lettered questions in one chat message on his phone: "Questionaire please"; he
+  then answered four pages of choice boxes. **One question, or a question that needs his own words, goes in plain
+  words in the chat.** The reading that the two rules split this way is Victor, GD's; the earlier rule was Robin's of
+  2026-11-04 in FapleGlory ("Stop asking me with buttons like that... Its better you ask me a question and i just
+  respond via chat."). The app's wrap-up card still carries the recap only, no buttons.
 - **One part at a time.** The chapters in `Game Developer\docs\chapters.md`; chapter 1 before anything else; art and
   sound may run one chapter ahead.
 

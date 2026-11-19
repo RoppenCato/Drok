@@ -3,8 +3,8 @@
 Robin's decisions on the game, each with his name and the date, in his words. The studios read this first every
 session. What is not decided is under "Open questions" or in `Game Developer\docs\idea-bank.md`, never here as if it
 were decided. Started 2026-11-19 from the template at `C:\dev\2D game template`, from a brainstorm Robin held the same
-day. Where he answered a startup question with a letter, the words of the choice he picked are written out and marked
-as his pick.
+day. Where he answered a startup question by picking a choice, the words of that choice are written out and marked
+"his pick"; the choices were written by Victor, GD.
 
 ## The name
 
@@ -27,6 +27,19 @@ rare drops, in a top-down world."
 
 (Robin, 2026-11-19): "Solo only. No server, no accounts, no co-op."
 
+## The theme and the world
+
+- **The theme** (Robin, 2026-11-20, his pick): vibrant pirate. "Bright seas, green islands, colourful crews and
+  beasts. Nothing of dark fantasy comes back." It replaces "Dark fantasy" (Robin, 2026-11-19); he first wrote "Maybe
+  vibrant pirate is a better theme", then picked it.
+- **The hero and what he is after** (Robin, 2026-11-20, his pick): "Make a name". A nobody from a harbour town hunts
+  the islands' beasts for bounty and loot, on his way to captain. Open-ended, so the grind never has to end.
+- **What the Warrior fights with** (Robin, 2026-11-20, his pick): cutlass and buckler.
+- **The world** (Robin, 2026-11-19): "A big world map." (Robin, 2026-11-20, his pick): a sea chart of islands. Each
+  island is a hunting ground with its own levels. He travels by tapping the chart; there is no ship to steer.
+- **Day and night, weather** (Robin, 2026-11-20, his pick): always day for now. Each island has its own fixed light and
+  mood.
+
 ## How it plays
 
 - **The view** (Robin, 2026-11-19): "Top-down 2.5D view, like Zelda. Movement must feel smooth and snappy."
@@ -36,28 +49,43 @@ rare drops, in a top-down world."
   "The work").
 - **Fighting** (Robin, 2026-11-20, his pick): a target with auto-attack. He picks a target and the hero swings by
   himself while in reach; his thumb steers and presses skills. Not swings he aims himself.
-- **The world** (Robin, 2026-11-19): "A big world map." How it is laid out: open question 9.
 - **The hero** (Robin, 2026-11-19): "One class to start: Warrior." "A long-lived character with permanent unlocks.
   Levelling up, finding things, opening chests, chances of rare items, meaningful progression."
 - **The Warrior's kit** (Robin, 2026-11-20, his pick): rage built by hitting, Charge, Cleave or Whirlwind, and one
   defensive cooldown. Cleave or Whirlwind is not chosen yet; the control test has Cleave.
 - **The feel** (Robin, 2026-11-19): "The feel I want is the grind of WoW, MapleStory and Priston Tale."
-- **Losing** (Robin, 2026-11-19): "On death you lose money." How much, and where he wakes: open question 15.
 - **While he is away** (Robin, 2026-11-19): "The hero does not hunt while I am away."
-- **The save**: on the phone only, since there is no server and no account (follows from his decisions above). A way
-  to export it: open question 17.
-- **How the player is guided**: open question 16.
-- **Day and night, weather**: open question 19.
+- **Hunting grounds** (Robin, 2026-11-20, his pick): hunting grounds by level, rare spawns, and bosses on timers, all
+  three. The timers run on the real clock, also while the game is closed, so "the boss is up in two hours" is a reason
+  to come back.
+- **Gear** (Robin, 2026-11-20, his pick): from Zite's ideas, the ideas only, no code or art copied: ranks, rarities,
+  affixes, uniques, sets, chests and keyed vaults. No talent trees; job advancements shape the Warrior instead.
+- **The monster book** (Robin, 2026-11-20, his pick): each monster has one rare signature drop. A monster book fills
+  in as he hunts, and a finished page gives a small bonus for good, shared by every class he ever plays. Uniques
+  change how a skill works, not only numbers.
+- **Job advancements and upgrading** (Robin, 2026-11-20, his pick): job advancements at set levels, and risky gear
+  upgrading. A failed upgrade wastes the scroll and uses up one of the item's upgrade slots, as in MapleStory. Harsher
+  scrolls can be added later.
+- **Loot** (Robin, 2026-11-19): "Needs to have coloroed effects for rarity." (Robin, 2026-11-20, his pick): money and
+  items drop on the ground and fly to him when he walks close, so the thumb stays free.
+- **Losing** (Robin, 2026-11-19): "On death you lose money." (Robin, 2026-11-20, his pick): a share of the money he
+  carries (say 10%), and he wakes in the harbour town.
+- **How the player is guided** (Robin, 2026-11-20, his pick): light quests. A few people in the harbour give hunting
+  tasks ("30 crabs", "5 shells") with ! and ? marks and one short list. They speak in short lines; no long story.
+- **The screen** (Robin, 2026-11-20, his pick): skills in an arc in the bottom corner under his thumb; bag, chart and
+  character as small buttons at the top.
+- **The save**: on the phone only, since there is no server and no account. (Robin, 2026-11-20, his pick): an "export
+  save" button in the settings from day one.
 
-## The theme, the look and the sound
+## The look and the sound
 
-- **The theme is not settled.** (Robin, 2026-11-19): the art direction "will be "Dark fantasy"". (Robin, 2026-11-20),
-  asked for the setting: "Maybe vibrant pirate is a better theme". A "maybe", so neither is written as decided; open
-  question 5. No art is made until it is.
-- **The look**: his references, and the Art Director's three stills, decide the rest: open question 20.
+- **The look**: vibrant pirate (above). His references, and the Art Director's three stills, decide the rest: open
+  question 20.
 - **Drawn or modelled, and how gear shows on the hero**: open question 21.
-- **The music**: open question 22.
-- **The sound effects**: open question 23.
+- **The music** (Robin, 2026-11-20, his pick): no reference. The Sound Director writes three different one-minute
+  pieces for the title in a vibrant pirate mood, and Robin picks the direction.
+- **The sound effects** (Robin, 2026-11-20, his pick): the common library of recorded sounds from his other games
+  first; new ones only for what it lacks.
 
 ## The work
 
@@ -65,13 +93,18 @@ rare drops, in a top-down world."
   for me to try on my phone, so I can pick by feel: 1. Tap to move, tap a monster to target it. 2. Hold and drag to
   steer, auto-attack the nearest monster. 3. A floating stick with buttons." (Robin, 2026-11-20, his pick): it gets two
   skill buttons, Charge and Cleave, so he can feel buttons under his thumb; the rest of the kit comes in chapter 1.
-- **Nothing is built before he has answered the startup questions** (Robin, 2026-11-19): "Ask me everything else, and
-  do not build anything before I have answered."
-- **Chapter 1**: open question 18. The chapters are in `Game Developer\docs\chapters.md`.
-- **What the Game Developer may do alone**: open question 24. The list is `Game Developer\docs\autonomous.md`.
+- **Chapter 1** (Robin, 2026-11-20, his pick): "Harbour town plus island". One island with three monsters, levelling 1
+  to 5, loot on the ground with rarities, one chest, death that costs money, and the save; plus a small harbour town
+  with a shop to walk back to, and the sea chart between the two. Real art and sound for just that. The chapters are
+  in `Game Developer\docs\chapters.md`.
+- **What the Game Developer may do alone** (Robin, 2026-11-20, his pick): anything on the chapter's checklist that
+  needs no decision of his: build, test, ask the studios, commit each item, report in the morning. The list is
+  `Game Developer\docs\autonomous.md`.
 - **The studios**: Victor, GD; Leonard, AD; Hugh, SD (named 2026-11-19, mine). Remote control on for the Game
   Developer's and the Art Director's chats (Robin, 2026-11-19). The Sound Director's chat starts when chapter 1 is
   planned (Robin, 2026-11-20, his pick).
+- **How he is asked** (Robin, 2026-11-20): "Questionaire please", after a round of nine lettered questions in a chat
+  message. The rule is in the root `CLAUDE.md`.
 
 ## Decisions since the start
 
@@ -83,35 +116,17 @@ A line each, newest at the bottom: the date, the decision, Robin's words.
   first and the public page at chapter 1; a target with auto-attack; the suggested Warrior's kit, with Charge and
   Cleave in the control test; the Sound Director later.
 - 2026-11-20: the theme put in doubt: "Maybe vibrant pirate is a better theme".
+- 2026-11-20: "Questionaire please": the rest was asked with choice boxes, four pages of four.
+- 2026-11-20: the theme is vibrant pirate, nothing of dark fantasy comes back; the world is a sea chart of islands;
+  the hero makes a name, with cutlass and buckler; and the picks above on hunting grounds, gear, the monster book,
+  advancements and upgrading, loot, death, guidance, the screen, chapter 1, day and night, music, sound effects and
+  working alone.
 
 ## Open questions
 
-Numbered, so Robin can answer any of them whenever he likes. All asked by Victor, GD on 2026-11-19 or 2026-11-20
-unless it says otherwise. Answered ones move up into their section with the date (1 to 4 and 6 to 8 are answered).
-The ideas behind several of them came from the brainstorm and stand in `Game Developer\docs\idea-bank.md` until he
-decides.
+Numbered as they were asked, so Robin can answer any of them whenever he likes. Answered ones moved up into their
+section with the date (1 to 19 and 22 to 24 are answered). Smaller points still open inside answered ones are in
+`Game Developer\docs\idea-bank.md`.
 
-Round 2, the theme, the world and getting stronger:
-
-5. The theme: vibrant pirate, dark fantasy, or something between; then what the hero is after and what the Warrior
-   fights with, and whether "Drok" means something in that world.
-9. How the world is laid out.
-10. Hunting grounds by level, rare spawns, bosses on timers.
-11. Gear: what carries over from Zite's ideas (ranks, rarities, affixes, uniques, sets, chests, keyed vaults, talent
-    trees).
-12. A rare signature drop per monster, the monster book, uniques that change how a skill works.
-13. Job advancements at set levels; risky gear upgrading.
-14. Loot on the ground, picked up by walking over it, with a coloured effect by rarity.
-15. Death: how much money is lost, and where he wakes.
-
-Round 3, the screen, the sound and the work:
-
-16. How the player is guided: quests or pure grind, and whether people speak.
-17. Where things sit on the screen, and the "export save" button.
-18. Chapter 1: the first real loop after the control test.
-19. Day and night, weather.
 20. The look: the games or pictures he loves the look of, and one he does not (Leonard, AD asks, with pictures).
 21. Drawn or modelled, and how gear shows on the hero (Leonard, AD asks, with pictures).
-22. The music.
-23. The sound effects.
-24. What the Game Developer may do alone in a long session.
