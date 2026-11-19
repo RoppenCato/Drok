@@ -79,9 +79,15 @@ rare drops, in a top-down world."
 
 ## The look and the sound
 
-- **The look**: vibrant pirate (above). His references, and the Art Director's three stills, decide the rest: open
-  question 20.
-- **Drawn or modelled, and how gear shows on the hero**: open question 21.
+- **The look** (Robin, 2026-11-20, his picks in the Art Director's chat, from choices Leonard, AD wrote; the full
+  record is `Art Director\docs\direction.md`): vibrant pirate, in "Clean line, flat colour": "One clear outline and a
+  few strong, flat colours, like a print or a cartoon. Reads best when things are small on a phone." Games he loves
+  the look of: Zelda: The Wind Waker, MapleStory, World of Warcraft. Not this: "Pale pastel phone-game look", "Grim
+  and realistic", "Pixel art". The Art Director's three stills come next, and Robin picks.
+- **How gear shows on the hero** (Robin, 2026-11-20, his pick in the Art Director's chat): "The big pieces". "Every
+  cutlass, buckler and hat has its own shape. Coats and armour come in a handful of looks, and a full set shows as its
+  own look. Boots, gloves and rings show only in the bag." Rare drops: "No glow on the hero": "The rarity colour shows
+  only on the ground and in the bag."
 - **The music** (Robin, 2026-11-20, his pick): no reference. The Sound Director writes three different one-minute
   pieces for the title in a vibrant pirate mood, and Robin picks the direction.
 - **The sound effects** (Robin, 2026-11-20, his pick): the common library of recorded sounds from his other games
@@ -124,9 +130,13 @@ A line each, newest at the bottom: the date, the decision, Robin's words.
 
 ## Open questions
 
-Numbered as they were asked, so Robin can answer any of them whenever he likes. Answered ones moved up into their
-section with the date (1 to 19 and 22 to 24 are answered). Smaller points still open inside answered ones are in
-`Game Developer\docs\idea-bank.md`.
+All 24 startup questions are answered (2026-11-20) and stand in their sections above; 20 and 21 he answered in the
+Art Director's chat. What is open now, numbered so Robin can answer any of it whenever he likes; the full wording is
+in `Game Developer\docs\idea-bank.md`:
 
-20. The look: the games or pictures he loves the look of, and one he does not (Leonard, AD asks, with pictures).
-21. Drawn or modelled, and how gear shows on the hero (Leonard, AD asks, with pictures).
+1. Which of the three ways to steer stays (after he has played the control test).
+2. Cleave or Whirlwind.
+3. Whether "Drok" means something in the world.
+4. The share of money lost on death (his pick said "say 10%").
+5. The levels of the job advancements, and what the Warrior can become.
+6. Which hand the skill buttons sit under by default.

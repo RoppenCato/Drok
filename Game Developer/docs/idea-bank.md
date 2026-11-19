@@ -6,9 +6,8 @@ startup questions lands here too. Numbered, so Robin can say "do 4".
 
 ## Open questions (need Robin)
 
-The two startup questions still open, 20 (the look he loves) and 21 (drawn or modelled, how gear shows on the hero),
-are Leonard, AD's to ask and stand in `..\..\Drok-brief.md`. He left none till later. These smaller points are open
-inside what he answered (Victor, GD, 2026-11-20):
+All 24 startup questions are answered; he left none till later. These points are open (Victor, GD, 2026-11-20); the
+brief's "Open questions" lists them in short, with one more at its head: which of the three ways to steer stays.
 
 1. Cleave or Whirlwind. The kit he picked says "Cleave or Whirlwind"; the control test has Cleave. Asked again once he
    has felt Cleave.
