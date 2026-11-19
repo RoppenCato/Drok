@@ -1,14 +1,16 @@
-// The player's settings: sound off (for the sound layer to come) and fewer effects (the "fast and snappy" switch: no
-// tweens, things jump into place). Kept in localStorage; read where they matter.
+// The player's settings: sound off (for the sound layer to come), fewer effects (the "fast and snappy" switch: no
+// tweens, things jump into place) and which hand holds the phone. Kept in localStorage; read where they matter.
 
 const KEY = 'drok.settings';
 
 export interface Settings {
   mute: boolean;
   fewerEffects: boolean;
+  /** The skill buttons sit under the right thumb unless this is on (mine; Robin has not said which hand). */
+  leftHand: boolean;
 }
 
-const DEFAULTS: Settings = { mute: false, fewerEffects: false };
+const DEFAULTS: Settings = { mute: false, fewerEffects: false, leftHand: false };
 
 /** localStorage, or null where the browser refuses it (storage blocked in a private window): the game still runs, unsaved. */
 export function storageOrNull(): Storage | null {

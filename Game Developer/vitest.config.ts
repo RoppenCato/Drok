@@ -5,5 +5,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['rules/test/**/*.test.ts'],
+    // The tests print the numbers they measured ("[numbers] ..."): a person reads them, so they are never hidden.
+    silent: false,
   },
 });

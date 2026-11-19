@@ -2,30 +2,49 @@
 
 The Game Developer's list of what to make, in waves, each wave tagged with its chapter; the budgets at the top are the
 Game Developer's to set and confirm (Robin, 2026-11-01 in Zite: "the GD needs to confirm what sizes sounds and music
-can be"). How the game plays them is in `docs\state\sound.md` once it exists. The studio looks in the common library
-first (`..\..\Sound Director\library\INDEX.md`) and makes new only what it lacks.
+can be"). How the game plays them will be in `docs\state\sound.md` once the audio layer exists. The studio looks in
+the common library first (`..\..\Sound Director\library\INDEX.md`) and makes new only what it lacks.
 
-## The budgets (GD, 2026-11-19; mine until felt)
+The control test (before chapter 1) is silent. Hugh, SD's chat starts when chapter 1 is planned (Robin, 2026-11-20).
 
-- **Format**: _OGG Vorbis 48 kHz (effects mono, music stereo) for the phone; WAV bundled as JS for a page played from
-  disk (the browser starter's `tools\pack.js`)_.
-- **Effects**: _short sounds as one audio sprite per wave with a map; a sound under N KB; two to four variations_.
-- **Music**: _a loop of whole bars, seamless; the title loop under N MB; a place's theme N to N seconds and under N MB_.
-- **The first load**: _under N MB with art_. **Levels**: peak under -1 dBFS, the mix around -18 to -24 dBFS RMS.
-- **The speaker**: _a phone's (the tune in the middle register) or a computer's_.
+## What Robin decided (2026-11-20; the brief has his words)
 
-## Wave 1 (chapter 1): the first taps and the first place
+- **Music**: no reference. Three different one-minute pieces for the title in a vibrant pirate mood; Robin picks.
+- **Effects**: the common library of recorded sounds from his other games first; new ones only for what it lacks.
+- The game is vibrant pirate: bright seas, green islands, colourful crews and beasts.
+
+## The budgets (Victor, GD, 2026-11-20; mine until confirmed with Hugh, SD)
+
+- **Format**: OGG Vorbis 48 kHz; effects mono, music stereo.
+- **Effects**: one audio sprite per wave with a JSON map; a sound under 40 KB; two to four variations of anything
+  heard often (the swing, the hit, a step), so the grind does not sound like one sample.
+- **Music**: a loop of whole bars, seamless; the title loop under 1 MB; a place's theme 60 to 120 seconds and under
+  2.5 MB.
+- **The first load**: under 3 MB with the art; music for a place loads when he sails there, not before.
+- **Levels**: peak under -1 dBFS, the mix around -18 to -24 dBFS RMS.
+- **The speaker**: a phone's. The tune in the middle register; nothing that lives under 250 Hz.
+- **How often**: this is a grinder. The swing is heard every 0.8 seconds and the hit as often; they must stay
+  pleasant for an hour.
+
+## Wave 1 (chapter 1): the harbour and the first island
 
 | Sound | Plays when | Kind | Three versions? |
 | --- | --- | --- | --- |
-| The tap | any button | UI, from the library | no |
-| The hit | the core verb lands | effect, library first | no |
-| The first place | on the first screen, looped | music | yes: three one-minute pieces, Robin picks |
-| The win and the loss | the loop's end | stings | no |
+| The title | on the title screen, looped | music | yes: three one-minute pieces, Robin picks |
+| The swing and the hit | every auto-attack, every 0.8 s | effect, library first, 3 or 4 variations | no |
+| Cleave and Charge | the two skills | effect | no |
+| A step on sand | walking | effect, quiet, variations | no |
+| The crab | its wind-up, its bite, its fall | effect | no |
+| The pickup | loot flies to him; brighter by rarity | effect, one per rarity | no |
+| The chest | opening | effect | no |
+| The level-up | a level gained | sting | no |
+| Falling | he goes down | sting | no |
+| The tap | a button on the glass | UI, from the library | no |
+| The island and the harbour | in each place, looped | music | yes, when the title's direction is picked |
 
-## Wave 2 (chapter 2): _headline_
+## Wave 2 (chapter 2): gear worth hunting for
 
-_…_
+The sound of a rare drop landing on the ground (the moment the grind is for); equipping; the first uniques' skills.
 
 ## Rules for every piece
 

@@ -5,7 +5,11 @@ guide learns from every game. Every round of Robin's play goes here: his notes w
 done, and the rule each left. Newest at the bottom. The rules that serve any game move into `lessons.md` and, at a
 chapter's close, into the template (the skill `harvest`). The skill `playtest-check` writes the round here.
 
-## Round 1, _date_: _what he played_
+## Round 1, _waiting for Robin_: the control test, three ways to steer
+
+Built 2026-11-20. The link: `http://192.168.0.43:5178/` on the home Wi-Fi. What he was asked to try: each of 1 Tap,
+2 Hold and 3 Stick for a few minutes; Charge and Cleave under the thumb; the menu's "Buttons: left hand"; and then to
+say which way feels right, and anything that felt slow, sticky or in the way.
 
 **Robin's notes**: "_word for word, numbered as he wrote them_"
 

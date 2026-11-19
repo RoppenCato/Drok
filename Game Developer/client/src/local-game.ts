@@ -1,17 +1,21 @@
-// Solo play: the state and the random stream live here, in the browser, saved to localStorage. The one place in the
-// client that calls the rules. When friends play together, a holder that talks to a server takes this one's place:
-// the scenes send the same intents and get the same events back, so they need not change.
+// The holder: the state and the random stream live here, in the browser, saved to localStorage. The one place in the
+// client that calls the rules. It turns the screen's uneven frames into the even steps the rules want, and keeps the
+// state from one step back so the screen can draw between two steps (smooth on a 90 or 120 Hz phone).
 
-import { apply, makeRng, migrate, newGame, resumeRng, type Action, type GameEvent, type GameState, type Player, type Rng } from '../../rules/src/index.ts';
+import { apply, makeRng, migrate, newGame, resumeRng, type Action, type GameEvent, type GameState, type Rng } from '../../rules/src/index.ts';
 
 export const SAVE_KEY = 'drok.save';
-/** The one local player. Accounts come with a server. */
-export const PLAYER = 'local';
-/** How often the world ticks while the page is open. */
-export const TICK_MS = 60_000;
 
-/** An action before the holder gives it its id: what a scene sends. */
-export type Intent = { [T in Action['type']]: Omit<Extract<Action, { type: T }>, 'id'> }[Action['type']];
+/** The world's step: sixty a second, whatever the screen does. */
+export const STEP_SECONDS = 1 / 60;
+const STEP_MS = STEP_SECONDS * 1000;
+/** A frame may catch up this many steps; a longer stall is dropped, so a page coming back does not fast-forward. */
+const MAX_STEPS_A_FRAME = 6;
+/** The save is written this often, and when the page is put away. Not every step: sixty writes a second is a waste. */
+const SAVE_EVERY_MS = 5000;
+
+/** What a scene may ask for: everything but the step, which is the holder's own. */
+export type Intent = Exclude<Action, { type: 'tick' }>;
 
 /** What is written to localStorage: the state, which carries its version, and where the dice are. */
 interface Save {
@@ -21,12 +25,20 @@ interface Save {
 
 export class LocalGame {
   state: GameState;
-  readonly player = PLAYER;
+  /** The state one step back, and how far the screen is between the two (0 to 1). */
+  prev: GameState;
+  alpha = 1;
+  /** Set by ?drive=1: time only moves when a script steps it, so a test in the pane is exact. */
+  drive = false;
   private rng: Rng;
   private readonly storage: Storage | null;
+  private pending = 0;
+  private sinceSave = 0;
+  private queue: GameEvent[] = [];
 
   private constructor(state: GameState, rng: Rng, storage: Storage | null) {
     this.state = state;
+    this.prev = state;
     this.rng = rng;
     this.storage = storage;
   }
@@ -38,7 +50,11 @@ export class LocalGame {
       if (raw) {
         const save = JSON.parse(raw) as Partial<Save>;
         const state = migrate(save.state);
-        if (state && typeof save.rng === 'number') return new LocalGame(state, resumeRng(save.rng), storage);
+        if (state && typeof save.rng === 'number') {
+          // Nobody's thumb is on the screen when a page opens: let go of whatever was held when it was saved.
+          const rested: GameState = { ...state, hero: { ...state.hero, steer: { x: 0, y: 0 }, dest: null } };
+          return new LocalGame(rested, resumeRng(save.rng), storage);
+        }
       }
     } catch {
       // A broken save: start fresh.
@@ -47,38 +63,57 @@ export class LocalGame {
   }
 
   /** A fresh game, saved at once. The seed is new each time unless one is given (a script in the pane gives one). */
-  static create(storage: Storage | null, seed = newId()): LocalGame {
-    const game = new LocalGame(newGame({ seed, player: PLAYER }), makeRng(seed), storage);
+  static create(storage: Storage | null, seed = newSeed()): LocalGame {
+    const game = new LocalGame(newGame({ seed }), makeRng(seed), storage);
     game.save();
     return game;
   }
 
-  get me(): Player {
-    return this.state.players[PLAYER]!;
-  }
-
-  /** The holder's clock: the rules never read one themselves. */
-  now(): number {
-    return Date.now();
-  }
-
-  /** Do what the player wants and save. The answer comes as a promise, so a server can take this holder's place. */
-  act(intent: Intent): Promise<GameEvent[]> {
-    return Promise.resolve(this.actNow(intent));
-  }
-
-  /** The same without the wait: for the tick, and for scripts in the pane. */
-  actNow(intent: Intent): GameEvent[] {
-    const action = { ...intent, id: newId() } as Action;
-    const result = apply(this.state, action, this.rng, this.now());
+  /** Do what the player wants, now. What the rules answered is returned, and also kept for the screen to draw. */
+  act(intent: Intent): GameEvent[] {
+    const result = apply(this.state, intent, this.rng);
     this.state = result.state;
-    this.save();
+    this.queue.push(...result.events);
     return result.events;
   }
 
-  /** The world moves. The page sends it on load, when it comes back to the front, and once a minute. */
-  tick(): GameEvent[] {
-    return this.actNow({ type: 'tick', player: 'world' });
+  /** A frame of `ms` has passed: take as many even steps as fit. Does nothing in drive mode. */
+  advance(ms: number): void {
+    if (this.drive) return;
+    this.pending += Math.min(ms, 250);
+    let steps = 0;
+    while (this.pending >= STEP_MS && steps < MAX_STEPS_A_FRAME) {
+      this.stepOnce();
+      this.pending -= STEP_MS;
+      steps += 1;
+    }
+    if (steps === MAX_STEPS_A_FRAME) this.pending = 0;
+    this.alpha = this.pending / STEP_MS;
+    this.sinceSave += ms;
+    if (this.sinceSave >= SAVE_EVERY_MS) this.save();
+  }
+
+  /** Exactly `n` steps, whatever the clock says: for scripts in the pane. */
+  step(n = 1): void {
+    for (let i = 0; i < n; i++) this.stepOnce();
+    this.alpha = 1;
+  }
+
+  /** What happened since the screen last asked. */
+  takeEvents(): GameEvent[] {
+    const events = this.queue;
+    this.queue = [];
+    return events;
+  }
+
+  save(): void {
+    this.sinceSave = 0;
+    try {
+      const save: Save = { state: this.state, rng: this.rng.state };
+      this.storage?.setItem(SAVE_KEY, JSON.stringify(save));
+    } catch {
+      // Storage full or blocked: the game goes on, unsaved.
+    }
   }
 
   /** Throw the save away: the next load starts a new game. */
@@ -90,17 +125,15 @@ export class LocalGame {
     }
   }
 
-  private save(): void {
-    try {
-      const save: Save = { state: this.state, rng: this.rng.state };
-      this.storage?.setItem(SAVE_KEY, JSON.stringify(save));
-    } catch {
-      // Storage full or blocked: the game goes on, unsaved.
-    }
+  private stepOnce(): void {
+    this.prev = this.state;
+    const result = apply(this.state, { type: 'tick', dt: STEP_SECONDS }, this.rng);
+    this.state = result.state;
+    this.queue.push(...result.events);
   }
 }
 
-/** A fresh id for an action or a seed: the browser's UUID, or a stamp and some noise where there is none (plain http on the LAN). */
-function newId(): string {
+/** A fresh seed: the browser's UUID, or a stamp and some noise where there is none (plain http on the LAN). */
+function newSeed(): string {
   return typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 }

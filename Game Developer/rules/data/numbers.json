@@ -1,0 +1,78 @@
+{
+  "_about": "Every number of the control test, in one place: balancing is editing this file. Lengths are in world units (one unit is one design pixel at 412 by 915), times in seconds, speeds in units a second. All of them are Victor, GD's first guesses (2026-11-20); the ones Robin has felt and approved move to docs/lessons.md with his words.",
+  "field": {
+    "_about": "One small field, bigger than the screen so the camera has somewhere to go. monsters is how many of the one kind stand on it; Robin's words were 'one monster', and three of the one kind is mine, so that 'nearest' and Cleave have something to choose between. The switch in the game goes from 1 to 6.",
+    "width": 1200,
+    "height": 1500,
+    "margin": 28,
+    "monsters": 3,
+    "maxMonsters": 8
+  },
+  "hero": {
+    "_about": "speed is the number 'smooth and snappy' hangs on: he crosses the screen's width in about two seconds. No acceleration: he is at full speed on the first step and stops on the step the thumb lifts. reach is the gap between the two bodies inside which a swing lands; reachGrace is how much further the target may have stepped back while the swing was in the air.",
+    "radius": 16,
+    "speed": 215,
+    "maxHp": 100,
+    "regenPerSecond": 4,
+    "regenAfterSeconds": 5,
+    "reviveSeconds": 2,
+    "reach": 22,
+    "reachGrace": 16,
+    "swingSeconds": 0.8,
+    "windupSeconds": 0.12,
+    "damageMin": 9,
+    "damageMax": 13,
+    "critChance": 0.1,
+    "critTimes": 2,
+    "maxRage": 100,
+    "ragePerHit": 12,
+    "ragePerHitTaken": 6
+  },
+  "autoTarget": {
+    "_about": "Schemes 2 and 3 pick the target themselves. pickRange: how near a monster must be to be picked. dropRange: how far the target may get before it is let go. switchMargin: another monster must be this much nearer before he changes his mind, and never while the target is in reach.",
+    "pickRange": 210,
+    "dropRange": 300,
+    "switchMargin": 40
+  },
+  "charge": {
+    "_about": "A dash to the target that stuns it and gives rage. holdSeconds roots the target for the moment of the dash so he does not chase a moving thing.",
+    "range": 340,
+    "speed": 950,
+    "maxSeconds": 0.6,
+    "holdSeconds": 0.4,
+    "stunSeconds": 1.2,
+    "cooldownSeconds": 8,
+    "rage": 20
+  },
+  "cleave": {
+    "_about": "A wide swing in front of him that hits everything in the arc. It costs rage, so it is the reward for hitting. radius is measured from his middle to the monster's edge.",
+    "radius": 62,
+    "arcDegrees": 170,
+    "damageTimes": 1.5,
+    "rageCost": 30,
+    "cooldownSeconds": 3
+  },
+  "monster": {
+    "_about": "The one monster of the control test, a stand-in named for the vibrant pirate theme. It wanders near its home, comes for him inside aggroRange or when hit, winds up for windupSeconds (time to step out of the way), bites, rests, and goes home when he is down or leashRange from home.",
+    "kind": "sand-crab",
+    "name": "Sand crab",
+    "radius": 15,
+    "maxHp": 55,
+    "wanderSpeed": 38,
+    "wanderRange": 130,
+    "wanderPauseMin": 1.5,
+    "wanderPauseMax": 4,
+    "chaseSpeed": 120,
+    "aggroRange": 140,
+    "leashRange": 520,
+    "reach": 12,
+    "reachGrace": 12,
+    "windupSeconds": 0.5,
+    "restSeconds": 1.6,
+    "damageMin": 4,
+    "damageMax": 7,
+    "respawnSeconds": 4,
+    "spawnClearance": 260,
+    "spawnApart": 70
+  }
+}

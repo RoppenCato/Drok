@@ -1,29 +1,31 @@
 import Phaser from 'phaser';
-import type { GameEvent } from '../../../rules/src/index.ts';
+import { N } from '../../../rules/src/index.ts';
+import { Controls } from '../controls.ts';
 import type { GameLog } from '../game-log.ts';
-import { COLORS, DESIGN_WIDTH, FONT, GAME_NAME } from '../layout.ts';
+import { DESIGN_HEIGHT, DESIGN_WIDTH, RES } from '../layout.ts';
 import type { LocalGame } from '../local-game.ts';
-import { settings } from '../settings.ts';
+import { Hud } from '../view/hud.ts';
+import { WorldView } from '../view/world-view.ts';
 
-const SQUARE = 96;
-const GAP = 14;
-const BOARD_TOP = 250;
+/** How fast the camera closes on the hero: at 14 it is all but there in a fifth of a second, with no lag to feel. */
+const CAMERA_CATCH_UP = 14;
 
 /**
- * The one screen: the game's name, the small board to tap, a hint line and the small buttons. A tap becomes an intent
- * for the holder; what the rules answer (moved, rejected) is drawn from the events, never guessed here.
+ * The control test's one screen: a small field, the hero, a few monsters of one kind, and three ways to steer
+ * (Robin, 2026-11-19). The scene only wires things together: fingers go to the glass first and then to the controls,
+ * the controls send intents to the holder, the holder steps the rules, and the two views draw the state and the events.
+ *
+ * Two cameras draw it. The main one follows the hero over the field; the second one stands still and draws the
+ * glass. Both zoom by RES, so everything is placed in design units and is sharp on a dense screen.
  */
 export class PlayScene extends Phaser.Scene {
   private readonly holder: LocalGame;
   private readonly log: GameLog;
-  private readonly squares = new Map<string, Phaser.GameObjects.Rectangle>();
-  private left = 0;
-  private marker!: Phaser.GameObjects.Arc;
-  private gold!: Phaser.GameObjects.Text;
-  private hint!: Phaser.GameObjects.Text;
-  // Named for what they are: a scene already has `sound` (its sound manager).
-  private effectsButton!: Phaser.GameObjects.Text;
-  private soundButton!: Phaser.GameObjects.Text;
+  private world!: WorldView;
+  private hud!: Hud;
+  private controls!: Controls;
+  private camX = 0;
+  private camY = 0;
 
   constructor(o: { holder: LocalGame; log: GameLog }) {
     super({ key: 'play' });
@@ -32,96 +34,90 @@ export class PlayScene extends Phaser.Scene {
   }
 
   create(): void {
-    const spaces = Object.values(this.holder.state.board.spaces);
-    const columns = Math.max(...spaces.map((s) => s.col)) + 1;
-    this.left = (DESIGN_WIDTH - (columns * SQUARE + (columns - 1) * GAP)) / 2 + SQUARE / 2;
+    const state = this.holder.state;
+    const field = this.cameras.main;
+    field.setZoom(RES);
+    field.setBounds(0, 0, N.field.width, N.field.height);
+    const glass = this.cameras.add(0, 0, DESIGN_WIDTH * RES, DESIGN_HEIGHT * RES);
+    glass.setZoom(RES);
+    // A camera zooms about its middle: this scroll puts design 0, 0 in the canvas's top left corner.
+    glass.setScroll((DESIGN_WIDTH * (1 - RES)) / 2, (DESIGN_HEIGHT * (1 - RES)) / 2);
 
-    this.add.text(DESIGN_WIDTH / 2, 90, GAME_NAME, { fontFamily: FONT, fontSize: '34px', fontStyle: 'bold', color: COLORS.text }).setOrigin(0.5);
-    this.gold = this.add.text(DESIGN_WIDTH / 2, 150, '', { fontFamily: FONT, fontSize: '20px', color: COLORS.gold }).setOrigin(0.5);
-
-    for (const space of spaces) {
-      const { x, y } = this.centre(space.col, space.row);
-      const square = this.add.rectangle(x, y, SQUARE, SQUARE, COLORS.square).setStrokeStyle(2, COLORS.border);
-      square.setInteractive({ useHandCursor: true });
-      square.on('pointerdown', () => this.tap(space.id));
-      this.add.text(x, y + SQUARE / 2 - 14, space.id, { fontFamily: FONT, fontSize: '13px', color: COLORS.dim }).setOrigin(0.5);
-      this.squares.set(space.id, square);
-    }
-    const here = this.holder.state.board.spaces[this.holder.me.space]!;
-    const at = this.centre(here.col, here.row);
-    this.marker = this.add.circle(at.x, at.y, 22, COLORS.player);
-
-    this.hint = this.add.text(DESIGN_WIDTH / 2, 640, '', { fontFamily: FONT, fontSize: '18px', color: COLORS.text, align: 'center', wordWrap: { width: DESIGN_WIDTH - 60 } }).setOrigin(0.5);
-    this.say('Tap a square next to you.', COLORS.dim);
-
-    // The small buttons: the log for Robin's phone, the two settings, and a way to start over while testing.
-    this.button(DESIGN_WIDTH / 2, 790, 'New game', () => {
-      this.holder.reset();
-      location.reload();
+    this.world = new WorldView(this, (o) => {
+      glass.ignore(o);
+      return o;
     });
-    this.button(62, 860, 'Log', () => this.log.download());
-    this.effectsButton = this.button(190, 860, '', () => {
-      settings.set({ fewerEffects: !settings.get().fewerEffects });
-      this.words();
+    this.hud = new Hud(
+      this,
+      (o) => {
+        field.ignore(o);
+        return o;
+      },
+      {
+        scheme: (scheme) => {
+          this.controls.letGo();
+          this.holder.act({ type: 'scheme', scheme });
+          this.hud.setScheme(scheme);
+          this.log.note(`scheme ${scheme}`);
+        },
+        skill: (skill) => {
+          const events = this.holder.act({ type: 'skill', skill });
+          const refused = events.find((e) => e.type === 'rejected');
+          this.log.note(refused && refused.type === 'rejected' ? `${skill} refused: ${refused.reason}` : skill);
+        },
+        monsters: (change) => {
+          // Counted from the state, not from what the menu last drew: two quick presses are two.
+          const count = Math.min(N.field.maxMonsters, Math.max(1, this.holder.state.monstersWanted + change));
+          this.holder.act({ type: 'monsters', count });
+          this.log.note(`monsters ${count}`);
+        },
+        log: () => this.log.download(),
+        startOver: () => {
+          this.holder.reset();
+          location.reload();
+        },
+      },
+    );
+    this.world.build(state);
+    this.hud.build(state);
+    this.controls = new Controls({ holder: this.holder, camera: field, hud: this.hud, world: this.world });
+
+    this.camX = state.hero.x;
+    this.camY = state.hero.y;
+    field.centerOn(this.camX, this.camY);
+
+    // Fingers: the glass first, then the field. A held finger is let go only by its own lift, or when the page
+    // loses the screen (a call, a swipe to another app), so the hero never runs on with nobody steering.
+    this.input.on(Phaser.Input.Events.POINTER_DOWN, (p: Phaser.Input.Pointer) => {
+      if (this.hud.press(p.x / RES, p.y / RES)) return;
+      this.controls.down(p);
     });
-    this.soundButton = this.button(328, 860, '', () => {
-      settings.set({ mute: !settings.get().mute });
-      this.words();
-    });
-    this.words();
-    this.refresh();
+    this.input.on(Phaser.Input.Events.POINTER_UP, (p: Phaser.Input.Pointer) => this.controls.up(p));
+    this.input.on(Phaser.Input.Events.POINTER_UP_OUTSIDE, (p: Phaser.Input.Pointer) => this.controls.up(p));
+    this.game.events.on(Phaser.Core.Events.BLUR, () => this.controls.letGo());
+    this.game.events.on(Phaser.Core.Events.HIDDEN, () => this.controls.letGo());
   }
 
-  /** A square tapped: ask the rules. */
-  private tap(to: string): void {
-    void this.holder.act({ type: 'move', player: this.holder.player, to }).then((events) => this.show(events));
-  }
-
-  /** Draw what the rules said. */
-  private show(events: GameEvent[]): void {
+  override update(time: number, delta: number): void {
+    this.controls.update();
+    this.holder.advance(delta);
+    const state = this.holder.state;
+    const events = this.holder.takeEvents();
     for (const e of events) {
-      if (e.type === 'moved') {
-        const space = this.holder.state.board.spaces[e.to]!;
-        const { x, y } = this.centre(space.col, space.row);
-        // With fewer effects the marker jumps: settings.ms gives 0.
-        this.tweens.add({ targets: this.marker, x, y, duration: settings.ms(180), ease: 'Quad.easeOut' });
-        this.say(`Found ${e.found} gold on ${e.to}.`, COLORS.text);
-        this.log.note(`moved ${e.from} to ${e.to}, found ${e.found}`);
-      } else if (e.type === 'rejected') {
-        this.say(`No: ${e.reason}.`, COLORS.warn);
-        this.log.note(`rejected: ${e.reason}`);
-      }
+      if (e.type === 'monsterDied') this.log.note(`crab ${e.monster} fell; ${state.kills} so far`);
+      else if (e.type === 'heroDown') this.log.note(`down; ${state.deaths} falls`);
     }
-    this.refresh();
-  }
 
-  /** The numbers and the squares as the state has them now. */
-  private refresh(): void {
-    const me = this.holder.me;
-    this.gold.setText(`Gold: ${me.gold}`);
-    const near = this.holder.state.board.spaces[me.space]?.links ?? [];
-    for (const [id, square] of this.squares) square.setFillStyle(near.includes(id) ? COLORS.squareNear : COLORS.square);
-  }
+    this.world.sync(state, this.holder.prev, this.holder.alpha, time, delta);
+    this.world.show(events, state);
+    this.hud.show(events);
+    this.hud.sync(state, delta);
 
-  private say(text: string, color: string): void {
-    this.hint.setText(text).setColor(color);
-  }
-
-  private words(): void {
-    const s = settings.get();
-    this.effectsButton.setText(`Effects: ${s.fewerEffects ? 'fewer' : 'full'}`);
-    this.soundButton.setText(`Sound: ${s.mute ? 'off' : 'on'}`);
-  }
-
-  private centre(col: number, row: number): { x: number; y: number } {
-    return { x: this.left + col * (SQUARE + GAP), y: BOARD_TOP + SQUARE / 2 + row * (SQUARE + GAP) };
-  }
-
-  /** A text button with padding, so a thumb has something to hit. */
-  private button(x: number, y: number, text: string, onTap: () => void): Phaser.GameObjects.Text {
-    const t = this.add.text(x, y, text, { fontFamily: FONT, fontSize: '16px', fontStyle: 'bold', color: COLORS.text, backgroundColor: COLORS.button, padding: { x: 14, y: 10 } }).setOrigin(0.5);
-    t.setInteractive({ useHandCursor: true });
-    t.on('pointerdown', onTap);
-    return t;
+    // The camera closes on where the hero is drawn. A jump (standing up after a fall) is followed at once.
+    const at = this.world.heroAt;
+    const k = Math.hypot(at.x - this.camX, at.y - this.camY) > 200 ? 1 : 1 - Math.exp((-delta / 1000) * CAMERA_CATCH_UP);
+    this.camX += (at.x - this.camX) * k;
+    this.camY += (at.y - this.camY) * k;
+    this.cameras.main.centerOn(this.camX, this.camY);
   }
 }
