@@ -52,9 +52,9 @@ Copy the folder. What is new for the game, beside what it already does with this
    shadow under it.** They are the three huts, the lookout, the stall and the fish rack. Every other prop gets its flat
    shadow as before.
 3. **`home`**: `outline`, `box` (909, 3320, 983 by 767), `wake` (1400, 3900: the middle of the deck) and `stall`
-   (1296, 3986). No monster inside the outline. The two level 1 crab zones lie west and east of it and are unchanged.
-4. **`people`**: the shopkeeper behind his stall (1296, 3968), the harbour master (1470, 3915), the fisher by the dock
-   (1400, 3975), the sailor at the way north (1400, 3775). Each has a `note`.
+   (1280, 3945: 87 units of deck before it, so a thumb has room). No monster inside the outline. The two level 1 crab zones lie west and east of it and are unchanged.
+4. **`people`**: the shopkeeper behind his stall (1280, 3927), the harbour master (1470, 3900), the fisher by the fish
+   rack (1456, 3978), the sailor at the way north (1400, 3775). Each has a `note`. Nobody stands on `arrive`.
 5. `dock` is 1400, 4030 and `arrive` 1400, 3976: he steps onto the deck. The two dock pieces are in `props`.
 6. `walk` is the dry sand as before, now with the bay in it. `ground.px` is 0.5 as before.
 
