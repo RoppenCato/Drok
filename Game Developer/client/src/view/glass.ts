@@ -181,6 +181,8 @@ export class Bar {
   private readonly lost: Pill | null = null;
   private readonly back: Phaser.GameObjects.NineSlice | Phaser.GameObjects.Rectangle;
   private readonly full: number;
+  private readonly w: number;
+  private readonly size: number;
   private readonly trail = new Trail();
 
   constructor(
@@ -189,6 +191,8 @@ export class Bar {
     o: { x: number; y: number; w: number; kind: 'hp' | 'rage' | 'xp'; depth: number; plain: number; size?: number; trail?: boolean },
   ) {
     const size = o.size ?? 1;
+    this.w = o.w;
+    this.size = size;
     const well = hasGlass(scene) ? stretch(scene, 'bar/well', o.w, 18 * size) : null;
     const fill = well ? Pill.make(scene, `fill/${o.kind}`, size) : null;
     if (well && fill) {
@@ -230,6 +234,18 @@ export class Bar {
     this.fill.setVisible(on);
     this.lost?.setVisible(on);
     this.back.setVisible(on);
+  }
+
+  /** Move the whole bar, for one that goes with a figure: its left end, and its middle's height. */
+  at(x: number, y: number): void {
+    if (this.fill instanceof Pill) {
+      this.back.setPosition(x + this.w / 2, y);
+      this.fill.at(x + 3 * this.size, y - this.size);
+      this.lost?.at(x + 3 * this.size, y - this.size);
+    } else {
+      this.back.setPosition(x - 2, y);
+      this.fill.setPosition(x, y);
+    }
   }
 }
 

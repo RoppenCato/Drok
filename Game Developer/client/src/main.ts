@@ -5,12 +5,15 @@ import { COLORS, DESIGN_HEIGHT, DESIGN_WIDTH, GAME_NAME, RES } from './layout.ts
 import { LocalGame } from './local-game.ts';
 import { BootScene } from './scenes/BootScene.ts';
 import { PlayScene } from './scenes/PlayScene.ts';
-import { storageOrNull } from './settings.ts';
+import { settings, storageOrNull } from './settings.ts';
 
 const log = new GameLog(GAME_NAME);
 log.attach(window);
 
 const query = new URLSearchParams(location.search);
+// ?bars=0..3 picks where his own health and rage are shown (the test of 2026-11-20), for a script's pictures.
+const bars = Number(query.get('bars') ?? Number.NaN);
+if (bars === 0 || bars === 1 || bars === 2 || bars === 3) settings.set({ ownBars: bars });
 
 // The save, or a new game. The holder keeps the state and calls the rules; the scenes only ask it.
 // ?seed=tide starts a fresh game on that seed, for a script that wants the same field every time.

@@ -152,14 +152,23 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
       for his health and his own sizes for the pile (his drop of 2026-11-20, in the game the same day)
     - `[x]` a page that is open is no longer restarted when a file is saved here (hot reload off)
 
+19. `[ ] Built` `[ ] Checked` · GD, then AD · **His health over his head** (`playtests.md`, round 2; Robin,
+    2026-11-20: "the heros health bar should show over his character, and the rage bar below it")
+    - `[x]` three ways in the game to pick from, on the row "Bars" in the settings, and three pictures in the chat
+    - `[ ]` Robin picks (the brief's open question 7)
+    - `[ ]` GD: the picked way stays, the others and the row go; the camera and the place's foot follow the
+      smaller pile
+    - `[ ]` AD: his own bar for over the hero's head (the stand-in is his big bar drawn small), and for way 3 a
+      ring for the button
+
 ## Waits for Robin
 
 - Play it: `http://192.168.0.43:5178/` on the home Wi-Fi. The first minute: tap the stall to see what it sells,
   tap the dock at the bottom of the town, tap "Sail to Crab Cay", tap a crab; then put a thumb down anywhere and
   slide it. The link answers only while the dev server runs on this PC; if it is dead, say so in the chat and it is
   started again (`docs\state\pages.md`).
-- The new steering and glass (item 18): does the stick want a home on the screen (it only shows while a thumb
-  drags); is the pile at the bottom right, or too much; should his own health also show by his feet.
+- The new steering (item 18): does the stick want a home on the screen (it only shows while a thumb drags).
+- Where his rage goes (item 19): way 1, 2 or 3; and whether the monster's name plate at the bottom stays.
 - The look: Leonard, AD chose it himself, as told ("Let AD handle the art you need. I approve."), so the first
   judging of the Warrior, the monsters, the island, the town, the chart, the glass and the icon is this play. The
   look and the chart would each have been three to pick from. And the size: he finds the Warrior small and offers

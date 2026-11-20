@@ -10,6 +10,11 @@ Game Developer's chat uses): `npm --prefix "Game Developer" run dev`, on port 51
 | `http://localhost:5178/?mute=1&drive=1&seed=tide` | the AI's pane for a test: a fresh game on a known seed, the clock stopped, moved by `window.dev.step(n)` |
 | `http://localhost:4178/` | the built page, the one that installs (from this PC only; a phone needs the public page). The entry `built` in the root's `launch.json` serves it after `npm run build`. To check offline: open it, wait for the service worker, stop the server, open it again |
 
+`?bars=0..3` sets where his own health and rage are shown (the test of 2026-11-20) and keeps it in that browser's
+settings. To put the same scene before each way: build it once (`JSON.parse(dev.holder.pack())`, move the monsters,
+set his health), keep it in `localStorage` under a key of your own, and on each page call `dev.holder.unpack(it)`,
+then the play scene's `world.enter(state)` and `arrive(state, false)`.
+
 `?seed=NAME` starts a new game on that seed and overwrites the pane's save. `?drive=1` stops the page's clock once
 the play screen stands; `window.dev.step(n)` then takes n world steps and draws each. With art to load the play
 screen does not stand at once: `window.dev.ready()` says when it does.

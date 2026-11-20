@@ -81,6 +81,10 @@ export class PlayScene extends Phaser.Scene {
       atShop: () => this.near(this.holder.state) === 'shop',
       atDock: () => this.near(this.holder.state, true) === 'dock',
       settingsChanged: () => this.hud.place(),
+      restart: () => {
+        this.holder.save();
+        location.reload();
+      },
       exportSave: () => this.exportSave(),
       importSave: () => this.importSave(),
       saveLog: () => this.log.download(),

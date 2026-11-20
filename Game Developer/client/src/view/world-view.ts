@@ -4,13 +4,13 @@
 // he wears); only one-shots come from the events (a number, a puff, the sword's arc). Nothing here decides anything.
 
 import Phaser from 'phaser';
-import { MONSTERS, N, RARITIES, chestFull, kindOf, makeRng, placeOf, type Drop, type GameEvent, type GameState, type Monster, type Place, type Vec } from '../../../rules/src/index.ts';
+import { MONSTERS, N, RARITIES, chestFull, heroMaxHp, kindOf, makeRng, placeOf, type Drop, type GameEvent, type GameState, type Monster, type Place, type Vec } from '../../../rules/src/index.ts';
 import { ART } from '../art.ts';
 import { COLORS, DEPTH, FONT, RES, hex } from '../layout.ts';
 import type { Ground } from '../scenes/BootScene.ts';
 import { settings } from '../settings.ts';
 import { Figure, HeroFigure, picture, repicture, type AtlasData, type GearData, type SetData } from './figures.ts';
-import { MobBar, hasGlass, piece } from './glass.ts';
+import { Bar, MobBar, hasGlass, piece } from './glass.ts';
 
 /** A place as the Art Director laid it out: what stands where. The rules' own copy of the layout is in their data. */
 interface PlaceArt {
@@ -36,6 +36,9 @@ export type Thing = 'chest' | 'shop' | 'dock';
  * without this he would stand on a dock under his own health bar. The number is mine.
  */
 export const FOOT = 110;
+
+/** How long his own health bar is when it goes with him: longer than a monster's 44, so his is the bigger one. */
+const OWN_W = 64;
 
 interface MonsterView {
   /** The Art Director's figure, when this kind has one; else the stand-in below. */
@@ -128,6 +131,15 @@ export class WorldView {
   private heroFlash = 0;
   private ringPop = 0;
   private chargeFrom: Vec | null = null;
+  /**
+   * His own health and rage, going with him (the test of 2026-11-20, `settings.ownBars`): which of the three ways,
+   * the bars, the small heart on the health's end, and the one height they hang from.
+   */
+  private own: 0 | 1 | 2 | 3 = 0;
+  private ownHp: Bar | null = null;
+  private ownRage: Bar | null = null;
+  private ownHeart: Phaser.GameObjects.Image | null = null;
+  private ownTop = 22;
 
   constructor(scene: Phaser.Scene, reg: Register) {
     this.scene = scene;
@@ -164,6 +176,19 @@ export class WorldView {
       this.hero.setVisible(false);
     }
     this.slash = this.reg(s.add.graphics().setDepth(DEPTH.effects).setAlpha(0));
+
+    // His own health over his head, and his rage with it (1), under his feet (2) or on the glass (3). They hang
+    // from his standing picture's top, not from the frame now shown, so they do not jump when he swings; they are
+    // drawn over every monster's bar; the cream well and the heart say "this one is mine" beside the dark ones.
+    this.own = settings.get().ownBars;
+    if (this.own !== 0) {
+      const over = DEPTH.effects + 5;
+      if (this.heroFigure) this.ownTop = this.heroFigure.body.standTop();
+      this.ownHp = new Bar(s, this.reg, { x: 0, y: 0, w: OWN_W, kind: 'hp', depth: over, plain: 8, size: 0.78, trail: true });
+      const heart = hasGlass(s) ? piece(s, 'mark/heart') : null;
+      if (heart) this.ownHeart = this.reg(heart.setScale(heart.scale * 0.62).setDepth(over + 4));
+      if (this.own !== 3) this.ownRage = new Bar(s, this.reg, { x: 0, y: 0, w: OWN_W - 10, kind: 'rage', depth: over, plain: 5, size: 0.5 });
+    }
     this.enter(state);
   }
 
@@ -259,6 +284,27 @@ export class WorldView {
       this.heroShadow.setPosition(hx + 2, hy + 9);
       this.dress(h);
       this.heroBody.setFillStyle(this.heroFlash > 0.3 ? 0xffffff : this.coatColor);
+    }
+
+    // His own bars go with him, at whole design units so they do not shimmer as he walks. Not in a town, where
+    // nothing can hurt him, and not while he is down.
+    if (this.ownHp) {
+      const show = !placeOf(state).town && !down;
+      const x0 = Math.round(hx - OWN_W / 2);
+      const hpY = Math.round(hy - this.ownTop - (this.own === 1 ? 24 : 14));
+      this.ownHp.setVisible(show);
+      this.ownHeart?.setVisible(show);
+      this.ownRage?.setVisible(show);
+      if (show) {
+        this.ownHp.at(x0, hpY);
+        this.ownHp.set(h.hp / heroMaxHp(h), delta);
+        this.ownHeart?.setPosition(x0 + 1, hpY - 1);
+        if (this.ownRage) {
+          // 1: close under his health, over his head. 2: on the ground under his feet.
+          this.ownRage.at(x0 + 10, this.own === 1 ? hpY + 12 : Math.round(hy + 12));
+          this.ownRage.set(h.rage / N.hero.maxRage);
+        }
+      }
     }
 
     this.destDot.setVisible(h.dest !== null);
@@ -412,11 +458,11 @@ export class WorldView {
         case 'heroHit':
           this.heroFlash = 1;
           this.heroFigure?.play('hit1');
-          this.number(this.heroAt.x, this.heroAt.y - 32, `-${e.amount}`, COLORS.hurt, 17);
+          this.number(this.heroAt.x, this.heroAt.y - this.overHero(), `-${e.amount}`, COLORS.hurt, 17);
           if (!settings.get().fewerEffects) this.scene.cameras.main.shake(90, 0.004);
           break;
         case 'monsterMissed':
-          if (state.hero.downFor <= 0) this.number(this.heroAt.x, this.heroAt.y - 32, 'missed', COLORS.dim, 13);
+          if (state.hero.downFor <= 0) this.number(this.heroAt.x, this.heroAt.y - this.overHero(), 'missed', COLORS.dim, 13);
           break;
         case 'targeted':
           this.ringPop = 1;
@@ -436,9 +482,9 @@ export class WorldView {
           break;
         case 'picked': {
           const d = e.drop;
-          if (d.kind === 'gold') this.number(this.heroAt.x, this.heroAt.y - 34, `+${d.amount}`, COLORS.goldText, 15);
-          else if (d.kind === 'potion') this.number(this.heroAt.x, this.heroAt.y - 34, '+potion', COLORS.hurt, 14);
-          else if (d.item) this.number(this.heroAt.x, this.heroAt.y - 46, '+gear', RARITIES[d.item.rarity].color, 15);
+          if (d.kind === 'gold') this.number(this.heroAt.x, this.heroAt.y - this.overHero() - 2, `+${d.amount}`, COLORS.goldText, 15);
+          else if (d.kind === 'potion') this.number(this.heroAt.x, this.heroAt.y - this.overHero() - 2, '+potion', COLORS.hurt, 14);
+          else if (d.item) this.number(this.heroAt.x, this.heroAt.y - this.overHero() - 14, '+gear', RARITIES[d.item.rarity].color, 15);
           break;
         }
         case 'levelUp':
@@ -514,7 +560,9 @@ export class WorldView {
    */
   private paintFromArt(place: Place, folder: string, layout: PlaceArt): void {
     const s = this.scene;
-    this.put(s.add.image(0, 0, `${folder}:ground`).setOrigin(0).setDisplaySize(place.width, place.height).setDepth(DEPTH.ground));
+    // The whole picture, asked for by name: once the texture has the 'foot' frame below, a picture made without
+    // naming a frame would be that strip, and the ground was one flat blue the second time he came to a place.
+    this.put(s.add.image(0, 0, `${folder}:ground`, '__BASE').setOrigin(0).setDisplaySize(place.width, place.height).setDepth(DEPTH.ground));
     // The camera may look a little below the place's foot (FOOT): what it sees there is the picture's last row of
     // sea, drawn out downwards, so no edge shows behind the buttons.
     const ground = s.textures.get(`${folder}:ground`);
@@ -835,6 +883,11 @@ export class WorldView {
   }
 
   /** A number that rises and fades. With fewer effects it stands a moment and goes. */
+  /** How far above his feet a number about him starts: over his own bars when they go with him, so it never hides them. */
+  private overHero(): number {
+    return this.ownHp ? this.ownTop + 44 : 32;
+  }
+
   private number(x: number, y: number, text: string, color: string, size: number): void {
     const t = this.reg(
       this.scene.add

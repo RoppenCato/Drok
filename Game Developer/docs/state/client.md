@@ -94,6 +94,18 @@ covers the bottom, **the camera looks 60 below him** (`LOOK_BELOW` in `PlayScene
 where the ground picture's last row of sea is drawn out), so on a dock he stands above the pile, not under it.
 A banner for a new place or level and "Down! Lost N gold" are in the upper half as before.
 
+**A test, until Robin has picked** (`settings.ownBars`; the row "Bars" in the settings, which saves and opens the
+page again; `?bars=0..3` in the address for a script). Robin, 2026-11-20: "the heros health bar should show over
+his character, and the rage bar below it", "fixated well enough that it doesnt become messy", the screen "as clean
+as possible", "give me some suggestions". 0 is the pile above. In 1, 2 and 3 his health goes with him on the field
+(`world-view.ts`): a bar 64 long over his head with a small heart on its end, pale what a blow just took; hung from
+his standing picture's top (14 above it; 24 in way 1), at whole units, over every monster's bar; hidden in a town
+and while he is down; a number about him starts above it. His rage: **1** a thinner bar 54 long close under his
+health; **2** the same bar on the ground under his feet; **3** a ring round the Cleave button (`hud.ts`), orange as
+far round as his rage goes, with a notch where there is enough for one Cleave. In all three the pile is only the
+plate with the monster's name and level (at y 788), the buttons and experience; the button for the thing he stands
+by is at y 739. The ways he does not pick are taken out, with the row.
+
 Over a monster's head: its health, 44 or more long, when it is hurt or is the one he fights: Leonard, AD's dark
 well, the red inside, pale what a blow just took. The one he fights has the gold rim, a fifth bigger, and an arrow
 that bobs once a second (not with "fewer effects"). The bar hangs at one height for the kind, 12 above the top of

@@ -78,7 +78,11 @@ rare drops, in a top-down world."
 - **The screen** (Robin, 2026-11-20, his pick): bag, chart and character as small buttons at the top. (Robin,
   2026-11-20, after playing; this takes the place of his pick of the same day, an arc in the bottom corner): "I think
   the buttons should be in the middle at the bottom." "Health etc on your hero and on mobs needs to be easier to see.
-  Its all the way at top now making it hard to glance over. Maybe it should be at the bottom."
+  Its all the way at top now making it hard to glance over. Maybe it should be at the bottom." (Robin, 2026-11-20,
+  after seeing it at the bottom; this takes the place of "at the bottom" for his own health): "I think the heros
+  health bar should show over his character, and the rage bar below it. It needs to be fixated well enough that it
+  doesnt become messy when fighting mobs." "Would be nice if we can keep the UI as clean as possible." "Give me some
+  suggestions": three ways are in the game for him to pick from (open question 7).
 - **The save**: on the phone only, since there is no server and no account. (Robin, 2026-11-20, his pick): an "export
   save" button in the settings from day one.
 
@@ -136,6 +140,8 @@ A line each, newest at the bottom: the date, the decision, Robin's words.
 - 2026-11-20: after his first play of chapter 1: tap to move stays and a stick comes with it, both at once ("click to
   move is good, but there needs to be a simple wqy to also move freely"); the skill buttons go to the middle at the
   bottom; health, his and the monsters', must be easy to glance at, "maybe at the bottom".
+- 2026-11-20: after seeing his health at the bottom: it goes over his character, the rage bar below it, steady in a
+  fight, and the screen as clean as it can be. He asked for suggestions; three are in the game to try.
 
 ## Open questions
 
@@ -150,3 +156,6 @@ in `Game Developer\docs\idea-bank.md`:
 5. The levels of the job advancements, and what the Warrior can become.
 6. Which hand the skill buttons sit under by default. (They are in the middle now; the hand only says on which side
    of the row the potion sits.)
+7. Where his rage is shown, now that his health goes over his head: 1 under his health, over his head; 2 under his
+   feet; 3 as a ring round the Cleave button. All three are in the game (≡, "Bars"), with pictures in the chat of
+   2026-11-20. With it: whether the monster's name plate at the bottom stays.

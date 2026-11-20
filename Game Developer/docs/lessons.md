@@ -116,7 +116,15 @@ Victor, GD's first guess of 2026-11-20 and is pending until Robin has played the
     it on the real screen and made the monster's dark, his the biggest, with a heart. Rule: two bars that mean
     different things never share a colour and a size; and the Art Director looks at a layout on the real screen
     before it goes to Robin.
-18. A picture of the stopped page kept timing out in the pane: the page draws only when it is stepped, and the
+18. The ground of a place was one flat blue the second time he came to it. The strip of sea under a place's foot
+    had been added to the ground's texture as a frame; from then on a picture made from that texture without
+    naming a frame is that strip. It went out in a commit and was pushed: the pane test had sailed to the island
+    once, never home and back. Rule: a frame added to a texture changes what "the picture" means; name the frame
+    every time. And a change to how a place is drawn is tested by coming to the place twice.
+19. The link died a second time the same day, eleven minutes before Robin's next message: the app stops the dev
+    server when the chat has been quiet. Rule: until the public page exists, every reply to Robin starts by
+    fetching the link, and says so when it had to be started again.
+20. A picture of the stopped page kept timing out in the pane: the page draws only when it is stepped, and the
     picture waits for a frame. Rule: start a timer that steps the page a few times a second, then take the picture.
 
 ## Harvested

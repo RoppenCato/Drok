@@ -53,6 +53,8 @@ export interface PanelActions {
   atDock(): boolean;
   /** The hand or the effects switch changed: the glass must lay itself out again. */
   settingsChanged(): void;
+  /** A setting changed that the screen is built from: save, and open the page again. */
+  restart(): void;
   exportSave(): void;
   importSave(): void;
   saveLog(): void;
@@ -73,6 +75,8 @@ const H = DESIGN_HEIGHT;
 const CX = W / 2;
 /** The window's frame. */
 const F = { x: 20, y: 118, w: 372, h: 690 };
+/** The settings' words for where his own health and rage are shown (`settings.ownBars`). */
+const OWN_BARS = ['at the bottom', '1 over his head', '2 head and feet', '3 head and button'] as const;
 const SLOT_NAMES: Record<Slot, string> = { weapon: 'cutlass', shield: 'buckler', hat: 'hat', coat: 'coat' };
 
 /** What a piece gives, in words: "+4 damage", "+16 health, 1 armour". */
@@ -301,6 +305,14 @@ export class Panels {
           settings.set({ leftHand: !settings.get().leftHand });
           this.actions.settingsChanged();
           this.refresh();
+        },
+      ],
+      [
+        // A test for Robin to pick from (2026-11-20); the row goes when he has picked.
+        `Bars: ${OWN_BARS[s.ownBars]}`,
+        () => {
+          settings.set({ ownBars: ((settings.get().ownBars + 1) % 4) as 0 | 1 | 2 | 3 });
+          this.actions.restart();
         },
       ],
       [

@@ -32,6 +32,32 @@ Not asked for and left as it was: the top buttons (bag, chart, hero), the banner
 on: whether the stick should also have a home on the screen (it only shows while a thumb drags), and whether his own
 health wants a small bar by his feet as well.
 
-## Round 2, _date_: _…_
+## Round 2, 2026-11-20: the glass at the bottom, with Leonard, AD's bars
+
+What he had: one way to steer; the pile at the bottom (the target's plate, his health with a heart, rage, the
+buttons, experience); Leonard, AD's bars over the monsters. The link, to be reloaded by hand.
+
+**Robin's notes**, word for word (the numbers are mine):
+
+1. "I think the heros health bar should show over his character, and the rage bar below it. It needs to be fixated
+   well enough that it doesnt become messy when fighting mobs."
+2. "Would be nice if we can keep the UI as clean as possible"
+3. "Give me some suggestions"
+
+| Note | Found | Done | Rule |
+| --- | --- | --- | --- |
+| 1 His health over his character, rage below it, steady in a fight | Round 1's answer to "hard to glance" was the bottom, as he had said "maybe". Seen there, it was still not where his eye is: on the hero | Three ways built in the game, on a row in the settings ("Bars") and shown as three pictures of one crowded fight: his health over his head in all three; his rage 1 under it, 2 under his feet, 3 as a ring round the Cleave button. The bars hang from his standing picture's top, at whole units, drawn over every monster's bar, with a cream well and a heart where the monsters' are dark; a number about him starts above them. Not in a town, not while he is down | When he says "maybe", build it so that moving it again is cheap; what is read in a fight goes on the fighter |
+| 2 As clean as possible | With his bars on the field, the pile showed his health twice | In the three ways the pile is the plate with the monster's name and level, the buttons and experience: no bars of his, none of the monster's | A thing is shown once |
+| 3 Suggestions | A pick between ways is his, and is made on pictures and on his phone | Three pictures in the chat, my pick said with its reason; the row in the settings to try each | As the root CLAUDE.md has it |
+
+Found on the way, not his note: **the ground was one flat blue the second time he came to a place** (since 710cb4c:
+the strip under a place's foot was added to the ground's texture as a frame, and a picture made without naming a
+frame then takes that strip). He would have met it on his first trip home and back. Fixed; checked by sailing home
+and back in the pane. And the home link was dead for eleven minutes again: the app had stopped the server while
+the chat was quiet.
+
+Waiting for his pick (the brief's open question 7).
+
+## Round 3, _date_: _…_
 
 _The next round. A round with nothing to fix is still written: "all six work well" is a felt number confirmed._
