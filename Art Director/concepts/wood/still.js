@@ -2,8 +2,10 @@
 // Robin, 2026-11-20, in Victor, GD's chat: "You need to have some nice pirate design to menus and panels. Like some wooden
 // feeling. Right now it looks bland. Also update icons so they look fitting." The interface's look is big work, so three
 // real and different stills for him to pick from. Each is the SAME window, the hero sheet as the game lays it out today
-// (client/src/view/panels.ts, buildSheet: eight slots for gear, his numbers, the bag of 7 by 3, the card, the buttons),
-// with the same things in it. What differs is the idea:
+// (client/src/view/panels.ts, buildSheet), with the same things in it. The places on him are Robin's own list (2026-11-20:
+// "Do: Head, chest, legs, boots, necklace, two trinkets"): head, chest, legs, boots down the left; cutlass, buckler,
+// necklace down the right; two trinkets side by side under the necklace. The card sets the tapped piece beside the worn one
+// (Robin, 2026-11-20: "when you look at a sword you should see your equipped one next to it"). What differs is the idea:
 //   1 planks   boards lashed with rope: light wood, sailcloth, a painted sign. Sunny, a castaway's raft.
 //   2 chart    a sheet of parchment pinned on a dark chart table: ink, a red ribbon, wax. The easiest to read.
 //   3 chest    the inside of a treasure chest: dark wood, iron bands, gold plates, velvet. The richest.
@@ -34,12 +36,12 @@ function rope(g, x, y0, y1, w, col, lo) { g.save(); rr(g, x - w / 2, y0, w, y1 -
 const MARK = {
   hat: g => { g.moveTo(-12, 5); g.quadraticCurveTo(-14, -2, -6, -3); g.quadraticCurveTo(0, -13, 6, -3); g.quadraticCurveTo(14, -2, 12, 5); g.quadraticCurveTo(0, 0, -12, 5); g.closePath(); },
   coat: g => { g.moveTo(-5, -10); g.lineTo(-1.5, -7); g.lineTo(1.5, -7); g.lineTo(5, -10); g.lineTo(12, -5); g.lineTo(9, 0); g.lineTo(6, -2); g.lineTo(7, 11); g.lineTo(-7, 11); g.lineTo(-6, -2); g.lineTo(-9, 0); g.lineTo(-12, -5); g.closePath(); },
-  gloves: g => { P.rr(g, -6, -11, 12, 17, 5); g.moveTo(-6, -1); g.quadraticCurveTo(-12, -4, -11, 2); g.quadraticCurveTo(-10, 6, -6, 5); P.rr(g, -7, 6, 14, 5, 2); },
+  legs: g => { g.moveTo(-9, -10); g.lineTo(9, -10); g.lineTo(10.5, 10); g.lineTo(3, 10); g.lineTo(0, -1); g.lineTo(-3, 10); g.lineTo(-10.5, 10); g.closePath(); },
   boots: g => { g.moveTo(-6, -11); g.lineTo(3, -11); g.lineTo(3, 2); g.quadraticCurveTo(12, 3, 12, 9); g.lineTo(12, 11); g.lineTo(-6, 11); g.closePath(); },
   weapon: g => { g.moveTo(-10, 10); g.lineTo(-6, 6); g.lineTo(-8, 3); g.lineTo(-5, 1); g.lineTo(-3, 4); g.quadraticCurveTo(7, 0, 11, -11); g.quadraticCurveTo(11, 3, -1, 8); g.lineTo(-6, 12); g.closePath(); },
   shield: g => { g.arc(0, 0, 11, 0, 7); g.closePath(); g.moveTo(4, 0); g.arc(0, 0, 4, 0, 7); },
-  ring: g => { g.arc(0, 3, 8, 0, 7); g.closePath(); g.moveTo(5, 3); g.arc(0, 3, 5, 0, 7, true); g.moveTo(0, -11); g.lineTo(4, -7); g.lineTo(0, -3); g.lineTo(-4, -7); g.closePath(); },
-  charm: g => { g.moveTo(-7, -5); g.quadraticCurveTo(0, -9, 7, -5); g.quadraticCurveTo(5, 5, 0, 12); g.quadraticCurveTo(-5, 5, -7, -5); g.closePath(); g.moveTo(3, -9); g.arc(0, -9, 3, 0, 7); },
+  necklace: g => { g.moveTo(-11, -9); g.quadraticCurveTo(0, 9, 11, -9); g.lineTo(8.4, -9.6); g.quadraticCurveTo(0, 5, -8.4, -9.6); g.closePath(); g.moveTo(-4, 2.5); g.lineTo(4, 2.5); g.lineTo(0, 12); g.closePath(); },
+  trinket: g => { g.arc(0, 0, 10.5, 0, 7); g.closePath(); g.moveTo(0, -6); g.lineTo(4.5, 0); g.lineTo(0, 6); g.lineTo(-4.5, 0); g.closePath(); },
 };
 const mark = (g, kind, x, y, fill, line, lw = 1.5) => { g.save(); g.translate(x, y); g.beginPath(); MARK[kind](g); if (fill) { g.fillStyle = fill; g.fill('evenodd'); } if (line) { g.strokeStyle = line; g.lineWidth = lw; g.lineJoin = 'round'; g.stroke(); } g.restore(); };
 const topIcons = (g, face, fill, line) => { for (const [k, x] of [['menu', 30], ['bag', 286], ['chart', 334], ['hero', 382]]) { face(x, 30); g.fillStyle = fill; g.strokeStyle = line; g.lineWidth = k === 'menu' ? 2.4 : 1.5; g.lineCap = 'round'; G.ICON[k](g, x, 30.5, 1); } };
@@ -104,7 +106,7 @@ const chest = {
     shadow(g, shape, 3); g.save(); shape(); g.fillStyle = S3.gold; g.fill(); g.clip(); g.fillStyle = S3.goldHi; g.fillRect(x, y, w, h * 0.34); g.fillStyle = S3.goldLo; g.fillRect(x, y + h * 0.84, w, h * 0.16); g.restore(); shape(); ol(g); stud(g, x + 17, y + h / 2, 3, S3.goldLo, S3.goldHi); stud(g, x + w - 17, y + h / 2, 3, S3.goldLo, S3.goldHi); txt(g, t, CX, F.y + 6.5, 19, '#3a2414'); },
   close(g, x, y) { shadow(g, () => disc(g, x, y, 16), 2); disc(g, x, y, 16); g.fillStyle = S3.gold; g.fill(); ol(g); g.save(); disc(g, x, y, 12); g.fillStyle = '#e0352f'; g.fill(); g.clip(); g.fillStyle = '#f26a5c'; g.beginPath(); g.moveTo(x - 12, y - 12); g.lineTo(x + 4, y - 12); g.lineTo(x - 12, y + 4); g.closePath(); g.fill(); g.restore(); disc(g, x, y, 12); ol(g, 1.3); g.strokeStyle = '#ffffff'; g.lineWidth = 2.8; g.lineCap = 'round'; G.ICON.close(g, x, y, 0.82); },
   lined(g, x, y, w, h, r, rim) { g.save(); rr(g, x, y, w, h, r); g.fillStyle = S3.velvet; g.fill(); g.clip(); g.fillStyle = S3.velvetLo; g.fillRect(x, y, w, 6); g.fillStyle = S3.velvetHi; g.fillRect(x, y + h - 4, w, 4); g.restore(); rr(g, x + 1.6, y + 1.6, w - 3.2, h - 3.2, r - 1); ol(g, 3, rim); rr(g, x, y, w, h, r); ol(g); rr(g, x + 3.4, y + 3.4, w - 6.8, h - 6.8, Math.max(1, r - 3)); ol(g, 1, INK); },
-  heroBox(g, x, y, w, h) { this.lined(g, x - w / 2, y - h / 2, w, h, 8, S3.gold); g.save(); g.globalAlpha = 0.5; g.beginPath(); g.ellipse(x, y + 22, 52, 66, 0, 0, 7); g.fillStyle = S3.velvetHi; g.fill(); g.restore(); },
+  heroBox(g, x, y, w, h) { this.lined(g, x - w / 2, y - h / 2, w, h, 8, S3.gold); g.save(); rr(g, x - w / 2 + 5, y - h / 2 + 5, w - 10, h - 10, 4); g.clip(); g.globalAlpha = 0.5; g.beginPath(); g.ellipse(x, y + 14, 50, 56, 0, 0, 7); g.fillStyle = S3.velvetHi; g.fill(); g.restore(); },
   card(g, x, y, w, h) { rr(g, x - w / 2, y - h / 2, w, h, 8); g.fillStyle = S3.inset; g.fill(); rr(g, x - w / 2 + 1.6, y - h / 2 + 1.6, w - 3.2, h - 3.2, 7); ol(g, 2.4, S3.goldLo); rr(g, x - w / 2, y - h / 2, w, h, 8); ol(g); },
   slot(g, x, y, s, rar, kind, chosen) { const q = s / 2; if (rar) { g.save(); rr(g, x - q, y - q, s, s, 6); g.fillStyle = '#ecdcb4'; g.fill(); g.clip(); g.fillStyle = '#d6c294'; g.fillRect(x - q, y - q, s, 6); g.restore(); rr(g, x - q + 1.6, y - q + 1.6, s - 3.2, s - 3.2, 5); ol(g, 3, rar); rr(g, x - q, y - q, s, s, 6); ol(g); rr(g, x - q + 3.4, y - q + 3.4, s - 6.8, s - 6.8, 3); ol(g, 1, INK); } else this.lined(g, x - q, y - q, s, s, 6, S3.ironHi); if (!rar && kind) mark(g, kind, x, y + 1, S3.velvetHi, null); if (chosen) { rr(g, x - q - 3, y - q - 3, s + 6, s + 6, 8); ol(g, 3, S3.goldHi); rr(g, x - q - 4.6, y - q - 4.6, s + 9.2, s + 9.2, 9); ol(g, 1.2); } },
   bar(g, x, y, w, part) { rr(g, x, y - 5, w, 10, 5); g.fillStyle = S3.grain; g.fill(); ol(g, 1.4); rr(g, x + 1.5, y - 3.5, (w - 3) * part, 7, 3.5); g.fillStyle = G.COL.xp; g.fill(); rr(g, x, y - 5, w, 10, 5); ol(g, 1.6, S3.goldLo); },
@@ -124,18 +126,21 @@ async function main() {
   K.panel(g); K.title(g, 'Hero'); K.close(g, F.x + F.w - 12, F.y + 10);
   const left = F.x + 22, right = F.x + F.w - 22, top = F.y + 82, I = K.ink;
   txt(g, 'Level 3 Warrior', left, F.y + 46, 16, I.text, 'left'); txt(g, '96 of 400 xp', CX + 20, F.y + 46, 13, I.dim); txt(g, '214 gold', right, F.y + 46, 15, I.gold, 'right'); K.bar(g, left, F.y + 66, F.w - 44, 0.24);
-  K.heroBox(g, CX, top + 98, 150, 196); D.hero(g, A, { action: 'stand', facing: 's', i: 0, cutlass: 'sailor', buckler: 'plank', hat: 'bandana' }, CX, top + 168, 0.5 * 2.7);
+  K.heroBox(g, CX, top + 73, 150, 146); D.hero(g, A, { action: 'stand', facing: 's', i: 0, cutlass: 'sailor', buckler: 'plank', hat: 'bandana' }, CX, top + 132, 0.5 * 2.2);
   const icon = (key, x, y, size) => { const f = icons.j.frames['icon/' + key].frame, k = size * 0.74 / (f.w / 2); g.save(); g.translate(x, y); g.scale(0.5 * k, 0.5 * k); D.pic(g, icons, 'icon/' + key); g.restore(); };
-  const worn = { hat: ['hat-bandana', 'common'], coat: ['coat-linen', 'common'], gloves: null, boots: null, weapon: ['cutlass-sailor', 'uncommon'], shield: ['buckler-plank', 'common'], ring: null, charm: null };
-  [['hat', 'coat', 'gloves', 'boots'], ['weapon', 'shield', 'ring', 'charm']].forEach((col, c) => col.forEach((kind, i) => { const x = CX + (c ? 122 : -122), y = top + 23 + i * 50, it = worn[kind]; K.slot(g, x, y, 46, it ? G.RARITY[it[1]] : null, kind, false); if (it) icon(it[0], x, y, 46); }));
+  const worn = { hat: ['hat-bandana', 'common'], coat: ['coat-linen', 'common'], weapon: ['cutlass-sailor', 'uncommon'], shield: ['buckler-plank', 'common'] };
+  const places = [...['hat', 'coat', 'legs', 'boots'].map((k, i) => [k, CX - 122, top + 23 + i * 50]), ...['weapon', 'shield', 'necklace'].map((k, i) => [k, CX + 122, top + 23 + i * 50]), ['trinket', CX + 72, top + 173], ['trinket', CX + 122, top + 173]];
+  for (const [kind, x, y] of places) { const it = worn[kind]; K.slot(g, x, y, 46, it ? G.RARITY[it[1]] : null, kind, false); if (it) icon(it[0], x, y, 46); }
+  txt(g, 'trinkets', CX + 44, top + 173, 13, I.dim, 'right');
   ['Health 142 of 160', 'A swing 14 to 19', 'Armour 6', 'Crit 10%'].forEach((line, i) => txt(g, line, i % 2 === 0 ? left + 8 : CX + 22, top + 212 + Math.floor(i / 2) * 20, 14, I.text, 'left'));
   const gy = F.y + 336; txt(g, 'Bag 9 of 20', left, gy, 13, I.dim, 'left'); txt(g, 'Potions 3 of 10', right, gy, 13, I.dim, 'right');
   const bag = [['cutlass-corsair', 'rare', 1], ['buckler-iron', 'uncommon', 1], ['hat-tricorn', 'rare', 1], ['coat-sailor', 'uncommon', 1], ['buckler-brass', 'epic', 1], ['hat-feathered', 'epic', 1], ['cutlass-rusty', 'common', 0], ['coat-corsair', 'rare', 1], ['hat-bandana', 'common', 0]], size = 46, gap = 5, gx = CX - (7 * size + 6 * gap) / 2 + size / 2;
   for (let i = 0; i < 20; i++) { const x = gx + (i % 7) * (size + gap), y = gy + 20 + size / 2 + Math.floor(i / 7) * (size + gap), it = bag[i]; K.slot(g, x, y, size, it ? G.RARITY[it[1]] : null, null, i === 0); if (it) { icon(it[0], x, y, size); if (it[2]) { g.beginPath(); g.moveTo(x + 14, y - 20); g.lineTo(x + 20, y - 10); g.lineTo(x + 8, y - 10); g.closePath(); g.fillStyle = '#3fd45a'; g.fill(); ol(g, 1.3); } } }
   const cy = gy + 20 + 3 * (size + gap) + 4, ch = 124; K.card(g, CX, cy + ch / 2, F.w - 28, ch);
-  K.slot(g, left + 36, cy + 36, 52, G.RARITY.rare, null, false); icon('cutlass-corsair', left + 36, cy + 36, 52);
-  txt(g, "Corsair's cutlass", left + 76, cy + 18, 17, K.rar(G.RARITY.rare), 'left'); txt(g, 'In the bag · rare cutlass', left + 76, cy + 38, 13, I.dim, 'left'); txt(g, 'Damage 9 to 13', left + 76, cy + 58, 15, I.text, 'left');
-  txt(g, "Against his Sailor's cutlass: +3 damage", left + 8, cy + 84, 13, I.good, 'left'); txt(g, 'Worth 42 gold at the stall', left + 8, cy + 106, 13, I.dim, 'left');
+  const half = (F.w - 28) / 2, x1 = CX - half, x2 = CX; g.fillStyle = I.dim; g.globalAlpha = 0.45; g.fillRect(CX - 1, cy + 8, 2, ch - 16); g.globalAlpha = 1;
+  const head = (x0, title, key, rar, name) => { txt(g, title, x0 + 10, cy + 13, 13, I.dim, 'left'); K.slot(g, x0 + 28, cy + 46, 40, G.RARITY[rar], null, false); icon(key, x0 + 28, cy + 46, 40); name.forEach((w, i) => txt(g, w, x0 + 54, cy + 46 + (i - (name.length - 1) / 2) * 15, 14, K.rar(G.RARITY[rar]), 'left')); };
+  head(x1, 'In the bag', 'cutlass-corsair', 'rare', ["Corsair's", 'cutlass']); head(x2, 'He wears', 'cutlass-sailor', 'uncommon', ["Sailor's", 'cutlass']);
+  const ry = cy + 78; txt(g, '13 damage', x1 + 10, ry, 14, I.text, 'left'); txt(g, '10 damage', x2 + 10, ry, 14, I.text, 'left'); txt(g, '3', x2 - 10, ry, 14, I.good, 'right'); g.beginPath(); g.moveTo(x2 - 27, ry - 6); g.lineTo(x2 - 21, ry + 4); g.lineTo(x2 - 33, ry + 4); g.closePath(); g.fillStyle = I.good; g.fill();
   const by = cy + ch + 26; K.button(g, CX - 57, by, 104, 40, 'Wear', true); K.button(g, CX + 57, by, 104, 40, 'Drop', false);
   P.save(cv, out); console.log('wrote', out);
   const close = opt('close'); if (close) { const [x, y, w, h] = [F.x - 12, F.y - 24, 250, 216], z = 3, c2 = P.createCanvas(w * z, h * z), g2 = c2.getContext('2d'); g2.imageSmoothingEnabled = true; g2.imageSmoothingQuality = 'high'; g2.drawImage(cv, x * S, y * S, w * S, h * S, 0, 0, w * z, h * z); P.save(c2, close); console.log('wrote', close); }

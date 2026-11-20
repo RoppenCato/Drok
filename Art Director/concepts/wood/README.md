@@ -6,8 +6,10 @@ and panels. Like some wooden feeling. Right now it looks bland. Also update icon
 also be more slots for items. Again, i think you can take a lot from the zite inventory and equip."
 
 Each still is the same window: the hero and his bag as the game lays it out since today (`client\src\view\panels.ts`,
-`buildSheet`: eight slots for gear, his numbers, the bag of 7 by 3, the card of the tapped piece, the buttons), with the
-same things in it. Only the look changes.
+`buildSheet`), with the same things in it. Only the look changes. The places on him are Robin's own list, of the same
+evening: "We need slots for trinkets also. Two trinkets. I think we can skip rings. Do: Head, chest, legs, boots,
+necklace, two trinkets." So nine: head, chest, legs, boots down the left; cutlass, buckler, necklace down the right; two
+trinkets side by side under the necklace. The stills were drawn first with eight other slots and redrawn the same hour.
 
 | No. | The idea | What you read on | What it costs |
 | --- | --- | --- | --- |
@@ -22,8 +24,8 @@ words on light wood are easy to read.
 https://claude.ai/artifact/JM6LsoKKQCBNXgZRpdSvwD . Nothing is built from any of them until he has picked.
 
 After the pick comes the kit for the glass: the panel, its title, the cross, the slots (empty and by rarity), the patch
-or card, the buttons, the four top buttons, a mark for each of the eight empty slots, and the twelve new gear icons
-Victor, GD listed (gloves, boots, rings, charms, three of each).
+or card, the buttons, the four top buttons, a mark for each empty place (eight marks: the two trinkets share one), and
+the twelve new gear icons Victor, GD listed (breeches, boots, necklaces, trinkets, three of each).
 
 ## The files
 
