@@ -27,7 +27,7 @@ import {
   type Slot,
 } from '../../../rules/src/index.ts';
 import { ART, CHART_ART, GEAR_ART } from '../art.ts';
-import { COLORS, DEPTH, DESIGN_HEIGHT, DESIGN_WIDTH, FONT, RES, hex } from '../layout.ts';
+import { COLORS, DEPTH, DESIGN_HEIGHT, DESIGN_WIDTH, FONT, RES, hex, WEIGHT } from '../layout.ts';
 import type { Intent } from '../local-game.ts';
 import { settings } from '../settings.ts';
 import { sounds } from '../sound.ts';
@@ -195,7 +195,7 @@ export class Panels {
   /** Words in a window. On the Art Director's dark wood the colours become his pale ones; `light` keeps the colour as given (on the sea chart, on a gold plate). */
   private text(x: number, y: number, words: string, size: number, color: string = COLORS.text, originX = 0.5, light = false): Phaser.GameObjects.Text {
     const ink = hasGlass(this.scene) && !light ? this.ink(color) : color;
-    return this.keep(this.scene.add.text(x, y, words, { fontFamily: FONT, fontSize: `${size}px`, fontStyle: 'bold', color: ink, resolution: RES }).setOrigin(originX, 0.5).setDepth(DEPTH.panel + 3));
+    return this.keep(this.scene.add.text(x, y, words, { fontFamily: FONT, fontSize: `${size}px`, fontStyle: WEIGHT, color: ink, resolution: RES }).setOrigin(originX, 0.5).setDepth(DEPTH.panel + 3));
   }
 
   private ink(color: string): string {

@@ -63,7 +63,20 @@ export class BootScene extends Phaser.Scene {
   create(): void {
     for (const ground of GROUNDS) this.paintGround(ground);
     this.log.note('boot done');
-    this.scene.start('play');
+    // The letters first, or the first words are measured in the phone's own and sit wrong (Leonard, AD). A font
+    // that will not come (no network on a first visit) is not waited for long.
+    let started = false;
+    const go = (): void => {
+      if (started) return;
+      started = true;
+      this.scene.start('play');
+    };
+    const fonts = (document as Document & { fonts?: { load(font: string): Promise<unknown> } }).fonts;
+    if (!fonts) go();
+    else {
+      fonts.load('800 16px Nunito').then(go, go);
+      window.setTimeout(go, 1500);
+    }
   }
 
   /**

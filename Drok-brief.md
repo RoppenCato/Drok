@@ -44,6 +44,11 @@ rare drops, in a top-down world."
   walks out of it into the hunting ground. This takes the place of the harbour town as its own pin on the chart.
 - **A real pirate town** (Robin, 2026-11-20, to Leonard, AD's offer of three stills of a bigger town with more
   houses, a tavern and a lookout): "Yeah do an updated pirate town suggested". Three stills; Robin picks.
+  (Robin, 2026-11-20, in the Art Director's chat, of a port, a town of wrecked ships and a town on stilts): "3, but
+  the buildings need to look nicer and have some depth to them. Theres also no contrast to the floor so it all
+  kinda melts together." The town on stilts, over a little bay; Leonard, AD shows him a changed still first.
+- **The font** (Robin, 2026-11-20, in the Art Director's chat): "Choose a good font for the game thats clear and
+  easy to read"; to Leonard, AD's choice of Nunito, extra bold: "Yes, download it".
 - **Loot** (Robin, 2026-11-20): "items should pop out of monsters when dropped."
 - **The inventory** (Robin, 2026-11-20): "you need to make a proper inventory system like my other games, look at
   zite for example." Zite's is the hero sheet he picked there on 2026-11-02: the hero wearing his gear, a slot for

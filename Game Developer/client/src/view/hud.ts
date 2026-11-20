@@ -13,7 +13,7 @@
 
 import Phaser from 'phaser';
 import { N, kindOf, xpToNext, type GameEvent, type GameState, type RejectReason, type SkillId, type Vec } from '../../../rules/src/index.ts';
-import { COLORS, DEPTH, DESIGN_HEIGHT, DESIGN_WIDTH, FONT, RES } from '../layout.ts';
+import { COLORS, DEPTH, DESIGN_HEIGHT, DESIGN_WIDTH, FONT, RES, WEIGHT } from '../layout.ts';
 import { settings } from '../settings.ts';
 import { Bar, INK, hasGlass, piece, stretch } from './glass.ts';
 import type { PanelKind } from './panels.ts';
@@ -365,7 +365,7 @@ export class Hud {
   }
 
   private words(x: number, y: number, text: string, size: number, color: string, depth: number): Phaser.GameObjects.Text {
-    return this.reg(this.scene.add.text(x, y, text, { fontFamily: FONT, fontSize: `${size}px`, fontStyle: 'bold', color, resolution: RES }).setOrigin(0.5).setDepth(depth));
+    return this.reg(this.scene.add.text(x, y, text, { fontFamily: FONT, fontSize: `${size}px`, fontStyle: WEIGHT, color, resolution: RES }).setOrigin(0.5).setDepth(depth));
   }
 
   private zone(x: number, y: number, hw: number, hh: number, round: boolean, press: () => void): Zone {

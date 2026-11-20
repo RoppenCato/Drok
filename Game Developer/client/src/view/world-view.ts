@@ -6,7 +6,7 @@
 import Phaser from 'phaser';
 import { MONSTERS, N, RARITIES, chestFull, heroMaxHp, inHome, kindOf, makeRng, placeOf, type Drop, type GameEvent, type GameState, type Monster, type Place, type Vec } from '../../../rules/src/index.ts';
 import { ART } from '../art.ts';
-import { COLORS, DEPTH, FONT, RES, hex } from '../layout.ts';
+import { COLORS, DEPTH, FONT, RES, hex, WEIGHT } from '../layout.ts';
 import type { Ground } from '../scenes/BootScene.ts';
 import { settings } from '../settings.ts';
 import { Figure, HeroFigure, picture, repicture, type AtlasData, type GearData, type SetData } from './figures.ts';
@@ -983,7 +983,7 @@ export class WorldView {
   private number(x: number, y: number, text: string, color: string, size: number): void {
     const t = this.reg(
       this.scene.add
-        .text(x, y, text, { fontFamily: FONT, fontSize: `${size}px`, fontStyle: 'bold', color, stroke: COLORS.textDark, strokeThickness: 3, resolution: RES })
+        .text(x, y, text, { fontFamily: FONT, fontSize: `${size}px`, fontStyle: WEIGHT, color, stroke: COLORS.textDark, strokeThickness: 3, resolution: RES })
         .setOrigin(0.5)
         .setDepth(DEPTH.effects + 10),
     );

@@ -111,4 +111,7 @@ export const DEPTH = {
 } as const;
 
 /** The text face: the phone's own, until the game chooses one. */
-export const FONT = 'system-ui, "Segoe UI", Roboto, sans-serif';
+/** Nunito first (Leonard, AD's choice on Robin's word, 2026-11-20); the phone's own letters if it has not loaded. */
+export const FONT = 'Nunito, system-ui, "Segoe UI", Roboto, sans-serif';
+/** The weight every word is written at: Nunito's extra bold. A font without it draws its bold. */
+export const WEIGHT = '800';
