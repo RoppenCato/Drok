@@ -43,10 +43,15 @@ rare drops, in a top-down world."
   earlier the same day). How the rooms join and which come first is the Game Developer's, for him to judge.
 - **Day and night, weather** (Robin, 2026-11-20, his pick, made for the islands): always day for now. Each biome
   has its own fixed light and mood.
-- **Not decided for the house yet** (open questions 8 to 11): who the shrunk person is and what he is after (the
-  pirate pick was "Make a name", a nobody on his way to captain); what the Warrior fights with (the pirate pick was
-  cutlass and buckler; Leonard, AD's still shows a pin and a shirt button as stand-ins); what the town is; whether
-  spiders are in.
+- **The hero and what he is after** (Robin, 2026-11-20, his pick): "Get big again". Something in the house shrank
+  him. He hunts his way from room to room for what makes him big again. Each room is a step, so the grind has a
+  far goal. It replaces "Make a name" of the pirate game.
+- **What the Warrior fights with** (Robin, 2026-11-20, his pick): "Pin and button". A pin with a ball head as
+  sword, a shirt button as shield, as in Leonard, AD's still. Better gear is other found things: a needle, a nail,
+  a bottle cap, a thimble as hat. It replaces cutlass and buckler.
+- **The town** (Robin, 2026-11-20, his pick): "A doll's house". A doll's house on the floor, where small folk live
+  and trade (Leonard, AD's idea).
+- **Spiders** (Robin, 2026-11-20, his pick): "Yes, like any insect". Spiders are ordinary monsters in some rooms.
 - **"Grounded" is another game.** Only the idea of a shrunk person is shared; nothing of its look, names or
   creatures is taken.
 
@@ -163,6 +168,8 @@ A line each, newest at the bottom: the date, the decision, Robin's words.
   islands. Instead it should be biomes."); the theme is a shrunk person among insects, in a house ("Lets do 1, but
   inside a house"); the colours and the look stay. Of Leonard, AD's three sizes he took the bean size, in the Art
   Director's chat: "Go for 2".
+- 2026-11-20: four picks for the house, by choice boxes: he wants to get big again; pin and button; the town is a
+  doll's house; spiders are in, like any insect.
 
 ## Open questions
 
@@ -179,8 +186,7 @@ in `Game Developer\docs\idea-bank.md`:
    of the row the potion sits.)
 7. Answered 2026-11-20: his health and rage are one small piece over his head ("The screen"). Still open from it:
    whether the monster's name plate at the bottom stays.
-8. Who the shrunk person is and what he is after.
-9. What the Warrior fights with at bean size.
-10. What the town is in a house.
-11. Whether spiders are in the game.
+8. to 11. Answered 2026-11-20: get big again; pin and button; a doll's house; spiders like any insect ("The theme
+   and the world").
 12. The mood of the music for the house.
+13. What shrank him, and who the small folk in the doll's house are.

@@ -33,8 +33,9 @@ deploy. A pirate save cannot be carried over (other places, other gear): it beco
   1. the tiles (cream and aqua, as in the still): crumbs, a coin, a dice, a toy brick. Ants. Level 1 and 2.
   2. the rug: a soft weave, its fringe as a border you walk through, a lost button, a marble. Ladybirds. Level 3.
   3. under the table: the shadow, chair legs as pillars, a pencil. Cockroaches, with the slow slam. Level 5.
-- **Home** is a safe spot on the tiles where no insect comes: the stall, his health coming back, where he wakes
-  after a fall. What it looks like waits for Robin (question 10 in the brief).
+- **Home** is a doll's house on the tiles (Robin, 2026-11-20, his pick), where small folk live and trade: no
+  insect comes near, the stall is there, his health comes back, he wakes there after a fall. Whether he walks
+  into it or it stands open towards him is Leonard, AD's to draw.
 - **A biome is a region of the one world** in the data: its outline, its floor, its level, its zones of monsters,
   its light. A thing in the way is a round thing or a box, as today.
 
@@ -77,5 +78,7 @@ Each item is built with its tests and committed; the pirate game keeps working u
 
 ## Waits for Robin
 
-- Questions 8 to 12 in the brief: who he is and what he is after; his weapons; what home is; spiders; the music.
+- Answered 2026-11-20 (the brief): get big again; pin and button; a doll's house; spiders like any insect. No
+  spider in the first three biomes (mine): it comes with a later room.
+- Still open: the music's mood; what shrank him and who the small folk are (questions 12 and 13 in the brief).
 - The names: the house's places, the insects' names if they are more than "Ant".
