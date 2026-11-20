@@ -8,10 +8,10 @@
 // Drok: a frame may carry "facing" (s, se, e, ne, n: the game flips the other three), and then its name is
 // <name>/<action>/<facing>/<nnnn>, counted within the facing; and "points" (where gear rides: { hand: { x, y, r, front }, ... },
 // x and y already from the origin), passed on as they are. An action's "stride" and "blow" are passed on too.
-//   node tools/pack.js <name> <render dir> <out dir> [--soft] [--width 1024]
-// --soft keeps the edge's soft pixels (a glow, a fade); --width fixes the atlas's width.
+//   node tools/pack.js <name> <render dir> <out dir> [--soft] [--width 1024] [--frames]
+// --frames also writes the loose frames into <out dir>/frames; --soft keeps the edge's soft pixels (a glow, a fade); --width fixes the atlas's width.
 const P = require('./paint.js'); const fs = require('fs'); const path = require('path');
-const argv = process.argv.slice(2), flags = {}; const pos = []; for (let i = 0; i < argv.length; i++) { if (argv[i] === '--soft') flags.soft = true; else if (argv[i] === '--width') flags.width = +argv[++i]; else pos.push(argv[i]); }
+const argv = process.argv.slice(2), flags = {}; const pos = []; for (let i = 0; i < argv.length; i++) { if (argv[i] === '--soft') flags.soft = true; else if (argv[i] === '--frames') flags.frames = true; else if (argv[i] === '--width') flags.width = +argv[++i]; else pos.push(argv[i]); }
 const [name, dir, out] = pos;
 if (!name || !dir || !out) { console.log('usage: node tools/pack.js <name> <render dir> <out dir> [--soft] [--width 1024]'); process.exit(1); }
 (async () => {
@@ -44,7 +44,7 @@ if (!name || !dir || !out) { console.log('usage: node tools/pack.js <name> <rend
   if (facings.size) json.meta.facings = [...facings]; else json.meta.facing = P.PATHS.facing || 'left';
   for (const p of places) { g.drawImage(p.f.cv, p.x, p.y); json.frames[p.f.key] = { frame: { x: p.x, y: p.y, w: p.f.cv.width, h: p.f.cv.height }, rotated: false, trimmed: true, spriteSourceSize: { x: 0, y: 0, w: p.f.cv.width, h: p.f.cv.height }, sourceSize: { w: p.f.cv.width, h: p.f.cv.height }, pivot: { x: +(p.f.origin.x / p.f.cv.width).toFixed(4), y: +(p.f.origin.y / p.f.cv.height).toFixed(4) } }; }   // the pivot at the feet, so trimmed frames do not jump
   fs.mkdirSync(out, { recursive: true }); P.save(atlas, path.join(out, name + '.png')); fs.writeFileSync(path.join(out, name + '.json'), JSON.stringify(json));
-  for (const p of places) P.save(p.f.cv, path.join(out, 'frames', p.f.key.split('/').slice(1).join('_') + '.png'));   // the loose frames, for tools/anim_gif.js (not committed)
+  if (flags.frames) for (const p of places) P.save(p.f.cv, path.join(out, 'frames', p.f.key.split('/').slice(1).join('_') + '.png'));   // --frames: the loose frames too, for tools/anim_gif.js; never in a delivery (the game does not read them)
   const kb = Math.round(fs.statSync(path.join(out, name + '.png')).size / 1024);
   console.log('packed', frames.length, 'frames of', name, 'into', out, `(${W}x${H}, ${kb} KB, ${(W * H * 4 / 1048576).toFixed(1)} MB decoded)`);
 })();

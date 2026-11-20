@@ -102,12 +102,12 @@ def build(st, p):
 def stand(i, n=6):
     s = math.sin(i / n * math.tau)
     return pose(bob=0.006 * s, rh=(-0.26, -0.07, 0.40 + 0.008 * s), rd=(-0.66 + 0.03 * s, -0.22, 0.72), lh=(0.19, -0.19, 0.46 + 0.006 * s), nod=1.5 * s)
-def move(i, n=8):       # one stride: the right foot forward at a quarter; the hips lead, the chest turns against them
-    t = i / n; s = math.sin(t * math.tau); c = math.cos(t * math.tau)
-    return pose(bob=-0.016 * (1 - abs(s)) + 0.004, lean=5, twist=7 * s, sway=0.008 * s,
-                rf=(-0.085, 0.01 - 0.115 * s, 0.055 * max(0.0, c)), lf=(0.085, 0.01 + 0.115 * s, 0.055 * max(0.0, -c)),
-                rh=(-0.26, -0.07 + 0.06 * s, 0.40 + 0.015 * abs(s)), rd=(-0.66, -0.22 + 0.12 * s, 0.72), lh=(0.19, -0.19 - 0.03 * s, 0.46))
-STRIDE = 4 * 0.115 * D.UNIT                    # design units the feet cover in one cycle of move: the game picks the frame by distance walked
+def move(i, n=8):       # a run: the game moves him 215 units a second and plays this by time (Victor, GD, 2026-11-20), so it must read as fast:
+    t = i / n; s = math.sin(t * math.tau); c = math.cos(t * math.tau)       # a lean, long steps, the knees high, the arms pumping against the legs
+    return pose(bob=-0.02 * (1 - abs(s)) + 0.012, lean=13, twist=10 * s, sway=0.008 * s, nod=-5,
+                rf=(-0.085, 0.03 - 0.16 * s, 0.085 * max(0.0, c) + 0.01), lf=(0.085, 0.03 + 0.16 * s, 0.085 * max(0.0, -c) + 0.01),
+                rh=(-0.27, -0.06 + 0.1 * s, 0.42 + 0.03 * abs(s)), rd=(-0.66, -0.22 + 0.16 * s, 0.72), lh=(0.2, -0.2 - 0.07 * s, 0.47 + 0.02 * abs(s)))
+STRIDE = 4 * 0.16 * D.UNIT                     # design units the feet cover in one cycle of move, were it played by distance; the game plays it by time
 A_WIND = pose(rh=(-0.30, 0.10, 0.74), rd=(-0.2, 0.55, 0.8), twist=-22, lean=-4, lf=(0.09, -0.10, 0.0), bob=-0.01, lh=(0.2, -0.22, 0.48))
 A_PEAK = pose(rh=(-0.27, 0.16, 0.80), rd=(-0.1, 0.75, 0.65), twist=-30, lean=-6, lf=(0.09, -0.11, 0.0), bob=-0.005, lh=(0.2, -0.24, 0.5))
 A_BLOW = pose(rh=(-0.02, -0.34, 0.50), rd=(0.25, -0.9, -0.12), twist=28, lean=14, lf=(0.09, -0.17, 0.0), rf=(-0.09, 0.07, 0.0), bob=-0.03, lh=(0.24, -0.1, 0.44), nod=4)
@@ -128,7 +128,7 @@ def fall(tip, drop, k):  # the arms fly up, then lie out
 DIE = [HIT[0], fall(26, 0.0, 0.2), fall(58, 0.03, 0.6), fall(86, 0.1, 1.0), fall(90, 0.115, 1.0), fall(90, 0.11, 1.0)]
 CLIPS = {
     'stand': {'frames': [stand(i) for i in range(6)], 'delay': 125, 'loop': True},
-    'move': {'frames': [move(i) for i in range(8)], 'delay': 75, 'loop': True, 'stride': round(STRIDE, 2)},
+    'move': {'frames': [move(i) for i in range(8)], 'delay': 45, 'loop': True, 'stride': round(STRIDE, 2), 'note': 'a run, played by time: 360 ms a cycle'},
     'attack1': {'frames': ATTACK, 'delay': [60, 60, 70, 90, 90, 90], 'blow': 2},
     'cleave': {'frames': CLEAVE, 'delay': [50, 50, 50, 60, 60, 80, 100], 'blow': 3},
     'charge': {'frames': [dash(i) for i in range(4)], 'delay': 70, 'loop': True},
