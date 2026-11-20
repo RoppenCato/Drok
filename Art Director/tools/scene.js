@@ -12,7 +12,7 @@
 // needed"); --own 0.76,0.84 sets his health and rage, --own none leaves the bar out (for a sketch with --over).
 // --c1 dx,dy puts the crab he fights there from his feet (62,20 if not said). --clear tries a rule (Leonard, AD): a
 // monster's bar never lies on his head or his bar; one that would is lifted to sit right above his bar.
-//   node tools/scene.js <out.png> [--place crab-cay] [--mob reef-gull] [--lv 3] [--no-mobs] [--at 640,2040] [--no-glass] [--pile mine|bare] [--own 0.76,0.84|none] [--c1 62,20] [--clear] [--no-arrow] [--over work/x.js] [--stick 300,560] [--use "Open chest"] [--crop x,y,w,h,zoom]
+//   node tools/scene.js <out.png> [--place crab-cay] [--mob reef-gull] [--lv 3] [--no-mobs] [--no-loot] [--at 640,2040] [--no-glass] [--pile mine|bare] [--own 0.76,0.84|none] [--c1 62,20] [--clear] [--no-arrow] [--over work/x.js] [--stick 300,560] [--use "Open chest"] [--crop x,y,w,h,zoom]
 const P = require('./paint.js'); const D = require('./dress.js'); const fs = require('fs'); const path = require('path');
 const G = require('./glass.js');
 const W = P.JUDGE.w, H = P.JUDGE.h, FONT = 'Trebuchet MS';
@@ -53,7 +53,7 @@ async function main() {
   things.push({ y: hero.y, shadow: () => shadow(hero.x, hero.y, 15, 6), draw: () => D.hero(g, A, { action: 'stand', facing: 'se', i: 0, cutlass: 'rusty', buckler: 'plank', hat: 'bandana' }, sx(hero.x), sy(hero.y), 0.5) });
   if (mobs) for (const c of [c1, c2, c3]) things.push({ y: c.y, shadow: () => shadow(c.x, c.y, 17, 7), draw: () => D.figure(g, crab, c.f, sx(c.x), sy(c.y), 0.5) });
   if (mobs) piece('mark/target', sx(c1.x), sy(c1.y) + 2);                                                  // the ring under the one he fights
-  if (loot) { for (const [key, q, rar] of [['gear', drop, 'rare'], ['coins', coins, null]]) { if (rar) { g.save(); g.translate(sx(q.x), sy(q.y)); g.scale(0.5, 0.5); D.pic(g, loot, 'ring/' + rar); g.restore(); } things.push({ y: q.y, shadow: () => shadow(q.x, q.y, 8, 3), draw: () => sprite(loot, key, q.x, q.y) }); } }
+  if (loot && !args.includes('--no-loot')) { for (const [key, q, rar] of [['gear', drop, 'rare'], ['coins', coins, null]]) { if (rar) { g.save(); g.translate(sx(q.x), sy(q.y)); g.scale(0.5, 0.5); D.pic(g, loot, 'ring/' + rar); g.restore(); } things.push({ y: q.y, shadow: () => shadow(q.x, q.y, 8, 3), draw: () => sprite(loot, key, q.x, q.y) }); } }
   things.sort((a, b) => a.y - b.y); for (const t of things) t.shadow(); for (const t of things) t.draw();
   // over the monsters: a bar on the one he fights and on any that is hurt, at one height for the kind (its standing picture's)
   const o0 = D.frameOf(crab, 'stand', 's', 0).origin, top = (o0.y !== undefined ? o0.y : o0[1]) / 2;

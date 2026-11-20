@@ -47,11 +47,21 @@ const ISLES = {
 };
 // a town moved onto an island: the layout of out/<from>/place.json, shifted so its dock lies on the island's dock
 function townOf(L) {
-  if (!L.town) return null; const H = JSON.parse(fs.readFileSync(path.join(P.ROOT, 'out', L.town.from, 'place.json'), 'utf8')), dx = L.dock[0] - H.dock[0], dy = L.dock[1] - H.dock[1], mv = pts => pts.map(([x, y]) => [x + dx, y + dy]);
-  return { square: mv(H.square), grass: mv(H.grass), paths: H.paths.map(mv), props: H.props.filter(q => q.name !== 'dock').map(q => ({ name: q.name, x: q.x + dx, y: q.y + dy })), solid: H.solid.map(q => Object.assign({}, q, { x: q.x + dx, y: q.y + dy })),
-    people: H.people.map(q => Object.assign({}, q, { x: q.x + dx, y: q.y + dy })), stall: (() => { const st = H.props.find(q => q.name === 'stall'); return [st.x + dx, st.y + dy]; })() };
+  if (!L.town) return null; const H = L.town.layout || JSON.parse(fs.readFileSync(path.join(P.ROOT, 'out', L.town.from, 'place.json'), 'utf8')), dx = L.dock[0] - H.dock[0], dy = L.dock[1] - H.dock[1], mv = pts => pts.map(([x, y]) => [x + dx, y + dy]);
+  return { square: H.square && mv(H.square), grass: H.grass && mv(H.grass), decks: (H.decks || []).map(d => ({ sea: d.sea, pts: mv(d.pts) })), paths: H.paths.map(mv), props: H.props.filter(q => q.name !== 'dock').map(q => ({ name: q.name, x: q.x + dx, y: q.y + dy })), solid: H.solid.map(q => Object.assign({}, q, { x: q.x + dx, y: q.y + dy })),
+    people: H.people.map(q => Object.assign({}, q, { x: q.x + dx, y: q.y + dy })), stall: (() => { const st = H.props.find(q => q.name === (H.stall || 'stall')); return [st.x + dx, st.y + dy]; })() };
 }
 
+// a deck of planks: boards lying east to west, their ends staggered. Over the sea it has a side and throws a shadow on the water.
+function deck(g, d) {
+  const sh = poly(d.pts), b = box(d.pts);
+  if (d.sea) { g.save(); g.translate(8, 18); sh(g); g.fillStyle = 'rgba(24,52,110,0.3)'; g.fill(); g.restore(); g.save(); g.translate(0, 11); fill(g, sh, '#96592e'); g.restore(); }
+  else { g.save(); g.translate(0, 4); fill(g, sh, C.sandLo); g.restore(); }
+  fill(g, sh, C.plank); g.save(); sh(g); g.clip(); g.strokeStyle = C.plankLo; g.lineWidth = 2.6;
+  for (let y = b[1] + 15; y < b[1] + b[3]; y += 15) { g.beginPath(); g.moveTo(b[0], y); g.lineTo(b[0] + b[2], y); g.stroke(); }
+  let k = 0; for (let y = b[1]; y < b[1] + b[3]; y += 15, k++) for (let x = b[0] + ((k * 53) % 90); x < b[0] + b[2]; x += 90 + (k % 3) * 22) { g.beginPath(); g.moveTo(x, y); g.lineTo(x, y + 15); g.stroke(); }
+  g.restore();
+}
 function paint(L) {
   const r = P.rng(L.seed), px = L.px, cv = P.createCanvas(Math.round(L.w * px), Math.round(L.h * px)), g = cv.getContext('2d'); g.scale(px, px);
   const landP = curve(L.land), land = poly(landP);
@@ -74,15 +84,17 @@ function paint(L) {
     g.restore(); }
   if (L.grass) { const gp = curve(L.grass), sh = poly(gp), b = box(gp); fill(g, sh, C.grassLo); g.save(); sh(g); g.clip(); g.translate(0, -5); fill(g, sh, C.grass); g.translate(0, 5);
     for (let i = 0; i < b[2] * b[3] / 24000; i++) fill(g, blob(b[0] + r() * b[2], b[1] + r() * b[3], 28 + r() * 60, 12 + r() * 22, 9, 0.35, r), i % 2 ? C.grassHi : C.grassLo); g.restore(); }
-  if (T) { const gp = curve(T.grass), sh = poly(gp), b = box(gp); fill(g, sh, C.grassLo); g.save(); sh(g); g.clip(); g.translate(0, -5); fill(g, sh, C.grass); g.translate(0, 5); for (let i = 0; i < 12; i++) fill(g, blob(b[0] + r() * b[2], b[1] + r() * b[3], 26 + r() * 50, 11 + r() * 18, 9, 0.35, r), i % 2 ? C.grassHi : C.grassLo); g.restore(); }
+  if (T && T.grass) { const gp = curve(T.grass), sh = poly(gp), b = box(gp); fill(g, sh, C.grassLo); g.save(); sh(g); g.clip(); g.translate(0, -5); fill(g, sh, C.grass); g.translate(0, 5); for (let i = 0; i < 12; i++) fill(g, blob(b[0] + r() * b[2], b[1] + r() * b[3], 26 + r() * 50, 11 + r() * 18, 9, 0.35, r), i % 2 ? C.grassHi : C.grassLo); g.restore(); }
   if (L.rock) { const rp = curve(L.rock, 0.55), sh = poly(rp), b = box(rp); fill(g, sh, C.rockLo); g.save(); sh(g); g.clip(); g.translate(0, -5); fill(g, sh, C.rock); g.translate(0, 5);
     for (let i = 0; i < b[2] * b[3] / 20000; i++) { const x = b[0] + r() * b[2], y = b[1] + r() * b[3], s = 28 + r() * 54, pts = []; for (let k = 0; k < 6; k++) { const t = k / 6 * 6.283 + r() * 0.4; pts.push([x + Math.cos(t) * s * (0.7 + r() * 0.5), y + Math.sin(t) * s * 0.6 * (0.7 + r() * 0.5)]); } fill(g, poly(pts), i % 2 ? C.rockHi : C.rockLo); } g.restore(); }
   if (L.inlet) { const ip = curve(L.inlet), il = poly(ip); ring(g, il, C.foam, 12); fill(g, il, C.shallow); g.save(); il(g); g.clip(); fill(g, poly(ip.map(([x, y]) => [x, y - 46])), C.sea); g.restore(); }
-  if (T) { const sp = curve(T.square, 0.5), sq = poly(sp), b = box(sp); fill(g, sq, C.cobbleLo); g.save(); sq(g); g.clip(); g.translate(0, -4); fill(g, sq, C.cobble); g.translate(0, 4);      // the town's square: cobbles, drawn a little heavier than at one pixel a unit so they hold
-    g.strokeStyle = C.cobbleLo; g.lineWidth = 2.6; for (let y = b[1] - 20; y < b[1] + b[3] + 20; y += 22) for (let x = b[0] - 20 + (Math.round(y / 22) % 2) * 17; x < b[0] + b[2] + 20; x += 34) { g.beginPath(); g.ellipse(x + (r() - 0.5) * 5, y + (r() - 0.5) * 4, 12 + r() * 3, 7 + r() * 2, 0, 0, 7); g.stroke(); } g.restore();
+  if (T) { if (T.square) { const sp = curve(T.square, 0.5), sq = poly(sp), b = box(sp); fill(g, sq, C.cobbleLo); g.save(); sq(g); g.clip(); g.translate(0, -4); fill(g, sq, C.cobble); g.translate(0, 4);      // the town's square: cobbles, drawn a little heavier than at one pixel a unit so they hold
+    g.strokeStyle = C.cobbleLo; g.lineWidth = 2.6; for (let y = b[1] - 20; y < b[1] + b[3] + 20; y += 22) for (let x = b[0] - 20 + (Math.round(y / 22) % 2) * 17; x < b[0] + b[2] + 20; x += 34) { g.beginPath(); g.ellipse(x + (r() - 0.5) * 5, y + (r() - 0.5) * 4, 12 + r() * 3, 7 + r() * 2, 0, 0, 7); g.stroke(); } g.restore(); }
     for (const p of T.paths) { g.beginPath(); p.forEach((v, k) => k ? g.lineTo(v[0], v[1]) : g.moveTo(v[0], v[1])); g.lineJoin = 'round'; g.lineCap = 'round'; g.strokeStyle = C.sandLo; g.lineWidth = 46; g.stroke(); g.strokeStyle = C.path; g.lineWidth = 38; g.stroke(); } }
   for (const p of L.paths || []) { const q = curve(p.concat(p.slice(1, -1).reverse()), 0.5, 6).slice(0, (p.length - 1) * 6 + 1); g.beginPath(); q.forEach((v, k) => k ? g.lineTo(v[0], v[1]) : g.moveTo(v[0], v[1])); g.lineJoin = 'round'; g.lineCap = 'round'; g.strokeStyle = C.sandLo; g.lineWidth = 46; g.stroke(); g.strokeStyle = C.path; g.lineWidth = 38; g.stroke(); }
+  if (T) for (const d of T.decks) if (!d.sea) deck(g, d);
   g.restore();
+  if (T) for (const d of T.decks) if (d.sea) deck(g, d);      // a deck over the water is painted last: it lies on the sea and on the shore alike
   return cv;
 }
 
@@ -112,7 +124,7 @@ function place(L) {
   // the landing: the dock runs south into the sea, three pieces end to end; barrels, crates and a boat beside it
   if (T) { for (const q of T.props) props.push(q); for (const q of T.solid) solid.push(q); }                      // the town as it stood in the harbour: houses, stall, well, lamps, sign, barrels, crates, a boat, palms
   else { put('barrel', L.dock[0] - 60, L.dock[1] - 46, 10); put('crate', L.dock[0] - 88, L.dock[1] - 30, 10); put('barrel', L.dock[0] + 70, L.dock[1] - 36, 10); put('crate', L.dock[0] + 100, L.dock[1] - 60, 10); put('boat', L.dock[0] + 190, L.dock[1] - 40, 22); }
-  for (let i = 0; i < 3; i++) put('dock', L.dock[0], L.dock[1] + i * 56 + 56, 0);
+  for (let i = 0; i < (L.dockN === undefined ? 3 : L.dockN); i++) put('dock', L.dock[0], L.dock[1] + i * 56 + 56, 0);
   put('chest/closed', L.chest[0], L.chest[1], 12);
   props.sort((a, b) => a.y - b.y || a.x - b.x);
   return { props, solid, town: T };
@@ -130,17 +142,17 @@ function walkCheck(J) {
   let cut = 0, all = 0; for (let k = 0; k < free.length; k++) if (free[k]) { all++; if (!seen[k]) cut++; } console.log(`${(cut / all * 100).toFixed(2)}% of the free ground cannot be reached; he can walk on ${(all * c * c / 1e6).toFixed(1)} million square units`);
 }
 
-async function main() {
-  const name = process.argv[2] || 'crab-cay', L = ISLES[name], out = path.join(P.ROOT, 'work', name), cv = paint(L), { props, solid, town } = place(L), D = require('./dress.js');
+async function make(name) {
+  const L = ISLES[name], out = path.join(P.ROOT, 'work', name), cv = paint(L), { props, solid, town } = place(L), D = require('./dress.js');
   P.save(cv, path.join(out, 'ground.png'));
   const shapes = { land: curve(L.land), grass: curve(L.grass), rock: curve(L.rock, 0.55) };
   const grounds = L.grounds.map(q => Object.assign({ id: q.id, name: q.name, levels: q.levels }, q.later ? { later: true } : {}, { box: box(shapes[q.from]), outline: L[q.from] }));
   const J = { name, size: { w: L.w, h: L.h }, ground: { file: 'ground.png', px: L.px, note: 'HALF a pixel a design unit: draw it at four times its size' }, land: L.land, walk: inset(curve(L.land, 0.6, 4), 24), grass: L.grass, rock: L.rock, flats: L.flats, inlet: L.inlet, paths: L.paths.concat(town ? town.paths : []),
     dock: L.dock, arrive: L.arrive, chest: L.chest, zones: L.zones, grounds, props, solid };
-  if (town) { J.home = { box: box(curve(L.town.home)), outline: L.town.home, wake: L.town.wake, stall: town.stall, note: 'the town: no monster comes in; he wakes at wake; the stall stands at stall' }; J.square = town.square; J.people = town.people; }
+  if (town) { if (town.decks.length) J.decks = town.decks; J.home = { box: box(curve(L.town.home)), outline: L.town.home, wake: L.town.wake, stall: town.stall, note: 'the town: no monster comes in; he wakes at wake; the stall stands at stall' }; J.square = town.square; J.people = town.people; }
   fs.writeFileSync(path.join(out, 'place.json'), JSON.stringify(J)); walkCheck(J);
   // the studio's looks: the island with its props at a quarter size; the same with the names drawn on it
-  const adir = fs.existsSync(path.join(P.ROOT, 'out', name, 'island.json')) ? path.join(P.ROOT, 'out', name) : path.join(P.ROOT, 'out/island'), isl = await D.atlas(adir, 'island'), k = 0.25;
+  const adir = [path.join(P.ROOT, 'work', name), path.join(P.ROOT, 'out', name), path.join(P.ROOT, 'out/island')].find(d => fs.existsSync(path.join(d, 'island.json'))), isl = await D.atlas(adir, 'island'), k = 0.25;
   const pv = P.createCanvas(L.w * k, L.h * k), g = pv.getContext('2d'); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.scale(k, k); g.drawImage(cv, 0, 0, L.w, L.h);
   for (const p of props) { const f = isl.j.frames[p.name]; if (!f) continue; g.save(); g.globalAlpha = 0.24; g.fillStyle = '#5b4a82'; g.beginPath(); g.ellipse(p.x + 5, p.y + 1, f.frame.w * 0.16, f.frame.w * 0.055, 0, 0, 7); g.fill(); g.restore(); g.save(); g.translate(p.x, p.y); g.scale(0.5, 0.5); D.pic(g, isl, p.name); g.restore(); }
   const folkDir = [path.join(P.ROOT, 'out', name), path.join(P.ROOT, 'out/harbour')].find(d => fs.existsSync(path.join(d, 'folk.json')));
@@ -150,10 +162,10 @@ async function main() {
   g.lineWidth = 8; g.setLineDash([36, 24]); for (const [kind, list] of Object.entries(L.zones)) for (const z of list) { g.strokeStyle = { 'sand-crab': '#f4603c', 'reef-gull': '#ffffff', 'coconut-crab': '#8a5a34' }[kind]; g.strokeRect(z[0], z[1], z[2], z[3]); tag(`${kind}, level ${z[4]}`, z[0] + z[2] / 2, z[1] + 60, 56); }
   g.setLineDash([]); g.strokeStyle = '#33203a'; g.lineWidth = 8; for (const [n, p] of [['the chest', L.chest]]) { g.fillStyle = '#ffd640'; g.beginPath(); g.arc(p[0], p[1], 30, 0, 7); g.fill(); g.stroke(); tag(n, p[0], p[1] + 80, 60); }
   for (const q of grounds) tag(q.name, q.id === 'beach' ? 560 : q.box[0] + q.box[2] / 2, q.id === 'beach' ? 3560 : q.box[1] + q.box[3] / 2, 110);
-  if (J.home) { g.strokeStyle = '#ffd640'; g.lineWidth = 10; g.setLineDash([30, 18]); poly(curve(J.home.outline))(g); g.stroke(); g.setLineDash([]); tag('The town (home)', J.home.box[0] + J.home.box[2] / 2, J.home.box[1] + 60, 84, '#ffd640'); g.strokeStyle = '#33203a'; g.lineWidth = 8; g.fillStyle = '#ffd640'; g.beginPath(); g.arc(J.home.wake[0], J.home.wake[1], 26, 0, 7); g.fill(); g.stroke(); tag('he wakes', J.home.wake[0] + 150, J.home.wake[1], 52); }
+  if (J.home && town.square !== undefined) { g.strokeStyle = '#ffd640'; g.lineWidth = 10; g.setLineDash([30, 18]); poly(curve(J.home.outline))(g); g.stroke(); g.setLineDash([]); tag('The town (home)', J.home.box[0] + J.home.box[2] / 2, J.home.box[1] + 60, 84, '#ffd640'); g.strokeStyle = '#33203a'; g.lineWidth = 8; g.fillStyle = '#ffd640'; g.beginPath(); g.arc(J.home.wake[0], J.home.wake[1], 26, 0, 7); g.fill(); g.stroke(); tag('he wakes', J.home.wake[0] + 150, J.home.wake[1], 52); }
   g.strokeStyle = '#ffffff'; g.lineWidth = 8; g.strokeRect(300, 2240, 412, 915); tag('one screen', 506, 2700, 52);
   P.save(pv, path.join(out, 'map.jpg'));
   console.log('painted', name, `${L.w}x${L.h} units as ${cv.width}x${cv.height} px (${(cv.width * cv.height * 4 / 1048576).toFixed(1)} MB decoded),`, props.length, 'props,', solid.length, 'in the way');
 }
-if (require.main === module) main().catch(e => { console.error(e); process.exit(1); });
-module.exports = { ISLES, paint, place, curve, inside, C };
+if (require.main === module) make(process.argv[2] || 'crab-cay').catch(e => { console.error(e); process.exit(1); });
+module.exports = { ISLES, make, paint, place, curve, inside, box, C };

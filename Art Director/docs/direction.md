@@ -50,8 +50,11 @@ big, has several grounds with their own levels and monsters, and is walked witho
 - **The first one is Crab Cay, the starter island** (`out\crab-cay\`). Robin, 2026-11-20: "Make the starter island a
   pirate town, and the other part of the island beginner friendly with low level mobs." So the town stands at the
   landing as its safe part (`home`), and round it lie the beach with its tide flats, the grove and the cove.
-- **A town on an island is its own layout moved there** (`tools\isle.js`, `townOf`): its dock on the island's dock.
-  Today it is the harbour as it stood. A real pirate town is big work: three stills for Robin first.
+- **A town on an island is its own layout** (`tools\isle.js`, `townOf`): moved there from a place of its own, its
+  dock on the island's dock, or given whole. Today it is the harbour as it stood.
+- **The real pirate town** (open: Robin picks; he said "Yeah do an updated pirate town suggested", 2026-11-20): three
+  stills went to him the same day (`concepts\town\`): 1 a port, 2 a town built of ships, 3 a town on stilts. My pick
+  is 2. Until he has picked, the game keeps the old harbour at the landing.
 - **Kept for the second island (mine, a proposal):** a wreck on a reef, a hermit crab in a tankard, an octopus in a
   barrel.
 
