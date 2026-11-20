@@ -9,7 +9,9 @@
 // both sides and north to the grove; its outline is `home`.
 //   node concepts/town/town.js [3]        the three islands (or one) into work/crab-cay-1 .. -3, an overview of each town into work/town/
 const P = require('../../tools/paint.js'); const D = require('../../tools/dress.js'); const I = require('../../tools/isle.js'); const fs = require('fs'); const path = require('path');
-const R = P.ROOT, base = I.ISLES['crab-cay'];
+const R = P.ROOT, base = JSON.parse(JSON.stringify(I.ISLES['crab-cay']));
+// the island as it was when the three were drawn: a straight shore at the landing, the dock at 1400, 3972, three pieces long
+base.land = base.land.map(p => ({ '1400,3770': [1400, 4000], '1830,3890': [1800, 3975], '970,3890': [1020, 3970] })[p.join(',')] || p); base.dock = [1400, 3972]; delete base.dockN;
 // what stands in the way of each new piece: a box about its foot (width, depth in units), or a circle
 const FOOT = { tavern: [150, 60], 'house-a': [100, 50], 'house-b': [84, 46], 'house-c': [122, 52], 'house-d': [90, 46], 'house-e': [116, 50], 'house-f': [80, 44], 'hull-house': [200, 62], 'stern-house': [112, 44], 'hut-a': [100, 46], 'hut-b': [80, 44], 'hut-c': [132, 52], 'cabin-a': [146, 70], 'cabin-b': [130, 68], 'cabin-c': [180, 78], stall: [108, 44], awning: [100, 40],
   tower: 30, 'tower-thatch': 30, mast: 10, well: 18, lamp: 5, sign: 6, cannon: 14, anchor: 12, barrel: 10, crate: 10, boat: 22, post: 6, rack: [70, 10], 'palm-a': 12, 'palm-b': 12, 'palm-c': 10, 'bush-b': 16, bunting: 0 };
@@ -36,7 +38,7 @@ const TOWNS = {
 };
 (async () => {
   const atlas = path.join(R, 'work/town/atlas'), only = process.argv[2];
-  for (const [n, T] of Object.entries(TOWNS)) { if (only && only !== n) continue; const name = 'crab-cay-' + n, L = JSON.parse(JSON.stringify(base)); L.town = { home: T.home, wake: T.wake, layout: T.layout }; if (T.dockN !== undefined) L.dockN = T.dockN; L.dock = T.layout.dock; L.arrive = [L.dock[0], L.dock[1] - 54];
+  for (const [n, T] of Object.entries(TOWNS)) { if (only && only !== n) continue; const name = 'crab-cay-' + n, L = JSON.parse(JSON.stringify(base)); L.town = { home: T.home, wake: T.wake, layout: T.layout }; if (T.dockN !== undefined) L.dockN = T.dockN; else delete L.dockN; L.dock = T.layout.dock; L.arrive = [L.dock[0], L.dock[1] - 54];
     if (T.land) L.land = L.land.map(p => T.land[p.join(',')] || p);
     I.ISLES[name] = L; const out = path.join(R, 'work', name); fs.mkdirSync(out, { recursive: true }); for (const f of ['island.json', 'island.png']) fs.copyFileSync(path.join(atlas, f), path.join(out, f)); for (const f of ['folk.json', 'folk.png']) fs.copyFileSync(path.join(R, 'out/harbour', f), path.join(out, f));
     console.log('--- town', n, T.name); await I.make(name);

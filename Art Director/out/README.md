@@ -23,7 +23,8 @@ a NOTES.md. Nothing here has been judged by Robin: **every look and design is mi
   `h`, `origin` and its own data.
 - **A big island** (`crab-cay`): the small island's form, with the ground at HALF a pixel a unit (`ground.px` 0.5: drawn
   at four times), `walk` (the shore drawn in), `grounds` (each ground's name, levels, box and outline), zones with a
-  level, and the town on it as `home` with its `people`. Its NOTES.md lists the changes.
+  level, the town on it as `home` with its `people`, and `decks` (planks he can stand on, also over the water). A
+  piece with `shade: true` in its item carries its own shadow. Its NOTES.md lists the changes.
 - **The reference drawers**: `tools\dress.js` draws the Warrior with his gear from these files the way the game should;
   `tools\scene.js` draws a whole screen. If their pictures are right, the data is right. `out\scene\beach.png` is that.
 
@@ -41,13 +42,13 @@ house), with their notes. The first world made for it is in `concepts\house\kitc
 | `coconut-crab` | 1024 by 2048 | 8 MB | 202 KB |
 | `island` | ground 1400 by 2400, props 1024 by 1024 | 13.4 + 4 MB | 67 + 52 KB |
 | `loot` | 256 by 256 | 0.3 MB | 18 KB |
-| `glass` | 1024 by 1024 | 4 MB | 129 KB |
+| `glass` | 1024 by 790 | 3.1 MB | 125 KB |
 | `harbour` | ground 900 by 1100, props 1024 by 1024, people 1024 by 512 | 4 + 4 + 2 MB | 41 + 32 + 72 KB |
 | `chart` | the chart 824 by 1830, pins 256 by 256 | 6 + 0.3 MB | about 100 + 20 KB |
 | `icon` | 512 and 192 | | about 150 KB |
 | `font` | Nunito, one file | | 277 KB |
-| `hero-sheet` | the hero and his gear for his window, two of 512 by 512 at FOUR pixels a unit | 1 + 1 MB | about 60 KB |
-| `crab-cay` | ground 1400 by 2100 for 2800 by 4200 units, props 1024 by 1024 (the island's and the town's, 30), people 1024 by 512 | 11.8 + 4 + 2 MB | 93 + 67 + 72 KB |
+| `hero-sheet` | the hero and his gear for his window, 512 by 512 and 512 by 294, at FOUR pixels a unit | 1 + 0.6 MB | about 35 KB |
+| `crab-cay` | ground 1400 by 2100 for 2800 by 4200 units, props 2048 by 896 (the island's and the stilt town's, 33), people 1024 by 512 | 11.8 + 7 + 2 MB | 85 + 127 + 72 KB |
 
 The island with everything on it: about 46 MB decoded, under the 48 MB set for a place. The harbour with the hero and the glass: about 22 MB. All of it on disk: about 1.6 MB, of the 6 MB set for chapter 1.
 

@@ -50,7 +50,8 @@ head and for the stick. All of the look is mine.
   (`bar/hp`, `bar/rage`, `bar/xp`) stay in the atlas so nothing breaks.
 - **A heart** (`mark/heart`) for the left end of his health bar in the pile. Not used over his head.
 
-**The numbers:** `glass.png` is 1024 by 1024 now (it was 1024 by 512), 126 KB, 4 MB decoded, two pixels a unit. The
+**The numbers:** `glass.png` is 1024 by 790 now (it was 1024 by 512; not a power of two tall, to save a megabyte), 125 KB,
+3.1 MB decoded, two pixels a unit. The
 window is the reason: it is one piece as wide as a window. Sizes in design units; in `glass.json` each piece's `w` and
 `h` are file pixels, and its origin is its middle.
 

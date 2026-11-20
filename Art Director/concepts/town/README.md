@@ -31,9 +31,9 @@ What I changed for that, shown to him the same day as one still (`3-changed.jpg`
   paler and greyer, weathered, every third board a shade lighter. Every building throws the outline of its foot on the
   floor as a shadow (`bake.js`).
 
-**Waiting for his word on the changed still.** The page of the three as first shown:
-https://claude.ai/artifact/DF8E5yUvJ4ESqXuBjnN3LQ . Nothing is built for the game until he has said yes: the game keeps
-today's town.
+**He said "Yes"** to the changed still (in my chat, 2026-11-20). The town is built from it and delivered in
+`out\crab-cay\` (`blender\town.py`, `tools\shade.js`, `tools\isle.js`). The page of the three as first shown:
+https://claude.ai/artifact/DF8E5yUvJ4ESqXuBjnN3LQ .
 
 ## The files
 

@@ -55,8 +55,9 @@ big, has several grounds with their own levels and monsters, and is walked witho
 - **The real pirate town is a town on stilts** (Robin, 2026-11-20). He said "Yeah do an updated pirate town
   suggested", was shown three (`concepts\town\`: a port, a town built of ships, a town on stilts) and picked, in my
   chat: "3, but the buildings need to look nicer and have some depth to them. Theres also no contrast to the floor so
-  it all kinda melts together." One still with those changes went back to him the same day; the kit waits for his
-  word on it, and the game keeps the old harbour until then.
+  it all kinda melts together." One still with those changes went back to him the same day, and he said: "Yes". It
+  is built and in `out\crab-cay\`: a deck in a little bay, three painted huts on their own platforms, a thatched
+  lookout, a stall, a fish rack, two jetties to the beach and a walk of planks north.
 - **A building has depth** (from his words; how is mine): it stands on its own dark platform, turned so two walls
   show; a porch under the roof's overhang; the roof in two tiers. Never a flat front under a flat roof.
 - **What stands must not melt into what it stands on** (his words; how is mine): painted walls on a wooden floor,

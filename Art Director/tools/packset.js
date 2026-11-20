@@ -3,10 +3,10 @@
 // it in Phaser's atlas form (frames by name, the pivot at each picture's origin) with an 'items' block: for each picture
 // its size, its origin in its own pixels, and whatever data its builder gave (a nine-slice's corner, a prop's foot print).
 // The render dir holds the pictures and a meta.json: { "px": 2, "items": [{ "name": "hat-bandana/s", "file": "hat-bandana_s.png", "origin": [x, y], "data": {...} }] }
-//   node tools/packset.js <name> <render dir> <out dir> [--soft] [--only prefix] [--not prefix] [--keep] [--corner] [--extrude] [--width 512]
+//   node tools/packset.js <name> <render dir> <out dir> [--soft] [--only prefix] [--not prefix] [--keep] [--corner] [--extrude] [--tight] [--width 512]
 // --only and --not pick the pictures by the start of their names (icon/ ...); --keep leaves each picture whole (no trim: tiles).
 const P = require('./paint.js'); const fs = require('fs'); const path = require('path');
-const argv = process.argv.slice(2), flags = {}, pos = []; for (let i = 0; i < argv.length; i++) { const a = argv[i]; if (a === '--soft' || a === '--keep' || a === '--corner' || a === '--extrude') flags[a.slice(2)] = true; else if (a === '--only' || a === '--not' || a === '--width') flags[a.slice(2)] = argv[++i]; else pos.push(a); }
+const argv = process.argv.slice(2), flags = {}, pos = []; for (let i = 0; i < argv.length; i++) { const a = argv[i]; if (a === '--soft' || a === '--keep' || a === '--corner' || a === '--extrude' || a === '--tight') flags[a.slice(2)] = true; else if (a === '--only' || a === '--not' || a === '--width') flags[a.slice(2)] = argv[++i]; else pos.push(a); }
 const [name, dir, out] = pos;
 if (!name || !dir || !out) { console.log('usage: node tools/packset.js <name> <render dir> <out dir> [--soft] [--only prefix] [--not prefix] [--keep] [--width 512]'); process.exit(1); }
 (async () => {
@@ -26,7 +26,7 @@ if (!name || !dir || !out) { console.log('usage: node tools/packset.js <name> <r
     return { places, H: y }; };
   let W = +flags.width || 0, places, H; const widest = Math.max(...pics.map(p => p.cv.width)) + PAD * 2;
   if (W) ({ places, H } = shelf(W)); else for (const w of [128, 256, 512, 1024, 2048]) { if (w < widest) continue; const s = shelf(w); W = w; places = s.places; H = s.H; if (s.H <= w) break; }
-  H = pot(H); if (H > 2048) console.warn('!! the atlas runs past 2048 by 2048: fewer or smaller pictures, or a second atlas');
+  H = flags.tight ? H + (H % 2) : pot(H); if (H > 2048) console.warn('!! the atlas runs past 2048 by 2048: fewer or smaller pictures, or a second atlas');
   const atlas = P.createCanvas(W, H), g = atlas.getContext('2d'), json = { frames: {}, meta: { image: name + '.png', size: { w: W, h: H }, scale: '1', format: 'RGBA8888', app: 'Art Director/tools/packset.js', filePx: meta.px || P.FILE_PX }, items: {} };
   for (const p of places) {
     g.drawImage(p.f.cv, p.x, p.y); const w = p.f.cv.width, h = p.f.cv.height;
