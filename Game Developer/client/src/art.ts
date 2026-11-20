@@ -13,6 +13,8 @@ export const ART = {
   /** `art/<kind>`: the kinds of monster that have their own atlas. */
   /** `art/chest-burst`: the light of a chest opening: a glow, rays, a beam, a ring, stars, motes, and a turning coin. */
   burst: true,
+  /** `art/chest-burst/chest`: the chest drawn big and rich for its own screen (the field keeps its small one). */
+  bigChest: true,
   /** `art/hero-sheet`: the hero and his gear drawn once at twice the field's sharpness, for his window. */
   heroSheet: true,
   monsters: ['sand-crab', 'wharf-rat', 'bristle-piglet', 'palm-monkey', 'coconut-crab', 'hop-toad', 'plum-viper', 'frill-lizard'] as string[],
@@ -23,7 +25,7 @@ export const ART = {
   /** The name of the props' atlas in a place's folder, where it is not the folder's own name. */
   sets: { 'crab-cay': 'island', 'mire-cay': 'island' } as Record<string, string>,
   /** The people who stand about in a place: the drop's folder, and the atlas in it (its actions are who they are). */
-  folk: { 'crab-cay': 'folk' } as Record<string, string>,
+  folk: { 'crab-cay': 'folk', 'mire-cay': 'folk' } as Record<string, string>,
   /** `art/glass`: bars, discs, buttons, panels, slots and marks for the glass and the windows. */
   glass: true,
   /** `art/chart`: the sea chart as one picture that fills the screen, its pins and marks, and where each place is on it. */

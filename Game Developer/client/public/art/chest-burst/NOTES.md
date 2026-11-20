@@ -13,6 +13,18 @@ would play them.
 **The numbers:** `burst.png` 512 by 470, 46 KB, 0.9 MB decoded, two pixels a unit. Not a palette PNG: the pieces are
 soft. With it the starter place is 51.1 MB decoded, under the 52 set.
 
+**New on 2026-11-20: `chest.png`, `chest.json`, the chest for its own screen.** An hour after these pieces were asked
+for, Robin said in Victor, GD's chat: "I think the chests should open like in zite where its a big pop up screen and
+the game pauses". Victor, GD built that screen (`vieweveal.ts`) with these pieces as its light. I looked at it in
+the test copy: the light reads well on the dark veil, but the chest is the field's small picture drawn at about three
+times its size, so it is soft, and at that size a box with two bands is plain. So here is the chest again, built
+richer (a lid in planks, gold straps with studs, corner caps, a lock and its hasp, feet, a heap of coins inside) and
+rendered at **three times the field's pixels**: `chest/closed`, `chest/opening`, `chest/open`, the field's names,
+the origin where it stands. 512 by 568, 17 KB, 1.1 MB decoded. **`meta.filePx` is 6**: where the field's chest is
+drawn at one half, draw this at one sixth, then at the screen's size. The field keeps its own small chest.
+Its mouth is about 19 field units above the origin, where the field chest's is 18.
+The `TIMES` below were made for the field; on the screen Zite's longer charge (0.7 to 2.3 s) is right, as you have it.
+
 | Piece | Size in units | Its origin | What it is |
 | --- | --- | --- | --- |
 | `glow` | 96 by 96 | its middle | a soft round light |

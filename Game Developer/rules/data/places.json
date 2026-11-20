@@ -1,5 +1,5 @@
 {
-  "_about": "The places on the sea chart (Robin, 2026-11-20: 'Big islands with several biomes each, and the chart to sail between them'). Two today: Crab Cay, the starter island, with the pirate town on it (Robin, 2026-11-20: 'Make the starter island a pirate town, and the other part of the island beginner friendly with low level mobs'). A new hero starts in `start`, at `wake`, and wakes there after a fall. `home` is the town's outline: no monster comes for him inside it, his health comes back fast, the stall stands there and gets new pieces when he comes in from outside. `biomes` are the grounds of the place, each an outline with a name and its levels, the ones that lie inside another first; the screen says the name when he walks into one. A zone keeps `count` monsters of one kind inside its box; `level` is the Art Director's word for how hard that part is meant to be. Sailing is from a dock (he must stand near `dock`, and steps ashore at the other place's `arrive`); Mire Cay, the swamp (Robin, 2026-11-20: 'a second island to go to with some of the new mobs ... its own theme. A swamp maybe'), is the second: levels 6 to 8, its landing safe, no stall yet. `water` holds a place's inner waters (Crab Cay's inlet, the swamp's pools); a deck over one is a bridge. The layout is the Art Director's: tools/place-from-art.mjs writes `land` (where one can stand), `water`, `solids` (circles to walk round), `boxes` (houses, the stall), `dock`, `arrive`, `wake`, `home`, `biomes`, the chest's and the stall's spot and the zones from his place.json; never by hand. Names are Victor, GD's placeholders (docs/names.md).",
+  "_about": "The places on the sea chart (Robin, 2026-11-20: 'Big islands with several biomes each, and the chart to sail between them'). Two today: Crab Cay, the starter island, with the pirate town on it (Robin, 2026-11-20: 'Make the starter island a pirate town, and the other part of the island beginner friendly with low level mobs'). A new hero starts in `start`, at `wake`, and wakes there after a fall. `home` is the town's outline: no monster comes for him inside it, his health comes back fast, the stall stands there and gets new pieces when he comes in from outside. `biomes` are the grounds of the place, each an outline with a name and its levels, the ones that lie inside another first; the screen says the name when he walks into one. A zone keeps `count` monsters of one kind inside its box; `level` is the Art Director's word for how hard that part is meant to be. Sailing is from a dock (he must stand near `dock`, and steps ashore at the other place's `arrive`); Mire Cay, the swamp (Robin, 2026-11-20: 'a second island to go to with some of the new mobs ... its own theme. A swamp maybe'), is the second: levels 6 to 8, its landing a safe camp with a trader's stall. `water` holds a place's inner waters (Crab Cay's inlet, the swamp's pools); a deck over one is a bridge. The layout is the Art Director's: tools/place-from-art.mjs writes `land` (where one can stand), `water`, `solids` (circles to walk round), `boxes` (houses, the stall), `dock`, `arrive`, `wake`, `home`, `biomes`, the chest's and the stall's spot and the zones from his place.json; never by hand. Names are Victor, GD's placeholders (docs/names.md).",
   "start": "crab-cay",
   "places": {
     "crab-cay": {
@@ -1616,7 +1616,6 @@
         { "x": 1113, "y": 617, "r": 14 },
         { "x": 1064, "y": 542, "r": 24 },
         { "x": 1300, "y": 1118, "r": 9 },
-        { "x": 1158, "y": 2836, "r": 5 },
         { "x": 1233, "y": 2711, "r": 5 },
         { "x": 1156, "y": 2581, "r": 5 },
         { "x": 1249, "y": 2446, "r": 5 },
@@ -1642,11 +1641,17 @@
         { "x": 788, "y": 1105, "r": 5 },
         { "x": 1656, "y": 1355, "r": 5 },
         { "x": 1768, "y": 1115, "r": 5 },
+        { "x": 1345, "y": 2773, "r": 36 },
+        { "x": 1282, "y": 2865, "r": 11 },
+        { "x": 1150, "y": 2757, "r": 5 },
         { "x": 1900, "y": 606, "r": 12 },
+        { "x": 1152, "y": 2818, "r": 9 },
         { "x": 1900, "y": 610, "r": 14 }
       ],
-      "boxes": [],
-      "shop": null,
+      "boxes": [
+        { "x": 1011, "y": 2770, "w": 130, "h": 44 }
+      ],
+      "shop": { "x": 1076, "y": 2806, "keeper": "The swamp trader" },
       "chest": { "x": 1900, "y": 610, "refillMinutes": 20, "goldMin": 120, "goldMax": 200, "itemTier": 3, "potions": 3 },
       "zones": [
         { "kind": "hop-toad", "count": 5, "x": 330, "y": 2180, "w": 780, "h": 580, "level": 6 },

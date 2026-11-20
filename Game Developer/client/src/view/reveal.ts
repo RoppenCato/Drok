@@ -103,7 +103,11 @@ export class Reveal {
       this.glowScale = 1;
       this.glow = this.keep(s.add.circle(CX, CHEST_Y - 10, 96, this.color, 0.2).setBlendMode(Phaser.BlendModes.ADD).setDepth(TOP + 1));
     }
-    const drawn = chestKey ? picture(s, chestKey, 'chest/closed') : null;
+    // Leonard, AD's chest for this screen (planks, gold straps, a lock, coins inside; three times the field's
+    // sharpness) when that drop is in; else the field's small chest of this place, blown up.
+    const big = s.textures.exists('chest-big');
+    if (big) this.chestKey = 'chest-big';
+    const drawn = big ? picture(s, 'chest-big', 'chest/closed') : chestKey ? picture(s, chestKey, 'chest/closed') : null;
     if (drawn) {
       this.chestScale = drawn.scaleX * 3.4;
       this.chest = this.keep(drawn.setPosition(CX, CHEST_Y).setScale(this.chestScale).setDepth(TOP + 2));

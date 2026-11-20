@@ -110,7 +110,7 @@
     "leashRange": 560,
     "reach": 60,
     "reachGrace": 12,
-    "windupSeconds": 0.7,
+    "windupSeconds": 0.55,
     "restSeconds": 1.1,
     "retreatSeconds": 0,
     "slamRadius": 0,

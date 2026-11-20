@@ -631,6 +631,7 @@ export class Panels {
     const left = F.x + 22;
     const chosen = this.skill ?? h.slots[0] ?? SKILL_ORDER[0]!;
     const places = ['middle button', 'side button'];
+    const short = ['middle', 'side'];
 
     // What he carries: one skill for each of the two buttons on the glass.
     this.text(CX, F.y + 44, 'You carry two. Tap a skill, then a button.', 13, COLORS.dim);
@@ -689,14 +690,15 @@ export class Panels {
       this.text(CX, by, `Reach level ${skill.level} and it is yours.`, 13, COLORS.dim);
       return;
     }
-    places.forEach((place, i) => {
+    places.forEach((_place, i) => {
       const there = h.slots[i] === chosen;
       this.button(
         CX - 86 + i * 172,
         by,
         164,
         40,
-        there ? `On the ${place}` : `To the ${place}`,
+        // Short words: "On the middle button" filled its button from end to end (Leonard, AD, 2026-11-20).
+        there ? `On the ${short[i]}` : `To the ${short[i]}`,
         () => {
           if (!there) this.actions.act({ type: 'equipSkill', slot: i, skill: chosen });
           this.refresh();

@@ -65,7 +65,10 @@ describe('the swamp, Mire Cay', () => {
       expect(inHome(mire, { x: m.homeX, y: m.homeY })).toBe(false);
     }
     expect(inHome(mire, mire.arrive)).toBe(true);
-    expect(mire.shop).toBeNull();
+    // Its landing is a camp with a trader's stall, safe as the town is.
+    expect(mire.shop).not.toBeNull();
+    expect(inHome(mire, mire.shop!)).toBe(true);
+    expect(inHome(mire, mire.wake)).toBe(true);
     // And home again.
     sim.walkTo('dock');
     expect(sim.act({ type: 'sail', to: START_PLACE }).at(-1)).toEqual({ type: 'sailed', from: 'mire-cay', to: 'crab-cay' });

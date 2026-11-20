@@ -165,8 +165,7 @@ export class Hud {
       [382, 'Skills', 'skills'],
     ];
     for (const [x, label, panel] of tops) {
-      // The skills button wears the hero's picture until the Art Director draws its own.
-      const drawn = g ? piece(s, `button/${panel === 'skills' ? 'hero' : panel}`) : null;
+      const drawn = g ? (piece(s, `button/${panel}`) ?? (panel === 'skills' ? piece(s, 'button/hero') : null)) : null;
       if (drawn) {
         this.reg(drawn.setPosition(x, 30).setDepth(top));
         if (panel === 'bag') this.bag = drawn;
