@@ -12,14 +12,31 @@ until you are done. Including tests. I dont need to approve or answer any questi
 the art you need. I approve." So the look below is **my choice**, wave 1 is being built on it, and he judges it when
 he is back. If he picks another look, the models are re-finished or the figures redone, and this sheet changes.
 
-## A new theme, being drawn (Robin, 2026-11-20)
+## The new theme and how small he is (Robin, 2026-11-20)
 
 Robin, in Victor, GD's chat: "I think I like it more if its an open world and not tied to islands. Instead it should be
 biomes." "A shrunk person and enemies are insects"; "Lets do 1, but inside a house." "I really liked the color and
-aestethic of what we have now tho." "Does it really work well im 2D tho? Scale can be tricky." Three stills went to him
-the same day (`concepts\house\`, `out\house-concepts\NOTES.md`): the same kitchen floor with the hero at three sizes. He
-has not picked. **Until he has, everything below stands as written**; when he picks, this sheet is rewritten (the theme,
-the places, the sizes), and the look stays the one he liked.
+aestethic of what we have now tho." "Does it really work well im 2D tho? Scale can be tricky." He was shown three
+stills, the same kitchen floor with the hero at 5 cm, 1.5 cm and 0.6 cm (`concepts\house\`,
+`out\house-concepts\NOTES.md`), and said in my chat, 2026-11-20: **"Go for 2"**.
+
+My reading of those three words (mine): the house goes ahead, and he is bean size. So:
+
+- **He is about 1.5 cm tall.** He stays 54 units on the screen, so a centimetre of the house is 36 design units and the
+  screen shows about 11 cm of floor across.
+- **The things tell his size.** A place has things everybody knows, whole and bigger than he is: a coin is 83 units
+  across, a dice 58, a toy brick 115 long, a chair leg 126 wide, a pencil 25 thick and longer than the screen.
+- **The insects come in every size.** An ant about 40 units, a ladybird about 34, a cockroach about 125, a spider a
+  boss. Most monsters stay between 30 and 130, as today.
+
+Shown in still 2, mine, and not judged apart from it: the floor is drawn tilted as the models are seen (a square tile is
+1 wide and 0.57 tall); a table or a chair is its legs and its shadow, the top of a leg fading out; a thing that lies
+flat throws its own outline as a shadow; his gear is found things (a pin, a shirt button); the insects are round with
+big eyes.
+
+**No atlas is made yet.** Victor, GD rewrites the brief with Robin (the hero's aim, his weapons, the places, the
+monsters, the names) and says what the game needs first. Until then the pirate sections below are what the game is
+built as, and they are rewritten when the brief is. The look in use stays as it is.
 
 ## The look in use (mine, 2026-11-20; not judged by Robin)
 

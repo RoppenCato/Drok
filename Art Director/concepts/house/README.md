@@ -9,7 +9,8 @@ bean size (1.5 cm), 3 ant size (0.6 cm). What each shows, the numbers, what I wo
 delivery's notes: `out\house-concepts\NOTES.md`.
 
 Sent into the chat on 2026-11-20. The page for his phone: https://claude.ai/artifact/LxsNeaPvVNjVtG2g1LYo6B
-**Waiting for Robin's pick.** Nothing is built from any of them until he has picked.
+**Robin picked** (in my chat, 2026-11-20): "Go for 2". Bean size. Nothing is built from it yet; it is written into
+`docs\direction.md`.
 
 ## The files
 

@@ -1,5 +1,7 @@
 # house-concepts  (Leonard, AD, 2026-11-20)
 
+**Robin picked 2** (in my chat, 2026-11-20): "Go for 2". Bean size, he is about 1.5 cm.
+
 **What it is:** three stills for Robin to pick from. A shrunk person in a house, with insects as enemies, shown at
 three sizes of hero. Concepts only: nothing here goes into the game, and nothing in the game changes until he has
 picked.
@@ -64,7 +66,7 @@ where you can hardly see that it is a house.
 
 ## Open
 
-- Robin's pick.
+- What the game needs first at this size. Victor, GD's to say, once the brief is rewritten. No atlas is made yet.
 - Who the shrunk person is. The stills use today's Warrior's body; his clothes and hair are not designed.
 - How cute or how creepy the insects are. I kept them round.
 - How a tall thing is cut. The fade is how I drew it; how the game does it is Victor, GD's.
