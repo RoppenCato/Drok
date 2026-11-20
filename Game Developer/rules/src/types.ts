@@ -20,8 +20,12 @@ export type SkillId = 'charge' | 'cleave';
 
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic';
 
-/** What shows on him (Robin, 2026-11-20: "The big pieces"): a cutlass, a buckler, a hat, a coat. */
-export type Slot = 'weapon' | 'shield' | 'hat' | 'coat';
+/**
+ * The parts of him a piece of gear is for: eight, as in Zite (Robin, 2026-11-20: "more slots for items"). A
+ * cutlass, a buckler, a hat and a coat show on him (Robin, 2026-11-20: "The big pieces"); gloves, boots, a ring
+ * and a charm show only on his sheet.
+ */
+export type Slot = 'weapon' | 'shield' | 'hat' | 'coat' | 'gloves' | 'boots' | 'ring' | 'charm';
 
 /** One piece of gear: a base from the data and a rarity. Its numbers come from those two; nothing else is stored. */
 export interface Item {

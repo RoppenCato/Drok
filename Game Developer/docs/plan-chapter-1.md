@@ -208,6 +208,18 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
     - `[ ]` GD: a safe part inside a place (built once for the house: commit `0ee2db9`, `home`), waking there
       after a fall, the harbour off the chart; the bot plays it through
 
+24. `[x] Built 2026-11-20` `[ ] Checked` · GD · **Eight parts to wear gear on** (Robin, 2026-11-20: "There should
+    also be more slots for items ... take a lot from the zite inventory and equip")
+    - `[x]` gloves, boots, a ring and a charm beside cutlass, buckler, hat and coat; twelve new pieces in three
+      tiers (names and numbers mine: gloves and rings add to his swing, boots to his health, a charm to his armour)
+    - `[x]` the hero sheet has four slots each side of him, as Zite's; the save is version 5 (the new parts bare)
+    - the new pieces are plain shapes until Leonard, AD's icons; with eight parts each fills more slowly from the
+      same drops, and a fully dressed hero is stronger than before: the balance run was not run again
+
+25. `[ ]` · AD · **A wooden pirate look for menus, panels and icons** (Robin, 2026-11-20: "some nice pirate design
+    to menus and panels. Like some wooden feeling. Right now it looks bland. Also update icons so they look
+    fitting"): three stills for Robin to pick from, asked 2026-11-20; then the kit, and GD puts it in
+
 ## Waits for Robin
 
 - Play it: `http://192.168.0.43:5178/` on the home Wi-Fi. The first minute: tap the stall to see what it sells,

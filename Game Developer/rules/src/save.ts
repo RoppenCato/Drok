@@ -2,10 +2,10 @@
 // carries its version from day one. When the shape changes, STATE_VERSION goes up by one and a step is added here
 // that brings the old shape to the new, so nobody loses a game to an update.
 
-import { BASES, MONSTERS, PLACES, START_PLACE } from './data.ts';
+import { BASES, MONSTERS, PLACES, SLOTS, START_PLACE } from './data.ts';
 import { newGame } from './game.ts';
 import { clear } from './ground.ts';
-import type { GameState, Item } from './types.ts';
+import type { GameState, Item, Slot } from './types.ts';
 
 /**
  * The shape of the state today.
@@ -14,8 +14,9 @@ import type { GameState, Item } from './types.ts';
  * 3: the hero carries the way he is walking (`route`), now that there are things to walk round.
  * 4: one way to steer (Robin, 2026-11-20): the state no longer says which of three; the hero carries whether he
  *    picked his target himself (`chosen`).
+ * 5: eight parts of him to wear gear on, where there were four (Robin, 2026-11-20: "more slots for items").
  */
-export const STATE_VERSION = 4;
+export const STATE_VERSION = 5;
 
 /**
  * Bring a stored state up to today's version, or null for anything that is not a state we know (a broken save, a
@@ -28,8 +29,17 @@ export function migrate(raw: unknown): GameState | null {
   if (r.version === 1) return fromVersion1(r);
   if (r.version === 2) r = fromVersion2(r);
   if (r?.version === 3) r = fromVersion3(r);
+  if (r?.version === 4) r = fromVersion4(r);
   if (r?.version === STATE_VERSION) return checked(r);
   return null;
+}
+
+/** 4 → 5. He wears what he wore; the four new parts of him are bare. */
+function fromVersion4(old: Record<string, unknown>): Record<string, unknown> | null {
+  if (typeof old.hero !== 'object' || old.hero === null) return null;
+  const hero = old.hero as Record<string, unknown>;
+  const worn = typeof hero.worn === 'object' && hero.worn !== null ? (hero.worn as Record<string, unknown>) : {};
+  return { ...old, version: 5, hero: { ...hero, worn: { ...worn, gloves: null, boots: null, ring: null, charm: null } } };
 }
 
 /** 3 → 4. The way of steering is no longer a choice; he did not pick his target himself, as far as we know. */
@@ -99,7 +109,7 @@ function checked(raw: Record<string, unknown>): GameState | null {
     PLACES[s.place] !== undefined &&
     s.monsters.every((m) => MONSTERS[m.kind] !== undefined) &&
     h.bag.every(known) &&
-    Object.values(h.worn).every((item) => item === null || known(item)) &&
+    SLOTS.every((slot) => h.worn[slot] === null || known(h.worn[slot])) &&
     s.shop.every((item) => item === null || known(item)) &&
     s.drops.every((d) => d.kind !== 'item' || known(d.item));
   // A place whose layout has changed since the save (the island got its shore, the town its houses) may have him
@@ -132,12 +142,7 @@ function checked(raw: Record<string, unknown>): GameState | null {
       swing: null,
       charging: null,
       bag: h.bag.filter(known),
-      worn: {
-        weapon: known(h.worn.weapon) ? h.worn.weapon : null,
-        shield: known(h.worn.shield) ? h.worn.shield : null,
-        hat: known(h.worn.hat) ? h.worn.hat : null,
-        coat: known(h.worn.coat) ? h.worn.coat : null,
-      },
+      worn: Object.fromEntries(SLOTS.map((slot) => [slot, known(h.worn[slot]) ? h.worn[slot] : null])) as Record<Slot, Item | null>,
     },
   };
 }

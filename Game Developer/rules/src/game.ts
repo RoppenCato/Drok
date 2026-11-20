@@ -26,7 +26,7 @@ export interface NewGameOptions {
  */
 export function newGame(o: NewGameOptions): GameState {
   const town = PLACES[START_PLACE]!;
-  const worn: Record<Slot, Item | null> = { weapon: null, shield: null, hat: null, coat: null };
+  const worn: Record<Slot, Item | null> = { weapon: null, shield: null, hat: null, coat: null, gloves: null, boots: null, ring: null, charm: null };
   const s: GameState = {
     version: STATE_VERSION,
     seed: o.seed,

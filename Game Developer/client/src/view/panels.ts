@@ -74,7 +74,7 @@ const H = DESIGN_HEIGHT;
 const CX = W / 2;
 /** The window's frame. */
 const F = { x: 20, y: 118, w: 372, h: 690 };
-const SLOT_NAMES: Record<Slot, string> = { weapon: 'cutlass', shield: 'buckler', hat: 'hat', coat: 'coat' };
+const SLOT_NAMES: Record<Slot, string> = { weapon: 'cutlass', shield: 'buckler', hat: 'hat', coat: 'coat', gloves: 'gloves', boots: 'boots', ring: 'ring', charm: 'charm' };
 
 /** What a piece gives, in words: "+4 damage", "+16 health, 1 armour". */
 export function statWords(item: Item): string {
@@ -274,8 +274,13 @@ export class Panels {
     if (slot === 'weapon') shape = s.add.rectangle(x, y, 36 * k, 7 * k, tint).setRotation(-0.8);
     else if (slot === 'shield') shape = s.add.circle(x, y, 14 * k, tint);
     else if (slot === 'hat') shape = s.add.triangle(x, y, 0, 24 * k, 15 * k, 0, 30 * k, 24 * k, tint);
+    else if (slot === 'gloves') shape = s.add.ellipse(x, y, 22 * k, 28 * k, tint);
+    else if (slot === 'boots') shape = s.add.rectangle(x, y + 4 * k, 30 * k, 14 * k, tint);
+    else if (slot === 'ring') shape = s.add.circle(x, y, 11 * k, 0x000000, 0).setStrokeStyle(5 * k, tint);
+    else if (slot === 'charm') shape = s.add.star(x, y, 4, 6 * k, 15 * k, tint);
     else shape = s.add.rectangle(x, y, 24 * k, 28 * k, tint);
-    this.keep(shape.setDepth(DEPTH.panel + 2).setStrokeStyle(2, hex(COLORS.textDark)));
+    if (slot !== 'ring') shape.setStrokeStyle(2, hex(COLORS.textDark));
+    this.keep(shape.setDepth(DEPTH.panel + 2));
   }
 
   private rebuild(): void {
@@ -359,36 +364,35 @@ export class Panels {
     // Who he is, how far to the next level, what he owns.
     const need = xpToNext(h.level);
     this.text(left, F.y + 46, `Level ${h.level} Warrior`, 16, COLORS.text, 0);
+    this.text(CX + 20, F.y + 46, need > 0 ? `${h.xp} of ${need} xp` : 'top level', 13, COLORS.dim);
     this.text(right, F.y + 46, `${h.gold} gold`, 15, COLORS.goldText, 1);
     this.rect(CX, F.y + 66, F.w - 44, 10, COLORS.barBack);
     const part = need > 0 ? Math.min(1, h.xp / need) : 1;
     if (part > 0) this.keep(s.add.rectangle(left + 1, F.y + 66, (F.w - 46) * part, 8, COLORS.xp).setOrigin(0, 0.5).setDepth(DEPTH.panel + 2));
-    this.text(CX, F.y + 84, need > 0 ? `${h.xp} of ${need} experience to level ${h.level + 1}` : 'As far as this chapter goes', 13, COLORS.dim);
 
     // The hero wearing his gear, and a slot for each part of him beside him.
-    const top = F.y + 100;
-    this.row(CX, top + 82, 136, 164);
+    const top = F.y + 82;
+    this.row(CX, top + 98, 150, 196);
     const data = s.textures.exists('hero') ? (s.cache.json.get('hero:data') as AtlasData | undefined) : undefined;
     if (ART.hero && data?.actions) {
       const gear = ART.gear && s.textures.exists('gear') ? ((s.cache.json.get('gear:data') as GearData | undefined) ?? null) : null;
       this.sheetHero = new HeroFigure(s, this.reg, data, gear);
-      this.sheetHero.sync({ x: CX, y: top + 146, depth: DEPTH.panel + 3, facing: Math.PI / 2, moving: false, charging: false, down: false, worn: h.worn, delta: 0, flash: false, size: 2.4 });
+      this.sheetHero.sync({ x: CX, y: top + 168, depth: DEPTH.panel + 3, facing: Math.PI / 2, moving: false, charging: false, down: false, worn: h.worn, delta: 0, flash: false, size: 2.7 });
     } else {
       this.keep(s.add.circle(CX, top + 90, 34, COLORS.hero).setStrokeStyle(3, COLORS.heroDark).setDepth(DEPTH.panel + 2));
       this.keep(s.add.circle(CX, top + 60, 16, COLORS.skin).setStrokeStyle(2, COLORS.heroDark).setDepth(DEPTH.panel + 2));
     }
-    const places: [Slot, number, number][] = [
-      ['hat', CX - 112, top + 40],
-      ['coat', CX - 112, top + 122],
-      ['weapon', CX + 112, top + 40],
-      ['shield', CX + 112, top + 122],
+    // Eight parts of him, four each side, as in Zite: what covers him on the left, what he holds and his trinkets on the right.
+    const sides: [Slot[], number][] = [
+      [['hat', 'coat', 'gloves', 'boots'], CX - 122],
+      [['weapon', 'shield', 'ring', 'charm'], CX + 122],
     ];
+    const places: [Slot, number, number][] = sides.flatMap(([slots, x]) => slots.map((slot, i): [Slot, number, number] => [slot, x, top + 23 + i * 50]));
     for (const [slot, x, y] of places) {
       const item = h.worn[slot];
-      this.icon(x, y, item, slot, 56, this.selectedSlot === slot);
-      this.text(x, y + 38, SLOT_NAMES[slot], 13, COLORS.dim);
-      this.zone(x, y + 6, 76, 84, () => {
-        this.selectedSlot = item ? slot : null;
+      this.icon(x, y, item, slot, 46, this.selectedSlot === slot);
+      this.zone(x, y, 58, 50, () => {
+        this.selectedSlot = slot;
         this.selected = null;
         this.refresh();
       });
@@ -402,10 +406,10 @@ export class Panels {
       `Armour ${heroArmour(h)}`,
       `Crit ${Math.round(N.hero.critChance * 100)}%`,
     ];
-    numbers.forEach((line, i) => this.text(i % 2 === 0 ? left + 8 : CX + 22, top + 182 + Math.floor(i / 2) * 20, line, 14, COLORS.text, 0));
+    numbers.forEach((line, i) => this.text(i % 2 === 0 ? left + 8 : CX + 22, top + 212 + Math.floor(i / 2) * 20, line, 14, COLORS.text, 0));
 
     // The bag: a grid of cells, each edged in its piece's rarity; a better piece than the worn one has a mark.
-    const gy = F.y + 326;
+    const gy = F.y + 336;
     this.text(left, gy, `Bag ${h.bag.length} of ${N.bagSize}`, 13, COLORS.dim, 0);
     this.text(right, gy, `Potions ${h.potions} of ${N.potion.carry}`, 13, COLORS.dim, 1);
     const cols = 7;
@@ -438,10 +442,11 @@ export class Panels {
     const carried = h.bag.find((i) => i.id === this.selected) ?? null;
     const wornPiece = this.selectedSlot ? h.worn[this.selectedSlot] : null;
     const item = carried ?? wornPiece;
-    const by = cy + ch + 28;
+    const by = cy + ch + 26;
     if (!item) {
       this.text(CX, cy + 46, h.bag.length === 0 ? 'The bag is empty.' : 'Tap a piece to look at it.', 15, COLORS.dim);
       this.text(CX, cy + 70, h.bag.length === 0 ? 'Loot flies to you when you walk close.' : 'Tap what he wears to take it off.', 13, COLORS.dim);
+      if (this.selectedSlot) this.text(CX, cy + 94, `He wears no ${SLOT_NAMES[this.selectedSlot]}.`, 13, COLORS.dim);
     } else {
       const base = baseOf(item);
       const rarity = RARITIES[item.rarity];
@@ -518,7 +523,7 @@ export class Panels {
       }
       const bw = 104;
       const span = (buttons.length - 1) * (bw + 10);
-      buttons.forEach(([label, press, color], i) => this.button(CX - span / 2 + i * (bw + 10), by, bw, 44, label, press, true, color));
+      buttons.forEach(([label, press, color], i) => this.button(CX - span / 2 + i * (bw + 10), by, bw, 40, label, press, true, color));
     }
 
     // What he has felled, or the way back to the stall.

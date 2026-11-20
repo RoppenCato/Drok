@@ -1,6 +1,6 @@
 {
-  "_about": "Gear for chapter 1: four slots (Robin, 2026-11-20, 'The big pieces': every cutlass, buckler and hat has its own shape; coats come in a handful of looks), three tiers, four rarities. A piece is a base and a rarity; its numbers are the base's times the rarity's `times`, and never less than the base plus one for each step of rarity. Affixes, uniques and sets are chapter 2. `value` is what a common one is worth; the shop sells at value times `buyTimes` and buys at value times `sellShare`. Names are Victor, GD's placeholders.",
-  "slots": ["weapon", "shield", "hat", "coat"],
+  "_about": "Gear for chapter 1: eight slots, as Zite has eight (Robin, 2026-11-20: 'There should also be more slots for items. Again, i think you can take a lot from the zite inventory and equip'). Which eight is Victor, GD's: cutlass, buckler, hat and coat show on him (Robin, 2026-11-20, 'The big pieces': every cutlass, buckler and hat has its own shape; coats come in a handful of looks; boots, gloves and rings show only in the bag); gloves and a ring add to his swing, boots to his health, a charm to his armour. Three tiers, four rarities. A piece is a base and a rarity; its numbers are the base's times the rarity's `times`, and never less than the base plus one for each step of rarity. Affixes, uniques and sets are chapter 2. `value` is what a common one is worth; the shop sells at value times `buyTimes` and buys at value times `sellShare`. Names are Victor, GD's placeholders.",
+  "slots": ["weapon", "shield", "hat", "coat", "gloves", "boots", "ring", "charm"],
   "rarities": {
     "_about": "weight is how often a drop is of that rarity. The colours are Leonard, AD's (his loot drop of 2026-11-20; Robin's to judge): the ring on the ground and the edge in the bag.",
     "common": { "name": "Common", "times": 1, "weight": 70, "color": "#b9b2a6" },
@@ -30,6 +30,18 @@
     "feathered-hat": { "slot": "hat", "tier": 3, "name": "Feathered hat", "damage": 0, "hp": 28, "armour": 0, "value": 36 },
     "linen-shirt": { "slot": "coat", "tier": 1, "name": "Linen shirt", "damage": 0, "hp": 10, "armour": 0, "value": 6 },
     "sailors-coat": { "slot": "coat", "tier": 2, "name": "Sailor's coat", "damage": 0, "hp": 20, "armour": 0, "value": 16 },
-    "corsairs-coat": { "slot": "coat", "tier": 3, "name": "Corsair's coat", "damage": 0, "hp": 30, "armour": 1, "value": 40 }
+    "corsairs-coat": { "slot": "coat", "tier": 3, "name": "Corsair's coat", "damage": 0, "hp": 30, "armour": 1, "value": 40 },
+    "rope-gloves": { "slot": "gloves", "tier": 1, "name": "Rope gloves", "damage": 1, "hp": 0, "armour": 0, "value": 5 },
+    "deckhands-gloves": { "slot": "gloves", "tier": 2, "name": "Deckhand's gloves", "damage": 2, "hp": 0, "armour": 0, "value": 14 },
+    "corsairs-gauntlets": { "slot": "gloves", "tier": 3, "name": "Corsair's gauntlets", "damage": 3, "hp": 0, "armour": 1, "value": 36 },
+    "worn-boots": { "slot": "boots", "tier": 1, "name": "Worn boots", "damage": 0, "hp": 6, "armour": 0, "value": 5 },
+    "sea-boots": { "slot": "boots", "tier": 2, "name": "Sea boots", "damage": 0, "hp": 12, "armour": 0, "value": 14 },
+    "captains-boots": { "slot": "boots", "tier": 3, "name": "Captain's boots", "damage": 0, "hp": 22, "armour": 0, "value": 36 },
+    "copper-ring": { "slot": "ring", "tier": 1, "name": "Copper ring", "damage": 1, "hp": 4, "armour": 0, "value": 7 },
+    "silver-ring": { "slot": "ring", "tier": 2, "name": "Silver ring", "damage": 2, "hp": 8, "armour": 0, "value": 18 },
+    "gold-signet": { "slot": "ring", "tier": 3, "name": "Gold signet", "damage": 3, "hp": 14, "armour": 0, "value": 44 },
+    "shark-tooth": { "slot": "charm", "tier": 1, "name": "Shark tooth", "damage": 0, "hp": 0, "armour": 1, "value": 7 },
+    "lucky-coin": { "slot": "charm", "tier": 2, "name": "Lucky coin", "damage": 0, "hp": 8, "armour": 1, "value": 18 },
+    "black-pearl": { "slot": "charm", "tier": 3, "name": "Black pearl", "damage": 0, "hp": 12, "armour": 2, "value": 44 }
   }
 }

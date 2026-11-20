@@ -45,7 +45,13 @@ rare drops, in a top-down world."
 - **Loot** (Robin, 2026-11-20): "items should pop out of monsters when dropped."
 - **The inventory** (Robin, 2026-11-20): "you need to make a proper inventory system like my other games, look at
   zite for example." Zite's is the hero sheet he picked there on 2026-11-02: the hero wearing his gear, a slot for
-  each part of him, his numbers, the bag as a grid, one card for the piece that is tapped.
+  each part of him, his numbers, the bag as a grid, one card for the piece that is tapped. (Robin, 2026-11-20,
+  after seeing it): "There should also be more slots for items. Again, i think you can take a lot from the zite
+  inventory and equip." So eight parts to wear gear on, as Zite has; which eight is the Game Developer's: hat,
+  coat, gloves, boots, cutlass, buckler, ring, charm.
+- **The look of menus and panels** (Robin, 2026-11-20): "You need to have some nice pirate design to menus and
+  panels. Like some wooden feeling. Right now it looks bland. Also update icons so they look fitting." Leonard, AD
+  draws three wooden pirate looks; Robin picks.
 - **The house, tried and left** (Robin, 2026-11-20): a shrunk person in a house, and the enemies are insects. His words: "A shrunk
   person and enemies are insects"; "Lets do 1, but inside a house." It replaces vibrant pirate (his pick earlier
   the same day), which replaced "Dark fantasy" (Robin, 2026-11-19). The colours stay: "I really liked the color and

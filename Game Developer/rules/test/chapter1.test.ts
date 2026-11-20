@@ -707,6 +707,20 @@ describe('the save', () => {
     expect(s.monsters).toHaveLength(sim.state.monsters.length);
   });
 
+  it('is brought up from the save with four parts to wear gear on: he wears what he wore, the four new parts are bare', () => {
+    const sim = Sim.landed();
+    sim.run(2);
+    sim.give('tricorn', 'rare');
+    const old = JSON.parse(JSON.stringify(sim.state));
+    old.version = 4;
+    for (const slot of ['gloves', 'boots', 'ring', 'charm']) delete old.hero.worn[slot];
+    const s = migrate(old)!;
+    expect(s).toEqual(sim.state);
+    expect(s.hero.worn).toMatchObject({ gloves: null, boots: null, ring: null, charm: null });
+    expect(s.hero.worn.weapon).toEqual(sim.state.hero.worn.weapon);
+    expect(SLOTS).toHaveLength(8);
+  });
+
   it('is brought up from the save with three ways to steer: the choice is gone, everything else is as he left it', () => {
     const sim = Sim.landed();
     sim.run(2);
