@@ -148,7 +148,9 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
 - Which of the three ways to steer stays (≡, "Steering").
 - The deploy to Cloudflare Pages (item 11), so it installs and plays offline.
 - Starting Hugh, SD's chat (item 13).
-- The felt numbers: how long a level takes, how hard the monsters bite, what things cost (`lessons.md`).
+- The felt numbers: how long a level takes, how hard the monsters bite, what things cost (`lessons.md`). The long
+  balance run says the island is too kind: even a clumsy bot never falls in ten runs, it only drinks more
+  (`tests.md`). Whether to make it bite harder is his after he has played.
 - The smaller open points in the brief (Cleave or Whirlwind, what "Drok" means, the share lost on death, the job
   advancements, which hand).
 

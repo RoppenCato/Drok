@@ -23,7 +23,7 @@ npm run typecheck  # TypeScript strict: rules/tsconfig.json (no DOM), then tscon
 npm run dev        # Vite at http://localhost:5178/, and on the home Wi-Fi (5178 is Drok's own port)
 npm run build      # the installable page into dist/: manifest, icons, service worker
 npm run preview    # serves dist/ at http://localhost:4178/
-npm run icons      # remakes the placeholder icons (tools/make-icons.mjs)
+npm run balance    # the long balance run: the bot on ten seeds, careful and clumsy (40 s; read the [numbers] lines)
 ```
 
 ## On Robin's phone
@@ -61,7 +61,9 @@ client/src/view/          world-view.ts (the place), hud.ts (the glass), panels.
 client/src/game-log.ts    the frame log and the error log, saved from the menu
 client/src/settings.ts    sound off, fewer effects, which hand, in localStorage (drok.settings)
 client/public/            the two placeholder icons; files here are served from /
-tools/make-icons.mjs      makes the icons with no image package
+tools/make-icons.mjs      made the stand-in icons; the icons are the Art Director's now, so it refuses to run
+tools/place-from-art.mjs  writes a place's layout from the Art Director's place.json into the rules' data
+tools/balance.mjs         the long balance run (npm run balance)
 vite.config.ts            Vite with the PWA plugin, the manifest, port 5178; vitest.config.ts: the tests
 .claude/launch.json       entry "game" for a chat whose folder is this one; the root's ..\.claude\launch.json is
                           the one the Game Developer's chat uses

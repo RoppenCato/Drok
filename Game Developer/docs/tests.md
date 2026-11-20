@@ -31,6 +31,7 @@ earlier games made, so the pane and Robin's device are part of the check.
 | `rules\test\chapter1.test.ts` (28) | `npm test` | the data is whole (places, zones clear of the dock, every wind-up can be walked out of, a piece for every slot in every tier); a rarer piece is better; a new hero; the town; sailing; the gull's retreat and the coconut crab's slam; experience, a level, the last level; armour; loot by its chances over 600 kills; picking up; a full bag; the chest and its refill by the clock; falling and its cost; potions; wearing, taking off, dropping; the stall's stock, buying, selling; the save out and back, broken files, the control test's save, data that is gone |
 | `rules\test\bot.test.ts` (4) | `npm test` | each scheme fighting crabs for 90 s on 3 seeds; chapter 1 played through on 3 seeds; the game stays whole; prints the numbers |
 | `rules\test\purity.test.ts` (23) | `npm test` | no `Math.random`, clock, timers, DOM or network in the rules; they import only their own files and `rules\data\` |
+| the long balance run (in `bot.test.ts`, 2, skipped by `npm test`) | `npm run balance` (40 s) | chapter 1 played through on ten seeds by a sensible player and by a clumsy one (stands in every slam, drinks only at a quarter health, never uses Charge); prints the middle, the least and the most of: the minute each level comes, the chest, falls, trips home, potions, money |
 | typecheck | `npm run typecheck` | the whole, strict |
 | build | `npm run build` | the installable page into `dist\` |
 | the stepped page | the pane, `?mute=1&drive=1&seed=tide` | on 2026-11-20: a tap on the pier walks him there and opens the chart; a tap on the island sails; a fight; loot of two rarities picked up; wearing it from the bag; the hero window; the "Sea chart", "Trade" and "Open chest" buttons; buying a potion and a piece; the settings (steering, hand, "start over" asks twice); the save out and back, and a file that is not one; hold steering on the island; the chest |
@@ -45,6 +46,28 @@ again with all the art on, the dev page and the built one: the town with its peo
 to it and opens it; a tap on the dock opens the chart; "Sail to Crab Cay" sails; a tap on the harbour's pin sails
 home; the cross closes the chart; a tap on a crab's picture, a fight, 40 crabs, loot of three rarities, the bag.
 No error in the page's own log.
+
+**The long balance run, 2026-11-20** (ten seeds each; the middle first, then the least and the most):
+
+| | A sensible player | A clumsy player |
+| --- | --- | --- |
+| Level 2 at minute | 1.2 (1.2 to 1.3) | 1.3 (1.1 to 1.4) |
+| Level 3 | 4.7 (4.1 to 4.8) | 4.9 (4.6 to 5.1) |
+| Level 4 | 8.3 (7.7 to 8.4) | 8.5 (8.2 to 8.9) |
+| Level 5 | 15.4 (14.5 to 15.6) | 15.6 (15.0 to 16.0) |
+| The chest | 15.6 | 15.7 |
+| Falls | 0 (0 to 0) | 0 (0 to 0) |
+| Trips home | 2 (2 to 4) | 4 (3 to 5) |
+| Potions drunk | 6 (5 to 8) | 33 (23 to 36) |
+| Money earned, and left | 1206, 1110 left | 1261, 996 left |
+
+What it says (mine): **nobody falls.** A player who stands in every slam and drinks late still never goes down in
+ten runs: he pays for it in potions, about 33 of them (some he finds; the rest cost him about 265 of the 1260 money
+he earns), and he has nothing else to spend it on. So "on death you lose money" (Robin, 2026-11-19) never happens on Crab Cay as the
+numbers stand, and the clumsy player is only a few seconds a level behind the careful one. The bot is still a bot:
+it never walks into the coconut crabs at level 1, as a curious person will. What would make falling real, each a
+number in `rules\data\`: the monsters' bite up by a third to a half; a potion's wait from 8 s to about 15, so they
+cannot be drunk through a fight; or a potion's price up. Robin's to feel first; nothing was changed.
 
 The numbers the tests printed on 2026-11-20, before the island came in:
 

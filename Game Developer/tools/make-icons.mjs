@@ -1,9 +1,15 @@
-// Makes the two PWA icons, a flat green square with rounded corners on the page's dark blue, as PNG files with no
-// image package: the PNG bytes are written here, with Node's own zlib. Run: npm run icons. Writes
-// client/public/pwa-192x192.png and pwa-512x512.png. The Art Director's real icon replaces these files; nothing else changes.
+// Made the two stand-in PWA icons, a flat green square with rounded corners on the page's dark blue, as PNG files
+// with no image package: the PNG bytes are written here, with Node's own zlib. Since 2026-11-20 the icons in
+// client/public/ are Leonard, AD's (his folder is kept in assets/icon/), so this script is no longer an npm command
+// and refuses to run unless told `--over-the-real-icon`: it would write over his.
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { deflateSync } from 'node:zlib';
+
+if (!process.argv.includes('--over-the-real-icon')) {
+  console.error("The app's icons are the Art Director's now (assets/icon/). This would write stand-ins over them; not done.");
+  process.exit(1);
+}
 
 const OUT = join(import.meta.dirname, '..', 'client', 'public');
 const BACK = [0x1b, 0x1f, 0x2a];

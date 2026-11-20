@@ -95,8 +95,18 @@ interface Journey {
   refused: string[];
 }
 
+/** How well the thumb plays: whether it steps out of a slam, how low his health gets before he drinks, whether it remembers Charge. */
+interface Style {
+  name: string;
+  dodges: boolean;
+  drinkAt: number;
+  charges: boolean;
+}
+const SENSIBLE: Style = { name: 'a sensible player', dodges: true, drinkAt: 0.5, charges: true };
+const CLUMSY: Style = { name: 'a clumsy player (stands in slams, drinks at a quarter health, forgets Charge)', dodges: false, drinkAt: 0.25, charges: false };
+
 /** A sensible player: hunts what his level can take, drinks when hurt, steps out of slams, sells and restocks in town. */
-function journey(seed: string, limitMinutes: number): Journey {
+function journey(seed: string, limitMinutes: number, style: Style = SENSIBLE): Journey {
   const sim = new Sim(seed);
   const levelAt: number[] = [];
   let chestAt: number | null = null;
@@ -181,7 +191,7 @@ function journey(seed: string, limitMinutes: number): Journey {
 
     // On the island.
     const max = heroMaxHp(h);
-    if (h.hp < max * 0.5 && h.potions > 0 && h.potionCd <= 0) sim.act({ type: 'potion' });
+    if (h.hp < max * style.drinkAt && h.potions > 0 && h.potionCd <= 0) sim.act({ type: 'potion' });
     const after = s.monsters.filter((m) => m.mode !== 'wander' && m.mode !== 'return');
     const done = h.level >= N.levels.max && chestAt !== null;
     if (!homeward && (done || h.bag.length >= N.bagSize - 1 || (h.potions === 0 && h.hp < max * 0.45) || (h.potions === 0 && h.gold >= 60 && after.length === 0))) {
@@ -225,13 +235,13 @@ function journey(seed: string, limitMinutes: number): Journey {
     }
     const k = kindOf(prey);
     const d = dist(h, prey);
-    if (k.slamRadius > 0 && prey.mode === 'windup' && d < k.slamRadius + 30) {
+    if (style.dodges && k.slamRadius > 0 && prey.mode === 'windup' && d < k.slamRadius + 30) {
       // Out of the slam, straight away from it.
       const away = { x: prey.x + ((h.x - prey.x) / d) * (k.slamRadius + 45), y: prey.y + ((h.y - prey.y) / d) * (k.slamRadius + 45) };
       go(away);
     } else {
       if (h.target !== prey.id || (!h.chase && d > heroReach(prey))) sim.act({ type: 'target', monster: prey.id });
-      if (h.chargeCd <= 0 && !h.charging && d > 110 && d <= N.charge.range) sim.act({ type: 'skill', skill: 'charge' });
+      if (style.charges && h.chargeCd <= 0 && !h.charging && d > 110 && d <= N.charge.range) sim.act({ type: 'skill', skill: 'charge' });
       if (h.cleaveCd <= 0 && h.rage >= N.cleave.rageCost && d <= N.cleave.radius + k.radius) sim.act({ type: 'skill', skill: 'cleave' });
     }
     sim.step();
@@ -281,4 +291,39 @@ describe('a bot plays chapter 1 through', () => {
     },
     120_000,
   );
+});
+
+// ---- the long balance run: ten seeds, a sensible and a clumsy player ----------------------------------------------
+// Not part of `npm test` (it takes minutes): `npm run balance` sets BALANCE and runs this file. It asks nothing of
+// the numbers but that the game stays whole; it prints the range Robin's own first numbers should sit in.
+
+const LONG = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.BALANCE === '1';
+
+describe.runIf(LONG)('the long balance run', () => {
+  const seeds = ['tide', 'reef', 'gull', 'kelp', 'brine', 'spray', 'shoal', 'gale', 'wreck', 'pearl'];
+  const limit = 120;
+  const range = (values: number[], digits = 1): string => {
+    if (values.length === 0) return 'never';
+    const sorted = [...values].sort((a, b) => a - b);
+    return `${sorted[Math.floor(sorted.length / 2)]!.toFixed(digits)} (${sorted[0]!.toFixed(digits)} to ${sorted[sorted.length - 1]!.toFixed(digits)})`;
+  };
+  for (const style of [SENSIBLE, CLUMSY]) {
+    it(
+      `${style.name}, ${seeds.length} seeds, at most ${limit} minutes each`,
+      () => {
+        const runs = seeds.map((seed) => journey(seed, limit, style));
+        const done = runs.filter((j) => j.levelAt[N.levels.max] !== undefined && j.chestAt !== null);
+        console.log(
+          `  [numbers] ${style.name}: ${done.length} of ${runs.length} reached level ${N.levels.max} and the chest inside ${limit} minutes\n` +
+            [2, 3, 4, 5].map((l) => `  [numbers]   level ${l} at minute ${range(runs.filter((j) => j.levelAt[l] !== undefined).map((j) => j.levelAt[l]!))}, reached by ${runs.filter((j) => j.levelAt[l] !== undefined).length}`).join('\n') +
+            `\n  [numbers]   the chest at minute ${range(runs.filter((j) => j.chestAt !== null).map((j) => j.chestAt!))}\n` +
+            `  [numbers]   falls ${range(runs.map((j) => j.deaths), 0)}; trips home ${range(runs.map((j) => j.trips), 0)}; potions drunk ${range(runs.map((j) => j.potions), 0)}\n` +
+            `  [numbers]   money earned ${range(runs.map((j) => j.goldEarned), 0)}, left at the end ${range(runs.map((j) => j.goldAtEnd), 0)}\n` +
+            `  [numbers]   the middle is given first, then the least and the most`,
+        );
+        expect(runs).toHaveLength(seeds.length);
+      },
+      900_000,
+    );
+  }
 });

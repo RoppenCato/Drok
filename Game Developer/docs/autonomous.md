@@ -32,8 +32,9 @@ needs no decision of his:
   and the chart loaded when he opens the chart or sails, and let go when he leaves. Today all of it is loaded at
   the start, about 62 MB decoded, over the 48 MB set for a place (`docs\art-demands.md`). Before a third place.
 - `[ ]` The audio layer (mute, volumes, the sprite's map) when Hugh, SD's first sprite lands; `docs\state\sound.md`.
-- `[ ]` A longer balance run: the bot on ten seeds, with a clumsier player as well (no slam dodging, late potions),
-  printing falls and time for each level, so Robin's first numbers have a range to sit in.
+- `[x]` A longer balance run: done 2026-11-20, `npm run balance` (the bot on ten seeds, a sensible player and a
+  clumsy one). What it found is in `tests.md`: nobody falls, not even the clumsy one. The numbers are Robin's to
+  feel first; nothing was changed.
 - `[x]` Things that cannot be walked through, with a way round them for a tap: done 2026-11-20 with Leonard, AD's
   island (`docs\state\rules.md`, "The ground"). The harbour's houses get the same when his harbour lands.
 
