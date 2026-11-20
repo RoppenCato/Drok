@@ -24,7 +24,7 @@ which drop is the game's `docs\state\art.md`). **None of it has been seen by Rob
 | 5 | Loot on the ground and the rarity effect in four colours | in the game: `out\loot\` |
 | 6 | The chest: closed, opening, open | in the game: in `out\island\` as `chest/...` |
 | 7 | The harbour's kit: ground, houses, a stall, the shopkeeper, townsfolk | in the game: `out\harbour\` |
-| 8 | The glass | in the game: `out\glass\` (a first set; more pieces as the game asks) |
+| 8 | The glass | in the game: `out\glass\` (the first 28 pieces). Twelve more since Robin's first play (a monster's bar, the stick, fills with round ends, a heart): built, with Victor, GD |
 | 9 | The sea chart | in the game: `out\chart\` (one chart, mine, where the rule is three) |
 | 10 | The icon, 192 and 512 | in the game: `out\icon\` |
 
@@ -37,7 +37,10 @@ which drop is the game's `docs\state\art.md`). **None of it has been seen by Rob
 | A sea that moves | both | frames for a foam line that breathes, or a shimmer |
 | The stall cut into a back and a front | Victor, GD | he draws the shopkeeper over the stall for now, as in `look.jpg` |
 | 60 more units south of the harbour's square | Victor, GD | the lower half of the dock lies under the skill buttons on a 412 by 915 screen; for when the town is redone. Then he runs `tools\place-from-art.mjs` again |
-| Plain shapes still in the game | Victor, GD | the slam's disc, the stun's star, a monster's health bar, the cooldown wedge, the stick's ring, the banners |
+| Plain shapes still in the game | Victor, GD | the slam's disc, the stun's star, the cooldown wedge, the banners. A monster's health bar and the stick are made now (`mob/...`, `stick/...` in `out\glass\`) |
+| The pile at the bottom, my way | Leonard, AD | his health the biggest thing with a heart on its end, the monster's bar dark on its plate; the numbers in `out\glass\NOTES.md`, the picture `look-bars.jpg`. Victor, GD's to take, Robin's to judge |
+| The small shadow under each piece of glass | Leonard, AD | the tool draws it, the packer's hard edge cuts it away, so the game has never shown it; back with `--soft` if wanted |
+| The potion's colour | Leonard, AD | its disc is green, the health it fills is red |
 | The camera | Robin's to judge | it stays at 1; a quarter closer is one number in the game and a re-render at 2.5 pixels a unit here |
 
 ## Assets
@@ -52,7 +55,7 @@ which drop is the game's `docs\state\art.md`). **None of it has been seen by Rob
 | Coconut crab | `out\coconut-crab\` | level 5, 66 frames, three facings | in the game; design mine | three facings only, to save memory |
 | The island | `out\island\` | the ground as one picture (1 px a unit), 23 props, the chest, `place.json` | in the game; layout mine | the grass is plain between props; the sea does not move |
 | Loot | `out\loot\` | coins, a bundle, a potion; a ring for each of four rarities; a spark | in the game; colours mine | |
-| The glass | `out\glass\` | 28 pieces: bars, skill discs, top buttons, plates, panel, rows, slots, marks | in the game; design mine | no font chosen; more pieces as screens are built |
+| The glass | `out\glass\` | 40 pieces: bars and their fills, a monster's bar, the stick, skill discs, top buttons, plates, panel, rows, slots, marks | 28 in the game, 12 built on 2026-11-20; design mine | no font chosen; more pieces as screens are built |
 
 ## Not assets, but kept
 

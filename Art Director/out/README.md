@@ -35,7 +35,7 @@ a NOTES.md. Nothing here has been judged by Robin: **every look and design is mi
 | `coconut-crab` | 1024 by 2048 | 8 MB | 202 KB |
 | `island` | ground 1400 by 2400, props 1024 by 1024 | 13.4 + 4 MB | 67 + 52 KB |
 | `loot` | 256 by 256 | 0.3 MB | 18 KB |
-| `glass` | 1024 by 512 | 2 MB | 66 KB |
+| `glass` | 1024 by 512 | 2 MB | 100 KB |
 | `harbour` | ground 900 by 1100, props 1024 by 1024, people 1024 by 512 | 4 + 4 + 2 MB | 41 + 32 + 72 KB |
 | `chart` | the chart 824 by 1830, pins 256 by 256 | 6 + 0.3 MB | about 100 + 20 KB |
 | `icon` | 512 and 192 | | about 150 KB |

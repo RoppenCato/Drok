@@ -1,45 +1,72 @@
 // scene.js: a judging picture drawn the way the game draws (Leonard, AD, 2026-11-20): a place's ground at double size, its
-// props and the figures sorted by where their feet stand, flat shadows, the glass on top at the game's own places
-// (the control test's hud.ts: bars top left, Cleave and Charge in their arc of radius 108 in the bottom right corner).
-// Everything comes from out/ as delivered, so if this picture is right the deliveries are right.
-//   node tools/scene.js <out.png> [--at 640,2040] [--zoom 1] [--no-glass]
+// props and the figures sorted by where their feet stand, flat shadows, the glass on top at the game's own places.
+// The glass is laid out as the game's hud.ts has it since Robin's first play (2026-11-20: "the buttons should be in the
+// middle at the bottom"; health "at the bottom"): level and money top left; bag, chart and hero top right; in the middle
+// at the bottom the pile: experience along the floor, Charge, Cleave and the potion in a row, rage and health over them,
+// who he fights over those. The Warrior stands 60 above the screen's middle. --pile mine draws the pile as Leonard, AD
+// would stack it. Everything comes from out/ as delivered, so if this picture is right the deliveries are right.
+//   node tools/scene.js <out.png> [--at 640,2040] [--no-glass] [--pile mine] [--stick 300,560] [--use "Open chest"] [--crop x,y,w,h,zoom]
 const P = require('./paint.js'); const D = require('./dress.js'); const fs = require('fs'); const path = require('path');
 const G = require('./glass.js');
 const W = P.JUDGE.w, H = P.JUDGE.h, FONT = 'Trebuchet MS';
 async function main() {
   const args = process.argv.slice(2), out = args[0], opt = k => { const i = args.indexOf('--' + k); return i >= 0 ? args[i + 1] : null; };
-  const at = (opt('at') || '640,2040').split(',').map(Number), S = 2, R = P.ROOT;
+  const at = (opt('at') || '640,2040').split(',').map(Number), S = 2, R = P.ROOT, mine = opt('pile') === 'mine';
   const place = JSON.parse(fs.readFileSync(path.join(R, 'out/island/place.json'), 'utf8')), ground = await P.loadImage(path.join(R, 'out/island/ground.png'));
   const A = await D.load(), isl = await D.atlas(path.join(R, 'out/island'), 'island'), crab = await D.atlas(path.join(R, 'out/sand-crab'), 'sand-crab'), glass = await D.atlas(path.join(R, 'out/glass'), 'glass');
   const loot = fs.existsSync(path.join(R, 'out/loot/loot.json')) ? await D.atlas(path.join(R, 'out/loot'), 'loot') : null;
   const cv = P.createCanvas(W * S, H * S), g = cv.getContext('2d'); g.scale(S, S); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
-  const cam = [at[0] - W / 2, at[1] - H / 2], sx = x => x - cam[0], sy = y => y - cam[1];
-  g.drawImage(ground, cam[0], cam[1], W, H, 0, 0, W, H);                                    // the ground: one pixel a unit, drawn at two
+  const cam = [at[0] - W / 2, at[1] - (H / 2 - 60)], sx = x => x - cam[0], sy = y => y - cam[1];
+  // the ground: one pixel a unit, drawn at two; below the place's foot the game draws out the picture's last row
+  const gh = Math.max(0, Math.min(H, ground.height - cam[1])); if (gh > 0) g.drawImage(ground, cam[0], cam[1], W, gh, 0, 0, W, gh); if (gh < H) g.drawImage(ground, cam[0], ground.height - 1, W, 1, 0, gh, W, H - gh);
   const shadow = (x, y, rx, ry) => { g.save(); g.globalAlpha = 0.24; g.fillStyle = '#5b4a82'; g.beginPath(); g.ellipse(sx(x) + rx * 0.2, sy(y) + 1, rx, ry, 0, 0, 7); g.fill(); g.restore(); };
   const sprite = (At, key, x, y) => { g.save(); g.translate(sx(x), sy(y)); g.scale(0.5, 0.5); D.pic(g, At, key); g.restore(); };
-  // who is where: the hero in the middle, a crab he has picked winding up, a second one idling
-  const hero = { x: at[0], y: at[1] }, c1 = { x: at[0] + 84, y: at[1] + 34 }, c2 = { x: at[0] - 96, y: at[1] + 96 }, drop = { x: at[0] + 70, y: at[1] - 70 }, coins = { x: at[0] - 30, y: at[1] + 150 };
+  // the glass's pieces: one as it is; a pill cut left and right, w long, k times its own height, its middle at y
+  const fr = key => glass.j.frames[key].frame, it = key => glass.j.items[key];
+  const piece = (key, x, y, k = 1) => { g.save(); g.translate(x, y); g.scale(0.5 * k, 0.5 * k); D.pic(g, glass, key); g.restore(); };
+  const pill = (key, x, y, w, k = 1) => { const f = fr(key), [l, , r] = it(key).slice, pw = Math.round(w / k * 2); if (pw < l + r) return; const t = P.createCanvas(pw, f.h), q = t.getContext('2d');   // put together at its own pixels, then drawn as one picture: no seams
+    q.drawImage(glass.im, f.x, f.y, l, f.h, 0, 0, l, f.h); q.drawImage(glass.im, f.x + l, f.y, f.w - l - r, f.h, l, 0, pw - l - r, f.h); q.drawImage(glass.im, f.x + f.w - r, f.y, r, f.h, pw - r, 0, r, f.h); g.drawImage(t, x, y - f.h / 4 * k, w, f.h / 2 * k); };
+  const txt = (t, x, y, s, c, o = {}) => P.label(g, t, x, y, s, c, { font: FONT, ...o });
+  const white = (t, x, y, s, o = {}) => txt(t, x, y, s, '#ffffff', { stroke: G.INK, strokeW: s > 13 ? 4 : 3, ...o });
+  // a bar of the glass: the well w long with its middle at y, a round-ended fill inside (and the pale part a blow just took)
+  const bar = (kind, x, y, w, part, k = 1, lost = 0) => { pill('bar/well', x, y, w, k); const full = w - 6 * k; if (lost > part) pill('fill/lost', x + 3 * k, y - k, full * lost, k); if (part > 0) pill('fill/' + kind, x + 3 * k, y - k, Math.max(10 * k, full * part), k); };
+  // the bar over a monster: w is the fill's whole length; the one he fights a fifth bigger, with the gold rim and the arrow
+  const mobBar = (x, y, w, part, lost, fought) => { const k = fought ? 1.2 : 1, key = fought ? 'mob/well-mine' : 'mob/well', inset = it(key).inset * k, full = w * k, x0 = x - full / 2; pill(key, x0 - inset, y, full + inset * 2, k); if (lost > part) pill('mob/lost', x0, y, full * lost, k); if (part > 0) pill('mob/hp', x0, y, Math.max(5 * k, full * part), k); if (fought) piece('mark/mine', x, y - 16); };
+  // who is where: the hero in the middle, a crab he fights winding up, a hurt one coming, a whole one idling
+  const hero = { x: at[0], y: at[1] }, c1 = { x: at[0] + 62, y: at[1] + 20, f: { action: 'attack1', facing: 'nw', i: 2 } }, c2 = { x: at[0] - 96, y: at[1] + 70, f: { action: 'move', facing: 'e', i: 1 } }, c3 = { x: at[0] + 120, y: at[1] - 150, f: { action: 'stand', facing: 's', i: 0 } }, drop = { x: at[0] + 70, y: at[1] - 70 }, coins = { x: at[0] - 30, y: at[1] + 150 };
   const things = [];
   for (const p of place.props) { const f = isl.j.frames[p.name]; if (!f) continue; if (sx(p.x) < -160 || sx(p.x) > W + 160 || sy(p.y) < -60 || sy(p.y) > H + 300) continue; things.push({ y: p.y, shadow: () => shadow(p.x, p.y, f.frame.w * 0.16, f.frame.w * 0.055), draw: () => sprite(isl, p.name, p.x, p.y) }); }
   things.push({ y: hero.y, shadow: () => shadow(hero.x, hero.y, 15, 6), draw: () => D.hero(g, A, { action: 'stand', facing: 'se', i: 0, cutlass: 'rusty', buckler: 'plank', hat: 'bandana' }, sx(hero.x), sy(hero.y), 0.5) });
-  things.push({ y: c1.y, shadow: () => shadow(c1.x, c1.y, 17, 7), draw: () => D.figure(g, crab, { action: 'attack1', facing: 'nw', i: 2 }, sx(c1.x), sy(c1.y), 0.5) });
-  things.push({ y: c2.y, shadow: () => shadow(c2.x, c2.y, 17, 7), draw: () => D.figure(g, crab, { action: 'stand', facing: 's', i: 0 }, sx(c2.x), sy(c2.y), 0.5) });
-  g.save(); g.translate(sx(c1.x), sy(c1.y) + 2); g.scale(0.5, 0.5); D.pic(g, glass, 'mark/target'); g.restore();        // the ring under the picked target
+  for (const c of [c1, c2, c3]) things.push({ y: c.y, shadow: () => shadow(c.x, c.y, 17, 7), draw: () => D.figure(g, crab, c.f, sx(c.x), sy(c.y), 0.5) });
+  piece('mark/target', sx(c1.x), sy(c1.y) + 2);                                                  // the ring under the one he fights
   if (loot) { for (const [key, q, rar] of [['gear', drop, 'rare'], ['coins', coins, null]]) { if (rar) { g.save(); g.translate(sx(q.x), sy(q.y)); g.scale(0.5, 0.5); D.pic(g, loot, 'ring/' + rar); g.restore(); } things.push({ y: q.y, shadow: () => shadow(q.x, q.y, 8, 3), draw: () => sprite(loot, key, q.x, q.y) }); } }
   things.sort((a, b) => a.y - b.y); for (const t of things) t.shadow(); for (const t of things) t.draw();
-  P.label(g, '14', sx(c1.x) + 4, sy(c1.y) - 44, 20, '#ffffff', { align: 'center', font: FONT, stroke: G.INK, strokeW: 4 });
+  // over the monsters: a bar on the one he fights and on any that is hurt, at one height for the kind (its standing picture's)
+  const o0 = D.frameOf(crab, 'stand', 's', 0).origin, top = (o0.y !== undefined ? o0.y : o0[1]) / 2;
+  mobBar(sx(c1.x), sy(c1.y) - top - 14, 44, 0.45, 0.62, true); mobBar(sx(c2.x), sy(c2.y) - top - 12, 44, 0.7, 0, false);
+  white('14', sx(c1.x) + 30, sy(c1.y) - top - 34, 20, { align: 'center' });                       // a blow's number rises beside the bar, not over it
   if (!args.includes('--no-glass')) {
-    const piece = (key, x, y) => { g.save(); g.translate(x, y); g.scale(0.5, 0.5); D.pic(g, glass, key); g.restore(); };
-    const slice = (key, x, y, w, h) => { const f = glass.j.frames[key].frame, it = glass.j.items[key], [l, t, r, b] = it.slice || [0, 0, 0, 0], k = 0.5, xs = [0, l, f.w - r, f.w], ys = [0, t, f.h - b, f.h], dx = [x, x + l * k, x + w - r * k, x + w], dy = [y, y + t * k, y + h - b * k, y + h]; for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { const sw = xs[i + 1] - xs[i], sh = ys[j + 1] - ys[j]; if (sw > 0 && sh > 0) g.drawImage(glass.im, f.x + xs[i], f.y + ys[j], sw, sh, dx[i], dy[j], dx[i + 1] - dx[i], dy[j + 1] - dy[j]); } };
-    const bar = (kind, x, y, w, part) => { slice('bar/well', x - 2, y - 2, w + 4, 18 * 0.5 * 2); const f = glass.j.frames['bar/' + kind].frame; g.save(); g.beginPath(); P.rr(g, x, y + 1, w, 10, 5); g.clip(); g.drawImage(glass.im, f.x, f.y, f.w, f.h, x, y + 1, w * part, 10); g.restore(); };
-    const txt = (t, x, y, s, c, o = {}) => P.label(g, t, x, y, s, c, { font: FONT, ...o });
-    piece('button/menu', 30, 30); bar('hp', 60, 12, 128, 0.72); bar('rage', 60, 30, 128, 0.45); txt('Lv 2', 62, 54, 12, '#ffffff', { stroke: G.INK, strokeW: 3.5 }); piece('mark/coin', 110, 54); txt('86', 121, 54.5, 12, '#ffffff', { stroke: G.INK, strokeW: 3.5 });
-    piece('button/bag', 296, 32); piece('button/chart', 340, 32); piece('button/hero', 384, 32);
-    slice('plate', W / 2 - 78, 100, 156, 34); txt('Sand Crab', W / 2 - 62, 111, 12.5, G.INK); txt('Lv 1', W / 2 + 62, 111, 11, '#8a6a7a', { align: 'right' }); bar('hp', W / 2 - 62, 118, 124, 0.56);
-    piece('skill/cleave', W - 108 * Math.cos(22 * Math.PI / 180), H - 24 - 108 * Math.sin(22 * Math.PI / 180)); piece('skill/charge', W - 108 * Math.cos(66 * Math.PI / 180), H - 24 - 108 * Math.sin(66 * Math.PI / 180)); piece('skill/potion', 236, 872);
-    bar('xp', 14, 893, 150, 0.38);
-    slice('plate', 12, 74, 132, 28); piece('mark/quest', 27, 89); txt('Sand crabs 7/30', 44, 88, 11, G.INK);
+    // the top: the menu, his level and money; bag, chart and hero
+    piece('button/menu', 30, 30); white('Lv 2', 62, 30, 16); piece('mark/coin', 122, 30); white('86', 134, 30, 16);
+    piece('button/bag', 286, 30); piece('button/chart', 334, 30); piece('button/hero', 382, 30);
+    // the pile in the middle at the bottom
+    const ROW_Y = H - 64, BAR_W = 200, BAR_X = (W - BAR_W) / 2, XP_Y = H - 14, RAGE_Y = ROW_Y - 54, HP_Y = RAGE_Y - 20, PLATE_Y = HP_Y - 38, USE_Y = PLATE_Y - 50;
+    const discs = () => { for (const [key, dx, r] of [['charge', -84, 36], ['cleave', 0, 36], ['potion', 78, 28]]) { const x = W / 2 + dx, y = ROW_Y + (36 - r); piece('skill/' + key, x, y, r * 2 / 76); if (key === 'potion') white('3', x + r * 0.55, y + r * 0.6, 13, { align: 'center' }); } };
+    if (!mine) {   // as the game stacks it (Victor, GD, 710cb4c), with the round fills
+      bar('xp', BAR_X, XP_Y, BAR_W, 0.38); discs(); bar('rage', BAR_X, RAGE_Y, BAR_W, 0.45); bar('hp', BAR_X, HP_Y, BAR_W, 0.87); white('87 / 100', W / 2, HP_Y, 12, { align: 'center' });
+      pill('plate', BAR_X, PLATE_Y, BAR_W); txt('Sand crab', W / 2 - 84, PLATE_Y - 5, 14, G.INK); txt('Lv 1', W / 2 + 84, PLATE_Y - 5, 12, '#7a6a80', { align: 'right' }); bar('hp', W / 2 - 88, PLATE_Y + 14, 176, 0.45, 1, 0.62);
+    } else {       // mine: his health the biggest thing with a heart on its end; the monster's bar dark, as over its head
+      bar('xp', BAR_X, XP_Y, BAR_W, 0.38, 0.72); discs();
+      bar('rage', BAR_X + 16, RAGE_Y + 3, BAR_W - 16, 0.45, 0.8); bar('hp', BAR_X, HP_Y - 2, BAR_W, 0.87, 1.3); piece('mark/heart', BAR_X + 3, HP_Y - 3, 1); white('87 / 100', W / 2 + 6, HP_Y - 3.5, 14, { align: 'center' });
+      pill('plate', BAR_X, PLATE_Y - 6, BAR_W); txt('Sand crab', W / 2 - 84, PLATE_Y - 11, 14, G.INK); txt('Lv 1', W / 2 + 84, PLATE_Y - 11, 12, '#7a6a80', { align: 'right' });
+      { const k = 1.2, key = 'mob/well-mine', inset = it(key).inset * k, full = 172, x0 = W / 2 - full / 2, y = PLATE_Y + 9; pill(key, x0 - inset, y, full + inset * 2, k); pill('mob/lost', x0, y, full * 0.62, k); pill('mob/hp', x0, y, full * 0.45, k); }
+    }
+    const use = opt('use'); if (use) { pill('button/context', W / 2 - 78, USE_Y - (mine ? 6 : 0), 156); txt(use, W / 2, USE_Y - 3 - (mine ? 6 : 0), 17, G.INK, { align: 'center' }); }
+    const stick = opt('stick'); if (stick) { const [x, y] = stick.split(',').map(Number), a = -0.6; piece('stick/ring', x, y); piece('stick/knob', x + Math.cos(a) * 30, y + Math.sin(a) * 30); }
   }
-  P.save(cv, out); console.log('wrote', out);
+  const crop = opt('crop');
+  if (crop) { const [x, y, w, h, z] = crop.split(',').map(Number), c2v = P.createCanvas(w * z, h * z), g2 = c2v.getContext('2d'); g2.imageSmoothingEnabled = true; g2.imageSmoothingQuality = 'high'; g2.drawImage(cv, x * S, y * S, w * S, h * S, 0, 0, w * z, h * z); P.save(c2v, out); }
+  else P.save(cv, out);
+  console.log('wrote', out);
 }
 main();
