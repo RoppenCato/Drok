@@ -7,7 +7,7 @@ few small things in the last column below. Every look in it is Leonard, AD's own
 
 | Switch | Folder in `client\public\art\` | What it draws | Still a stand-in |
 | --- | --- | --- | --- |
-| `ART.hero` | `hero` | the Warrior, 54 units tall, in eight facings: stand, move, attack1, cleave, charge, hit1, die1 | his coats (icons only: no coat shows on the body yet) |
+| `ART.hero` | `hero` | the Warrior, 54 units tall, in eight facings: stand, move (a run: 8 frames at 45 ms, made to read as fast at 215 units a second), attack1, cleave, charge, hit1, die1 | his coats (icons only: no coat shows on the body yet) |
 | `ART.gear` | `gear` | the cutlass, buckler and hat he wears, on his hand, arm and head; the icons in the bag, the hero window and the stall | |
 | `ART.monsters` | `sand-crab`, `reef-gull`, `coconut-crab` | each kind: stand, move, attack1 started the step its wind-up starts, hit1 while stunned, die1 where it fell | the ground a slam will hit (a red disc drawn by the game); the stun's star; the health bar over a monster |
 | `ART.loot` | `loot` | coins, a potion, a bundle of gear on the ring of its rarity; a spark on rare, two on epic; the potion in the stall's window | |
@@ -27,6 +27,10 @@ few small things in the last column below. Every look in it is Leonard, AD's own
 4. For a place: `node tools/place-from-art.mjs <art folder> <place id>` writes his layout into the rules' data
    (below); then `npm test`, because the ground the tests walk on has changed.
 5. Check it in the pane at 412 by 915 and commit: the folder, the switch, the data, this file.
+6. Before saying "all of it is in", compare every file in the game's `art\` with his `out\` (their hashes). He
+   re-renders: on 2026-11-20 the Warrior in the game was ten minutes older than the one in his `out\` (a walk where
+   he had made a run), and only his late message showed it. His `out\scene\` is his own judging pictures and is
+   not copied.
 
 ## A place's layout is his (decided 2026-11-20, mine; Leonard, AD: "your own map data wins")
 

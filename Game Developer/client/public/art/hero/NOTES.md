@@ -12,7 +12,7 @@ hat lose their shape; mine). 195 frames, five facings. `hero.png` 1024 by 2048, 
 | Action | Frames a facing | Delays (ms) | Note |
 | --- | --- | --- | --- |
 | `stand` | 6 | 125, looped | a breath |
-| `move` | 8 | 75, looped | `stride` 25.76 design units a cycle: pick the frame by distance walked and the feet do not slide |
+| `move` | 8 | 45, looped | a run, **played by time** (360 ms a cycle): the game moves him 215 units a second, and feet matched to that ground would be a blur (Victor, GD, 2026-11-20). He leans, takes long steps and pumps his arms, so it reads as fast. `stride` (35.84) is what one cycle would cover were it played by distance; if he ever moves slower than about 100 a second, slow the delays with him |
 | `attack1` | 6 | 60, 60, 70, 90, 90, 90 | `blow` 2: the third frame, 120 ms in |
 | `cleave` | 7 | 50, 50, 50, 60, 60, 80, 100 | one wide level sweep, right to left; `blow` 3 |
 | `charge` | 4 | 70, looped | a lean, the buckler leading, the blade trailing; play it while he dashes |
