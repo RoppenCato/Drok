@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "moving-test", "runtimeExecutable": "python", "runtimeArgs": ["-m", "http.server", "5199", "--bind", "127.0.0.1", "--directory", "work/moving-test"], "port": 5199 }
+  ]
+}

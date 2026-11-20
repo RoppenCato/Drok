@@ -6,9 +6,34 @@ date)". The game's `..\Game Developer\docs\state\art.md` (not written yet) and `
 on budgets, file form and what is needed; this sheet is what the studio builds to.
 
 **Where this stands on 2026-11-20:** every startup question is answered, the Art Director's two included (20 and 21,
-below). Victor, GD gave the word, and three stills of the look were sent to Robin the same day (`concepts\look\`:
-toy-box models, sticker cartoon, painted print). **Waiting for his pick.** Nothing is built from any of them, and
-nothing below about line, colour or proportion is settled until he has picked.
+below). Three stills of the look went to Robin (`concepts\look\`); he has not picked. Then Robin told Victor, GD
+(2026-11-20, as Victor, GD passed it on): "Make a list of things to do to finish chapter 1. Then work through the list
+until you are done. Including tests. I dont need to approve or answer any questions until you are done. Let AD handle
+the art you need. I approve." So the look below is **my choice**, wave 1 is being built on it, and he judges it when
+he is back. If he picks another look, the models are re-finished or the figures redone, and this sheet changes.
+
+## The look in use (mine, 2026-11-20; not judged by Robin)
+
+Look 1 of the three, the toy-box models, with the thicker line and the bigger eyes of look 2. It is the one that gives
+a hero who turns and wears many pieces from one source.
+
+- **Figures and props are models**, built by scripts (`blender\`), lit once and rendered flat: a base tone and one
+  shade a colour, chosen by `blender\toon.py` from the base, no highlight band, no grain, no cast shadows.
+- **One dark line**, `#33203a`, heavier round the outside (about 1.5 design units), thinner inside and only where two
+  colours meet. No line on eyes, glints or grass: thin things ink to black (`docs\rules.md` 26).
+- **The ground is painted and has no line**: sea in three steps with a white foam edge, wet sand, sand, grass, rock.
+  A place's ground is one picture at one pixel a design unit, drawn at double size.
+- **Shadows** are the game's: one flat ellipse of `#5b4a82` at a quarter strength under each thing.
+- **The camera on figures** is 35 degrees above the ground, lower than the ground is drawn, so faces show.
+- **The light** comes from above and in front, never from a side: the game flips three facings.
+- **Proportions**: the Warrior is about two and a half heads tall, a round head, big eyes with a glint, heavy brows;
+  54 design units tall on a footprint of 32. He holds his face a little up toward the camera.
+- **Facings**: `s`, `se`, `e`, `ne`, `n` drawn; the game plays eight and flips (Victor, GD, 2026-11-20).
+- **The glass**: cream panels with the same line and a small hard shadow; strong colour only where a thumb goes.
+- **Rarity colours**: common `#b9b2a6`, uncommon `#4cc463`, rare `#3d9cff`, epic `#b666f2`. On the ground and in
+  the bag only (Robin's pick).
+- **A better piece of gear has a bigger, richer outline**, since nothing glows on the hero.
+- The numbers behind all of it are in `blender\drok.py`; the deliveries and their forms in `out\README.md`.
 
 ## What Robin picked about the look and the gear (Robin, 2026-11-20, in the Art Director's chat)
 

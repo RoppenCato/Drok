@@ -1,0 +1,74 @@
+<title>Drok Moving</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="The Warrior and the first island's monsters moving at their real delays, in every facing, with each tier of gear.">
+<!--
+  Drok's moving page (Leonard, AD, 2026-11-20). It draws the packed atlases of out\ the way the game does: one body frame,
+  and the cutlass, the buckler and the hat on the points that frame carries (the same rule as tools\dress.js). The atlases
+  are published beside this page: hero.json/png, gear.json/png, sand-crab, reef-gull, coconut-crab.
+-->
+<style>
+  :root { --bg: #f1ece2; --panel: #e4ddcf; --fg: #2a2436; --muted: #6b6273; --line: #c9c0b0; --btn: #fff8ec; --on: #2a2436; --onfg: #f6efe4; --sand: #f8e7b6; --sand2: #eed79e; --shade: rgba(91,74,130,0.26); color-scheme: light; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #1c1a22; --panel: #26232e; --fg: #f0e8d8; --muted: #a79fb0; --line: #3a3544; --btn: #312d3b; --on: #f4c14a; --onfg: #2a2030; --sand: #f8e7b6; --sand2: #eed79e; --shade: rgba(91,74,130,0.26); color-scheme: dark; } }
+  :root[data-theme="dark"] { --bg: #1c1a22; --panel: #26232e; --fg: #f0e8d8; --muted: #a79fb0; --line: #3a3544; --btn: #312d3b; --on: #f4c14a; --onfg: #2a2030; --sand: #f8e7b6; --sand2: #eed79e; --shade: rgba(91,74,130,0.26); color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: "Nunito", "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 560px; margin: 0 auto; padding-block: 16px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 12px; }
+  h1 { font-size: 22px; margin: 0; text-wrap: balance; }
+  p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
+  canvas { width: 100%; height: auto; display: block; border-radius: 12px; border: 1px solid var(--line); background: var(--sand); image-rendering: pixelated; }
+  .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .row > span { font-size: 13px; color: var(--muted); min-width: 56px; }
+  button { font: inherit; font-size: 14px; font-weight: 700; padding: 8px 11px; min-height: 40px; border-radius: 10px; border: 1px solid var(--line); background: var(--btn); color: var(--fg); cursor: pointer; }
+  button[aria-pressed="true"] { background: var(--on); color: var(--onfg); border-color: var(--on); }
+  button:focus-visible { outline: 3px solid var(--on); outline-offset: 2px; }
+  #note { font-size: 13px; min-height: 2.9em; }
+</style>
+<main>
+  <h1>Drok, moving</h1>
+  <p>Drawn from the files the game gets, at their real delays. "Real" is the size on your phone. Pick who, what they do, which way they face.</p>
+  <canvas id="cv" width="760" height="560" aria-label="The figure, moving"></canvas>
+  <div class="row" id="who"><span>Who</span></div>
+  <div class="row" id="act"><span>Does</span></div>
+  <div class="row" id="face"><span>Faces</span></div>
+  <div class="row" id="gear"><span>Gear</span></div>
+  <div class="row" id="view"><span>View</span></div>
+  <p id="note"></p>
+</main>
+<script>
+  const WHO = [['hero', 'Warrior'], ['sand-crab', 'Sand crab'], ['reef-gull', 'Reef gull'], ['coconut-crab', 'Coconut crab']];
+  const NAMES = { stand: 'Stand', move: 'Walk', attack1: 'Attack', cleave: 'Cleave', charge: 'Charge', hit1: 'Hit', die1: 'Fall' };
+  const FACES = ['s', 'se', 'e', 'ne', 'n', 'nw', 'w', 'sw'], FLIP = { sw: 'se', w: 'e', nw: 'ne' };
+  const TIERS = [['none', 'None', null], ['1', 'Tier 1', ['rusty', 'plank', 'bandana']], ['2', 'Tier 2', ['sailor', 'iron', 'tricorn']], ['3', 'Tier 3', ['corsair', 'brass', 'feathered']]];
+  const S = { who: 'hero', act: 'stand', face: 'se', tier: '1', zoom: 3, slow: 1, play: true };
+  const A = {}, cv = document.getElementById('cv'), g = cv.getContext('2d'), $ = id => document.getElementById(id);
+  const load = async name => { const j = await (await fetch(name + '.json')).json(), im = new Image(); im.src = name + '.png'; await im.decode(); A[name] = { j, im }; };
+  const pic = (At, key) => { const f = At.j.frames[key]; if (!f) return; const { x, y, w, h } = f.frame; g.drawImage(At.im, x, y, w, h, -f.pivot.x * w, -f.pivot.y * h, w, h); };
+  const nearest = (At, fc) => { const has = At.j.meta.facings || ['s']; if (has.includes(fc)) return fc; return ({ se: 'e', ne: 'e' })[fc] || 's'; };
+  function buttons(row, list, key, after) { const el = $(row); el.querySelectorAll('button').forEach(b => b.remove()); for (const [v, label] of list) { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.setAttribute('aria-pressed', String(S[key] === v)); b.onclick = () => { S[key] = v; t0 = performance.now(); el.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); if (after) after(); }; el.append(b); } }
+  function acts() { const list = Object.keys(A[S.who].j.actions).map(k => [k, NAMES[k] || k]); if (!list.some(l => l[0] === S.act)) S.act = 'stand'; buttons('act', list, 'act'); $('gear').hidden = S.who !== 'hero'; }
+  let t0 = performance.now();
+  function frame(now) {
+    const At = A[S.who]; if (At) {
+      const flip = !!FLIP[S.face], fc = nearest(At, FLIP[S.face] || S.face), Ac = At.j.actions[S.act], fr = Ac.frames.filter(f => f.facing === fc), total = fr.reduce((n, f) => n + f.delay, 0);
+      let t = ((now - t0) * S.slow) % (Ac.loop ? total : total + 700), i = 0; if (!S.play) t = 0; while (i < fr.length - 1 && t >= fr[i].delay) { t -= fr[i].delay; i++; }
+      const F = fr[i], z = S.zoom / 2, W = cv.width, H = cv.height, x = W / 2, y = H * 0.74;
+      g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, H); g.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--sand'); g.fillRect(0, 0, W, H);
+      g.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--sand2'); g.beginPath(); g.ellipse(W * 0.3, H * 0.3, 150, 34, 0, 0, 7); g.ellipse(W * 0.72, H * 0.88, 180, 30, 0, 0, 7); g.fill();
+      g.fillStyle = 'rgba(91,74,130,0.26)'; g.beginPath(); g.ellipse(x + 6 * z, y + 2, 30 * z, 12 * z, 0, 0, 7); g.fill();
+      g.imageSmoothingEnabled = false; g.translate(x, y); g.scale(flip ? -z : z, z); if (F.a0 !== undefined) g.globalAlpha = (F.a0 + F.a1) / 510;
+      const tier = S.who === 'hero' ? TIERS.find(tr => tr[0] === S.tier)[2] : null, P = F.points || {};
+      const parts = tier ? [[P.off, `buckler-${tier[1]}/${fc}`], [P.hand, `cutlass-${tier[0]}`], [P.head, `hat-${tier[2]}/${fc}`]] : [];
+      const piece = ([pt, key]) => { if (!pt) return; g.save(); g.translate(pt.x, pt.y); g.rotate(pt.r * Math.PI / 180); pic(A.gear, key); g.restore(); };
+      parts.filter(p => p[0] && !p[0].front).forEach(piece); pic(At, F.name); parts.filter(p => p[0] && p[0].front).forEach(piece); g.globalAlpha = 1;
+      $('note').textContent = `${NAMES[S.act] || S.act}: frame ${i + 1} of ${fr.length}, ${F.delay} ms` + (Ac.blow !== undefined ? `; the blow lands on frame ${Ac.blow + 1}` : '') + (Ac.note ? `. ${Ac.note}` : '') + (fc !== (FLIP[S.face] || S.face) ? `. This one is drawn in ${At.j.meta.facings.join(', ')} only.` : '');
+    }
+    requestAnimationFrame(frame);
+  }
+  (async () => {
+    $('note').textContent = 'Loading the pictures...';
+    try { await Promise.all(['hero', 'gear', 'sand-crab', 'reef-gull', 'coconut-crab'].map(load)); } catch (e) { $('note').textContent = 'The pictures did not load: ' + e.message; return; }
+    buttons('who', WHO, 'who', acts); acts(); buttons('face', FACES.map(f => [f, f.toUpperCase()]), 'face'); buttons('gear', TIERS.map(tr => [tr[0], tr[1]]), 'tier');
+    const v = $('view'); for (const [label, fn, on] of [['Real size', () => { S.zoom = 1; }, false], ['Three times', () => { S.zoom = 3; }, true], ['Slow', b => { S.slow = S.slow === 1 ? 0.25 : 1; b.setAttribute('aria-pressed', String(S.slow !== 1)); }, false], ['Pause', b => { S.play = !S.play; b.setAttribute('aria-pressed', String(!S.play)); t0 = performance.now(); }, false]]) { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.setAttribute('aria-pressed', String(on)); b.onclick = () => { fn(b); if (label === 'Real size' || label === 'Three times') [...v.querySelectorAll('button')].slice(0, 2).forEach(x => x.setAttribute('aria-pressed', String(x === b))); }; v.append(b); }
+    requestAnimationFrame(frame);
+  })();
+</script>
