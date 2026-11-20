@@ -83,6 +83,8 @@ export interface Place {
   wake: Vec;
   /** The shore, as the corners of an outline: outside it is sea. Null: the place is its whole box. */
   land: number[][] | null;
+  /** Decks: planks to stand on, each an outline; over sand or over the water (the town on stilts). */
+  decks: number[][][];
   /** Water inside the land, each as an outline. */
   water: number[][][];
   /** Things to walk round: trunks, rocks, barrels, the chest. */

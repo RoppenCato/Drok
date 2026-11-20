@@ -13,7 +13,7 @@ chest; `out\glass\NOTES.md`).
   `actions` block with `stand` (125 ms a frame, looped, as on the field) and on every frame its `origin` and its
   `points` (`hand`, `off`, `head`). **`meta.filePx` is 4**: four file pixels a design unit of the field's hero, where
   the field's atlas has 2. Every number in it is twice the field's.
-- `gear.png`, `gear.json`: 512 by 512, 1 MB decoded. The field's form and names: `cutlass-rusty`, `cutlass-sailor`,
+- `gear.png`, `gear.json`: 512 by 294, 0.6 MB decoded. The field's form and names: `cutlass-rusty`, `cutlass-sailor`,
   `cutlass-corsair`, and `buckler-plank/s`, `buckler-iron/s`, `buckler-brass/s`, `hat-bandana/s`, `hat-tricorn/s`,
   `hat-feathered/s`. Only the facing `s`. `meta.filePx` is 4 here too.
 

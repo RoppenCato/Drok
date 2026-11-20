@@ -8,7 +8,7 @@ import { DT, ISLAND, Sim } from './sim.ts';
 
 const world = PLACES[ISLAND]!;
 /** Where he stands to trade. */
-const stallFront = { x: world.shop!.x, y: world.shop!.y + 50 };
+const stallFront = { x: world.shop!.x, y: world.shop!.y + N.reach.shopFront };
 
 function whole(sim: Sim): void {
   const s = sim.state;

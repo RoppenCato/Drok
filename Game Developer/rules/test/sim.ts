@@ -1,7 +1,7 @@
 // A small holder for the tests: a state, its dice, and every event so far. The tests place things by hand (the state
 // is plain data) and let the world run in the same even steps the game uses.
 
-import { apply, kindOf, makeRng, newGame, PLACES, placeOf, type Action, type GameEvent, type GameState, type Item, type Monster, type NewGameOptions, type Place, type Rarity, type Rng } from '../src/index.ts';
+import { N, apply, kindOf, makeRng, newGame, PLACES, placeOf, type Action, type GameEvent, type GameState, type Item, type Monster, type NewGameOptions, type Place, type Rarity, type Rng } from '../src/index.ts';
 
 export const DT = 1 / 60;
 /** A real clock for the tests: it starts here and moves with the world. */
@@ -32,6 +32,7 @@ const field: Place = {
   home: null,
   land: null,
   water: [],
+  decks: [],
   solids: [],
   boxes: [],
 };
@@ -95,7 +96,7 @@ export class Sim {
     const place = placeOf(this.state);
     const at = where === 'dock' ? place.dock : where === 'shop' ? place.shop : place.chest;
     if (!at) throw new Error(`no ${where} in ${this.state.place}`);
-    this.hero({ x: at.x, y: at.y + (where === 'dock' ? 0 : 40), dest: null, route: [] });
+    this.hero({ x: at.x, y: at.y + (where === 'dock' ? 0 : where === 'shop' ? N.reach.shopFront : 40), dest: null, route: [] });
   }
 
   /** Put a monster on the field. It stands still until something wakes it, unless the patch says otherwise. */

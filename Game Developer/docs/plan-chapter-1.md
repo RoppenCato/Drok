@@ -236,7 +236,7 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
     to menus and panels. Like some wooden feeling. Right now it looks bland. Also update icons so they look
     fitting"): three stills for Robin to pick from, asked 2026-11-20; then the kit, and GD puts it in
 
-26. `[ ]` · AD then GD · **A real pirate town** (Robin, 2026-11-20: "Yeah do an updated pirate town suggested")
+26. `[x] Built 2026-11-20` `[ ]` Checked (Robin picked 3, the town on stilts, in the Art Director's chat: "3, but the buildings need to look nicer and have some depth to them. Theres also no contrast to the floor so it all kinda melts together", then "Yes" to the changed still; in the game: decks to stand on over the bay, huts with their own shadows, the stall with 38 units of deck before it) · AD then GD · **A real pirate town** (Robin, 2026-11-20: "Yeah do an updated pirate town suggested")
     - `[ ]` AD: three stills of the town on Crab Cay (more houses, a tavern, a lookout), asked 2026-11-20; Robin picks
     - `[ ]` AD: the kit and the new layout; GD: lay it in, the zones either side moved if it grows
 

@@ -73,6 +73,8 @@ const scaled = (pts, cx, cy, kx, ky) => pts.map(([x, y]) => [round(cx + (x - cx)
 const middle = (pts) => [pts.reduce((s, p) => s + p[0], 0) / pts.length, pts.reduce((s, p) => s + p[1], 0) / pts.length];
 
 place.land = layout.walk ? layout.walk.map(([x, y]) => [round(x), round(y)]) : scaled(curve(layout.land), layout.size.w / 2, layout.size.h / 2, LAND_IN[0], LAND_IN[1]);
+// Decks: planks to stand on, over sand or over water; he stands where he is on the land or on a deck.
+place.decks = (layout.decks ?? []).map((d) => d.pts.map(([x, y]) => [round(x), round(y)]));
 place.water = [];
 if (layout.inlet) {
   const [cx, cy] = middle(layout.inlet);
@@ -87,6 +89,9 @@ const inBox = (p) => place.boxes.some((b) => p.x >= b.x && p.x <= b.x + b.w && p
 for (const p of layout.people ?? []) if (!inBox(p)) place.solids.push({ x: p.x, y: p.y, r: PERSON_SOLID });
 place.dock = { x: layout.dock[0], y: layout.dock[1] - DOCK_INLAND };
 place.arrive = { x: layout.arrive[0], y: layout.arrive[1] };
+// Nobody stands where he steps ashore: if one of the people does (the fisher by the dock, 2026-11-20), he steps
+// ashore a little further up the deck.
+while ((layout.people ?? []).some((p) => Math.hypot(p.x - place.arrive.x, p.y - place.arrive.y) < 28)) place.arrive.y -= 12;
 // On an island he wakes where he steps ashore. A town keeps the spot the game gave it (in its square), unless his
 // layout names one; the tests say whether that spot is still ground.
 const wake = layout.home?.wake ?? layout.wake;
@@ -100,7 +105,7 @@ if (layout.grounds) {
   place.biomes = [...layout.grounds].sort((a, b) => area(a) - area(b)).map((g) => ({ id: g.id, name: g.name, levels: g.levels, outline: curve(g.outline).map(([x, y]) => [round(x), round(y)]) }));
 }
 // The stall is where one trades: the shop is at his stall, whoever keeps it.
-const stall = layout.props.find((p) => p.name === 'stall');
+const stall = layout.home?.stall ? { x: layout.home.stall[0], y: layout.home.stall[1] } : layout.props.find((p) => p.name === 'stall');
 if (place.shop && stall) Object.assign(place.shop, { x: stall.x, y: stall.y });
 if (place.chest && layout.chest) {
   place.chest.x = layout.chest[0];

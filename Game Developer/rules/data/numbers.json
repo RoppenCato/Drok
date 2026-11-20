@@ -87,7 +87,8 @@
     "goldShare": 0.1
   },
   "reach": {
-    "_about": "How near he must stand to open a chest, to sail from a dock, to trade with a shopkeeper.",
+    "_about": "How near he must stand to open a chest, to sail from a dock, to trade with a shopkeeper. shopFront is how far before the stall's middle he stands to trade: the stall in the town on stilts has 38 units of deck before it and then the sea.",
+    "shopFront": 28,
     "chest": 70,
     "dock": 90,
     "shop": 110

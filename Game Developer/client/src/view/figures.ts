@@ -72,6 +72,8 @@ export interface SetData {
       colour?: string;
       light?: string;
       slice?: number[];
+      /** The piece carries its shadow in its own picture: no round shadow is drawn under it (a hut, the lookout). */
+      shade?: boolean;
       inset?: number;
       /** How long a pill is meant to be drawn, in design units (his own bar's frame). */
       length?: number;

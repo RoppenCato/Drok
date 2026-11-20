@@ -669,7 +669,7 @@ export class WorldView {
       const image = picture(s, folder, p.name);
       if (!image) continue;
       // What stands over the water (the dock, the boat) casts no shadow on the sand.
-      if (!p.name.startsWith('dock') && !p.name.startsWith('boat')) shadow(p.x, p.y, p.name);
+      if (!p.name.startsWith('dock') && !p.name.startsWith('boat') && !set?.items[p.name]?.shade) shadow(p.x, p.y, p.name);
       this.put(image.setPosition(p.x, p.y).setDepth(DEPTH.bodies + p.y));
     }
     // The people who stand about: one atlas whose actions are who they are, each standing and breathing.

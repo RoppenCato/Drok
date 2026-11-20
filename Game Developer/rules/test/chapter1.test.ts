@@ -46,18 +46,22 @@ describe('the ground of the island', () => {
   // The island's shore, its inlet and its rocks and trunks come from the Art Director's layout (2026-11-20).
   const stays = (sim: Sim): void => expect(clear(island, sim.state.hero.x, sim.state.hero.y, FEET - 0.01), `in the way at ${sim.state.hero.x.toFixed(0)}, ${sim.state.hero.y.toFixed(0)}`).toBe(true);
 
-  it('he walks on land only: pushed at the sea from the landing, he stops at the shore and slides along it', () => {
+  it('he walks on the deck and the land only: pushed at the sea from the town, he stops at the deck\'s edge and slides along it', () => {
     const sim = Sim.landed();
+    sim.hero({ x: island.wake.x - 40, y: island.wake.y });
     sim.act({ type: 'steer', x: 0, y: 1 });
     sim.run(3);
     expect(onLand(island, sim.state.hero.x, sim.state.hero.y)).toBe(true);
-    const shore = sim.state.hero.y;
-    expect(shore).toBeGreaterThan(island.arrive.y + 30);
-    sim.act({ type: 'steer', x: 0.7, y: 0.7 });
-    sim.run(2);
+    const edge = sim.state.hero.y;
+    expect(edge).toBeGreaterThan(island.wake.y + 30);
+    expect(edge).toBeLessThan(island.height - 100);
+    sim.act({ type: 'steer', x: -0.7, y: 0.7 });
+    sim.run(1);
     expect(onLand(island, sim.state.hero.x, sim.state.hero.y)).toBe(true);
-    expect(sim.state.hero.x).toBeGreaterThan(island.arrive.x + 60);
-    say(`from the landing at y ${island.arrive.y} the shore stops him at y ${shore.toFixed(0)}; pushed slantwise he slides along it`);
+    // West along the edge, as far as the deck's next post lets him; never off the planks.
+    expect(sim.state.hero.x).toBeLessThan(island.wake.x - 40);
+    expect(sim.state.hero.y).toBeLessThanOrEqual(edge + 4);
+    say(`pushed south from where he wakes (y ${island.wake.y}) the deck's edge stops him at y ${edge.toFixed(0)}; pushed slantwise he slides along it`);
   });
 
   it('a tap far away finds the way round rocks and trunks, and never walks through one', () => {
@@ -136,18 +140,20 @@ describe('the ground of the harbour', () => {
     expect(clear(harbour, house.x + house.w / 2, house.y + house.h + FEET + 1, FEET)).toBe(true);
   });
 
-  it('a tap behind a house finds the way round it, and he never stands in a wall, a well or a person', () => {
+  it('a tap behind a hut finds the way round it, and he never stands in a wall or a person', () => {
     const sim = new Sim();
-    const house = harbour.boxes.find((b) => b.x < harbour.wake.x && b.x + b.w > harbour.wake.x && b.y < harbour.wake.y)!;
-    const behind = { x: harbour.wake.x, y: house.y - 30 };
+    const hut = harbour.boxes[0]!;
+    const front = { x: hut.x + hut.w / 2, y: hut.y + hut.h + 24 };
+    const behind = { x: hut.x + hut.w / 2, y: hut.y - 24 };
+    sim.hero({ ...front });
     const took = walkTo(sim, behind);
     expect(Math.hypot(sim.state.hero.x - behind.x, sim.state.hero.y - behind.y)).toBeLessThan(1);
-    const straight = Math.hypot(behind.x - harbour.wake.x, behind.y - harbour.wake.y) / N.hero.speed;
+    const straight = Math.hypot(behind.x - front.x, behind.y - front.y) / N.hero.speed;
     expect(took).toBeGreaterThan(straight);
-    // And down to the dock, past the people on the quay.
+    // And down to the dock, past the people on the deck.
     walkTo(sim, harbour.dock);
     expect(Math.hypot(sim.state.hero.x - harbour.dock.x, sim.state.hero.y - harbour.dock.y)).toBeLessThan(1);
-    say(`from the square to behind the house: ${took.toFixed(1)} s on foot; a straight line would be ${straight.toFixed(1)} s`);
+    say(`from before a hut to behind it: ${took.toFixed(1)} s on foot; a straight line would be ${straight.toFixed(1)} s`);
   });
 
   it('pushed slantwise at a wall by the thumb, he slides along it', () => {
@@ -207,7 +213,7 @@ describe('the data is whole', () => {
       }
       for (const s of place.solids) expect(s.r, id).toBeGreaterThan(0);
       for (const b of place.boxes) expect(Math.min(b.w, b.h), id).toBeGreaterThan(0);
-      if (place.shop) expect(clear(place, place.shop.x, place.shop.y + 50, FEET), `${id}: no ground before the stall`).toBe(true);
+      if (place.shop) expect(clear(place, place.shop.x, place.shop.y + N.reach.shopFront, FEET), `${id}: no ground before the stall`).toBe(true);
       if (place.chest) expect(Object.values(BASES).some((b) => b.tier === place.chest!.itemTier), id).toBe(true);
     }
     for (const [id, k] of Object.entries(MONSTERS)) {
@@ -266,11 +272,12 @@ describe('a big place', () => {
     expect(sim.find(hunter.id)!.y).toBeGreaterThan(hunter.y);
   });
 
-  it('Crab Cay has three grounds: he lands on the beach, the town is on it, the chest is in the cove', () => {
+  it('Crab Cay has three grounds: the beach beside the town, the grove, and the cove with the chest', () => {
     // A ground that lies inside another comes first, so the beach (all the land the others are not) is last.
     expect(island.biomes.map((b) => b.id)).toEqual(['grove', 'cove', 'beach']);
-    expect(biomeAt(island, island.arrive)?.id).toBe('beach');
-    expect(biomeAt(island, island.wake)?.id).toBe('beach');
+    expect(biomeAt(island, { x: 600, y: 3450 })?.id).toBe('beach');
+    // The town stands on a deck over a bay: its planks are on no ground.
+    expect(biomeAt(island, island.wake)).toBeUndefined();
     expect(biomeAt(island, island.chest!)?.id).toBe('cove');
     expect(biomeAt(island, { x: 1400, y: 2400 })?.id).toBe('grove');
     expect(biomeAt(island, { x: 40, y: 40 })).toBeUndefined();

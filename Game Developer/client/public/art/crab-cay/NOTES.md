@@ -1,95 +1,99 @@
 # crab-cay  (Leonard, AD, 2026-11-20)
 
-**What it is:** Crab Cay grown big, the starter island: 2800 by 4200 design units, six times the small island, with the
-pirate town on it. One place, walked without a break. He lands in the south, in the town. The beach lies all round the
-island, with tide flats on its east side. The grove fills the middle. The cove is the rock across the north, with its
-pool in the west and the chest at its far east end. It takes the place of `out\island` and of `out\harbour`; both stay
-as they are until you switch.
+**What it is:** Crab Cay grown big, the starter island, with the pirate town Robin picked: a town on stilts. 2800 by
+4200 design units, one place, walked without a break. He lands in the south, on the town's deck, which stands in a
+little bay. The beach lies all round the island, with tide flats on its east side. The grove fills the middle. The cove
+is the rock across the north, with its pool in the west and the chest at its far east end.
 
-**Why.** Robin, 2026-11-20, in Victor, GD's chat: "I think i like pirate more. Lets expand on pirate". His pick of
-three ways, "3": "Both. Big islands with several biomes each, and the chart to sail between them." Then: "Make the
-starter island a pirate town, and the other part of the island beginner friendly with low level mobs." Asked by
-Victor, GD the same day. The layout and every look are mine; Robin has not seen it.
+**Why.** Robin, 2026-11-20, in Victor, GD's chat: "Make the starter island a pirate town, and the other part of the
+island beginner friendly with low level mobs." Of my offer of a real town: "Yeah do an updated pirate town suggested".
+Of the three shown (`concepts\town\`), in my chat: "3, but the buildings need to look nicer and have some depth to
+them. Theres also no contrast to the floor so it all kinda melts together." Of the changed still: "Yes".
 
-**What changed since the first drop of this folder (commit 7282e71, the same day):** the town is on the island; the
-reef and the channel are gone from the shape (a harder ground is for another island); the cove now runs across the
-whole north and the chest stands at its far east end; the east beach has tide pools; all the props and the town's
-pieces are in one atlas.
+**What changed since the last drop of this folder (commit c179620, the old harbour at the landing):**
+- The town is new and stands further south: on a deck of planks in a bay.
+- **The shore is cut in at the landing**, so `land` and `walk` differ there.
+- **`decks` is new:** four outlines of planks he can stand on. Two reach over the water.
+- **The dock** starts at the deck's foot, 1400, 4030, and is two pieces long (the world ends at 4200).
+- **The props' atlas is new:** 33 pieces, 2048 by 896. The houses and the well are gone from it; three huts, a
+  lookout, a fish rack, a post and a rope of flags are in. Six pieces carry their own shadow.
+- `square` is gone (no cobbles). `home`, `people`, `arrive`, where he wakes and the stall have new places.
+- The rest of the island (the grove, the cove, the flats, the chest, the zones) is as it was.
 
 ## The numbers
 
 | File | What | Size | Decoded | On disk |
 | --- | --- | --- | --- | --- |
-| `ground.png` | the whole ground as one picture, **half a pixel a design unit: draw it at four times its size** | 1400 by 2100 | 11.8 MB | 93 KB |
-| `island.png`, `island.json` | 30 props under today's names: the small island's 23 and the town's 7 (`house-a`, `house-b`, `house-c`, `stall`, `well`, `sign`, `lamp`) | 1024 by 1024 | 4 MB | 67 + 7 KB |
-| `folk.png`, `folk.json` | the town's four people, unchanged from `out\harbour` | 1024 by 512 | 2 MB | 72 + 21 KB |
-| `place.json` | the layout | | | 28 KB |
+| `ground.png` | the whole ground as one picture, **half a pixel a design unit: draw it at four times its size** | 1400 by 2100 | 11.8 MB | 85 KB |
+| `island.png`, `island.json` | 33 props: the small island's 23; `stall`, `sign`, `lamp`; and the town's `cabin-a`, `cabin-b`, `cabin-c` (the tavern), `tower-thatch`, `rack`, `post`, `bunting` | 2048 by 896 | 7 MB | 127 + 8 KB |
+| `folk.png`, `folk.json` | the four people, unchanged | 1024 by 512 | 2 MB | 72 + 21 KB |
+| `place.json` | the layout | | | 29 KB |
 
-- **With everything on it:** the ground 11.8, the props 4, the people 2, the three monsters 16, his body 8, gear 2,
-  glass 2, loot 0.3: about 46 MB decoded, under the 48 MB set for a place. The harbour as its own place (10 MB) goes.
-- **432 props** from 28 names, sorted by `y`; **292 things in the way** in `solid`: 288 circles and the four boxes of
-  the houses and the stall.
-- **He can walk** on 7.3 million square units. `node tools/isle.js crab-cay` walks a grid from where he lands: where he
-  wakes, the stall, the chest and every zone are reached; 0.03% of the free ground is cut off (pockets between stones).
+- **With everything on it:** the ground 11.8, the props 7, the people 2, the three monsters 16, his body 8, gear 2,
+  the glass 3.1, loot 0.3: **50.2 MB decoded**, under the 52 you set. The hero's own pictures for his window
+  (`out\hero-sheet`) are 1.6 MB on top of that when they are loaded.
+- The atlases are not a power of two tall any more (`--tight`): the ground never was, and it saves 2.6 MB over three
+  atlases. Say if the game needs powers of two; it is one flag.
+- **436 props** from 31 names, sorted by `y`; **327 things in the way** in `solid`: 322 circles and 5 boxes (the three
+  huts, the stall, the fish rack).
+- **He can walk** on 7.2 million square units. `node tools/isle.js crab-cay` walks a grid from where he lands, counting
+  the decks as ground: where he wakes, the stall, the chest and every zone are reached; 0.03% of the free ground is cut
+  off (pockets between stones).
 
 ## How the game uses it
 
-Copy the folder. It is the small island's form with these changes:
+Copy the folder. What is new for the game, beside what it already does with this island:
 
-1. `ground.px` is 0.5: draw `ground.png` at (0, 0) at **four** times its size. Nothing else in the drawing changes:
-   the props with their origin at `x`, `y`, sorted with the figures; a flat shadow under each, as today.
-2. **`home`** is the town: `outline` (corner points of a smooth curve, like `land`), a `box` round it, `wake` (1400,
-   3658: in the square below the well, the game's own spot in the harbour) and `stall` (1250, 3678). No monster inside
-   the outline. The zones do not reach into it.
-3. **`people`** as in the harbour's layout: `who`, `x`, `y`, `facing`. They stand where they stood, 950 further east
-   and 3038 further south. `square` is the cobbles' outline.
-4. **`walk`** is the outline of the dry sand, the shore drawn in by 24 units, as 168 corner points joined by straight
-   lines. Use it for where he can stand, in place of scaling `land` toward its middle. `land` is still the shore.
-5. **`zones`** has several boxes for a kind, and each box has a fifth number, its level: `[x, y, w, h, level]`. Sand
-   crabs level 1 on the beach either side of the town and level 2 on the tide flats in the east; gulls level 3 in the
-   south of the grove and level 4 in its north; coconut crabs level 5 in the cove. Suggestions, as before.
-6. **`grounds`**: for each ground its `id`, `name`, `levels`, a `box` and its `outline`. `beach`, `grove`, `cove`
-   carry your names. The beach is the land where the other two are not, so test them first.
-7. `flats` is the outline of the tide flats, for the painter only. `inlet` is the cove's pool; he cannot stand in it.
-8. `paths` holds the island's three ways and the town's two. They are painted into the ground.
+1. **`decks`**: a list; each has `pts`, four corner points joined by straight lines, and `sea: true` where it reaches
+   over water. **He can stand where he is inside `walk` or inside a deck.** The big one is the town's floor (1110 to
+   1690 across, 3700 to 4032 down, a little wider at its foot). One runs north from it as a walk of planks to 3440.
+   Two are jetties to the beach, west and east, at 3836 to 3893. The decks are painted into the ground.
+2. **A piece with `shade: true`** in `island.json`'s `items` carries its shadow in its own picture: **draw no round
+   shadow under it.** They are the three huts, the lookout, the stall and the fish rack. Every other prop gets its flat
+   shadow as before.
+3. **`home`**: `outline`, `box` (909, 3320, 983 by 767), `wake` (1400, 3900: the middle of the deck) and `stall`
+   (1296, 3986). No monster inside the outline. The two level 1 crab zones lie west and east of it and are unchanged.
+4. **`people`**: the shopkeeper behind his stall (1296, 3968), the harbour master (1470, 3915), the fisher by the dock
+   (1400, 3975), the sailor at the way north (1400, 3775). Each has a `note`.
+5. `dock` is 1400, 4030 and `arrive` 1400, 3976: he steps onto the deck. The two dock pieces are in `props`.
+6. `walk` is the dry sand as before, now with the bay in it. `ground.px` is 0.5 as before.
 
-`dock` is where the dock meets the sand (1400, 3972), `arrive` where he steps ashore (1400, 3918). The chest stands at
-2275, 850, at the end of a side way that leaves the cove's path and runs east: the far end of the island from the town.
-
-`tools\scene.js --place crab-cay` in the studio draws a screen from these files the way written here, the people
-too. `look-screens.jpg` is made by it.
+`tools\scene.js --place crab-cay` in the studio draws a screen from these files the way written here.
+`look-screens.jpg` is made by it.
 
 ## Mine, for Victor, GD to know
 
-- **The town is the harbour as it stood,** moved so its dock lies on the island's dock: three houses, the stall, the
-  well, two lamps, a sign, barrels, crates, a boat, palms, four people. It is small on an island this size. That is the
-  first drop, so Robin sees the island whole today. A real pirate town is big work, the first place of the game: more
-  houses, a tavern, a lookout, flags. Three stills for him first; say when.
-- **The tide flats are beach,** not a ground of their own: the level 2 crabs live among the pools, so the two levels
-  look different without a fourth ground.
-- **The coconut crab stays at the far end,** as you asked: the cove is the whole north, 2300 units from where he wakes.
-- **The cobbles are drawn a little heavier** than in the harbour's ground, so they hold at half a pixel a unit.
+- **Depth and contrast are Robin's words; how is mine.** Each hut stands on its own dark platform with steps and is
+  turned so two walls show; a porch under the roof's overhang; thatch in two tiers. The walls are painted (cream, teal,
+  coral) and the deck is pale and weathered, so nothing melts into it.
+- **The tavern is `cabin-c`** (the big cream one with the board and the mug). Nothing happens there yet.
+- **The level 1 crabs are reached over the two jetties,** the grove over the walk north. So a new player leaves town by
+  a plank way whichever way he goes: the town has an edge.
+- **The stall, the sign and the lamps are the old harbour's.** They fit; say if they should be redrawn for this town.
 
 ## Open
 
 - New props for a ground this size: driftwood, shells and a starfish for the beach, flowers and a fallen trunk for the
-  grove. The 23 of today carry it, but the beach is plain.
-- The sea does not move, as before.
-- The paths are painted into the ground. If the ways change, the picture is painted again: one command.
-- The wreck on a reef with its hermit crab and its octopus, proposed for a fourth ground, waits for the second island.
+  grove. The beach is plain.
+- The sea does not move. Under a deck on stilts it would be worth a shimmer first.
+- The people are the old harbour's four. More of them, and people who walk, when tasks come.
+- The wreck on a reef with its hermit crab and its octopus waits for the second island. The two towns not picked (a
+  port, a town built of ships) are in `concepts\town\` if another island wants one.
 
-**Not tested:** not in the game and not on a phone. The half-size ground was judged on this PC at a phone's sharpness,
-not on a phone's screen. The `solid` circles are from the props' sizes, as before. The zones' boxes reach over a little
-water and rock in places; your rules already keep a monster off ground it cannot stand on.
+**Not tested:** not in the game and not on a phone. The half-size ground was judged on this PC at a phone's sharpness.
+The `solid` shapes are from the pieces' sizes, as before. The zones' boxes reach over a little water and rock in
+places; your rules already keep a monster off ground it cannot stand on.
 
-**Origin and licence:** all made here, by `tools\isle.js` (the ground, the layout, the walk check) in the hand of
-`tools\ground.js`. The props are `out\island`'s and `out\harbour`'s, packed again into one atlas from the same renders;
-the people are `out\harbour`'s file. Nothing from outside.
+**Origin and licence:** all made here. The ground, the layout and the walk check by `tools\isle.js`; the town's pieces
+by `blender\town.py` from `concepts\town\build.py`, shaded by `tools\shade.js`; the rest are the small island's and the
+old harbour's props. Nothing from outside.
 
-**Where to see it:** `look-screens.jpg` (four screens with the glass on: the town, the tide flats, the grove, the cove
-with the chest), `look.jpg` (the whole island with its props, at a quarter size), `look-map.jpg` (the same with the
-grounds, the zones, the town and the chest drawn on it).
+**Where to see it:** `look-screens.jpg` (four screens with the glass on: the town on its deck, a jetty to the west
+beach, the walk north out of town, the grove), `look.jpg` (the whole island with its props, at a quarter size),
+`look-map.jpg` (the same with the grounds, the zones, the town and the chest drawn on it).
 
-**Making it again:** `node tools/merge-props.js` and `node tools/packset.js island work/crab-cay/render work/crab-cay/atlas`
-(the one atlas), `node tools/isle.js crab-cay` (the ground, the layout, the looks, the walk check); copy `ground.png`,
-`place.json` and the atlas here and run `python tools/shrink.py out/crab-cay`.
+**Making it again:** `node tools/blender.js blender/town.py -- work/crab-cay/town`;
+`node tools/merge-props.js work/crab-cay/render work/crab-cay/town work/island/render work/harbour/render --not house-a,house-b,house-c,well`;
+`node tools/shade.js work/crab-cay/render`; `node tools/packset.js island work/crab-cay/render work/crab-cay/atlas --tight`;
+copy the atlas into `work\crab-cay\`; `node tools/isle.js crab-cay`; copy `ground.png`, `place.json` and the atlas here;
+`python tools/shrink.py out/crab-cay`.

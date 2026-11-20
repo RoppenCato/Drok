@@ -28,9 +28,11 @@ export function biomeAt(place: Place, p: Vec): Biome | undefined {
   return place.biomes.find((b) => inside(b.outline, p.x, p.y));
 }
 
-/** Is this point ground to stand on: inside the place's box, on its land, and not in water? */
+/** Is this point ground to stand on: inside the place's box, and on a deck or on its land and not in water? */
 export function onLand(place: Place, x: number, y: number): boolean {
   if (x < N.margin || y < N.margin || x > place.width - N.margin || y > place.height - N.margin) return false;
+  // A deck is ground wherever it lies, over the sea too.
+  for (const deck of place.decks) if (inside(deck, x, y)) return true;
   if (place.land && !inside(place.land, x, y)) return false;
   for (const water of place.water) if (inside(water, x, y)) return false;
   return true;

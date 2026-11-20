@@ -10,7 +10,7 @@
 // slid somewhere, and steering is sent the frame it changes.
 
 import type Phaser from 'phaser';
-import { dist, placeOf, type Vec } from '../../rules/src/index.ts';
+import { N, dist, placeOf, type Vec } from '../../rules/src/index.ts';
 import { RES } from './layout.ts';
 import type { LocalGame } from './local-game.ts';
 import type { Hud } from './view/hud.ts';
@@ -123,7 +123,7 @@ export class Controls {
       const d = Math.max(1, dist(state.hero, place.chest));
       return { x: place.chest.x + ((state.hero.x - place.chest.x) / d) * 42, y: place.chest.y + ((state.hero.y - place.chest.y) / d) * 42 };
     }
-    if (thing === 'shop' && place.shop) return { x: place.shop.x, y: place.shop.y + 62 };
+    if (thing === 'shop' && place.shop) return { x: place.shop.x, y: place.shop.y + N.reach.shopFront };
     return { x: place.dock.x, y: place.dock.y };
   }
 
