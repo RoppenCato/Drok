@@ -12,6 +12,15 @@ until you are done. Including tests. I dont need to approve or answer any questi
 the art you need. I approve." So the look below is **my choice**, wave 1 is being built on it, and he judges it when
 he is back. If he picks another look, the models are re-finished or the figures redone, and this sheet changes.
 
+## A new theme, being drawn (Robin, 2026-11-20)
+
+Robin, in Victor, GD's chat: "I think I like it more if its an open world and not tied to islands. Instead it should be
+biomes." "A shrunk person and enemies are insects"; "Lets do 1, but inside a house." "I really liked the color and
+aestethic of what we have now tho." "Does it really work well im 2D tho? Scale can be tricky." Three stills went to him
+the same day (`concepts\house\`, `out\house-concepts\NOTES.md`): the same kitchen floor with the hero at three sizes. He
+has not picked. **Until he has, everything below stands as written**; when he picks, this sheet is rewritten (the theme,
+the places, the sizes), and the look stays the one he liked.
+
 ## The look in use (mine, 2026-11-20; not judged by Robin)
 
 Look 1 of the three, the toy-box models, with the thicker line and the bigger eyes of look 2. It is the one that gives

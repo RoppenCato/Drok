@@ -24,6 +24,8 @@ a NOTES.md. Nothing here has been judged by Robin: **every look and design is mi
 - **The reference drawers**: `tools\dress.js` draws the Warrior with his gear from these files the way the game should;
   `tools\scene.js` draws a whole screen. If their pictures are right, the data is right. `out\scene\beach.png` is that.
 
+`house-concepts` is not for the game: three stills of a new theme for Robin to pick from (2026-11-20), with their notes.
+
 ## What it costs (decoded memory, files on disk)
 
 | Folder | Atlas | Decoded | On disk |
