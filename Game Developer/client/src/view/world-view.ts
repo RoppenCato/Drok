@@ -10,6 +10,7 @@ import { COLORS, DEPTH, FONT, RES, hex } from '../layout.ts';
 import type { Ground } from '../scenes/BootScene.ts';
 import { settings } from '../settings.ts';
 import { Figure, HeroFigure, picture, repicture, type AtlasData, type GearData, type SetData } from './figures.ts';
+import { hasGlass, piece } from './glass.ts';
 
 /** A place as the Art Director laid it out: what stands where. The rules' own copy of the layout is in their data. */
 interface PlaceArt {
@@ -94,6 +95,7 @@ export class WorldView {
   private heroShadow!: Phaser.GameObjects.Ellipse;
   private swordArm!: Phaser.GameObjects.Container;
   private ring!: Phaser.GameObjects.Ellipse;
+  private ringArt: Phaser.GameObjects.Image | null = null;
   private destDot!: Phaser.GameObjects.Arc;
   private slash!: Phaser.GameObjects.Graphics;
   private chestLid: Phaser.GameObjects.Rectangle | null = null;
@@ -120,6 +122,9 @@ export class WorldView {
     // Marks on the ground: where a tap sent him, and the ring under his target.
     this.destDot = this.reg(s.add.circle(0, 0, 5, COLORS.mark, 0.7).setDepth(DEPTH.marks).setVisible(false));
     this.ring = this.reg(s.add.ellipse(0, 0, 50, 34).setStrokeStyle(3, COLORS.target, 1).setDepth(DEPTH.marks).setVisible(false));
+    // The Art Director's mark under the target, when his glass is in the game.
+    const mark = hasGlass(s) ? piece(s, 'mark/target') : null;
+    if (mark) this.ringArt = this.reg(mark.setDepth(DEPTH.marks).setVisible(false));
 
     // The hero, from above: a coat, a hat, a face that shows where he looks, a buckler on one arm and a cutlass on
     // the other (Robin, 2026-11-20: cutlass and buckler). The whole figure turns to his facing.
@@ -315,11 +320,13 @@ export class WorldView {
     }
 
     const target = h.target !== null ? this.monsters.get(h.target) : undefined;
-    this.ring.setVisible(target !== undefined);
+    const ring = this.ringArt ?? this.ring;
+    ring.setVisible(target !== undefined);
     if (target) {
       this.ringPop = Math.max(0, this.ringPop - fade);
-      const size = target.radius / 15;
-      this.ring.setPosition(target.x, target.y + 6).setScale(size * (1 + 0.06 * Math.sin(time * 0.008) + 0.5 * this.ringPop));
+      // His mark is drawn at two pixels a unit and made for a crab; a bigger monster gets a bigger one.
+      const size = (target.radius / 15) * (this.ringArt ? 0.5 : 1);
+      ring.setPosition(target.x, target.y + (this.ringArt ? 2 : 6)).setScale(size * (1 + 0.06 * Math.sin(time * 0.008) + 0.5 * this.ringPop));
     }
 
     // What lies on the ground, each thing with the glow of its rarity (Robin, 2026-11-19).
@@ -421,6 +428,13 @@ export class WorldView {
 
   /** A ring where a tap landed on the ground, so a tap is answered the frame it lands. */
   tapMark(at: Vec): void {
+    const drawn = hasGlass(this.scene) ? piece(this.scene, 'mark/tap') : null;
+    if (drawn) {
+      this.reg(drawn.setPosition(at.x, at.y).setDepth(DEPTH.marks));
+      const size = drawn.scaleX;
+      this.scene.tweens.add({ targets: drawn, scale: size * 0.35, alpha: 0.2, duration: Math.max(1, settings.ms(280)), ease: 'Quad.easeOut', onComplete: () => drawn.destroy() });
+      return;
+    }
     const ring = this.reg(this.scene.add.circle(at.x, at.y, 16).setStrokeStyle(3, COLORS.mark, 0.9).setDepth(DEPTH.marks));
     this.scene.tweens.add({ targets: ring, scale: 0.3, alpha: 0.2, duration: Math.max(1, settings.ms(260)), ease: 'Quad.easeOut', onComplete: () => ring.destroy() });
   }

@@ -55,6 +55,12 @@ Victor, GD's first guess of 2026-11-20 and is pending until Robin has played the
 6. **One window at a time, rebuilt whole.** Each window is drawn again from the state whenever it may be stale,
    so it cannot show an old number, and there is no code that updates a window in place.
 
+7. **The Art Director lays the place out; a tool carries it into the rules.** His painted ground and his list of
+   props came with a shore and circles to walk round. One script writes them into the rules' data, so the ground
+   the rules walk on is the ground the picture shows, and it can be run again when he moves a palm.
+8. **A plain field for the tests of feel.** Moving and fighting are tested on an open test field; what must hold on
+   the real island is tested on the real island. A moved rock then breaks only the tests that are about rocks.
+
 ## What went wrong, and the rule each left
 
 1. Nine lettered questions in one chat message, on his phone, got "Questionaire please" (Robin, 2026-11-20). Rule:
@@ -67,6 +73,15 @@ Victor, GD's first guess of 2026-11-20 and is pending until Robin has played the
    Rule: a button changes the state from the state, never from the screen's copy of it.
 5. The console showed errors that were not the page's: half-saved files during editing. Rule: read the page's own
    count (`window.dev.log.errorCount`) after a fresh load.
+
+6. With things in the way, a tap that walks in a straight line and slides round what it meets got trapped in a
+   notch between two rocks; the play-through bot found it by standing there for 70 minutes. Rule: the day a place
+   has things in the way, a tap needs a way-finder, not a slide.
+7. With pictures to load, the stopped page of a pane test never finished loading: the loader works through its
+   files on the game's steps. Rule: in drive mode the page's clock runs until the play scene stands, and a test
+   steps the page by hand while it waits.
+8. The offline cache took pictures but not their data files, so the installed game would have had art it could not
+   place. Rule: after adding a kind of file to the game, read the build's list of what it caches.
 
 ## Harvested
 

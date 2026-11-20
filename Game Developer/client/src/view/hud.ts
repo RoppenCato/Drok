@@ -3,11 +3,15 @@
 // arc in the bottom corner with the potion beside them, the button that uses the thing he stands by, the stick's
 // ring, and the words that come and go. Placed in design units (412 by 915). It draws from the state and tells the
 // scene what was pressed; it decides nothing about the game. The windows are in panels.ts.
+//
+// It is drawn with the Art Director's pieces when his `glass` drop is in the game (glass.ts), and with plain boxes
+// and discs when it is not; the places and the sizes of what can be pressed are the same either way.
 
 import Phaser from 'phaser';
 import { N, heroMaxHp, kindOf, xpToNext, type GameEvent, type GameState, type RejectReason, type Scheme, type SkillId, type Vec } from '../../../rules/src/index.ts';
 import { COLORS, DEPTH, DESIGN_HEIGHT, DESIGN_WIDTH, FONT, RES } from '../layout.ts';
 import { settings } from '../settings.ts';
+import { Bar, INK, hasGlass, piece, stretch } from './glass.ts';
 import type { PanelKind } from './panels.ts';
 import type { Thing } from './world-view.ts';
 
@@ -36,8 +40,10 @@ interface Zone {
 
 interface Disc {
   id: SkillId | 'potion';
-  disc: Phaser.GameObjects.Arc;
-  label: Phaser.GameObjects.Text;
+  disc: Phaser.GameObjects.Arc | Phaser.GameObjects.Image;
+  /** The disc's size at rest: a press makes it a little smaller for a moment. */
+  size: number;
+  label: Phaser.GameObjects.Text | null;
   sub: Phaser.GameObjects.Text;
   cover: Phaser.GameObjects.Graphics;
   count: Phaser.GameObjects.Text;
@@ -50,7 +56,7 @@ interface Disc {
 const W = DESIGN_WIDTH;
 const H = DESIGN_HEIGHT;
 const BAR_X = 60;
-const BAR_W = 128;
+const BAR_W = 132;
 /** The arc's corner sits above the phone's gesture bar. Cleave, pressed most, is where the thumb rests. */
 const ARC = { cornerUp: 24, cleave: [108, 22], charge: [108, 66], potion: [176, 44] } as const;
 
@@ -83,18 +89,21 @@ export class Hud {
   private readonly actions: HudActions;
   private readonly zones: Zone[] = [];
   private readonly discs: Disc[] = [];
-  private hp!: Phaser.GameObjects.Rectangle;
+  /** Drawn with the Art Director's pieces, or with plain shapes. */
+  private glass = false;
+  private hp!: Bar;
   private hpText!: Phaser.GameObjects.Text;
-  private rage!: Phaser.GameObjects.Rectangle;
-  private xp!: Phaser.GameObjects.Rectangle;
+  private rage!: Bar;
+  private xp!: Bar;
   private level!: Phaser.GameObjects.Text;
   private gold!: Phaser.GameObjects.Text;
-  private bagBox!: Phaser.GameObjects.Rectangle;
+  private bag!: Phaser.GameObjects.Rectangle | Phaser.GameObjects.Image;
   private help!: Phaser.GameObjects.Text;
   private helpFor = 0;
   private targetName!: Phaser.GameObjects.Text;
-  private targetBack!: Phaser.GameObjects.Rectangle;
-  private targetBar!: Phaser.GameObjects.Rectangle;
+  private targetLevel!: Phaser.GameObjects.Text;
+  private targetPlate: Phaser.GameObjects.NineSlice | null = null;
+  private targetBar!: Bar;
   private toastText!: Phaser.GameObjects.Text;
   private toastFor = 0;
   private bannerTitle!: Phaser.GameObjects.Text;
@@ -104,7 +113,7 @@ export class Hud {
   private lost = 0;
   private stickBase!: Phaser.GameObjects.Arc;
   private stickKnob!: Phaser.GameObjects.Arc;
-  private useBox!: Phaser.GameObjects.Rectangle;
+  private useBox!: Phaser.GameObjects.Rectangle | Phaser.GameObjects.NineSlice;
   private useText!: Phaser.GameObjects.Text;
   private useZone!: Zone;
   private thing: Thing | null = null;
@@ -117,19 +126,34 @@ export class Hud {
 
   build(state: GameState): void {
     const s = this.scene;
+    const g = hasGlass(s);
+    this.glass = g;
+    const top = DEPTH.hud;
 
-    // Top left: the settings, then his health, rage and experience, his level and his money.
-    this.box(30, 30, 44, 44, COLORS.button, DEPTH.hud);
-    this.words(30, 29, '≡', 26, COLORS.text, DEPTH.hud + 1);
+    // Top left: the settings, then his health and rage; his level and his money under them.
+    const menu = g ? piece(s, 'button/menu') : null;
+    if (menu) this.reg(menu.setPosition(30, 30).setDepth(top));
+    else {
+      this.box(30, 30, 44, 44, COLORS.button, top);
+      this.words(30, 29, '≡', 26, COLORS.text, top + 1);
+    }
     this.zone(30, 30, 24, 24, false, () => this.actions.open('menu'));
-    this.reg(s.add.rectangle(BAR_X - 2, 8, BAR_W + 4, 40, COLORS.barBack, 0.9).setOrigin(0).setDepth(DEPTH.hud));
-    this.hp = this.reg(s.add.rectangle(BAR_X, 10, BAR_W, 16, COLORS.hp).setOrigin(0).setDepth(DEPTH.hud + 1));
-    this.hpText = this.words(BAR_X + BAR_W / 2, 18, '', 12, COLORS.text, DEPTH.hud + 2);
-    this.rage = this.reg(s.add.rectangle(BAR_X, 29, BAR_W, 8, COLORS.rage).setOrigin(0).setDepth(DEPTH.hud + 1));
-    this.xp = this.reg(s.add.rectangle(BAR_X, 40, BAR_W, 6, COLORS.xp).setOrigin(0).setDepth(DEPTH.hud + 1));
-    this.reg(s.add.rectangle(194, 8, 62, 40, COLORS.barBack, 0.9).setOrigin(0).setDepth(DEPTH.hud));
-    this.level = this.words(225, 19, '', 13, COLORS.text, DEPTH.hud + 1);
-    this.gold = this.words(225, 37, '', 13, COLORS.goldText, DEPTH.hud + 1);
+    this.hp = new Bar(s, this.reg, { x: BAR_X, y: g ? 18 : 18, w: BAR_W, kind: 'hp', depth: top, plain: 16 });
+    this.hpText = this.words(BAR_X + BAR_W / 2, 18, '', 11, COLORS.text, top + 2).setStroke(INK.dark, 3);
+    this.rage = new Bar(s, this.reg, { x: BAR_X, y: g ? 38 : 33, w: BAR_W, kind: 'rage', depth: top, plain: 8 });
+    if (g) {
+      // His way: experience along the bottom, level and money as words on the world, a coin before the money.
+      this.xp = new Bar(s, this.reg, { x: 14, y: H - 18, w: 150, kind: 'xp', depth: top, plain: 6 });
+      this.level = this.words(BAR_X + 2, 60, '', 15, COLORS.text, top + 1).setOrigin(0, 0.5).setStroke(INK.dark, 4);
+      const coin = piece(s, 'mark/coin');
+      if (coin) this.reg(coin.setPosition(BAR_X + 60, 60).setDepth(top + 1));
+      this.gold = this.words(BAR_X + 72, 60, '', 15, COLORS.text, top + 1).setOrigin(0, 0.5).setStroke(INK.dark, 4);
+    } else {
+      this.xp = new Bar(s, this.reg, { x: BAR_X, y: 43, w: BAR_W, kind: 'xp', depth: top, plain: 6 });
+      this.reg(s.add.rectangle(198, 8, 58, 40, COLORS.barBack, 0.9).setOrigin(0).setDepth(top));
+      this.level = this.words(227, 19, '', 13, COLORS.text, top + 1);
+      this.gold = this.words(227, 37, '', 13, COLORS.goldText, top + 1);
+    }
 
     // Top right: bag, chart, hero (Robin, 2026-11-20).
     const tops: [number, string, PanelKind][] = [
@@ -138,29 +162,43 @@ export class Hud {
       [382, 'Hero', 'hero'],
     ];
     for (const [x, label, panel] of tops) {
-      const box = this.box(x, 30, 44, 44, COLORS.button, DEPTH.hud);
-      if (panel === 'bag') this.bagBox = box;
-      this.words(x, 30, label, 12, COLORS.text, DEPTH.hud + 1);
+      const drawn = g ? piece(s, `button/${panel}`) : null;
+      if (drawn) {
+        this.reg(drawn.setPosition(x, 30).setDepth(top));
+        if (panel === 'bag') this.bag = drawn;
+      } else {
+        const box = this.box(x, 30, 44, 44, COLORS.button, top);
+        if (panel === 'bag') this.bag = box;
+        this.words(x, 30, label, 12, COLORS.text, top + 1);
+      }
       this.zone(x, 30, 23, 24, false, () => this.actions.open(panel));
     }
-    this.help = this.words(W / 2, 60, '', 13, COLORS.textDark, DEPTH.hud).setWordWrapWidth(W - 40).setAlign('center').setOrigin(0.5, 0);
+    this.help = this.words(W / 2, g ? 76 : 60, '', 13, g ? COLORS.text : COLORS.textDark, top).setWordWrapWidth(W - 40).setAlign('center').setOrigin(0.5, 0);
+    if (g) this.help.setStroke(INK.dark, 4);
 
-    // Under them: who he fights.
-    this.targetName = this.words(W / 2, 104, '', 13, COLORS.textDark, DEPTH.hud + 1);
-    this.targetBack = this.reg(s.add.rectangle(W / 2 - 61, 114, 122, 9, COLORS.barBack, 0.9).setOrigin(0).setDepth(DEPTH.hud));
-    this.targetBar = this.reg(s.add.rectangle(W / 2 - 60, 115, 120, 7, COLORS.hp).setOrigin(0).setDepth(DEPTH.hud + 1));
+    // Under them: who he fights. On his glass, a plate with the name and the level, the health along its foot.
+    const plateY = g ? 116 : 104;
+    if (g) {
+      this.targetPlate = stretch(s, 'plate', 172, 34);
+      if (this.targetPlate) this.reg(this.targetPlate.setPosition(W / 2, plateY).setDepth(top));
+    }
+    this.targetName = this.words(g ? W / 2 - 68 : W / 2, g ? plateY - 5 : 104, '', 13, g ? INK.dark : COLORS.textDark, top + 1);
+    this.targetLevel = this.words(W / 2 + 68, plateY - 5, '', 11, INK.dim, top + 1).setOrigin(1, 0.5);
+    if (g) this.targetName.setOrigin(0, 0.5);
+    this.targetBar = new Bar(s, this.reg, { x: W / 2 - (g ? 66 : 60), y: g ? plateY + 14 : 118, w: g ? 132 : 120, kind: 'hp', depth: top + 2, plain: 7 });
 
     // The stick's ring and knob (scheme 3): shown where the thumb came down.
-    this.stickBase = this.reg(s.add.circle(0, 0, 46).setStrokeStyle(3, COLORS.mark, 0.55).setDepth(DEPTH.hud).setVisible(false));
-    this.stickKnob = this.reg(s.add.circle(0, 0, 22, COLORS.mark, 0.45).setDepth(DEPTH.hud).setVisible(false));
+    this.stickBase = this.reg(s.add.circle(0, 0, 46).setStrokeStyle(3, COLORS.mark, 0.55).setDepth(top).setVisible(false));
+    this.stickKnob = this.reg(s.add.circle(0, 0, 22, COLORS.mark, 0.45).setDepth(top).setVisible(false));
 
-    this.disc('cleave', 'Cleave', `${N.cleave.rageCost} rage`, 34, () => this.actions.skill('cleave'));
-    this.disc('charge', 'Charge', 'dash', 34, () => this.actions.skill('charge'));
-    this.disc('potion', 'Potion', '', 27, () => this.actions.potion());
+    this.disc('cleave', 'Cleave', `${N.cleave.rageCost} rage`, 36, () => this.actions.skill('cleave'));
+    this.disc('charge', 'Charge', 'dash', 36, () => this.actions.skill('charge'));
+    this.disc('potion', 'Potion', '', 28, () => this.actions.potion());
 
     // The button for the thing he stands by: it is only there when there is something to use.
-    this.useBox = this.reg(s.add.rectangle(0, 0, 150, 46, COLORS.buttonGo, 0.95).setStrokeStyle(3, COLORS.foam).setDepth(DEPTH.hud).setVisible(false));
-    this.useText = this.words(0, 0, '', 16, COLORS.text, DEPTH.hud + 1).setVisible(false);
+    const pill = g ? stretch(s, 'button/context', 156, 48) : null;
+    this.useBox = this.reg((pill ?? s.add.rectangle(0, 0, 150, 46, COLORS.buttonGo, 0.95).setStrokeStyle(3, COLORS.foam)).setDepth(top).setVisible(false));
+    this.useText = this.words(0, 0, '', pill ? 17 : 16, pill ? INK.dark : COLORS.text, top + 1).setVisible(false);
     this.useZone = this.zone(0, 0, 80, 28, false, () => {
       if (this.thing) this.actions.use(this.thing);
     });
@@ -235,16 +273,19 @@ export class Hud {
       d.zone.x = x;
       d.zone.y = y;
       d.disc.setPosition(x, y);
-      d.label.setPosition(x, d.id === 'potion' ? y - 3 : y - 6);
-      d.sub.setPosition(x, y + 11);
+      d.label?.setPosition(x, d.id === 'potion' ? y - 3 : y - 6);
+      // On his discs the picture says what it is; only the potion's count is written, at its foot.
+      d.sub.setPosition(this.glass ? x + d.radius * 0.55 : x, this.glass ? y + d.radius * 0.6 : y + 11);
       d.count.setPosition(x, y);
       d.drawn = -1;
     }
+    // On his glass the experience bar lies along the bottom left, so the use button sits above it.
     const ux = left ? W - 104 : 104;
+    const uy = this.glass ? 842 : 852;
     this.useZone.x = ux;
-    this.useZone.y = 852;
-    this.useBox.setPosition(ux, 852);
-    this.useText.setPosition(ux, 852);
+    this.useZone.y = uy;
+    this.useBox.setPosition(ux, uy);
+    this.useText.setPosition(ux, uy);
   }
 
   show(events: GameEvent[], state: GameState): void {
@@ -267,14 +308,21 @@ export class Hud {
   sync(state: GameState, delta: number): void {
     const h = state.hero;
     const max = heroMaxHp(h);
-    this.hp.scaleX = Math.max(0, Math.min(1, h.hp / max));
+    this.hp.set(h.hp / max);
     this.hpText.setText(`${Math.ceil(h.hp)} / ${max}`);
-    this.rage.scaleX = Math.max(0, h.rage / N.hero.maxRage);
+    this.rage.set(h.rage / N.hero.maxRage);
     const need = xpToNext(h.level);
-    this.xp.scaleX = need > 0 ? Math.min(1, h.xp / need) : 1;
-    this.level.setText(`Level ${h.level}`);
-    this.gold.setText(`${h.gold} gold`);
-    this.bagBox.setFillStyle(h.bag.length >= N.bagSize ? COLORS.rage : COLORS.button);
+    this.xp.set(need > 0 ? h.xp / need : 1);
+    this.level.setText(this.glass ? `Lv ${h.level}` : `Level ${h.level}`);
+    this.gold.setText(this.glass ? `${h.gold}` : `${h.gold} gold`);
+    // A full bag shows on its button.
+    const full = h.bag.length >= N.bagSize;
+    if (this.bag instanceof Phaser.GameObjects.Image) {
+      if (full) this.bag.setTint(0xffb347);
+      else this.bag.clearTint();
+    } else {
+      this.bag.setFillStyle(full ? COLORS.rage : COLORS.button);
+    }
 
     this.helpFor = Math.max(0, this.helpFor - delta);
     this.help.setAlpha(Math.min(1, this.helpFor / 600));
@@ -286,13 +334,16 @@ export class Hud {
     this.bannerSub.setAlpha(shown);
 
     const target = h.target !== null ? state.monsters.find((m) => m.id === h.target) : undefined;
-    this.targetName.setVisible(target !== undefined);
-    this.targetBack.setVisible(target !== undefined);
-    this.targetBar.setVisible(target !== undefined);
+    const has = target !== undefined;
+    this.targetName.setVisible(has);
+    this.targetLevel.setVisible(has && this.glass);
+    this.targetPlate?.setVisible(has);
+    this.targetBar.setVisible(has);
     if (target) {
       const k = kindOf(target);
-      this.targetName.setText(`${k.name}  ·  level ${k.level}`);
-      this.targetBar.scaleX = Math.max(0, target.hp / k.maxHp);
+      this.targetName.setText(this.glass ? k.name : `${k.name}  ·  level ${k.level}`);
+      this.targetLevel.setText(`Lv ${k.level}`);
+      this.targetBar.set(target.hp / k.maxHp);
     }
 
     this.downText.setText(h.downFor > 0 ? `Down!\n${this.lost > 0 ? `Lost ${this.lost} gold\n` : ''}Waking in ${Math.ceil(h.downFor)}` : '');
@@ -302,8 +353,8 @@ export class Hud {
       const whole = d.id === 'charge' ? N.charge.cooldownSeconds : d.id === 'cleave' ? N.cleave.cooldownSeconds : N.potion.cooldownSeconds;
       const part = Math.max(0, Math.min(1, left / whole));
       const poor = (d.id === 'cleave' && h.rage < N.cleave.rageCost) || (d.id === 'potion' && h.potions <= 0);
-      d.disc.setAlpha(poor ? 0.55 : 0.92);
-      d.label.setAlpha(poor ? 0.6 : 1);
+      d.disc.setAlpha(poor ? 0.5 : this.glass ? 1 : 0.92);
+      d.label?.setAlpha(poor ? 0.6 : 1);
       d.count.setText(left > 0 ? `${Math.ceil(left)}` : '');
       if (d.id === 'potion') d.sub.setText(`${h.potions}`);
       if (part !== d.drawn) {
@@ -336,17 +387,28 @@ export class Hud {
 
   private disc(id: Disc['id'], name: string, note: string, radius: number, press: () => void): void {
     const potion = id === 'potion';
-    const disc = this.reg(this.scene.add.circle(0, 0, radius, potion ? COLORS.potion : COLORS.button, 0.92).setStrokeStyle(3, potion ? COLORS.foam : COLORS.panelEdge).setDepth(DEPTH.hud));
-    const label = this.words(0, 0, name, potion ? 11 : 13, COLORS.text, DEPTH.hud + 1);
-    const sub = this.words(0, 0, note, potion ? 12 : 10, potion ? COLORS.text : COLORS.dim, DEPTH.hud + 1);
+    const drawn = this.glass ? piece(this.scene, `skill/${id}`) : null;
+    let disc: Disc['disc'];
+    let label: Phaser.GameObjects.Text | null = null;
+    let sub: Phaser.GameObjects.Text;
+    if (drawn) {
+      // His disc is 76 across; it is drawn at this button's own size.
+      disc = this.reg(drawn.setScale((radius * 2) / drawn.width).setDepth(DEPTH.hud));
+      sub = this.words(0, 0, '', 13, COLORS.text, DEPTH.hud + 1).setStroke(INK.dark, 4);
+    } else {
+      disc = this.reg(this.scene.add.circle(0, 0, radius, potion ? COLORS.potion : COLORS.button, 0.92).setStrokeStyle(3, potion ? COLORS.foam : COLORS.panelEdge).setDepth(DEPTH.hud));
+      label = this.words(0, 0, name, potion ? 11 : 13, COLORS.text, DEPTH.hud + 1);
+      sub = this.words(0, 0, note, potion ? 12 : 10, potion ? COLORS.text : COLORS.dim, DEPTH.hud + 1);
+    }
+    const size = disc.scaleX;
     const cover = this.reg(this.scene.add.graphics().setDepth(DEPTH.hud + 2));
-    const count = this.words(0, 0, '', 22, COLORS.text, DEPTH.hud + 3);
+    const count = this.words(0, 0, '', 22, COLORS.text, DEPTH.hud + 3).setStroke(INK.dark, 4);
     // The pressing disc is a little bigger than the drawn one: a thumb is not a pointer.
     const zone = this.zone(0, 0, radius + 8, 0, true, () => {
       press();
-      disc.setScale(0.9);
-      this.scene.tweens.add({ targets: disc, scale: 1, duration: Math.max(1, settings.ms(120)), ease: 'Back.easeOut' });
+      disc.setScale(size * 0.9);
+      this.scene.tweens.add({ targets: disc, scale: size, duration: Math.max(1, settings.ms(120)), ease: 'Back.easeOut' });
     });
-    this.discs.push({ id, disc, label, sub, cover, count, zone, radius, drawn: -1 });
+    this.discs.push({ id, disc, size, label, sub, cover, count, zone, radius, drawn: -1 });
   }
 }

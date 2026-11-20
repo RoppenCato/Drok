@@ -10,14 +10,18 @@ Game Developer's chat uses): `npm --prefix "Game Developer" run dev`, on port 51
 | `http://localhost:5178/?mute=1&drive=1&seed=tide` | the AI's pane for a test: a fresh game on a known seed, the clock stopped, moved by `window.dev.step(n)` |
 | `http://localhost:4178/` | the built page, the one that installs (from this PC only; a phone needs the public page). The entry `built` in the root's `launch.json` serves it after `npm run build`. To check offline: open it, wait for the service worker, stop the server, open it again |
 
-`?seed=NAME` starts a new game on that seed and overwrites the pane's save. `?drive=1` stops the page's clock after
-its first frame; `window.dev.step(n)` then takes n world steps and draws each.
+`?seed=NAME` starts a new game on that seed and overwrites the pane's save. `?drive=1` stops the page's clock once
+the play screen stands; `window.dev.step(n)` then takes n world steps and draws each. With art to load the play
+screen does not stand at once: `window.dev.ready()` says when it does.
 
 ## A test in the pane, the way that worked
 
 The pane is usually hidden while the AI works: its own clock barely runs and a screenshot can time out. So:
 
-1. Set the pane to 412 by 915, open the drive address, send a `resize` event, `window.dev.step(5)`.
+1. Set the pane to 412 by 915 and open the drive address. Wait for the art: in a hidden pane the page's own clock
+   barely runs and the loader works on that clock, so push it by hand until the play screen stands:
+   `for (let i = 0; i < 400 && !dev.ready(); i++) { dev.phaser.step(performance.now(), 16.7); await new Promise(r => setTimeout(r, 15)); }`.
+   Then send a `resize` event and `window.dev.step(5)`.
 2. In one call (under 45 seconds), make the fingers and step the page:
    - a tap: `mousemove`, `mousedown`, `mouseup` on the canvas at the design point (the canvas fills the pane, so
      a design point is a client point);

@@ -30,6 +30,7 @@ import { ART, GEAR_ART } from '../art.ts';
 import { COLORS, DEPTH, DESIGN_HEIGHT, DESIGN_WIDTH, FONT, RES, hex } from '../layout.ts';
 import type { Intent } from '../local-game.ts';
 import { settings } from '../settings.ts';
+import { INK, hasGlass, inkFor, piece, stretch } from './glass.ts';
 
 export type PanelKind = 'menu' | 'bag' | 'hero' | 'chart' | 'shop';
 
@@ -168,8 +169,26 @@ export class Panels {
     return this.keep(r);
   }
 
-  private text(x: number, y: number, words: string, size: number, color: string = COLORS.text, originX = 0.5): Phaser.GameObjects.Text {
-    return this.keep(this.scene.add.text(x, y, words, { fontFamily: FONT, fontSize: `${size}px`, fontStyle: 'bold', color, resolution: RES }).setOrigin(originX, 0.5).setDepth(DEPTH.panel + 3));
+  /** Words in a window. On the Art Director's cream panel the light colours become ink; `light` keeps them (on the sea chart, on the title). */
+  private text(x: number, y: number, words: string, size: number, color: string = COLORS.text, originX = 0.5, light = false): Phaser.GameObjects.Text {
+    const ink = hasGlass(this.scene) && !light ? this.ink(color) : color;
+    return this.keep(this.scene.add.text(x, y, words, { fontFamily: FONT, fontSize: `${size}px`, fontStyle: 'bold', color: ink, resolution: RES }).setOrigin(originX, 0.5).setDepth(DEPTH.panel + 3));
+  }
+
+  private ink(color: string): string {
+    if (color === COLORS.text) return INK.dark;
+    if (color === COLORS.dim) return INK.dim;
+    if (color === COLORS.good) return INK.good;
+    if (color === COLORS.bad) return INK.bad;
+    if (color === COLORS.goldText) return INK.gold;
+    return inkFor(color, true);
+  }
+
+  /** The ground a row of a window lies on. */
+  private row(x: number, y: number, w: number, h: number): void {
+    const drawn = hasGlass(this.scene) ? stretch(this.scene, 'row', w, h) : null;
+    if (drawn) this.keep(drawn.setPosition(x, y).setDepth(DEPTH.panel + 1));
+    else this.rect(x, y, w, h, COLORS.panelLight, 0.7, COLORS.panelEdge, 1);
   }
 
   private zone(x: number, y: number, w: number, h: number, press: () => void): void {
@@ -178,7 +197,9 @@ export class Panels {
 
   /** A button: `on` false draws it dim, but it still answers, so it can say why it will not do. */
   private button(x: number, y: number, w: number, h: number, label: string, press: () => void, on = true, color: number = COLORS.button): void {
-    this.rect(x, y, w, h, color, on ? 1 : 0.45);
+    const drawn = hasGlass(this.scene) ? stretch(this.scene, color === COLORS.buttonGo ? 'button/context' : 'row', w, h) : null;
+    if (drawn) this.keep(drawn.setPosition(x, y).setDepth(DEPTH.panel + 1).setAlpha(on ? 1 : 0.5));
+    else this.rect(x, y, w, h, color, on ? 1 : 0.45);
     this.text(x, y, label, 15).setAlpha(on ? 1 : 0.55);
     this.zone(x, y, w, h + 8, press);
   }
@@ -186,6 +207,20 @@ export class Panels {
   /** The frame every window shares: a veil over the game, the box, its title and a cross to close it. */
   private frame(title: string): void {
     this.keep(this.scene.add.rectangle(CX, H / 2, W, H, 0x000000, 0.35).setDepth(DEPTH.panel));
+    const panel = hasGlass(this.scene) ? stretch(this.scene, 'panel', F.w, F.h) : null;
+    const cross = panel ? piece(this.scene, 'button/close') : null;
+    if (panel && cross) {
+      // His panel, his blue title sitting on its top edge, his red cross on its corner.
+      this.keep(panel.setPosition(F.x + F.w / 2, F.y + F.h / 2).setDepth(DEPTH.panel + 1));
+      const plate = stretch(this.scene, 'panel/title', 236, 44);
+      if (plate) this.keep(plate.setPosition(CX, F.y + 6).setDepth(DEPTH.panel + 2));
+      this.text(CX, F.y + 5, title, 18, COLORS.text, 0.5, true);
+      this.keep(cross.setPosition(F.x + F.w - 12, F.y + 10).setDepth(DEPTH.panel + 4));
+      this.zone(F.x + F.w - 16, F.y + 14, 52, 52, () => this.close());
+      return;
+    }
+    panel?.destroy();
+    cross?.destroy();
     this.rect(F.x + F.w / 2, F.y + F.h / 2, F.w, F.h, COLORS.panel, 0.98, COLORS.panelEdge, 3);
     this.text(CX, F.y + 30, title, 20);
     this.button(F.x + F.w - 30, F.y + 30, 44, 40, '✕', () => this.close());
@@ -194,13 +229,20 @@ export class Panels {
   /** A stand-in picture of a piece: a box edged in its rarity's colour, with a shape for what part of him it is for. */
   private icon(x: number, y: number, item: Item | null, slot: Slot, size: number, chosen = false): void {
     const edge = item ? hex(RARITIES[item.rarity].color) : COLORS.panelEdge;
-    this.rect(x, y, size, size, COLORS.panelLight, 1, chosen ? COLORS.mark : edge, chosen ? 4 : 3);
+    const slotArt = hasGlass(this.scene) ? piece(this.scene, item ? `slot/${item.rarity}` : 'slot/empty') : null;
+    if (slotArt) {
+      // His slot, edged in the rarity's colour; the one being looked at gets a dark frame round it.
+      this.keep(slotArt.setPosition(x, y).setScale(size / slotArt.width).setDepth(DEPTH.panel + 1).setAlpha(item ? 1 : 0.6));
+      if (chosen) this.keep(this.scene.add.rectangle(x, y, size + 4, size + 4).setStrokeStyle(3, hex(INK.dark)).setDepth(DEPTH.panel + 2));
+    } else {
+      this.rect(x, y, size, size, COLORS.panelLight, 1, chosen ? COLORS.mark : edge, chosen ? 4 : 3);
+    }
     const s = this.scene;
     // The Art Director's icon for the piece, when that drop is in the game; else a plain shape for its slot.
     const art = item ? `icon/${GEAR_ART[item.base] ?? ''}` : '';
     if (item && ART.gear && s.textures.exists('gear-icons') && s.textures.get('gear-icons').has(art)) {
       const picture = s.add.image(x, y, 'gear-icons', art).setDepth(DEPTH.panel + 2);
-      picture.setScale(Math.min((size * 0.82) / picture.width, (size * 0.82) / picture.height));
+      picture.setScale(Math.min((size * 0.7) / picture.width, (size * 0.7) / picture.height));
       this.keep(picture);
       return;
     }
@@ -294,7 +336,9 @@ export class Panels {
       const y = top + Math.floor(i / cols) * (size + gap);
       const item = h.bag[i];
       if (!item) {
-        this.rect(x, y, size, size, COLORS.panelLight, 0.4, COLORS.panelEdge, 1);
+        const empty = hasGlass(this.scene) ? piece(this.scene, 'slot/empty') : null;
+        if (empty) this.keep(empty.setPosition(x, y).setScale(size / empty.width).setDepth(DEPTH.panel + 1).setAlpha(0.45));
+        else this.rect(x, y, size, size, COLORS.panelLight, 0.4, COLORS.panelEdge, 1);
         continue;
       }
       this.icon(x, y, item, baseOf(item).slot, size, item.id === this.selected);
@@ -430,11 +474,11 @@ export class Panels {
       const big = place.town ? 0.8 : 1.1;
       this.keep(this.scene.add.ellipse(at.x, at.y, 92 * big, 66 * big, COLORS.chartLand).setStrokeStyle(3, here ? COLORS.buttonOn : COLORS.chartLandEdge).setDepth(DEPTH.panel + 2));
       this.keep(this.scene.add.ellipse(at.x - 6, at.y - 4, 50 * big, 30 * big, place.town ? COLORS.roofs[0] : COLORS.palm, 0.9).setDepth(DEPTH.panel + 2));
-      this.text(at.x, at.y + 46 * big + 6, place.name, 15).setStroke(COLORS.textDark, 4);
-      this.text(at.x, at.y + 46 * big + 26, place.town ? 'the harbour town' : `levels ${place.levels}`, 12).setStroke(COLORS.textDark, 3);
+      this.text(at.x, at.y + 46 * big + 6, place.name, 15, COLORS.text, 0.5, true).setStroke(COLORS.textDark, 4);
+      this.text(at.x, at.y + 46 * big + 26, place.town ? 'the harbour town' : `levels ${place.levels}`, 12, COLORS.text, 0.5, true).setStroke(COLORS.textDark, 3);
       if (here) {
         this.keep(this.scene.add.circle(at.x + 18, at.y - 10, 7, COLORS.bandana).setStrokeStyle(2, COLORS.foam).setDepth(DEPTH.panel + 3));
-        this.text(at.x, at.y - 46 * big - 4, 'You are here', 12, COLORS.goldText).setStroke(COLORS.textDark, 3);
+        this.text(at.x, at.y - 46 * big - 4, 'You are here', 12, COLORS.goldText, 0.5, true).setStroke(COLORS.textDark, 3);
       } else {
         this.zone(at.x, at.y + 14, 150, 130, () => {
           if (!this.actions.atDock()) {
@@ -443,7 +487,7 @@ export class Panels {
           }
           if (this.actions.act({ type: 'sail', to: id })) this.close();
         });
-        if (atDock) this.text(at.x, at.y - 46 * big - 4, 'Tap to sail', 13, COLORS.good).setStroke(COLORS.textDark, 3);
+        if (atDock) this.text(at.x, at.y - 46 * big - 4, 'Tap to sail', 13, COLORS.good, 0.5, true).setStroke(COLORS.textDark, 3);
       }
     }
     const foot = F.y + F.h - 62;
@@ -461,7 +505,7 @@ export class Panels {
     const x = F.x + 24;
     let y = F.y + 118;
     state.shop.forEach((item, i) => {
-      this.rect(CX, y, F.w - 32, 76, COLORS.panelLight, 0.7, COLORS.panelEdge, 1);
+      this.row(CX, y, F.w - 32, 76);
       if (!item) {
         this.text(CX, y, 'Sold', 15, COLORS.dim);
       } else {
@@ -489,7 +533,7 @@ export class Panels {
       }
       y += 84;
     });
-    this.rect(CX, y, F.w - 32, 76, COLORS.panelLight, 0.7, COLORS.panelEdge, 1);
+    this.row(CX, y, F.w - 32, 76);
     this.keep(this.scene.add.circle(x + 34, y + 3, 14, COLORS.potion).setStrokeStyle(2, COLORS.foam).setDepth(DEPTH.panel + 2));
     this.text(x + 70, y - 20, 'Healing potion', 15, COLORS.text, 0);
     this.text(x + 70, y, `mends ${N.potion.heal} health`, 13, COLORS.text, 0);

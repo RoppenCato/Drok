@@ -44,7 +44,8 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
    - tests: the chances over 600 kills; pick-up; a full bag; wearing, taking off, dropping; a rarer piece is better
 
 5. `[x] Built 2026-11-20` `[ ] Checked` · GD · **One chest**
-   - `[x]` at the north end of the island, behind the coconut crabs; money, potions and a piece better than common
+   - `[x]` on the island, at the end of a side path among the gulls (where Leonard, AD put it; my first place was
+     behind the coconut crabs); money, potions and a piece better than common
    - `[x]` it fills again 20 minutes later on the real clock, also while the game is closed
    - tests: too far, open, empty, full again by the clock
 
@@ -77,7 +78,11 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
       `npm run build` and then `npx wrangler@4 pages deploy dist --project-name drok --branch main --commit-dirty=true`
     - `[ ]` installed on his phone from that page and played with the network off
 
-12. `[ ] Built` `[ ] Checked` · AD · **Wave 1 art** (`art-demands.md`)
+12. `[ ] Built` `[ ] Checked` · AD · **Wave 1 art** (`art-demands.md`). **Where it stands, 2026-11-20:** his
+    first drop (the Warrior, the gear, three monsters, the island, the loot, the glass) is in the game and switched
+    on (`docs\state\art.md`). With it the rules got a shore, things to walk round and a way-finder for a tap (items
+    15 and 16 below). Still stand-ins: the harbour town, the sea chart, the app's icon, a coat on the body. The
+    sub-list below is kept as it was written before the drop.
     - `[x]` Robin's answers to questions 20 and 21; he then said (2026-11-20) "Let AD handle the art you need. I
       approve.", so Leonard, AD chooses the look himself, marked "mine", and Robin judges it when he is back
     - `[ ]` AD, in his `out\` on 2026-11-20 but not yet handed over with notes: `hero`, `gear`, `sand-crab`,
@@ -107,10 +112,27 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
 
 14. `[ ] Built` `[ ] Checked` · GD · **Alpha 1**: every item above Checked by Robin, the frame log read, a tag on main
 
+15. `[x] Built 2026-11-20` `[ ] Checked` · GD · **The island as Leonard, AD laid it out**
+    - `[x]` his shore, inlet, things in the way, dock, landing, chest and zones written into the rules' data by
+      `tools\place-from-art.mjs`
+    - `[x]` he walks on land only and slides along the shore; walking monsters too; gulls fly over everything; a
+      monster arrives only on ground it can stand on and never at the landing; nothing drops into the sea
+    - `[x]` a save made on the old island puts him ashore instead of in the water
+    - tests: the shore, a tap on the sea and on a rock, a safe landing, the old save
+
+16. `[x] Built 2026-11-20` `[ ] Checked` · GD · **Finding the way for a tap**
+    - `[x]` a tap far away walks him round rocks, trunks and water (the bot had found a notch between two rocks
+      that trapped a straight walk); walking up to a tapped monster does the same when something is between
+    - `[x]` the save is version 3 (he carries the way he is walking), with the step up from version 2
+    - tests: from the landing to the chest and back without ever standing in a solid thing; the version step
+
 ## Waits for Robin
 
 - Play it: `http://192.168.0.43:5178/` on the home Wi-Fi. The first minute: walk down to the pier with the red flag,
   tap "Sea chart", tap Crab Cay.
+- The look: Leonard, AD chose it himself, as told ("Let AD handle the art you need. I approve."), so the first
+  judging of the Warrior, the monsters, the island and the glass is this play. And the size: he finds the Warrior
+  small and offers the camera a quarter closer; kept as it is until Robin has seen it (`docs\state\art.md`).
 - Which of the three ways to steer stays (≡, "Steering").
 - The deploy to Cloudflare Pages (item 11), so it installs and plays offline.
 - Starting Hugh, SD's chat (item 13).

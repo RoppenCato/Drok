@@ -17,7 +17,7 @@ export const ART = {
   /** The places whose ground and props are drawn from a drop: the game's place, and the drop's folder. */
   places: { 'crab-cay': 'island' } as Record<string, string>,
   /** `art/glass`: bars, discs, buttons, panels, slots and marks for the glass and the windows. */
-  glass: false,
+  glass: true,
 };
 
 /** The game's name for a piece of gear, and the Art Director's name for its picture. */

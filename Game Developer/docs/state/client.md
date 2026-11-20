@@ -1,8 +1,12 @@
-# The screen, as it stands (chapter 1's game side, 2026-11-20)
+# The screen, as it stands (chapter 1 with the first art drop, 2026-11-20)
 
 `client\` is a Phaser 4 page in TypeScript, built by Vite as an installable page. It draws what the rules say and
 turns fingers into intents; it decides nothing about the game. All of it is Victor, GD's unless it says Robin.
-Every shape on it is a stand-in until the Art Director's pieces land, and there is no sound yet.
+Since 2026-11-20 most of it is drawn with Leonard, AD's pieces: `client\src\art.ts` holds one switch a drop,
+`view\figures.ts` draws his figures and single pictures, `view\glass.ts` his bars, buttons and panels, and
+`docs\state\art.md` says what is drawn from his art and what is still a stand-in (the harbour town, the sea chart).
+Every view keeps its plain stand-in drawing for when a switch is off. There is no sound yet. Where this file below
+describes a box, a disc or a colour, it describes the stand-in; the places and what can be pressed are the same.
 
 ## The files
 
@@ -13,9 +17,12 @@ Every shape on it is a stand-in until the Art Director's pieces land, and there 
 | `client\src\layout.ts` | the name, the design size (412 by 915), `RES`, the stand-in colours, what is drawn over what |
 | `client\src\local-game.ts` | the holder: the state and the dice, even steps from uneven frames, the real clock for the rules, the save in and out |
 | `client\src\controls.ts` | the three ways to steer: fingers into intents; a tap on a thing walks him there to use it |
-| `client\src\scenes\BootScene.ts` | paints the four grounds once (sand, grass, rock, cobble); starts play |
+| `client\src\art.ts` | one switch for each of the Art Director's drops, and which picture belongs to which piece of gear |
+| `client\src\scenes\BootScene.ts` | paints the four stand-in grounds once (sand, grass, rock, cobble); loads the art that is switched on, each picture with its data; starts play |
 | `client\src\scenes\PlayScene.ts` | the one screen: wires fingers, the holder, the views and the windows; the camera; export and import |
 | `client\src\view\world-view.ts` | the place: ground, pier, chest, stall, the hero, the monsters, the loot, the small effects |
+| `client\src\view\figures.ts` | a figure from an atlas: its action, its facing (eight, three of them mirrored), its frames by time; the hero with his gear on his hand, arm and head; a single picture from a set |
+| `client\src\view\glass.ts` | the Art Director's pieces for the glass: a piece, a piece stretched without bending its corners, a bar, the ink colours for words on his panels |
 | `client\src\view\hud.ts` | the glass: bars, level and money, the top buttons, the skills and the potion, the button for the thing he stands by |
 | `client\src\view\panels.ts` | the windows: bag, hero, sea chart, stall, settings |
 | `client\src\game-log.ts` | the frame log and error log Robin can save from the settings |
@@ -82,11 +89,14 @@ AI's pane: never reload his page, never touch his save.
 
 ## For scripts (`window.dev`)
 
-`holder` (the state, `act(intent)`, `pack()`, `unpack(text)`), `log`, `phaser`, `rules`, `res`, and `step(n)` with
-`?drive=1`. `docs\state\pages.md` has the addresses and the way a test is run.
+`holder` (the state, `act(intent)`, `pack()`, `unpack(text)`), `log`, `phaser`, `rules`, `res`, `ready()` (true once
+the play screen stands, which with art to load is not at once), and `step(n)` with `?drive=1`. `docs\state\pages.md`
+has the addresses and the way a test is run.
 
 ## What it costs
 
-The built page is 1.45 MB of script (385 kB gzipped), nearly all of it Phaser; no pictures, no sound. The service
-worker caches all of it: with the server gone the page still opens. The first load's budget is 3 MB with art and
-sound (`docs\platform.md`).
+The built page is 1.47 MB of script (394 kB gzipped), nearly all of it Phaser, and 1.2 MB of the Art Director's
+pictures with their data; no sound yet. The service worker caches all of it, 2.6 MB in 29 files (pictures and
+their data; his notes are left out): with the server gone the page still opens. The first load's budget is 3 MB
+with art and sound (`docs\platform.md`), so the harbour, the chart and the sound have 0.4 MB between them: the
+budget will have to be looked at again when they land (`docs\art-demands.md`).

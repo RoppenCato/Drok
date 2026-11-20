@@ -37,7 +37,10 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+        // Everything the game needs to run with no network: the page, the pictures, and the pictures' data (json).
+        globPatterns: ['**/*.{js,css,html,svg,png,json,webmanifest}'],
+        // The Art Director's notes travel with each drop for the record; the phone has no use for them.
+        globIgnores: ['**/NOTES.md'],
         // Phaser is big; let the service worker cache it anyway.
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
       },
