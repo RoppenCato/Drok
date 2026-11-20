@@ -10,7 +10,7 @@ import { COLORS, DEPTH, FONT, RES, hex } from '../layout.ts';
 import type { Ground } from '../scenes/BootScene.ts';
 import { settings } from '../settings.ts';
 import { Figure, HeroFigure, picture, repicture, type AtlasData, type GearData, type SetData } from './figures.ts';
-import { Bar, MobBar, hasGlass, piece } from './glass.ts';
+import { MobBar, OwnBar, hasGlass, piece } from './glass.ts';
 
 /** A place as the Art Director laid it out: what stands where. The rules' own copy of the layout is in their data. */
 interface PlaceArt {
@@ -37,8 +37,8 @@ export type Thing = 'chest' | 'shop' | 'dock';
  */
 export const FOOT = 110;
 
-/** How long his own health bar is when it goes with him: longer than a monster's 44, so his is the bigger one. */
-const OWN_W = 64;
+/** His own bar's middle is this far above the top of his standing picture (Leonard, AD, 2026-11-20). */
+const OWN_ABOVE = 13;
 
 interface MonsterView {
   /** The Art Director's figure, when this kind has one; else the stand-in below. */
@@ -132,13 +132,10 @@ export class WorldView {
   private ringPop = 0;
   private chargeFrom: Vec | null = null;
   /**
-   * His own health and rage, going with him (the test of 2026-11-20, `settings.ownBars`): which of the three ways,
-   * the bars, the small heart on the health's end, and the one height they hang from.
+   * His own health and rage, going with him over his head (Robin, 2026-11-20), and the one height the bar hangs
+   * from: the top of his standing picture, not of the picture now shown, so it does not jump when he swings.
    */
-  private own: 0 | 1 | 2 | 3 = 0;
-  private ownHp: Bar | null = null;
-  private ownRage: Bar | null = null;
-  private ownHeart: Phaser.GameObjects.Image | null = null;
+  private ownBar: OwnBar | null = null;
   private ownTop = 22;
 
   constructor(scene: Phaser.Scene, reg: Register) {
@@ -177,18 +174,9 @@ export class WorldView {
     }
     this.slash = this.reg(s.add.graphics().setDepth(DEPTH.effects).setAlpha(0));
 
-    // His own health over his head, and his rage with it (1), under his feet (2) or on the glass (3). They hang
-    // from his standing picture's top, not from the frame now shown, so they do not jump when he swings; they are
-    // drawn over every monster's bar; the cream well and the heart say "this one is mine" beside the dark ones.
-    this.own = settings.get().ownBars;
-    if (this.own !== 0) {
-      const over = DEPTH.effects + 5;
-      if (this.heroFigure) this.ownTop = this.heroFigure.body.standTop();
-      this.ownHp = new Bar(s, this.reg, { x: 0, y: 0, w: OWN_W, kind: 'hp', depth: over, plain: 8, size: 0.78, trail: true });
-      const heart = hasGlass(s) ? piece(s, 'mark/heart') : null;
-      if (heart) this.ownHeart = this.reg(heart.setScale(heart.scale * 0.62).setDepth(over + 4));
-      if (this.own !== 3) this.ownRage = new Bar(s, this.reg, { x: 0, y: 0, w: OWN_W - 10, kind: 'rage', depth: over, plain: 5, size: 0.5 });
-    }
+    // His own bar: his health over his rage in one small piece over his head, drawn over every monster's bar.
+    if (this.heroFigure) this.ownTop = this.heroFigure.body.standTop();
+    this.ownBar = new OwnBar(s, this.reg, DEPTH.effects + 5);
     this.enter(state);
   }
 
@@ -286,25 +274,12 @@ export class WorldView {
       this.heroBody.setFillStyle(this.heroFlash > 0.3 ? 0xffffff : this.coatColor);
     }
 
-    // His own bars go with him, at whole design units so they do not shimmer as he walks. Not in a town, where
-    // nothing can hurt him, and not while he is down.
-    if (this.ownHp) {
+    // His own bar: not in a town, where nothing can hurt him, and not while he is down (mine). It is put in its
+    // place by `pin`, once the camera stands for this frame.
+    if (this.ownBar) {
       const show = !placeOf(state).town && !down;
-      const x0 = Math.round(hx - OWN_W / 2);
-      const hpY = Math.round(hy - this.ownTop - (this.own === 1 ? 24 : 14));
-      this.ownHp.setVisible(show);
-      this.ownHeart?.setVisible(show);
-      this.ownRage?.setVisible(show);
-      if (show) {
-        this.ownHp.at(x0, hpY);
-        this.ownHp.set(h.hp / heroMaxHp(h), delta);
-        this.ownHeart?.setPosition(x0 + 1, hpY - 1);
-        if (this.ownRage) {
-          // 1: close under his health, over his head. 2: on the ground under his feet.
-          this.ownRage.at(x0 + 10, this.own === 1 ? hpY + 12 : Math.round(hy + 12));
-          this.ownRage.set(h.rage / N.hero.maxRage);
-        }
-      }
+      this.ownBar.setVisible(show);
+      if (show) this.ownBar.set(h.hp / heroMaxHp(h), h.rage / N.hero.maxRage, delta);
     }
 
     this.destDot.setVisible(h.dest !== null);
@@ -352,7 +327,7 @@ export class WorldView {
       // hung from the picture now shown, it jumped whenever a claw went up (Leonard, AD saw it on the screen).
       const top = v.top;
       const mine = h.target === m.id;
-      v.star.setVisible(stunned).setPosition(v.x, v.y - top - (mine ? 50 : 32));
+      v.star.setVisible(stunned).setPosition(v.x, v.y - top - (mine ? 38 : 32));
       if (stunned) v.star.rotation = time * 0.006;
       if (v.slam) {
         // The ground a slam will hit fills in as the blow comes: stand outside it.
@@ -361,12 +336,11 @@ export class WorldView {
       }
 
       // Its health, over its head where the eye already is (Robin, 2026-11-20: health must be easy to glance):
-      // shown on the one he fights and on any that is hurt. The one he fights has the gold rim, a fifth bigger,
-      // and an arrow that bobs once a second (all Leonard, AD's).
+      // shown on the one he fights and on any that is hurt. The one he fights has the gold rim, a fifth bigger
+      // (Leonard, AD's).
       if (m.hp < k.maxHp || mine) {
-        v.bar ??= new MobBar(this.scene, this.reg, { w: v.barW, depth: DEPTH.effects, arrow: true });
-        const bob = settings.get().fewerEffects ? 0 : Math.sin((time / 1000) * Math.PI * 2) * 2;
-        v.bar.draw(v.x, v.y - top - (mine ? 14 : 12), m.hp / k.maxHp, mine, delta, bob);
+        v.bar ??= new MobBar(this.scene, this.reg, { w: v.barW, depth: DEPTH.effects });
+        v.bar.draw(v.x, v.y - top - (mine ? 14 : 12), m.hp / k.maxHp, mine, delta);
       } else {
         v.bar?.hide();
       }
@@ -435,6 +409,21 @@ export class WorldView {
     }
     // The drawn chest: closed while it is full, "opening" for a moment when he opens it, then open until it fills.
     if (this.chestPicture) repicture(this.scene, this.chestPicture, this.chestSet, time < this.chestOpening ? 'chest/opening' : chestFull(state) ? 'chest/closed' : 'chest/open');
+  }
+
+  /**
+   * His own bar over his head, put there once the camera stands for this frame: on whole pixels of the screen, not
+   * of the field. The camera glides after him, so a bar on whole units of the field would tremble against him as he
+   * walks; on whole pixels of the screen it is as still as he is, and its five pictures lie exactly on each other.
+   * (The screen's own pixels are `RES` to a unit, and the camera's middle is a whole pixel.)
+   */
+  pin(camera: Phaser.Cameras.Scene2D.Camera): void {
+    const bar = this.ownBar;
+    if (!bar) return;
+    const snap = (at: number, scroll: number): number => scroll + Math.round((at - scroll) * RES) / RES;
+    const left = snap(this.heroAt.x - bar.long / 2, camera.scrollX);
+    const top = snap(this.heroAt.y - this.ownTop - OWN_ABOVE - bar.tall / 2, camera.scrollY);
+    bar.at(left, top);
   }
 
   /** The one-shots: numbers, puffs, the sword's arc. */
@@ -882,12 +871,12 @@ export class WorldView {
     this.scene.tweens.add({ targets: this.swordArm, rotation: 0.5, duration: Math.max(1, settings.ms(170)), ease: 'Cubic.easeOut' });
   }
 
-  /** A number that rises and fades. With fewer effects it stands a moment and goes. */
-  /** How far above his feet a number about him starts: over his own bars when they go with him, so it never hides them. */
+  /** How far above his feet a number about him starts: over his own bar, so it never hides it. */
   private overHero(): number {
-    return this.ownHp ? this.ownTop + 44 : 32;
+    return this.ownTop + OWN_ABOVE + 22;
   }
 
+  /** A number that rises and fades. With fewer effects it stands a moment and goes. */
   private number(x: number, y: number, text: string, color: string, size: number): void {
     const t = this.reg(
       this.scene.add

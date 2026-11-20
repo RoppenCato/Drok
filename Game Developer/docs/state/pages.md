@@ -10,10 +10,10 @@ Game Developer's chat uses): `npm --prefix "Game Developer" run dev`, on port 51
 | `http://localhost:5178/?mute=1&drive=1&seed=tide` | the AI's pane for a test: a fresh game on a known seed, the clock stopped, moved by `window.dev.step(n)` |
 | `http://localhost:4178/` | the built page, the one that installs (from this PC only; a phone needs the public page). The entry `built` in the root's `launch.json` serves it after `npm run build`. To check offline: open it, wait for the service worker, stop the server, open it again |
 
-`?bars=0..3` sets where his own health and rage are shown (the test of 2026-11-20) and keeps it in that browser's
-settings. To put the same scene before each way: build it once (`JSON.parse(dev.holder.pack())`, move the monsters,
-set his health), keep it in `localStorage` under a key of your own, and on each page call `dev.holder.unpack(it)`,
-then the play scene's `world.enter(state)` and `arrive(state, false)`.
+To put the same scene before two builds: build it once (`JSON.parse(dev.holder.pack())`, move the monsters, set
+his health), keep it in `localStorage` under a key of your own, and on each page call `dev.holder.unpack(it)`, then
+the play scene's `world.enter(state)` and `arrive(state, false)`. (The pane has a crowded fight on the island's
+beach under `drok.scene4`.)
 
 `?seed=NAME` starts a new game on that seed and overwrites the pane's save. `?drive=1` stops the page's clock once
 the play screen stands; `window.dev.step(n)` then takes n world steps and draws each. With art to load the play
@@ -32,9 +32,10 @@ The pane is usually hidden while the AI works: its own clock barely runs and a s
      a design point is a client point);
    - a hold: a `touchstart` with a `Touch` of its own identifier, `touchmove`, then `touchend` with empty `touches`;
    - `window.dev.step(n)` between them; then read `window.dev.holder.state` and compare with what the rules give.
-3. A field point's place on the glass: `point - camera.midPoint + (206, 457.5)`; the camera's middle is 60 below
-   the hero, so he is at about y 397. A tap is acted on at `mouseup`; a `mousedown`, a `mousemove` 10 or more
-   away and steps in between make the stick.
+3. A field point's place on the glass: `point - camera.midPoint + (206, 457.5)`; the camera's middle is 45 below
+   the hero, so he is at about y 412. A tap is acted on at `mouseup`; a `mousedown`, a `mousemove` 10 or more
+   away and steps in between make the stick. In canvas pixels (two a unit): `(x - camera.scrollX - 412) * 2 + 412`
+   and `(y - camera.scrollY - 915) * 2 + 915`.
 4. For a picture: the stopped page draws only when it is stepped, and the screenshot waits for a frame, so keep
    it stepping while the picture is taken: `window.__iv = setInterval(() => dev.step(1), 150);
    setTimeout(() => clearInterval(window.__iv), 9000);` as the last line of the call before the screenshot (it
@@ -44,8 +45,11 @@ The pane is usually hidden while the AI works: its own clock barely runs and a s
    picture. If the canvas comes out bigger than the screen, set the pane's size again, open the page again and
    call `dev.phaser.scale.refresh()`. A wait on `requestAnimationFrame` can hang for good in a hidden pane: never
    await one.
+   **To check colours pixel by pixel** (a bar's layers, a line that should not be there): right after `dev.step(1)`,
+   in the same call, draw the game's canvas onto a 2D canvas (`drawImage(dev.phaser.canvas, 0, 0)`) and read it
+   with `getImageData`. A wide picture: set the pane to 824 by 1830 and use the screenshot's zoom on a part of it.
 5. A field point that lies under a skill button is the button's (the row is in the middle at the bottom, y 815 to
-   887); the bars and the plate over it take no press. From where a new hero wakes, the harbour's dock is on the
+   887); the plate over it takes no press. From where a new hero wakes, the harbour's dock is on the
    glass at 206, 700.
 6. The console keeps errors from half-saved files during editing; `window.dev.log.errorCount` is the page's own count.
 7. Set the pane back to its own size when done.

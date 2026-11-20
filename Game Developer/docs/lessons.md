@@ -24,8 +24,9 @@ Victor, GD's first guess of 2026-11-20 and is pending until Robin has played the
 | A tap or a drag | a touch is a drag once it has slid 10 units; a tap is acted on when the thumb lifts | pending | |
 | The stick | appears where the thumb came down; reach 46 units, dead middle 7; the base follows the thumb | pending | |
 | The skill buttons | in a row in the middle at the bottom; 72 across (the potion 56), pressed within 8 more; their middle 64 above the bottom | Robin: "the buttons should be in the middle at the bottom"; the sizes pending | 2026-11-20 |
-| Health | his over the buttons with its numbers, the target's over that; a bar 44 or more long and 7 thick over a monster | Robin: at the top it was "hard to glance over. Maybe it should be at the bottom"; the sizes pending | 2026-11-20 |
-| Where he is drawn | 60 above the screen's middle, since the glass covers the bottom | pending | |
+| Health | his over his own head with his rage under it, in one piece 52 long and 15 tall (health 7 thick, rage 4), its middle 13 over his standing picture; a bar 44 or more long and 7 thick over a monster | Robin: "the heros health bar should show over his character, and the rage bar below it"; "I think 4, but the heart isnt needed. Also rage is traditionally red"; the sizes pending | 2026-11-20 |
+| The two reds | health `#f0503c`, rage `#b8122f` (Leonard, AD's pair) | Robin: "distinctive different red colors"; whether these two are, pending | 2026-11-20 |
+| Where he is drawn | 45 above the screen's middle, since the glass covers the bottom | pending | |
 | The canvas | twice the design size (824 by 1830) | pending: the frame log | |
 | The climb to level 5 | 150, 420, 1000, 2200 experience; a bot does it in 16 minutes, a person perhaps in 30 | pending | |
 | The monsters' bite | sand crab 5 to 8, reef gull 9 to 13, coconut crab's slam 20 to 28, against 100 health at level 1 | pending | |
@@ -63,6 +64,13 @@ Victor, GD's first guess of 2026-11-20 and is pending until Robin has played the
    the rules walk on is the ground the picture shows, and it can be run again when he moves a palm.
 8. **A plain field for the tests of feel.** Moving and fighting are tested on an open test field; what must hold on
    the real island is tested on the real island. A moved rock then breaks only the tests that are about rocks.
+9. **Robin's word, read where he said it.** He picked his own bar in the Art Director's chat, and the news came
+   here as a message from that studio. A message between studios is never his approval, so his sentence was looked
+   up in that chat's own record (a typed message of his, with its time) before a line was changed. It took one
+   search, and the brief quotes him, not the messenger.
+10. **Colours read from the canvas.** Whether a line of the back shows between a fill and its frame cannot be seen
+    in a screenshot the size of a phone. Reading a column of pixels from the game's canvas right after a step said
+    it exactly: outline, health, outline, rage, outline.
 
 ## What went wrong, and the rule each left
 
@@ -126,6 +134,14 @@ Victor, GD's first guess of 2026-11-20 and is pending until Robin has played the
     fetching the link, and says so when it had to be started again.
 20. A picture of the stopped page kept timing out in the pane: the page draws only when it is stepped, and the
     picture waits for a frame. Rule: start a timer that steps the page a few times a second, then take the picture.
+21. The three ways to show his own bars were judged in stills, and each put his bar on whole units of the field
+    "so it does not shimmer". But the camera glides after him: a bar on whole units of the field moves in steps
+    while the screen moves smoothly, so it would have trembled against him by a pixel on every walking frame. It
+    was caught only when the real bar was built and measured frame by frame. Rule: a thing that goes with a figure
+    is placed after the camera has moved, on whole pixels of the screen; and it is checked walking, not standing.
+22. Three stand-in ways went to Robin as the choice, and he picked a fourth that the Art Director drew beside
+    them. Rule: when the choice is about how a thing looks, the Art Director's drawing is one of the choices from
+    the start; the Game Developer's stand-ins show where a thing goes, not what it is.
 
 ## Harvested
 

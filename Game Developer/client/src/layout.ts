@@ -67,7 +67,8 @@ export const COLORS = {
   target: 0xffd23f,
   mark: 0xffffff,
   hp: 0xe5484d,
-  rage: 0xf59e0b,
+  // Rage is red too, and clearly another red than health (Robin, 2026-11-20); which red is Leonard, AD's: a deep crimson.
+  rage: 0xb8122f,
   xp: 0x7bd3ff,
   barBack: 0x10202a,
   panel: 0x16313f,

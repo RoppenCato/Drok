@@ -181,8 +181,6 @@ export class Bar {
   private readonly lost: Pill | null = null;
   private readonly back: Phaser.GameObjects.NineSlice | Phaser.GameObjects.Rectangle;
   private readonly full: number;
-  private readonly w: number;
-  private readonly size: number;
   private readonly trail = new Trail();
 
   constructor(
@@ -191,8 +189,6 @@ export class Bar {
     o: { x: number; y: number; w: number; kind: 'hp' | 'rage' | 'xp'; depth: number; plain: number; size?: number; trail?: boolean },
   ) {
     const size = o.size ?? 1;
-    this.w = o.w;
-    this.size = size;
     const well = hasGlass(scene) ? stretch(scene, 'bar/well', o.w, 18 * size) : null;
     const fill = well ? Pill.make(scene, `fill/${o.kind}`, size) : null;
     if (well && fill) {
@@ -235,17 +231,122 @@ export class Bar {
     this.lost?.setVisible(on);
     this.back.setVisible(on);
   }
+}
 
-  /** Move the whole bar, for one that goes with a figure: its left end, and its middle's height. */
-  at(x: number, y: number): void {
-    if (this.fill instanceof Pill) {
-      this.back.setPosition(x + this.w / 2, y);
-      this.fill.at(x + 3 * this.size, y - this.size);
-      this.lost?.at(x + 3 * this.size, y - this.size);
+/** Where a fill starts from its frame's top left corner, and how tall it is, in design units. */
+interface Room {
+  x: number;
+  y: number;
+  h: number;
+}
+
+type Flat = Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle;
+
+/**
+ * One of his flat fills, to be stretched whole to a part's length: its top left corner is the point it is put at.
+ * It is drawn from the picture's middle columns only (it is the same all along): stretched to six times its
+ * length, its two end columns would take in a little of whatever lies beside it in the atlas.
+ */
+function flat(scene: Phaser.Scene, name: string): Phaser.GameObjects.Image | null {
+  if (!hasGlass(scene) || !info(scene, name)) return null;
+  const texture = scene.textures.get('glass');
+  if (!texture.has(name)) return null;
+  const whole = texture.get(name);
+  const middle = `${name}:middle`;
+  if (!texture.has(middle)) texture.add(middle, 0, whole.cutX + 4, whole.cutY, whole.cutWidth - 8, whole.cutHeight);
+  return scene.add.image(0, 0, 'glass', middle).setOrigin(0, 0);
+}
+
+/**
+ * His own bar, which goes with him over his head. Robin, 2026-11-20: "the heros health bar should show over his
+ * character, and the rage bar below it", "fixated well enough that it doesnt become messy"; and of the four ways
+ * shown: "I think 4, but the heart isnt needed. Also rage is traditionally red. So they need to be distinctive
+ * different red colors". One dark outline with two rooms, his health over his rage. Leonard, AD's five pictures at
+ * one place: the back (the empty rooms' colour), pale what a blow just took, the health, the rage, and the frame
+ * on top, which hides the fills' square corners. Without his glass: a dark box with two plain ones in it.
+ */
+export class OwnBar {
+  /** How long and how tall the whole bar is, in design units. */
+  readonly long: number;
+  readonly tall: number;
+  private readonly back: Pill | Phaser.GameObjects.Rectangle;
+  private readonly frame: Pill | null;
+  private readonly lost: Flat | null;
+  private readonly hp: Flat;
+  private readonly rage: Flat;
+  private readonly rooms: { hp: Room; rage: Room };
+  private readonly trail = new Trail();
+  private on = true;
+
+  constructor(scene: Phaser.Scene, reg: <T extends Obj>(o: T) => T, depth: number) {
+    const it = info(scene, 'own/frame');
+    this.long = it?.length ?? 52;
+    this.rooms = { hp: it?.rooms?.hp ?? { x: 1.5, y: 1.5, h: 7 }, rage: it?.rooms?.rage ?? { x: 1.5, y: 9.5, h: 4 } };
+    const back = Pill.make(scene, 'own/back');
+    const frame = Pill.make(scene, 'own/frame');
+    const lost = flat(scene, 'own/lost');
+    const hp = flat(scene, 'own/hp');
+    const rage = flat(scene, 'own/rage');
+    if (back && frame && lost && hp && rage) {
+      this.tall = tall(scene, 'own/frame');
+      reg(back.image.setDepth(depth));
+      reg(frame.image.setDepth(depth + 3));
+      this.back = back.length(this.long);
+      this.frame = frame.length(this.long);
+      this.lost = reg(lost.setDepth(depth + 1));
+      this.hp = reg(hp.setDepth(depth + 2));
+      this.rage = reg(rage.setDepth(depth + 2));
     } else {
-      this.back.setPosition(x - 2, y);
-      this.fill.setPosition(x, y);
+      back?.destroy();
+      frame?.destroy();
+      for (const f of [lost, hp, rage]) f?.destroy();
+      this.tall = this.rooms.rage.y + this.rooms.rage.h + this.rooms.hp.y;
+      this.back = reg(scene.add.rectangle(0, 0, this.long, this.tall, COLORS.barBack, 0.9).setOrigin(0, 0).setStrokeStyle(1, COLORS.foam, 0.8).setDepth(depth));
+      this.frame = null;
+      this.lost = null;
+      this.hp = reg(scene.add.rectangle(0, 0, 1, 1, COLORS.hp).setOrigin(0, 0).setDepth(depth + 2));
+      this.rage = reg(scene.add.rectangle(0, 0, 1, 1, COLORS.rage).setOrigin(0, 0).setDepth(depth + 2));
     }
+    // Empty until it is first `set`: a saved game with half his health must not open with a blow shown.
+    for (const f of [this.lost, this.hp, this.rage]) f?.setVisible(false);
+  }
+
+  /**
+   * Its top left corner. Every part is a whole number of half units from there (half a unit is one pixel of his
+   * files), so a corner on a whole screen pixel puts all five on whole pixels, and no line of the back shows
+   * between a fill and the frame (Leonard, AD).
+   */
+  at(left: number, top: number): void {
+    if (this.back instanceof Pill) this.back.at(left, top + this.tall / 2);
+    else this.back.setPosition(left, top);
+    this.frame?.at(left, top + this.tall / 2);
+    this.lost?.setPosition(left + this.rooms.hp.x, top + this.rooms.hp.y);
+    this.hp.setPosition(left + this.rooms.hp.x, top + this.rooms.hp.y);
+    this.rage.setPosition(left + this.rooms.rage.x, top + this.rooms.rage.y);
+  }
+
+  /** How full each room is, from 0 to 1; and the ms gone by, for the part a blow just took. */
+  set(hp: number, rage: number, delta: number): void {
+    const p = unit(hp);
+    const pale = this.trail.step(p, delta);
+    const full = this.long - this.rooms.hp.x * 2;
+    this.fill(this.hp, full * p, this.rooms.hp.h);
+    if (this.lost) this.fill(this.lost, pale > p ? full * pale : 0, this.rooms.hp.h);
+    this.fill(this.rage, (this.long - this.rooms.rage.x * 2) * unit(rage), this.rooms.rage.h);
+  }
+
+  /** Hidden, it stays so until it is shown and `set` again. */
+  setVisible(on: boolean): void {
+    this.on = on;
+    this.back.setVisible(on);
+    this.frame?.setVisible(on);
+    if (!on) for (const f of [this.lost, this.hp, this.rage]) f?.setVisible(false);
+  }
+
+  /** A fill at a length: hidden at nothing. */
+  private fill(part: Flat, length: number, h: number): void {
+    part.setVisible(this.on && length > 0.01);
+    if (length > 0.01) part.setDisplaySize(length, h);
   }
 }
 
@@ -254,19 +355,20 @@ const MINE = 1.2;
 
 /**
  * A monster's health as the Art Director draws it: a dark well that reads on sand, grass, rock and sea, the red
- * inside it, and pale what a blow just took. The one he fights has the gold-rimmed well, a fifth bigger, and an
- * arrow over it. Without his glass: a dark box with a red one in it, edged in gold on the one he fights. Its
+ * inside it, and pale what a blow just took. The one he fights has the gold-rimmed well, a fifth bigger. (His
+ * arrow over it, `mark/mine`, is left out since the hero's own bar is on the field: it touched that bar when the
+ * monster stood beside him, and the rim, the size and the ring under its feet already say which one it is; Leonard,
+ * AD, 2026-11-20.) Without his glass: a dark box with a red one in it, edged in gold on the one he fights. Its
  * length `w` is the fill's when whole.
  */
 export class MobBar {
   private readonly w: number;
   private readonly pills: { well: Pill; mine: Pill; lost: Pill; hp: Pill; inset: number; insetMine: number } | null = null;
-  private readonly arrow: Phaser.GameObjects.Image | null = null;
   private readonly back: Phaser.GameObjects.Rectangle | null = null;
   private readonly fill: Phaser.GameObjects.Rectangle | null = null;
   private readonly trail = new Trail();
 
-  constructor(scene: Phaser.Scene, reg: <T extends Obj>(o: T) => T, o: { w: number; depth: number; arrow: boolean }) {
+  constructor(scene: Phaser.Scene, reg: <T extends Obj>(o: T) => T, o: { w: number; depth: number }) {
     this.w = o.w;
     const well = Pill.make(scene, 'mob/well');
     const mine = Pill.make(scene, 'mob/well-mine', MINE);
@@ -278,8 +380,6 @@ export class MobBar {
       reg(lost.image.setDepth(o.depth + 1));
       reg(hp.image.setDepth(o.depth + 2));
       this.pills = { well, mine, lost, hp, inset: info(scene, 'mob/well')?.inset ?? 3, insetMine: info(scene, 'mob/well-mine')?.inset ?? 5 };
-      const arrow = o.arrow ? piece(scene, 'mark/mine') : null;
-      if (arrow) this.arrow = reg(arrow.setDepth(o.depth + 3));
     } else {
       for (const p of [well, mine, lost, hp]) p?.destroy();
       this.back = reg(scene.add.rectangle(0, 0, o.w + 4, 11, COLORS.barBack, 0.9).setOrigin(0, 0.5).setDepth(o.depth));
@@ -288,8 +388,8 @@ export class MobBar {
     this.hide();
   }
 
-  /** Its middle at x, y; how full (0 to 1); whether it is the one he fights; the ms gone by; how far the arrow has bobbed. */
-  draw(x: number, y: number, part: number, fought: boolean, delta: number, bob = 0): void {
+  /** Its middle at x, y; how full (0 to 1); whether it is the one he fights; the ms gone by. */
+  draw(x: number, y: number, part: number, fought: boolean, delta: number): void {
     const p = unit(part);
     const pale = this.trail.step(p, delta);
     if (this.pills) {
@@ -302,7 +402,6 @@ export class MobBar {
       (fought ? mine : well).setVisible(true).at(x0 - inset, y).length(full + inset * 2);
       lost.resize(k).setVisible(true).at(x0, y).length(pale > p ? full * pale : 0);
       hp.resize(k).setVisible(true).at(x0, y).length(full * p);
-      this.arrow?.setVisible(fought).setPosition(x, y - 16 + bob);
     } else if (this.back && this.fill) {
       this.back.setVisible(true).setPosition(x - this.w / 2 - 2, y).setStrokeStyle(fought ? 2 : 1, fought ? COLORS.target : COLORS.foam, fought ? 1 : 0.8);
       this.fill.setVisible(true).setPosition(x - this.w / 2, y);
@@ -312,7 +411,6 @@ export class MobBar {
 
   hide(): void {
     if (this.pills) for (const p of [this.pills.well, this.pills.mine, this.pills.lost, this.pills.hp]) p.setVisible(false);
-    this.arrow?.setVisible(false);
     this.back?.setVisible(false);
     this.fill?.setVisible(false);
   }
@@ -324,7 +422,6 @@ export class MobBar {
 
   destroy(): void {
     if (this.pills) for (const p of [this.pills.well, this.pills.mine, this.pills.lost, this.pills.hp]) p.destroy();
-    this.arrow?.destroy();
     this.back?.destroy();
     this.fill?.destroy();
   }

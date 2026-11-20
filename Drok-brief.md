@@ -82,7 +82,9 @@ rare drops, in a top-down world."
   after seeing it at the bottom; this takes the place of "at the bottom" for his own health): "I think the heros
   health bar should show over his character, and the rage bar below it. It needs to be fixated well enough that it
   doesnt become messy when fighting mobs." "Would be nice if we can keep the UI as clean as possible." "Give me some
-  suggestions": three ways are in the game for him to pick from (open question 7).
+  suggestions". (Robin, 2026-11-20, in the Art Director's chat, of four ways shown; the fourth was Leonard, AD's:
+  health and rage as one small piece over his head): "I think 4, but the heart isnt needed. Also rage is
+  traditionally red. So they need to be distinctive different red colors".
 - **The save**: on the phone only, since there is no server and no account. (Robin, 2026-11-20, his pick): an "export
   save" button in the settings from day one.
 
@@ -142,6 +144,8 @@ A line each, newest at the bottom: the date, the decision, Robin's words.
   bottom; health, his and the monsters', must be easy to glance at, "maybe at the bottom".
 - 2026-11-20: after seeing his health at the bottom: it goes over his character, the rage bar below it, steady in a
   fight, and the screen as clean as it can be. He asked for suggestions; three are in the game to try.
+- 2026-11-20: his own bar is way 4: health over rage in one small piece over his head, no heart, and rage a red
+  clearly other than health's ("I think 4, but the heart isnt needed. Also rage is traditionally red").
 
 ## Open questions
 
@@ -156,6 +160,5 @@ in `Game Developer\docs\idea-bank.md`:
 5. The levels of the job advancements, and what the Warrior can become.
 6. Which hand the skill buttons sit under by default. (They are in the middle now; the hand only says on which side
    of the row the potion sits.)
-7. Where his rage is shown, now that his health goes over his head: 1 under his health, over his head; 2 under his
-   feet; 3 as a ring round the Cleave button. All three are in the game (≡, "Bars"), with pictures in the chat of
-   2026-11-20. With it: whether the monster's name plate at the bottom stays.
+7. Answered 2026-11-20: his health and rage are one small piece over his head ("The screen"). Still open from it:
+   whether the monster's name plate at the bottom stays.

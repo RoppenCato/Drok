@@ -8,16 +8,9 @@ export interface Settings {
   fewerEffects: boolean;
   /** The skill buttons sit under the right thumb unless this is on (mine; Robin has not said which hand). */
   leftHand: boolean;
-  /**
-   * Where his own health and rage are shown: a test for Robin to pick from (2026-11-20: "the heros health bar
-   * should show over his character, and the rage bar below it"; "Give me some suggestions"). 0 at the bottom, as
-   * it was; 1 both over his head; 2 health over his head, rage under his feet; 3 health over his head, rage round
-   * the Cleave button. The ones he does not pick are taken out again.
-   */
-  ownBars: 0 | 1 | 2 | 3;
 }
 
-const DEFAULTS: Settings = { mute: false, fewerEffects: false, leftHand: false, ownBars: 0 };
+const DEFAULTS: Settings = { mute: false, fewerEffects: false, leftHand: false };
 
 /** localStorage, or null where the browser refuses it (storage blocked in a private window): the game still runs, unsaved. */
 export function storageOrNull(): Storage | null {

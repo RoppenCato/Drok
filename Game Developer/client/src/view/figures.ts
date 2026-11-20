@@ -63,7 +63,22 @@ const NEAREST: Record<string, string[]> = { se: ['e', 's'], ne: ['e', 'n'], e: [
 /** A set of single pictures (gear, props, loot): each picture's size and the point it stands on, and its own data. */
 export interface SetData {
   meta: { filePx: number };
-  items: Record<string, { w: number; h: number; origin: Vec; colour?: string; light?: string; slice?: number[]; inset?: number }>;
+  items: Record<
+    string,
+    {
+      w: number;
+      h: number;
+      origin: Vec;
+      colour?: string;
+      light?: string;
+      slice?: number[];
+      inset?: number;
+      /** How long a pill is meant to be drawn, in design units (his own bar's frame). */
+      length?: number;
+      /** Where each fill starts from a frame's top left corner and how tall it is, in design units (his own bar). */
+      rooms?: Record<string, { x: number; y: number; h: number }>;
+    }
+  >;
 }
 
 /** One picture from a set, standing on its own origin, at design size. Null when the set or the picture is not there. */

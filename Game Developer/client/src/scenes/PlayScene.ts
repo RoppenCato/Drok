@@ -12,9 +12,10 @@ import { FOOT, WorldView, type Thing } from '../view/world-view.ts';
 const CAMERA_CATCH_UP = 14;
 /**
  * The camera looks this far below him, so he is drawn above the screen's middle: in the middle of what the glass
- * at the bottom leaves to see (mine; it came with Robin's buttons and health at the bottom, 2026-11-20).
+ * leaves to see, between the buttons at the top and the plate over the skills at the bottom (mine; it came with
+ * Robin's buttons at the bottom, 2026-11-20, and was 60 while his health and rage were in that pile too).
  */
-const LOOK_BELOW = 60;
+const LOOK_BELOW = 45;
 
 /** The events after which an open window may be showing something that is no longer so. */
 const STALE = new Set<GameEvent['type']>(['picked', 'bought', 'sold', 'equipped', 'unequipped', 'discarded', 'levelUp', 'xp', 'sailed', 'heroUp', 'potionUsed', 'chestOpened']);
@@ -81,10 +82,6 @@ export class PlayScene extends Phaser.Scene {
       atShop: () => this.near(this.holder.state) === 'shop',
       atDock: () => this.near(this.holder.state, true) === 'dock',
       settingsChanged: () => this.hud.place(),
-      restart: () => {
-        this.holder.save();
-        location.reload();
-      },
       exportSave: () => this.exportSave(),
       importSave: () => this.importSave(),
       saveLog: () => this.log.download(),
@@ -158,6 +155,7 @@ export class PlayScene extends Phaser.Scene {
     this.camX += (at.x - this.camX) * k;
     this.camY += (lookY - this.camY) * k;
     this.cameras.main.centerOn(this.camX, this.camY);
+    this.world.pin(this.cameras.main);
   }
 
   /** Ask the rules. True when it was done; a refusal is said on the glass by the next frame. */

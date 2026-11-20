@@ -56,7 +56,19 @@ frame then takes that strip). He would have met it on his first trip home and ba
 and back in the pane. And the home link was dead for eleven minutes again: the app had stopped the server while
 the chat was quiet.
 
-Waiting for his pick (the brief's open question 7).
+**His pick** (2026-11-20, in the Art Director's chat, after Leonard, AD had shown a fourth way beside the three:
+way 1 as one small piece): "I think 4, but the heart isnt needed. Also rage is traditionally red. So they need to
+be distinctive different red colors".
+
+| Note | Found | Done | Rule |
+| --- | --- | --- | --- |
+| Way 4 | The three ways in the game were all bars borrowed from the pile, drawn small; the one he picked was drawn for the place | Leonard, AD made it as five pieces (52 long, 15 tall); it is the only way now. The other three, the row "Bars" and the pile's own health and rage are out of the game and kept in `archive\` | A pick between ways is shown as real pictures at the real size; the stand-ins in the game were enough to try, not to choose from |
+| No heart | The heart said "mine" beside the dark monster bars | Gone from the field; the cream rooms and the place over his head say it. Still in the atlas | |
+| Rage is red, and another red than health | Rage was orange everywhere | Health stays the light red of every health bar, rage is a deep crimson (Leonard, AD's pair, of seven he tried) | Two reds are told apart at this size only when one is clearly darker |
+| (mine) Steady | The test's bars sat on whole units of the field while the camera glides after him: they would have trembled against him by a pixel as he walked. Stills never showed it | The bar is placed after the camera, on whole pixels of the screen. The arrow over the one he fights is out (Leonard, AD: it touched his bar) | A thing that goes with a figure is checked walking, frame by frame, not in a still |
+
+Waiting for his eye on his phone: the two reds, a crowded fight, whether he misses the numbers, whether the name
+plate at the bottom stays.
 
 ## Round 3, _date_: _…_
 

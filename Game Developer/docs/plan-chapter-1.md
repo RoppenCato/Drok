@@ -152,7 +152,7 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
       for his health and his own sizes for the pile (his drop of 2026-11-20, in the game the same day)
     - `[x]` a page that is open is no longer restarted when a file is saved here (hot reload off)
 
-19. `[ ] Built` `[ ] Checked` · GD, then AD · **His health over his head** (`playtests.md`, round 2; Robin,
+19. `[x] Built 2026-11-20` `[ ] Checked` · GD and AD · **His health over his head** (`playtests.md`, round 2; Robin,
     2026-11-20: "the heros health bar should show over his character, and the rage bar below it")
     - `[x]` three ways in the game to pick from, on the row "Bars" in the settings, and three pictures in the chat
     - `[x]` Leonard, AD looked at the three on the real screen (2026-11-20, `Art Director\concepts\own-bars\`,
@@ -160,13 +160,17 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
       1 as ONE small piece (one dark outline with two rooms: health 7 tall, rage 3.4 under it, the heart on its
       end, 52 long); his pick is 4, then 3. For any way: 52 long is enough (64 is twice the hero's width), and
       the arrow over the one he fights is left out while his own bars are on the field (it touches his heart
-      when that monster stands beside him). **Held until Robin has picked**, so the ways he is trying on his
-      phone do not change between two taps of the row.
-    - `[ ]` Robin picks (the brief's open question 7): 1, 2, 3, or Leonard, AD's 4
-    - `[ ]` GD: the picked way stays, the others and the row go; the camera and the place's foot follow the
-      smaller pile
-    - `[ ]` AD: his own bar for over the hero's head (the stand-in is his big bar drawn small), and for way 3 a
-      ring for the button
+      when that monster stands beside him). Held until Robin had picked.
+    - `[x]` Robin picked, in the Art Director's chat (2026-11-20): "I think 4, but the heart isnt needed. Also
+      rage is traditionally red. So they need to be distinctive different red colors". Leonard, AD passed it on;
+      his words were read in that chat's own record before anything was built
+    - `[x]` AD: his own bar as five pieces (a back, three flat fills, a frame on top), 52 long, no heart; rage a
+      deep crimson in the atlas (his commit 468df65)
+    - `[x]` GD: way 4 is the only way; ways 1 to 3, the row "Bars", `?bars=` and the pile's health and rage are
+      out (kept in `archive\his-bars-four-ways\`); the arrow over the one he fights is out; the bar is put on
+      whole screen pixels after the camera, so it does not tremble as he walks; the camera looks 45 below him,
+      not 60 (the place's foot stays at 110)
+    - tests in the pane: `tests.md`, "his own bar over his head"
 
 ## Waits for Robin
 
@@ -175,7 +179,9 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
   slide it. The link answers only while the dev server runs on this PC; if it is dead, say so in the chat and it is
   started again (`docs\state\pages.md`).
 - The new steering (item 18): does the stick want a home on the screen (it only shows while a thumb drags).
-- Where his rage goes (item 19): way 1, 2 or 3; and whether the monster's name plate at the bottom stays.
+- His own bar (item 19), on his phone: do the two reds read as two; is it still enough in a crowded fight; does he
+  miss his health in numbers; should it show in the town. Whether the monster's name plate at the bottom stays.
+  And Leonard, AD's note: Cleave's disc is health's red, so three reds meet on the screen now.
 - The look: Leonard, AD chose it himself, as told ("Let AD handle the art you need. I approve."), so the first
   judging of the Warrior, the monsters, the island, the town, the chart, the glass and the icon is this play. The
   look and the chart would each have been three to pick from. And the size: he finds the Warrior small and offers

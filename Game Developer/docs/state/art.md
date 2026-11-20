@@ -14,7 +14,7 @@ few small things in the last column below. Every look in it is Leonard, AD's own
 | `ART.places` | `island` for `crab-cay` | the painted ground, 117 props sorted with the figures, a flat shadow under each, the dock, the boat, the chest closed, opening and open | the sea does not move |
 | `ART.places`, `ART.folk` | `harbour` for `harbour` | the painted town: three houses, the stall, the well, lamps, a sign, barrels, crates, a boat, palms, the dock; and four people who stand and breathe (the shopkeeper in his stall, the harbour master, a fisher, a sailor) | the people do nothing yet: no tasks, no words |
 | `ART.chart` | `chart` | the sea chart as one picture that fills the screen: a pin on each place, a ring round the one he is in, the dotted way between, the names, his yellow button "Sail to …" | the ring does not breathe |
-| `ART.glass` | `glass` (40 pieces since his second drop of 2026-11-20) | the menu, bag, chart and hero buttons; health, rage and experience as his wells with round-ended fills, a heart on the end of his health, and pale what a blow just took; level, coin and money; the target's plate with the monster's dark bar on its foot; a monster's bar over its head, gold-rimmed with an arrow on the one he fights; the stick's ring and knob; the skill and potion discs; the button for the thing he stands by; the mark under the target and where a tap landed; the windows' panel, title, cross, rows, buttons and slots | the cooldown's dark wedge; the stun's star; the banners and refusals (plain words with an outline) |
+| `ART.glass` | `glass` (45 pieces since his third drop of 2026-11-20) | the menu, bag, chart and hero buttons; his own bar over his head (health over rage in one dark outline, pale what a blow just took); experience as his well with a round-ended fill; level, coin and money; the target's plate; a monster's bar over its head, gold-rimmed on the one he fights; the stick's ring and knob; the skill and potion discs; the button for the thing he stands by; the mark under the target and where a tap landed; the windows' panel, title, cross, rows, buttons and slots | the cooldown's dark wedge; the stun's star; the banners and refusals (plain words with an outline) |
 | (no switch) | `client\public\pwa-192x192.png`, `pwa-512x512.png` | the app's icon: the Warrior's face on a bright sea. His folder whole, with his notes, is kept in `assets\icon\` | |
 
 ## How a drop comes in
@@ -67,11 +67,20 @@ chest holds and where he wakes in town stay the game's. The rules then walk on t
 
 - **A bar of the glass** (`glass.ts`; his NOTES.md and his `tools\scene.js` are the reference): a fill is a pill
   put together at the length of the bar's part (`Pill`), never a picture scaled, so its ends stay round; hidden at
-  nothing, never shorter than its two ends. His own bars (`Bar`): the fill 3 in from the well's left end, 10 tall,
-  its middle 1 above the well's; a bar may be drawn bigger or smaller than his own size (health 1.3, rage 0.8,
-  experience 0.72: his numbers). A monster's (`MobBar`): for a fill w long the well is w + 6, the fill 3 in; the
-  one he fights has `mob/well-mine`, w + 10 and 5 in, the whole bar a fifth bigger, `mark/mine` 16 above it. The
-  pale part (`fill/lost`, `mob/lost`) is as long as the health was, holds 200 ms and shrinks over 300 (`Trail`).
+  nothing, never shorter than its two ends. A bar of the pile (`Bar`, now only experience): the fill 3 in from the
+  well's left end, 10 tall, its middle 1 above the well's; a bar may be drawn bigger or smaller than his own size
+  (experience 0.72: his number). A monster's (`MobBar`): for a fill w long the well is w + 6, the fill 3 in; the
+  one he fights has `mob/well-mine`, w + 10 and 5 in, the whole bar a fifth bigger. The pale part (`mob/lost`,
+  `own/lost`) is as long as the health was, holds 200 ms and shrinks over 300 (`Trail`).
+- **His own bar** (`OwnBar` in `glass.ts`; Robin, 2026-11-20: his way 4, no heart, rage red): five pictures at one
+  place: `own/back` 52 long, `own/lost`, `own/hp` (1.5 in and 1.5 down from the frame's corner, 7 tall), `own/rage`
+  (1.5 in, 9.5 down, 4 tall), and `own/frame` on top; a whole fill is 49. The length and the rooms are read from
+  `own/frame`'s data. The three fills are flat and stretched whole; the game draws each from its middle columns
+  only (a frame it adds, `own/hp:middle`), since stretched six times the end columns would take in what lies
+  beside the piece in the atlas. Its corner is put on a whole pixel of the screen (`WorldView.pin`).
+- **In the atlas and not drawn now**: `mark/mine` (the arrow over the one he fights: left out on Leonard, AD's
+  word while the hero's bar is on the field), `mark/heart`, `fill/hp`, `fill/rage`, `fill/lost`, `bar/*` (the pile's
+  health and rage, gone with Robin's pick).
 
 What his atlases carry that the game does not use: `stride` (he agrees `move` is played by time: his commit
 4722188), `blow` and the wind-up `note` (the rules' own timing decides when a blow lands; the animation is started
@@ -80,7 +89,7 @@ with it), `lt`, `rb`, `head` (where a task's mark would go over a person's head)
 ## What it costs
 
 On disk all of wave 1 is 1.5 MB; with the script the phone caches 3.05 MB in 39 files to play offline, and the first
-load is 1.9 MB over the wire (the glass grew from 67 to 100 KB with his second drop; decoded it is 2 MB as before). Decoded: the island with everything on it about 46 MB (his number, under the 48 MB
+load is 1.9 MB over the wire (the glass grew from 67 to 100 KB with his second drop and is 101 KB with his third; decoded it is 2 MB as before). Decoded: the island with everything on it about 46 MB (his number, under the 48 MB
 set for a place), the harbour about 10 MB, the chart 6 MB. **The game loads all of it when it starts, about 62 MB
 together**, which breaks the game's own rule of loading by place (`docs\art-demands.md`). It has not been seen on
 Robin's phone; the frame log from his settings will say whether it shows. Loading by place is on the list.
@@ -99,3 +108,6 @@ Robin's phone; the frame log from his settings will say whether it shows. Loadin
 - **From his second glass drop, not taken up**: a round, heavy text face (Fredoka or Baloo 2, free): a file to add
   and Robin's to hear of first. The small hard shadow under each piece, which his packer cuts away: back with one
   flag if Robin wants it. The potion's disc is green while the health it fills is red.
+- **From his third glass drop** (his own bar, 2026-11-20): the two reds are his (health `#f0503c`, rage a deep
+  crimson `#b8122f`) and are Robin's to judge on his phone; if they still read as one, he offers a taller rage room
+  or a deeper red. And Cleave's disc is health's red, so three reds meet on the screen now; nobody has asked.

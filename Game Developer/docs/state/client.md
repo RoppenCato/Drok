@@ -23,8 +23,8 @@ but for the sea chart, which with his art fills the whole screen.
 | `client\src\scenes\PlayScene.ts` | the one screen: wires fingers, the holder, the views and the windows; the camera; export and import |
 | `client\src\view\world-view.ts` | the place: ground, props, dock, chest, stall, the people who stand about, the hero, the monsters, the loot, the small effects |
 | `client\src\view\figures.ts` | a figure from an atlas: its action, its facing (eight, three of them mirrored), its frames by time; the hero with his gear on his hand, arm and head; a single picture from a set |
-| `client\src\view\glass.ts` | the Art Director's pieces for the glass: a piece, a piece stretched without bending its corners, a bar, the ink colours for words on his panels |
-| `client\src\view\hud.ts` | the glass: level and money and the top buttons; at the bottom the skills and the potion, his health and rage, who he fights, the button for the thing he stands by |
+| `client\src\view\glass.ts` | the Art Director's pieces for the glass: a piece, a piece stretched without bending its corners, a bar, a monster's bar, the hero's own bar, the ink colours for words on his panels |
+| `client\src\view\hud.ts` | the glass: level and money and the top buttons; at the bottom the skills and the potion, who he fights, the button for the thing he stands by, experience |
 | `client\src\view\panels.ts` | the windows: bag, hero, sea chart, stall, settings |
 | `client\src\game-log.ts` | the frame log and error log Robin can save from the settings |
 | `client\src\settings.ts` | sound off, fewer effects, which hand; in localStorage under `drok.settings` |
@@ -67,9 +67,9 @@ must be there at the same time). One way, no switch:
 
 ## The glass (`hud.ts`)
 
-Robin, 2026-11-20: bag, chart and character as small buttons at the top; and after playing: "the buttons should be
-in the middle at the bottom", and health, his and the monsters', easier to glance at, "maybe at the bottom". How
-the bottom is stacked is mine.
+Robin, 2026-11-20: bag, chart and character as small buttons at the top; after playing: "the buttons should be in
+the middle at the bottom"; and after seeing his health there too: it goes over his character, the rage under it.
+How the bottom is stacked is mine.
 
 Top left: the settings button, his level, a coin and his money. Top right: Bag (turns orange when full), Chart,
 Hero. Under them a line of help for seven seconds. In the middle at the bottom, from the floor up:
@@ -78,39 +78,45 @@ Hero. Under them a line of help for seven seconds. In the middle at the bottom, 
 | --- | --- |
 | experience | a bar 200 long at y 901, drawn at 0.72 of the Art Director's size |
 | Charge, Cleave, the potion with its count | discs at x 122, 206, 284, y 851 (the potion 859); the "left hand" switch turns the row round; each shows its wait as a dark wedge and a number |
-| rage | a bar 184 long from x 122, at y 800, at 0.8 of his size |
-| health, with its numbers and a heart on its left end | a bar 200 long at y 775, at 1.3 of his size: the biggest thing in the pile; pale what a blow just took |
-| who he fights: name, level, health | a plate 200 long at y 733; on its foot, at y 748, the monster's own dark bar with the gold rim (its fill 172 long as drawn, the whole bar 184, inside the plate); only while he has a target |
-| the button for the thing he stands by | at y 683; only while he stands by one |
-| a refusal ("Not enough rage") | words at y 645 |
+| who he fights: name and level | a plate 200 long at y 788; only while he has a target. Its health is over its own head |
+| the button for the thing he stands by | at y 739; only while he stands by one |
+| a refusal ("Not enough rage") | words at y 701 |
 
-Where things stand is mine; how big each is drawn is Leonard, AD's (2026-11-20): two red bars of one length, one
-over the other, were his health and the monster's, and could be taken for each other. Now the dark bar is always
-the monster's, on the plate as over its head.
-
-None of it but the discs and the button takes a press: a tap on a bar goes through to the field. Because the pile
-covers the bottom, **the camera looks 60 below him** (`LOOK_BELOW` in `PlayScene.ts`), so he is drawn at about y
-397, in the middle of what is left to see; and it may look 110 below a place's foot (`FOOT` in `world-view.ts`,
-where the ground picture's last row of sea is drawn out), so on a dock he stands above the pile, not under it.
+None of it but the discs and the button takes a press: a tap on the plate goes through to the field. Because the
+pile covers the bottom, **the camera looks 45 below him** (`LOOK_BELOW` in `PlayScene.ts`; 60 while his health and
+rage were in the pile too), so he is drawn at about y 412, in the middle of what is left to see; and it may look
+110 below a place's foot (`FOOT` in `world-view.ts`, where the ground picture's last row of sea is drawn out), so
+on a dock he stands above the pile, not under it (on the island's dock at y 589, the "Sea chart" button at 739).
 A banner for a new place or level and "Down! Lost N gold" are in the upper half as before.
 
-**A test, until Robin has picked** (`settings.ownBars`; the row "Bars" in the settings, which saves and opens the
-page again; `?bars=0..3` in the address for a script). Robin, 2026-11-20: "the heros health bar should show over
-his character, and the rage bar below it", "fixated well enough that it doesnt become messy", the screen "as clean
-as possible", "give me some suggestions". 0 is the pile above. In 1, 2 and 3 his health goes with him on the field
-(`world-view.ts`): a bar 64 long over his head with a small heart on its end, pale what a blow just took; hung from
-his standing picture's top (14 above it; 24 in way 1), at whole units, over every monster's bar; hidden in a town
-and while he is down; a number about him starts above it. His rage: **1** a thinner bar 54 long close under his
-health; **2** the same bar on the ground under his feet; **3** a ring round the Cleave button (`hud.ts`), orange as
-far round as his rage goes, with a notch where there is enough for one Cleave. In all three the pile is only the
-plate with the monster's name and level (at y 788), the buttons and experience; the button for the thing he stands
-by is at y 739. The ways he does not pick are taken out, with the row.
+**His own bar, over his head** (`OwnBar` in `glass.ts`, placed by `world-view.ts`). Robin, 2026-11-20: "the heros
+health bar should show over his character, and the rage bar below it. It needs to be fixated well enough that it
+doesnt become messy when fighting mobs", the screen "as clean as possible"; and of four ways shown (three in the
+game, Leonard, AD's as a sketch), in the Art Director's chat: "I think 4, but the heart isnt needed. Also rage is
+traditionally red. So they need to be distinctive different red colors". So: one dark outline with two rooms, his
+health over his rage, 52 long and 15 tall, no heart, no numbers; health the light red of every health bar, rage a
+deep crimson (which reds, the length and the place are Leonard, AD's). Pale what a blow just took, for half a
+second. What keeps it still (mine):
+
+- It hangs from the top of his **standing** picture (its middle 13 above it), never from the picture now shown, so
+  a swing does not move it.
+- It is put in its place **after the camera has moved** for the frame (`WorldView.pin`, called last in
+  `PlayScene.update`), on whole pixels of the screen. The camera glides after him; a bar on whole units of the
+  field trembled against him by a pixel as he walked. Measured in the pane over 90 walking frames: always on a
+  whole pixel, never more than half a pixel off his middle, its height over him within a pixel.
+- It is drawn over every monster's bar. A number about him ("-7", "missed", "+12") starts above it.
+- Not shown in a town, where nothing can hurt him, and not while he is down. His health in numbers is in the Hero
+  window.
 
 Over a monster's head: its health, 44 or more long, when it is hurt or is the one he fights: Leonard, AD's dark
-well, the red inside, pale what a blow just took. The one he fights has the gold rim, a fifth bigger, and an arrow
-that bobs once a second (not with "fewer effects"). The bar hangs at one height for the kind, 12 above the top of
-its standing picture (14 for the one he fights), so it does not jump when a claw goes up. A blow's number rises
-beside the bar, not over it. The stick is his ring and knob, drawn at full strength.
+well, the red inside, pale what a blow just took. The one he fights has the gold rim, a fifth bigger. (The arrow
+over it is left out, on Leonard, AD's word: it touched the hero's bar when that monster stood beside him; the
+rim, the size and the ring under its feet say which one it is.) The bar hangs at one height for the kind, 12 above
+the top of its standing picture (14 for the one he fights), so it does not jump when a claw goes up. A blow's
+number rises beside the bar, not over it. The stick is his ring and knob, drawn at full strength.
+
+The pile as it was while his health and rage were in it, the three ways that were on a row "Bars" in the settings
+for Robin to try, the ring round the Cleave button and the arrow: `archive\his-bars-four-ways\`.
 
 ## The windows (`panels.ts`)
 
@@ -127,7 +133,7 @@ closes the open window so he can answer it.
   from the dock", when he does not stand on one). A tap on the other place's pin sails too. The cross at the top
   right closes it; there is no "beside it" to tap. The stand-in chart is a window like the others.
 - **Stall**: the three pieces with what he wears beside them and a price, the potion, "Sell from your bag".
-- **Settings**: steering, which hand, effects, export save, import save, save the log, start over (asks twice).
+- **Settings**: which hand, effects, export save, import save, save the log, start over (asks twice).
 
 ## The save and the settings
 
