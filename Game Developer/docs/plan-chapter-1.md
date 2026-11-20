@@ -80,11 +80,23 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
 12. `[ ] Built` `[ ] Checked` · AD · **Wave 1 art** (`art-demands.md`)
     - `[x]` Robin's answers to questions 20 and 21; he then said (2026-11-20) "Let AD handle the art you need. I
       approve.", so Leonard, AD chooses the look himself, marked "mine", and Robin judges it when he is back
-    - `[ ]` the Warrior's body; cutlasses, bucklers and hats with their bag icons (in his `out\` as of 2026-11-20,
-      not yet delivered with notes)
-    - `[ ]` three monsters; the island's ground; loot and the rarity effects; the chest; the harbour; the glass;
-      the sea chart; the icon
-    - `[ ]` GD: each drop copied in whole and wired, the stand-in it replaces removed
+    - `[ ]` AD, in his `out\` on 2026-11-20 but not yet handed over with notes: `hero`, `gear`, `sand-crab`,
+      `reef-gull`, `island`, `loot`, `glass`. Still to come: `coconut-crab`, the harbour, the sea chart, the icon.
+    - `[x]` GD: the layer that draws his figures, his gear on the hero and his icons (`docs\state\art.md`); tried
+      against his hero, gear and sand crab, then switched off until he hands them over
+    - `[ ]` GD, the moment he hands each over (copy the folder without `frames\`, switch it on in `art.ts`, check
+      in the pane, commit):
+      - `hero`, `gear`, each monster: a switch only; the layer draws them
+      - `island`: his `place.json` lays the island out his way (a painted ground at one pixel a unit, a shoreline
+        `land`, `props` by name and place, `solid` circles that block the way, and his own `dock`, `arrive`,
+        `chest` and `zones`, which differ from mine). He designs places, so his layout goes into
+        `rules\data\places.json`. New in the rules, with tests: walking only on the land, and round the solids
+        (a tap's straight line must slide round them); the bot must still finish the chapter. New on the
+        screen: the ground picture, the props sorted by where they stand, his dock, boat and chest
+      - `loot`: his coins, potion and gear pictures, the ring for each rarity and the spark; his rarity colours
+        into `rules\data\items.json`
+      - `glass`: his panel (nine-slice), skill discs, slots, buttons, bars and marks in `hud.ts` and `panels.ts`
+      - the harbour, the sea chart and the icon when they land
 
 13. `[ ] Built` `[ ] Checked` · SD · **Wave 1 sound** (`sound-demands.md`)
     - `[ ]` **Hugh, SD's chat: waits for Robin.** It could not be started from a phone session; his first brief
