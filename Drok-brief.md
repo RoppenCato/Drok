@@ -42,6 +42,8 @@ rare drops, in a top-down world."
 - **The starter island** (Robin, 2026-11-20): "Make the starter island a pirate town, and the other part of the
   island beginner friendly with low level mobs." So the town is on the first island, not a place of its own: he
   walks out of it into the hunting ground. This takes the place of the harbour town as its own pin on the chart.
+- **A real pirate town** (Robin, 2026-11-20, to Leonard, AD's offer of three stills of a bigger town with more
+  houses, a tavern and a lookout): "Yeah do an updated pirate town suggested". Three stills; Robin picks.
 - **Loot** (Robin, 2026-11-20): "items should pop out of monsters when dropped."
 - **The inventory** (Robin, 2026-11-20): "you need to make a proper inventory system like my other games, look at
   zite for example." Zite's is the hero sheet he picked there on 2026-11-02: the hero wearing his gear, a slot for

@@ -236,6 +236,10 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
     to menus and panels. Like some wooden feeling. Right now it looks bland. Also update icons so they look
     fitting"): three stills for Robin to pick from, asked 2026-11-20; then the kit, and GD puts it in
 
+26. `[ ]` · AD then GD · **A real pirate town** (Robin, 2026-11-20: "Yeah do an updated pirate town suggested")
+    - `[ ]` AD: three stills of the town on Crab Cay (more houses, a tavern, a lookout), asked 2026-11-20; Robin picks
+    - `[ ]` AD: the kit and the new layout; GD: lay it in, the zones either side moved if it grows
+
 ## Waits for Robin
 
 - Play it: `http://192.168.0.43:5178/` on the home Wi-Fi. The first minute: tap the stall to see what it sells,
