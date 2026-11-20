@@ -17,7 +17,9 @@ lie on him. When the crab he fights stands on him, its bar lies across his face;
 is half under his. Robin asked that it "doesnt become messy when fighting mobs". One rule would keep them apart (mine,
 Victor, GD's to take or leave): a monster's bar never lies on his bar or on the middle of his face; one that would is
 lifted to sit right above his bar, with 2 units of air, and a blow's number goes with it. A bar that only grazes his
-head from the side stays where it is. `tools\scene.js --c1 dx,dy --clear` draws it.
+head from the side stays where it is. `tools\scene.js --c1 dx,dy --clear` draws it. Victor, GD built it as written
+(75af4e7); `bars-apart-in-game.jpg` is the real screen with three crabs held round him: the bar of the one he fights
+sits above his, the northern one's above that, the western one's over its own head.
 
 What follows is as it stood before his pick.
 
