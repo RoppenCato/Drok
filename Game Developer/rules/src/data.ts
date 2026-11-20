@@ -5,7 +5,7 @@ import itemsJson from '../data/items.json';
 import monstersJson from '../data/monsters.json';
 import numbers from '../data/numbers.json';
 import placesJson from '../data/places.json';
-import type { GameState, Hero, Item, Rarity, Slot, Vec } from './types.ts';
+import type { GameState, GearKind, Hero, Item, Rarity, Slot, Vec } from './types.ts';
 
 /** The hero's numbers and the ones every place shares, from rules/data/numbers.json. */
 export const N = numbers;
@@ -101,7 +101,8 @@ export interface Place {
 }
 
 export interface ItemBase {
-  slot: Slot;
+  /** Its kind, which is also the place it is worn; a trinket goes in either trinket place. */
+  slot: GearKind;
   tier: number;
   name: string;
   damage: number;
@@ -127,12 +128,14 @@ export const MONSTERS = withoutAbout(monstersJson) as Record<string, MonsterKind
 export const PLACES = placesJson.places as Record<string, Place>;
 export const START_PLACE: string = placesJson.start;
 export const SLOTS = itemsJson.slots as Slot[];
+/** The kinds of gear there are pieces of. */
+export const KINDS = SLOTS.filter((slot): slot is GearKind => slot !== 'trinket2');
 export const RARITIES = withoutAbout(itemsJson.rarities) as Record<Rarity, RarityInfo>;
 export const RARITY_ORDER: Rarity[] = ['common', 'uncommon', 'rare', 'epic'];
 export const BASES = itemsJson.bases as Record<string, ItemBase>;
 export const SHOP = itemsJson.shop;
 export const CHEST_WEIGHTS = itemsJson.chestWeights as Record<Rarity, number>;
-export const START_GEAR = itemsJson.start as Partial<Record<Slot, string>>;
+export const START_GEAR = itemsJson.start as Partial<Record<GearKind, string>>;
 
 /** The kind of a monster. A kind the data does not know is a broken save; the save's check keeps those out. */
 export function kindOf(m: { kind: string }): MonsterKind {
@@ -172,6 +175,20 @@ export function itemStats(item: Item): { damage: number; hp: number; armour: num
 
 export function itemName(item: Item): string {
   return baseOf(item).name;
+}
+
+/**
+ * Where on him this piece would go. A trinket goes in a bare trinket place if he has one; with two trinkets on, it
+ * takes the place of the one that is worth less.
+ */
+export function wearSlot(hero: Hero, item: Item): Slot {
+  const kind = baseOf(item).slot;
+  if (kind !== 'trinket') return kind;
+  const a = hero.worn.trinket;
+  const b = hero.worn.trinket2;
+  if (!a) return 'trinket';
+  if (!b) return 'trinket2';
+  return worth(b) < worth(a) ? 'trinket2' : 'trinket';
 }
 
 function worth(item: Item): number {

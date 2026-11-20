@@ -47,8 +47,10 @@ rare drops, in a top-down world."
   zite for example." Zite's is the hero sheet he picked there on 2026-11-02: the hero wearing his gear, a slot for
   each part of him, his numbers, the bag as a grid, one card for the piece that is tapped. (Robin, 2026-11-20,
   after seeing it): "There should also be more slots for items. Again, i think you can take a lot from the zite
-  inventory and equip." So eight parts to wear gear on, as Zite has; which eight is the Game Developer's: hat,
-  coat, gloves, boots, cutlass, buckler, ring, charm.
+  inventory and equip." (Robin, 2026-11-20, after seeing eight slots with gloves and a ring): "We need slots
+  for trinkets also. Two trinkets. I think we can skip rings. Do: Head, chest, legs, boots, necklace, two
+  trinkets." So the places to wear gear on are: head, chest, legs, boots, necklace, two trinkets, and the cutlass
+  and buckler he picked before (that those two stay is the Game Developer's reading).
 - **The look of menus and panels** (Robin, 2026-11-20): "You need to have some nice pirate design to menus and
   panels. Like some wooden feeling. Right now it looks bland. Also update icons so they look fitting." Leonard, AD
   draws three wooden pirate looks; Robin picks.

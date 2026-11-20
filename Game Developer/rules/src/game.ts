@@ -5,7 +5,7 @@
 // in the tests, where a bot plays it.
 
 import { clampToPlace, clone, monsterById, nearestMonster, newItem, reject, roll, setTarget } from './core.ts';
-import { N, PLACES, SLOTS, START_GEAR, START_PLACE, heroBonusDamage, heroMaxHp, kindOf, placeOf } from './data.ts';
+import { KINDS, N, PLACES, START_GEAR, START_PLACE, heroBonusDamage, heroMaxHp, kindOf, placeOf } from './data.ts';
 import { angleDiff, angleTo, dist } from './geometry.ts';
 import { route } from './path.ts';
 import { hurtMonster, openChest } from './loot.ts';
@@ -26,7 +26,7 @@ export interface NewGameOptions {
  */
 export function newGame(o: NewGameOptions): GameState {
   const town = PLACES[START_PLACE]!;
-  const worn: Record<Slot, Item | null> = { weapon: null, shield: null, hat: null, coat: null, gloves: null, boots: null, ring: null, charm: null };
+  const worn: Record<Slot, Item | null> = { weapon: null, shield: null, hat: null, coat: null, legs: null, boots: null, necklace: null, trinket: null, trinket2: null };
   const s: GameState = {
     version: STATE_VERSION,
     seed: o.seed,
@@ -73,7 +73,7 @@ export function newGame(o: NewGameOptions): GameState {
     kills: 0,
     deaths: 0,
   };
-  for (const slot of SLOTS) {
+  for (const slot of KINDS) {
     const base = START_GEAR[slot];
     if (base) worn[slot] = newItem(s, base, 'common');
   }

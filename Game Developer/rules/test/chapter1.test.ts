@@ -22,6 +22,8 @@ import {
   sellPrice,
   SHOP,
   SLOTS,
+  KINDS,
+  wearSlot,
   START_PLACE,
   STATE_VERSION,
   unpackSave,
@@ -211,13 +213,13 @@ describe('the data is whole', () => {
       expect(k.damageMax, id).toBeGreaterThanOrEqual(k.damageMin);
       expect(k.chaseSpeed, `${id} must be outrun`).toBeLessThan(N.hero.speed);
       // Every tier a monster drops has a piece for every part of him.
-      for (const slot of SLOTS) expect(Object.values(BASES).some((b) => b.tier === k.itemTier && b.slot === slot), `${id}: tier ${k.itemTier} ${slot}`).toBe(true);
+      for (const slot of KINDS) expect(Object.values(BASES).some((b) => b.tier === k.itemTier && b.slot === slot), `${id}: tier ${k.itemTier} ${slot}`).toBe(true);
       // A wind-up can be walked out of.
       const need = k.slamRadius > 0 ? k.slamRadius - (k.radius + N.hero.radius) : k.reachGrace + k.reach;
       expect(N.hero.speed * k.windupSeconds, `${id}: the wind-up is too short to step away`).toBeGreaterThan(need);
     }
     for (const [id, b] of Object.entries(BASES)) {
-      expect(SLOTS, id).toContain(b.slot);
+      expect(KINDS, id).toContain(b.slot);
       expect(b.damage + b.hp + b.armour, id).toBeGreaterThan(0);
       expect(b.value, id).toBeGreaterThan(0);
     }
@@ -568,6 +570,39 @@ describe('potions', () => {
   });
 });
 
+describe('two trinkets', () => {
+  it('the first goes in the first place, the second in the second, and a third takes the place of the one worth less', () => {
+    const sim = Sim.empty();
+    const a = sim.give('brass-compass', 'rare');
+    const b = sim.give('lucky-doubloon');
+    const c = sim.give('golden-spyglass');
+    expect(wearSlot(sim.state.hero, a)).toBe('trinket');
+    sim.act({ type: 'equip', item: a.id });
+    expect(wearSlot(sim.state.hero, b)).toBe('trinket2');
+    sim.act({ type: 'equip', item: b.id });
+    expect(sim.state.hero.worn).toMatchObject({ trinket: a, trinket2: b });
+    expect(heroBonusDamage(sim.state.hero)).toBe(itemStats(sim.state.hero.worn.weapon!).damage + itemStats(a).damage + itemStats(b).damage);
+    // The doubloon is worth less than the compass: the spyglass takes its place, and it goes into the bag.
+    expect(wearSlot(sim.state.hero, c)).toBe('trinket2');
+    sim.act({ type: 'equip', item: c.id });
+    expect(sim.state.hero.worn).toMatchObject({ trinket: a, trinket2: c });
+    expect(sim.state.hero.bag).toEqual([b]);
+    sim.act({ type: 'unequip', slot: 'trinket' });
+    expect(sim.state.hero.worn.trinket).toBeNull();
+    expect(wearSlot(sim.state.hero, b)).toBe('trinket');
+  });
+
+  it('a trinket he finds goes on if a trinket place is bare', () => {
+    const sim = Sim.empty();
+    const h = sim.state.hero;
+    sim.state = { ...sim.state, drops: [1, 2, 3].map((n) => ({ id: 900 + n, x: h.x + n, y: h.y, kind: 'item' as const, amount: 1, item: { id: 910 + n, base: 'lucky-doubloon', rarity: 'common' as const }, age: 1 })) };
+    sim.run(1);
+    expect(sim.state.hero.worn.trinket?.id).toBe(911);
+    expect(sim.state.hero.worn.trinket2?.id).toBe(912);
+    expect(sim.state.hero.bag.map((i) => i.id)).toEqual([913]);
+  });
+});
+
 describe('gear', () => {
   it('is worn from the bag; what he wore goes into the bag in its stead', () => {
     const sim = Sim.empty();
@@ -707,18 +742,37 @@ describe('the save', () => {
     expect(s.monsters).toHaveLength(sim.state.monsters.length);
   });
 
-  it('is brought up from the save with four parts to wear gear on: he wears what he wore, the four new parts are bare', () => {
+  it('is brought up from the save with four parts to wear gear on: he wears what he wore, the new places are bare', () => {
     const sim = Sim.landed();
     sim.run(2);
     sim.give('tricorn', 'rare');
     const old = JSON.parse(JSON.stringify(sim.state));
     old.version = 4;
-    for (const slot of ['gloves', 'boots', 'ring', 'charm']) delete old.hero.worn[slot];
+    for (const slot of ['legs', 'boots', 'necklace', 'trinket', 'trinket2']) delete old.hero.worn[slot];
     const s = migrate(old)!;
     expect(s).toEqual(sim.state);
-    expect(s.hero.worn).toMatchObject({ gloves: null, boots: null, ring: null, charm: null });
+    expect(s.hero.worn).toMatchObject({ legs: null, boots: null, necklace: null, trinket: null, trinket2: null });
+    expect(SLOTS).toEqual(['weapon', 'shield', 'hat', 'coat', 'legs', 'boots', 'necklace', 'trinket', 'trinket2']);
+  });
+
+  it('is brought up from the day of gloves and rings: each is the piece that took its place, on him and in his bag', () => {
+    const sim = Sim.landed();
+    sim.run(2);
+    const old = JSON.parse(JSON.stringify(sim.state));
+    old.version = 5;
+    old.hero.worn = { weapon: old.hero.worn.weapon, shield: old.hero.worn.shield, hat: null, coat: null, gloves: { id: 801, base: 'rope-gloves', rarity: 'rare' }, boots: { id: 802, base: 'sea-boots', rarity: 'common' }, ring: { id: 803, base: 'gold-signet', rarity: 'epic' }, charm: { id: 804, base: 'lucky-coin', rarity: 'common' } };
+    old.hero.bag = [{ id: 805, base: 'copper-ring', rarity: 'uncommon' }, { id: 806, base: 'tricorn', rarity: 'common' }];
+    const s = migrate(old)!;
+    expect(s.version).toBe(STATE_VERSION);
+    expect(s.hero.worn).toMatchObject({
+      legs: { id: 801, base: 'canvas-breeches', rarity: 'rare' },
+      boots: { id: 802, base: 'sea-boots', rarity: 'common' },
+      trinket: { id: 803, base: 'golden-spyglass', rarity: 'epic' },
+      trinket2: null,
+      necklace: { id: 804, base: 'coral-necklace', rarity: 'common' },
+    });
     expect(s.hero.worn.weapon).toEqual(sim.state.hero.worn.weapon);
-    expect(SLOTS).toHaveLength(8);
+    expect(s.hero.bag).toEqual([{ id: 805, base: 'lucky-doubloon', rarity: 'uncommon' }, { id: 806, base: 'tricorn', rarity: 'common' }]);
   });
 
   it('is brought up from the save with three ways to steer: the choice is gone, everything else is as he left it', () => {

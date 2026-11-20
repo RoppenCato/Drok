@@ -15,8 +15,10 @@ import type { GameState, Item, Slot } from './types.ts';
  * 4: one way to steer (Robin, 2026-11-20): the state no longer says which of three; the hero carries whether he
  *    picked his target himself (`chosen`).
  * 5: eight parts of him to wear gear on, where there were four (Robin, 2026-11-20: "more slots for items").
+ * 6: the places Robin named the same day ("Head, chest, legs, boots, necklace, two trinkets"): gloves and rings are
+ *    gone, breeches, necklaces and trinkets have come.
  */
-export const STATE_VERSION = 5;
+export const STATE_VERSION = 6;
 
 /**
  * Bring a stored state up to today's version, or null for anything that is not a state we know (a broken save, a
@@ -30,8 +32,56 @@ export function migrate(raw: unknown): GameState | null {
   if (r.version === 2) r = fromVersion2(r);
   if (r?.version === 3) r = fromVersion3(r);
   if (r?.version === 4) r = fromVersion4(r);
+  if (r?.version === 5) r = fromVersion5(r);
   if (r?.version === STATE_VERSION) return checked(r);
   return null;
+}
+
+/** What version 5's gloves, rings and charms are in version 6: the piece of the same tier that took its place. */
+const RENAMED: Record<string, string> = {
+  'rope-gloves': 'canvas-breeches',
+  'deckhands-gloves': 'sailors-breeches',
+  'corsairs-gauntlets': 'corsairs-breeches',
+  'copper-ring': 'lucky-doubloon',
+  'silver-ring': 'brass-compass',
+  'gold-signet': 'golden-spyglass',
+  'shark-tooth': 'shark-tooth-necklace',
+  'lucky-coin': 'coral-necklace',
+  'black-pearl': 'black-pearl-necklace',
+};
+
+/**
+ * 5 → 6. Nothing he had is lost: each pair of gloves is a pair of breeches of its tier, each ring a trinket, each
+ * charm a necklace, in his bag, on the ground, on the stall and on him (gloves to his legs, the ring to a trinket
+ * place, the charm round his neck).
+ */
+function fromVersion5(old: Record<string, unknown>): Record<string, unknown> | null {
+  if (typeof old.hero !== 'object' || old.hero === null) return null;
+  const piece = (v: unknown): unknown => {
+    if (typeof v !== 'object' || v === null) return v;
+    const item = v as Record<string, unknown>;
+    return typeof item.base === 'string' && RENAMED[item.base] ? { ...item, base: RENAMED[item.base] } : item;
+  };
+  const hero = old.hero as Record<string, unknown>;
+  const worn = typeof hero.worn === 'object' && hero.worn !== null ? (hero.worn as Record<string, unknown>) : {};
+  const next = {
+    weapon: worn.weapon ?? null,
+    shield: worn.shield ?? null,
+    hat: worn.hat ?? null,
+    coat: worn.coat ?? null,
+    legs: piece(worn.gloves ?? null),
+    boots: worn.boots ?? null,
+    necklace: piece(worn.charm ?? null),
+    trinket: piece(worn.ring ?? null),
+    trinket2: null,
+  };
+  return {
+    ...old,
+    version: 6,
+    hero: { ...hero, worn: next, bag: Array.isArray(hero.bag) ? hero.bag.map(piece) : hero.bag },
+    shop: Array.isArray(old.shop) ? old.shop.map(piece) : old.shop,
+    drops: Array.isArray(old.drops) ? old.drops.map((d) => (typeof d === 'object' && d !== null ? { ...d, item: piece((d as Record<string, unknown>).item) } : d)) : old.drops,
+  };
 }
 
 /** 4 → 5. He wears what he wore; the four new parts of him are bare. */

@@ -2,7 +2,7 @@
 // when he walks close (Robin, 2026-11-20), and the chest. The rules roll everything; the screen only shows it.
 
 import { clone, newItem, pick, putDrop, reject, roll, rollRarity, setTarget, nearestMonster } from './core.ts';
-import { BASES, CHEST_WEIGHTS, N, RARITIES, baseOf, chestFull, heroMaxHp, kindOf, placeOf, xpToNext } from './data.ts';
+import { BASES, CHEST_WEIGHTS, N, RARITIES, chestFull, heroMaxHp, kindOf, placeOf, wearSlot, xpToNext } from './data.ts';
 import { dist, stepToward } from './geometry.ts';
 import type { Rng } from './rng.ts';
 import type { ApplyResult, GameEvent, GameState, Monster, Rarity, Vec } from './types.ts';
@@ -94,7 +94,8 @@ export function stepDrops(s: GameState, dt: number, ev: GameEvent[]): void {
       continue;
     }
     // What he cannot carry stays where it lies; a piece for a bare part of him is put on, so it needs no room.
-    const bare = d.kind === 'item' && d.item !== null && h.worn[baseOf(d.item).slot] === null;
+    const place = d.kind === 'item' && d.item !== null ? wearSlot(h, d.item) : null;
+    const bare = place !== null && h.worn[place] === null;
     if (d.kind === 'item' && !bare && h.bag.length >= N.bagSize) {
       if (far <= N.drops.pickRange * 2 && s.ticks % 90 === 0) ev.push({ type: 'bagFull' });
       kept.push(d);
@@ -111,7 +112,7 @@ export function stepDrops(s: GameState, dt: number, ev: GameEvent[]): void {
     }
     if (d.kind === 'gold') h.gold += d.amount;
     else if (d.kind === 'potion') h.potions = Math.min(N.potion.carry, h.potions + d.amount);
-    else if (d.item && bare) h.worn[baseOf(d.item).slot] = d.item;
+    else if (d.item && place && bare) h.worn[place] = d.item;
     else if (d.item) h.bag.push(d.item);
     ev.push({ type: 'picked', drop: { ...d } });
     if (d.item && bare) ev.push({ type: 'equipped', item: d.item });

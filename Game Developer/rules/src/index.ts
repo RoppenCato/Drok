@@ -9,6 +9,8 @@ export {
   PLACES,
   START_PLACE,
   SLOTS,
+  KINDS,
+  wearSlot,
   RARITIES,
   RARITY_ORDER,
   BASES,

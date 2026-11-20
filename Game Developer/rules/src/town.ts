@@ -2,7 +2,7 @@
 // stall, wearing and taking off gear, drinking a potion.
 
 import { clampToPlace, clone, reject, rollRarity, newItem, pick, setTarget } from './core.ts';
-import { BASES, N, PLACES, SHOP, SLOTS, baseOf, buyPrice, heroMaxHp, placeOf, sellPrice } from './data.ts';
+import { BASES, KINDS, N, PLACES, SHOP, SLOTS, buyPrice, heroMaxHp, placeOf, sellPrice, wearSlot } from './data.ts';
 import { dist } from './geometry.ts';
 import type { Rng } from './rng.ts';
 import type { ApplyResult, GameEvent, GameState, Rarity, Slot, Vec } from './types.ts';
@@ -37,7 +37,7 @@ export function enterPlace(s: GameState, id: string, at: Vec, rng: Rng, ev: Game
 /** New pieces on the stall: a few, each for another part of him, of the tier his level has earned. */
 export function restock(s: GameState, rng: Rng): void {
   const tier = SHOP.tierAtLevel[s.hero.level] ?? 1;
-  const slots = [...SLOTS];
+  const slots = [...KINDS];
   s.shop = [];
   for (let i = 0; i < SHOP.pieces && slots.length > 0; i++) {
     const slot = slots.splice(rng.int(slots.length) - 1, 1)[0]!;
@@ -113,7 +113,7 @@ export function equip(state: GameState, id: number): ApplyResult {
   if (!item) return reject(state, 'equip', 'no such item');
   const s = clone(state);
   const h = s.hero;
-  const slot = baseOf(item).slot;
+  const slot = wearSlot(h, item);
   const was = h.worn[slot];
   h.worn[slot] = item;
   if (was) h.bag[at] = was;

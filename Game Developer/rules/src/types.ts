@@ -21,11 +21,13 @@ export type SkillId = 'charge' | 'cleave';
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic';
 
 /**
- * The parts of him a piece of gear is for: eight, as in Zite (Robin, 2026-11-20: "more slots for items"). A
- * cutlass, a buckler, a hat and a coat show on him (Robin, 2026-11-20: "The big pieces"); gloves, boots, a ring
- * and a charm show only on his sheet.
+ * The places on him to wear gear (Robin, 2026-11-20: "Head, chest, legs, boots, necklace, two trinkets", with the
+ * cutlass and buckler he picked before). `hat` is his head and `coat` his chest: the ids are older than his words.
  */
-export type Slot = 'weapon' | 'shield' | 'hat' | 'coat' | 'gloves' | 'boots' | 'ring' | 'charm';
+export type Slot = 'weapon' | 'shield' | 'hat' | 'coat' | 'legs' | 'boots' | 'necklace' | 'trinket' | 'trinket2';
+
+/** The kinds of gear: a place each, but for the trinket, which goes in either trinket place. */
+export type GearKind = Exclude<Slot, 'trinket2'>;
 
 /** One piece of gear: a base from the data and a rarity. Its numbers come from those two; nothing else is stored. */
 export interface Item {

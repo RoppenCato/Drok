@@ -216,6 +216,11 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
     - the new pieces are plain shapes until Leonard, AD's icons; with eight parts each fills more slowly from the
       same drops, and a fully dressed hero is stronger than before: the balance run was not run again
 
+    - `[x]` **changed the same day to Robin's own list** ("We need slots for trinkets also. Two trinkets. I think we
+      can skip rings. Do: Head, chest, legs, boots, necklace, two trinkets"): nine places with cutlass and buckler;
+      a trinket goes in a bare trinket place, and with two on it takes the place of the one worth less. Gloves
+      became breeches, rings trinkets, charms necklaces, in every save (version 6): nothing he had is lost
+
 25. `[ ]` · AD · **A wooden pirate look for menus, panels and icons** (Robin, 2026-11-20: "some nice pirate design
     to menus and panels. Like some wooden feeling. Right now it looks bland. Also update icons so they look
     fitting"): three stills for Robin to pick from, asked 2026-11-20; then the kit, and GD puts it in

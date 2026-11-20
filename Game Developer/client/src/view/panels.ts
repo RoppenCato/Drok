@@ -11,6 +11,7 @@ import {
   RARITIES,
   SHOP,
   SLOTS,
+  wearSlot,
   baseOf,
   buyPrice,
   heroArmour,
@@ -74,7 +75,7 @@ const H = DESIGN_HEIGHT;
 const CX = W / 2;
 /** The window's frame. */
 const F = { x: 20, y: 118, w: 372, h: 690 };
-const SLOT_NAMES: Record<Slot, string> = { weapon: 'cutlass', shield: 'buckler', hat: 'hat', coat: 'coat', gloves: 'gloves', boots: 'boots', ring: 'ring', charm: 'charm' };
+const SLOT_NAMES: Record<Slot, string> = { weapon: 'cutlass', shield: 'buckler', hat: 'hat', coat: 'coat', legs: 'breeches', boots: 'boots', necklace: 'necklace', trinket: 'trinket', trinket2: 'trinket' };
 
 /** What a piece gives, in words: "+4 damage", "+16 health, 1 armour". */
 export function statWords(item: Item): string {
@@ -274,12 +275,12 @@ export class Panels {
     if (slot === 'weapon') shape = s.add.rectangle(x, y, 36 * k, 7 * k, tint).setRotation(-0.8);
     else if (slot === 'shield') shape = s.add.circle(x, y, 14 * k, tint);
     else if (slot === 'hat') shape = s.add.triangle(x, y, 0, 24 * k, 15 * k, 0, 30 * k, 24 * k, tint);
-    else if (slot === 'gloves') shape = s.add.ellipse(x, y, 22 * k, 28 * k, tint);
+    else if (slot === 'legs') shape = s.add.triangle(x, y, 0, 0, 26 * k, 0, 13 * k, 28 * k, tint);
     else if (slot === 'boots') shape = s.add.rectangle(x, y + 4 * k, 30 * k, 14 * k, tint);
-    else if (slot === 'ring') shape = s.add.circle(x, y, 11 * k, 0x000000, 0).setStrokeStyle(5 * k, tint);
-    else if (slot === 'charm') shape = s.add.star(x, y, 4, 6 * k, 15 * k, tint);
+    else if (slot === 'necklace') shape = s.add.circle(x, y, 11 * k, 0x000000, 0).setStrokeStyle(4 * k, tint);
+    else if (slot === 'trinket' || slot === 'trinket2') shape = s.add.star(x, y, 4, 6 * k, 15 * k, tint);
     else shape = s.add.rectangle(x, y, 24 * k, 28 * k, tint);
-    if (slot !== 'ring') shape.setStrokeStyle(2, hex(COLORS.textDark));
+    if (slot !== 'necklace') shape.setStrokeStyle(2, hex(COLORS.textDark));
     this.keep(shape.setDepth(DEPTH.panel + 2));
   }
 
@@ -372,22 +373,27 @@ export class Panels {
 
     // The hero wearing his gear, and a slot for each part of him beside him.
     const top = F.y + 82;
-    this.row(CX, top + 98, 150, 196);
+    this.row(CX, top + 73, 150, 146);
     const data = s.textures.exists('hero') ? (s.cache.json.get('hero:data') as AtlasData | undefined) : undefined;
     if (ART.hero && data?.actions) {
       const gear = ART.gear && s.textures.exists('gear') ? ((s.cache.json.get('gear:data') as GearData | undefined) ?? null) : null;
       this.sheetHero = new HeroFigure(s, this.reg, data, gear);
-      this.sheetHero.sync({ x: CX, y: top + 168, depth: DEPTH.panel + 3, facing: Math.PI / 2, moving: false, charging: false, down: false, worn: h.worn, delta: 0, flash: false, size: 2.7 });
+      this.sheetHero.sync({ x: CX, y: top + 132, depth: DEPTH.panel + 3, facing: Math.PI / 2, moving: false, charging: false, down: false, worn: h.worn, delta: 0, flash: false, size: 2.2 });
     } else {
       this.keep(s.add.circle(CX, top + 90, 34, COLORS.hero).setStrokeStyle(3, COLORS.heroDark).setDepth(DEPTH.panel + 2));
       this.keep(s.add.circle(CX, top + 60, 16, COLORS.skin).setStrokeStyle(2, COLORS.heroDark).setDepth(DEPTH.panel + 2));
     }
-    // Eight parts of him, four each side, as in Zite: what covers him on the left, what he holds and his trinkets on the right.
-    const sides: [Slot[], number][] = [
-      [['hat', 'coat', 'gloves', 'boots'], CX - 122],
-      [['weapon', 'shield', 'ring', 'charm'], CX + 122],
+    // The places on him (Robin, 2026-11-20: "Head, chest, legs, boots, necklace, two trinkets"): what covers him
+    // down the left from head to foot, what he holds and his necklace down the right, his two trinkets side by
+    // side under him.
+    const column = (slots: Slot[], x: number): [Slot, number, number][] => slots.map((slot, i): [Slot, number, number] => [slot, x, top + 23 + i * 50]);
+    const places: [Slot, number, number][] = [
+      ...column(['hat', 'coat', 'legs', 'boots'], CX - 122),
+      ...column(['weapon', 'shield', 'necklace'], CX + 122),
+      ['trinket', CX + 72, top + 173],
+      ['trinket2', CX + 122, top + 173],
     ];
-    const places: [Slot, number, number][] = sides.flatMap(([slots, x]) => slots.map((slot, i): [Slot, number, number] => [slot, x, top + 23 + i * 50]));
+    this.text(CX + 44, top + 173, 'trinkets', 13, COLORS.dim, 1);
     for (const [slot, x, y] of places) {
       const item = h.worn[slot];
       this.icon(x, y, item, slot, 46, this.selectedSlot === slot);
@@ -427,7 +433,7 @@ export class Panels {
         continue;
       }
       this.icon(x, y, item, baseOf(item).slot, size, item.id === this.selected);
-      if (power(item) > power(h.worn[baseOf(item).slot])) this.text(x + 14, y - 14, '▲', 13, COLORS.good);
+      if (power(item) > power(h.worn[wearSlot(h, item)])) this.text(x + 14, y - 14, '▲', 13, COLORS.good);
       this.zone(x, y, size + gap, size + gap, () => {
         this.selected = item.id;
         this.selectedSlot = null;
@@ -450,7 +456,8 @@ export class Panels {
     } else {
       const base = baseOf(item);
       const rarity = RARITIES[item.rarity];
-      const worn = h.worn[base.slot];
+      const place = wearSlot(h, item);
+      const worn = h.worn[place];
       this.icon(left + 36, cy + 36, item, base.slot, 52);
       this.text(left + 76, cy + 18, itemName(item), 17, rarity.color, 0);
       this.text(left + 76, cy + 38, `${carried ? 'In the bag' : 'Worn'} · ${rarity.name.toLowerCase()} ${SLOT_NAMES[base.slot]}`, 13, COLORS.dim, 0);
@@ -483,7 +490,7 @@ export class Panels {
             if (this.actions.act({ type: 'equip', item: item.id })) {
               // The selection follows the piece: it is worn now.
               this.selected = null;
-              this.selectedSlot = base.slot;
+              this.selectedSlot = place;
             }
             this.refresh();
           },
@@ -658,7 +665,7 @@ export class Panels {
       } else {
         const base = baseOf(item);
         const price = buyPrice(item);
-        const worn = h.worn[base.slot];
+        const worn = h.worn[wearSlot(h, item)];
         const better = power(item) - power(worn);
         this.icon(x + 34, y, item, base.slot, 54);
         this.text(x + 70, y - 20, itemName(item), 15, RARITIES[item.rarity].color, 0);
