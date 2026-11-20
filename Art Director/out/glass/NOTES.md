@@ -118,9 +118,13 @@ so I have not fetched one.
   glass without it since the first drop; it comes back with one flag (`--soft`) if it is wanted.
 - The potion's disc is green while the health it fills is red.
 
-**Not tested:** his own bar is not in the game yet: I saw it only in `tools\scene.js` pictures, still, on my screen, not
-on a phone and not moving. The earlier pieces are in the game since Victor, GD's 47c3209 and 9c937fb, seen there in
-stills at 412 by 915. Nothing pressed; the stick not felt under a thumb.
+- A monster's bar can lie on him: across his face when the one he fights stands on him, half under his bar when it
+  stands north of him. Seen on the real screen. One rule would lift such a bar to sit right above his
+  (`concepts\own-bars\bars-apart.jpg`); sent to Victor, GD.
+
+**Not tested:** his own bar is in the game since Victor, GD's 0f7c744 and seen there in two stills at 412 by 915 (a
+test copy on this PC): as drawn, no line of the back showing. Not seen on a phone and not moving. The earlier pieces
+are in the game since 47c3209 and 9c937fb. Nothing pressed; the stick not felt under a thumb.
 
 **Origin and licence:** drawn here by `tools\glass.js`. Nothing from outside.
 

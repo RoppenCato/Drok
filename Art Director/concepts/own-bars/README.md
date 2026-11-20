@@ -10,7 +10,16 @@ same fight) and drew one sketch.
 
 **Robin picked** (in my chat, 2026-11-20): "I think 4, but the heart isnt needed. Also rage is traditionally red. So
 they need to be distinctive different red colors". The real piece is in `out\glass\` (`own/...`), with its notes and
-`look-own.jpg`. What follows is as it stood before his pick.
+`look-own.jpg`. It is in the game since Victor, GD's 0f7c744, as the only way.
+
+**Seen on the real screen with it in (2026-11-20), `bars-apart.jpg`:** the bar is as drawn. But a monster's bar can
+lie on him. When the crab he fights stands on him, its bar lies across his face; when it stands north of him, its bar
+is half under his. Robin asked that it "doesnt become messy when fighting mobs". One rule would keep them apart (mine,
+Victor, GD's to take or leave): a monster's bar never lies on his bar or on the middle of his face; one that would is
+lifted to sit right above his bar, with 2 units of air, and a blow's number goes with it. A bar that only grazes his
+head from the side stays where it is. `tools\scene.js --c1 dx,dy --clear` draws it.
+
+What follows is as it stood before his pick.
 
 `four.jpg`: 1, 2 and 3 are the real screen; 4 is my sketch on `tools\scene.js`.
 

@@ -3,14 +3,16 @@
 // The glass is laid out as the game's hud.ts has it since Robin's first play (2026-11-20: "the buttons should be in the
 // middle at the bottom"; health "at the bottom"): level and money top left; bag, chart and hero top right; in the middle
 // at the bottom the pile: experience along the floor, Charge, Cleave and the potion in a row, rage and health over them,
-// who he fights over those. The Warrior stands 60 above the screen's middle. --pile mine draws the pile as Leonard, AD
+// who he fights over those. The Warrior stands 45 above the screen's middle (60 while the pile held his bars). --pile mine draws the pile as Leonard, AD
 // would stack it. Everything comes from out/ as delivered, so if this picture is right the deliveries are right.
 // --pile bare is the pile when his own bars go with him over his head (Robin, 2026-11-20; the game's three ways to try):
 // the plate with the name only, the discs, experience. --over <file.js> calls that module's draw(g, c) after the
 // figures, for a sketch of a piece that is not in out/ yet (c: sx, sy, hero, heroTop, piece, pill, P, G, W, H).
 // With --pile bare his own bar is drawn over his head from out/glass (Robin, 2026-11-20: "I think 4, but the heart isnt
 // needed"); --own 0.76,0.84 sets his health and rage, --own none leaves the bar out (for a sketch with --over).
-//   node tools/scene.js <out.png> [--at 640,2040] [--no-glass] [--pile mine|bare] [--own 0.76,0.84|none] [--no-arrow] [--over work/x.js] [--stick 300,560] [--use "Open chest"] [--crop x,y,w,h,zoom]
+// --c1 dx,dy puts the crab he fights there from his feet (62,20 if not said). --clear tries a rule (Leonard, AD): a
+// monster's bar never lies on his head or his bar; one that would is lifted to sit right above his bar.
+//   node tools/scene.js <out.png> [--at 640,2040] [--no-glass] [--pile mine|bare] [--own 0.76,0.84|none] [--c1 62,20] [--clear] [--no-arrow] [--over work/x.js] [--stick 300,560] [--use "Open chest"] [--crop x,y,w,h,zoom]
 const P = require('./paint.js'); const D = require('./dress.js'); const fs = require('fs'); const path = require('path');
 const G = require('./glass.js');
 const W = P.JUDGE.w, H = P.JUDGE.h, FONT = 'Trebuchet MS';
@@ -21,7 +23,7 @@ async function main() {
   const A = await D.load(), isl = await D.atlas(path.join(R, 'out/island'), 'island'), crab = await D.atlas(path.join(R, 'out/sand-crab'), 'sand-crab'), glass = await D.atlas(path.join(R, 'out/glass'), 'glass');
   const loot = fs.existsSync(path.join(R, 'out/loot/loot.json')) ? await D.atlas(path.join(R, 'out/loot'), 'loot') : null;
   const cv = P.createCanvas(W * S, H * S), g = cv.getContext('2d'); g.scale(S, S); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
-  const cam = [at[0] - W / 2, at[1] - (H / 2 - 60)], sx = x => x - cam[0], sy = y => y - cam[1];
+  const cam = [at[0] - W / 2, at[1] - (H / 2 - 45)], sx = x => x - cam[0], sy = y => y - cam[1];
   // the ground: one pixel a unit, drawn at two; below the place's foot the game draws out the picture's last row
   const gh = Math.max(0, Math.min(H, ground.height - cam[1])); if (gh > 0) g.drawImage(ground, cam[0], cam[1], W, gh, 0, 0, W, gh); if (gh < H) g.drawImage(ground, cam[0], ground.height - 1, W, 1, 0, gh, W, H - gh);
   const shadow = (x, y, rx, ry) => { g.save(); g.globalAlpha = 0.24; g.fillStyle = '#5b4a82'; g.beginPath(); g.ellipse(sx(x) + rx * 0.2, sy(y) + 1, rx, ry, 0, 0, 7); g.fill(); g.restore(); };
@@ -41,7 +43,7 @@ async function main() {
   const flat = (key, x, y, w, h) => { const f = fr(key); g.drawImage(glass.im, f.x + 1, f.y, f.w - 2, f.h, x, y, w, h); };
   const ownBar = (x, y, w, hp, rage, lost = 0) => { const r = it('own/frame').rooms, x0 = x - w / 2, y0 = y - fr('own/frame').h / 4, full = w - 2 * r.hp.x; pill('own/back', x0, y, w); if (lost > hp) flat('own/lost', x0 + r.hp.x, y0 + r.hp.y, full * lost, r.hp.h); if (hp > 0) flat('own/hp', x0 + r.hp.x, y0 + r.hp.y, full * hp, r.hp.h); if (rage > 0) flat('own/rage', x0 + r.rage.x, y0 + r.rage.y, full * rage, r.rage.h); pill('own/frame', x0, y, w); };
   // who is where: the hero in the middle, a crab he fights winding up, a hurt one coming, a whole one idling
-  const hero = { x: at[0], y: at[1] }, c1 = { x: at[0] + 62, y: at[1] + 20, f: { action: 'attack1', facing: 'nw', i: 2 } }, c2 = { x: at[0] - 96, y: at[1] + 70, f: { action: 'move', facing: 'e', i: 1 } }, c3 = { x: at[0] + 120, y: at[1] - 150, f: { action: 'stand', facing: 's', i: 0 } }, drop = { x: at[0] + 70, y: at[1] - 70 }, coins = { x: at[0] - 30, y: at[1] + 150 };
+  const hero = { x: at[0], y: at[1] }, c1o = (opt('c1') || '62,20').split(',').map(Number), c1 = { x: at[0] + c1o[0], y: at[1] + c1o[1], f: { action: 'attack1', facing: 'nw', i: 2 } }, c2 = { x: at[0] - 96, y: at[1] + 70, f: { action: 'move', facing: 'e', i: 1 } }, c3 = { x: at[0] + 120, y: at[1] - 150, f: { action: 'stand', facing: 's', i: 0 } }, drop = { x: at[0] + 70, y: at[1] - 70 }, coins = { x: at[0] - 30, y: at[1] + 150 };
   const things = [];
   for (const p of place.props) { const f = isl.j.frames[p.name]; if (!f) continue; if (sx(p.x) < -160 || sx(p.x) > W + 160 || sy(p.y) < -60 || sy(p.y) > H + 300) continue; things.push({ y: p.y, shadow: () => shadow(p.x, p.y, f.frame.w * 0.16, f.frame.w * 0.055), draw: () => sprite(isl, p.name, p.x, p.y) }); }
   things.push({ y: hero.y, shadow: () => shadow(hero.x, hero.y, 15, 6), draw: () => D.hero(g, A, { action: 'stand', facing: 'se', i: 0, cutlass: 'rusty', buckler: 'plank', hat: 'bandana' }, sx(hero.x), sy(hero.y), 0.5) });
@@ -51,10 +53,13 @@ async function main() {
   things.sort((a, b) => a.y - b.y); for (const t of things) t.shadow(); for (const t of things) t.draw();
   // over the monsters: a bar on the one he fights and on any that is hurt, at one height for the kind (its standing picture's)
   const o0 = D.frameOf(crab, 'stand', 's', 0).origin, top = (o0.y !== undefined ? o0.y : o0[1]) / 2;
-  mobBar(sx(c1.x), sy(c1.y) - top - 14, 44, 0.45, 0.62, true); mobBar(sx(c2.x), sy(c2.y) - top - 12, 44, 0.7, 0, false);
-  white('14', sx(c1.x) + 30, sy(c1.y) - top - 34, 20, { align: 'center' });
-  const h0 = D.frameOf(A.hero, 'stand', 's', 0).origin, heroTop = (h0.y !== undefined ? h0.y : h0[1]) / 2, own = opt('own') || '0.76,0.84';
-  if (bare && own !== 'none') { const [hp, rage, lost] = own.split(',').map(Number); ownBar(Math.round(sx(hero.x)), Math.round(sy(hero.y) - heroTop - 13), it('own/frame').length, hp, rage, lost || 0); }   // over the monsters' bars, at one height: his standing picture's
+  const h0 = D.frameOf(A.hero, 'stand', 's', 0).origin, heroTop = (h0.y !== undefined ? h0.y : h0[1]) / 2, own = opt('own') || '0.76,0.84', ownOn = bare && own !== 'none', ownY = Math.round(sy(hero.y) - heroTop - 13);
+  // --clear: his bar and his head are a box no monster's bar lies on; a bar that would is lifted to sit right above his bar
+  const lift = (x, y, w, k) => { if (!ownOn || !args.includes('--clear')) return y; const hw = w * k / 2 + 6 * k, hh = 8.5 * k, hx = sx(hero.x), dx = Math.abs(x - hx), onBar = dx < hw + 26 && y + hh > ownY - 5.5 && y - hh < ownY + 5.5, onFace = dx < hw + 4 && y + hh > ownY + 7.5 && y - hh < sy(hero.y) - heroTop + 28; return onBar || onFace ? ownY - 7.5 - 2 - hh : y; };   // his bar is 52 by 15; the middle of his face 8 wide, down to his chin: a bar that only grazes his head from the side stays
+  const y1 = lift(sx(c1.x), sy(c1.y) - top - 14, 44, 1.2), y2 = lift(sx(c2.x), sy(c2.y) - top - 12, 44, 1);
+  mobBar(sx(c1.x), y1, 44, 0.45, 0.62, true); mobBar(sx(c2.x), y2, 44, 0.7, 0, false);
+  white('14', sx(c1.x) + (y1 < sy(c1.y) - top - 14 ? 44 : 30), y1 - 20, 20, { align: 'center' });   // a blow's number goes with the bar
+  if (ownOn) { const [hp, rage, lost] = own.split(',').map(Number); ownBar(Math.round(sx(hero.x)), ownY, it('own/frame').length, hp, rage, lost || 0); }   // over the monsters' bars, at one height: his standing picture's
   const over = opt('over'); if (over) { const h0 = D.frameOf(A.hero, 'stand', 's', 0).origin; require(path.resolve(over)).draw(g, { sx, sy, hero, heroTop: (h0.y !== undefined ? h0.y : h0[1]) / 2, piece, pill, P, G, W, H }); }                       // a blow's number rises beside the bar, not over it
   if (!args.includes('--no-glass')) {
     // the top: the menu, his level and money; bag, chart and hero
