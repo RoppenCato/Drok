@@ -11,7 +11,7 @@ says Robin; every number is a first guess until Robin has felt it (`docs\lessons
 | --- | --- |
 | `rules\data\numbers.json` | the hero, levels, auto-targeting, Charge, Cleave, potions, drops, the bag's size, death, how near he must stand to things |
 | `rules\data\monsters.json` | every kind of monster: its body, its speeds, its strike, its trick, what it gives |
-| `rules\data\places.json` | the places on the chart: size, dock, where he steps ashore and wakes, the stall, the chest, the zones of monsters; for the island also its shore, its water and the things in the way, written by `tools\place-from-art.mjs` (never by hand) |
+| `rules\data\places.json` | the places on the chart: size, dock, where he steps ashore and wakes, the stall, the chest, the zones of monsters; and each place's shore, water, round things and boxes in the way, written by `tools\place-from-art.mjs` (never by hand) |
 | `rules\data\items.json` | gear: slots, rarities, the bases in three tiers, the stall's rules, what a new hero wears |
 | `rules\src\types.ts` | the state, the actions (intents), the events |
 | `rules\src\data.ts` | the data files with their shapes, and the sums made from them (what a piece gives and costs, his health, armour and damage) |
@@ -20,7 +20,7 @@ says Robin; every number is a first guess until Robin has felt it (`docs\lessons
 | `rules\src\world.ts` | the step (`tick`): the hero walks, swings and mends, the monsters live, the fallen come back |
 | `rules\src\loot.ts` | a hurt and a fallen monster, experience and levels, drops and picking them up, the chest |
 | `rules\src\town.ts` | arriving in a place, sailing, the stall, wearing and taking off gear, potions |
-| `rules\src\ground.ts` | the ground of a place: what is land, what can be stood on, a step that slides along a shore or round a thing |
+| `rules\src\ground.ts` | the ground of a place: what is land, what can be stood on, a step that slides along a shore, a wall or round a thing |
 | `rules\src\path.ts` | the way-finder for a tap: whether he can walk straight, and the way round when he cannot |
 | `rules\src\save.ts` | `STATE_VERSION` (3), `migrate`, and the save as a file (`packSave`, `unpackSave`) |
 | `rules\src\geometry.ts`, `rng.ts`, `index.ts` | distance and angle; the seeded stream; what the rules export |
@@ -74,20 +74,22 @@ the data, nothing else is stored.
   potions and a tier 3 piece that is never common. It fills again 20 minutes after it was opened, by `now`.
 - **Falling** (Robin: "On death you lose money"; "say 10%"; he wakes in the harbour town): a tenth of his money,
   down for 2 s, then whole in the harbour. His bag is kept.
-- **The town**: no monsters; his health comes back at 25 a second. The stall (within 110) sells three pieces, each
+- **The town**: no monsters; his health comes back at 25 a second. The stall (within 110 of it; it stands where
+  Leonard, AD put it and cannot be walked through) sells three pieces, each
   for another slot, of the tier his level has earned (1 up to level 2, 2 at 3 and 4, 3 at 5), mostly common, at
   three times their worth, and buys at half their worth. New pieces each time he arrives in town. A potion is 12.
 
 ## The ground (`ground.ts`, `path.ts`; since Leonard, AD's island of 2026-11-20)
 
-A place may have a shore (`land`: outside it is sea), waters inside it, and `solids` (circles: trunks, rocks,
-barrels, the chest). They come from the Art Director's layout through `tools\place-from-art.mjs`
-(`docs\state\art.md`); a place without them, like the harbour, is its whole box.
+A place may have a shore (`land`: outside it is sea), waters inside it, `solids` (circles: trunks, rocks, barrels,
+the chest, a person who stands about) and `boxes` (a house, the stall: a top left corner and a size). They come
+from the Art Director's layout through `tools\place-from-art.mjs` (`docs\state\art.md`), for the island and for the
+harbour town; a place without them (the tests' plain field) is its whole box.
 
-- **Walking** (`walk`): a step that would end in a solid is pushed out to its edge, so a body slides round it; met
-  head on, it steps aside first. A step that would leave the land slides along the shore, or does not happen. The
-  hero's feet are 8 units across for this; a monster's are half its body. A kind that `flies` (the reef gull)
-  ignores all of it.
+- **Walking** (`walk`): a step that would end in a round thing is pushed out to its edge, so a body slides round
+  it; a step into a wall is pushed straight back out of it, so he slides along the wall; met head on, he steps
+  aside first. A step that would leave the land slides along the shore, or does not happen. The hero's feet are 8
+  units across for this; a monster's are half its body. A kind that `flies` (the reef gull) ignores all of it.
 - **A tap** (`route`): if he cannot go straight, the place's grid of 16-unit squares is searched for the shortest
   way over open ones (A*), and the way is pulled straight wherever he can see from one corner to a later one. He
   carries the corners still ahead in `hero.route`; `hero.dest` is the last. A tap on what cannot be reached (the
@@ -102,9 +104,10 @@ barrels, the chest). They come from the Art Director's layout through `tools\pla
 `STATE_VERSION` is 3. `migrate`: version 1 (the control test) becomes a new hero in the harbour who keeps his
 seed, his way of steering and his tallies; version 2 (chapter 1 before the island had a shore) gets an empty
 `route`; version 3 is looked over: anything it names that today's data does not know (a renamed piece, monster or
-place) is dropped rather than tripped on, and a hero standing where there is no ground any more (the island's
-layout changed under him) is put where one steps ashore, with the place started over. Everything else is null, and
-the holder starts a new game. `packSave` and `unpackSave` are the same save as text, for the phone's storage and for
+place) is dropped rather than tripped on, and a hero standing where there is no ground any more (a place's layout
+changed under him: he is in the sea, or right inside a house or a rock) is put where one steps ashore, with the
+place started over. Standing beside a thing is not standing in it. Everything else is null, and the holder starts
+a new game. `packSave` and `unpackSave` are the same save as text, for the phone's storage and for
 the exported file.
 
 ## Its tests

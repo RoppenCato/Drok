@@ -3,11 +3,13 @@
 // know is the place his ground picture shows. Run from the Game Developer folder after copying a place's drop:
 //
 //   node tools/place-from-art.mjs island crab-cay
+//   node tools/place-from-art.mjs harbour harbour
 //
 // It reads client/public/art/<art>/place.json (his: the shore `land` and the `inlet` as corner points of a smooth
-// curve, `solid` circles to walk round, `dock`, `arrive`, `chest`, a box for each monster) and changes, in
-// rules/data/places.json, only what a layout is: `land`, `water`, `solids`, `dock`, `arrive`, where the chest stands,
-// and each zone's box. Everything else there (names, counts, what the chest holds, the chart) is the game's and stays.
+// curve, `solid` circles and boxes to walk round, `dock`, `arrive`, `chest`, a box for each monster, the `people`
+// who stand about, the `props`) and changes, in rules/data/places.json, only what a layout is: `land`, `water`,
+// `solids`, `boxes`, `dock`, `arrive`, where the chest and the stall stand, and each zone's box. Everything else
+// there (names, counts, what the chest holds, the chart) is the game's and stays.
 //
 // What is the game's own choice here (Victor, GD, 2026-11-20; Leonard, AD: "your own map data wins"):
 // - The curve is his (tools/ground.js: a closed curve through the corners, tension 0.6), sampled to a many-cornered
@@ -31,6 +33,7 @@ const LAND_IN = [0.972, 0.982];
 const WATER_OUT = 1.07;
 const DOCK_INLAND = 12;
 const CHEST_SOLID = 14;
+const PERSON_SOLID = 9;
 
 const artFile = join(ROOT, 'client', 'public', 'art', art, 'place.json');
 const dataFile = join(ROOT, 'rules', 'data', 'places.json');
@@ -71,18 +74,29 @@ if (layout.inlet) {
   const [cx, cy] = middle(layout.inlet);
   place.water.push(scaled(curve(layout.inlet), cx, cy, WATER_OUT, WATER_OUT));
 }
-// Run again after a new drop, it starts from his circles each time, so the chest's is not added twice.
-place.solids = layout.solid.map((s) => ({ x: s.x, y: s.y, r: s.r }));
+// Run again after a new drop, it starts from his circles each time, so the chest's is not added twice. A thing of
+// his with a width and a height is a box (a house, a stall); the rest are circles.
+place.solids = layout.solid.filter((s) => s.r !== undefined).map((s) => ({ x: s.x, y: s.y, r: s.r }));
+place.boxes = layout.solid.filter((s) => s.w !== undefined).map((s) => ({ x: s.x, y: s.y, w: s.w, h: s.h }));
+const inBox = (p) => place.boxes.some((b) => p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h);
+// The people who stand about are walked round, not through (the keeper already stands inside his stall's box).
+for (const p of layout.people ?? []) if (!inBox(p)) place.solids.push({ x: p.x, y: p.y, r: PERSON_SOLID });
 place.dock = { x: layout.dock[0], y: layout.dock[1] - DOCK_INLAND };
 place.arrive = { x: layout.arrive[0], y: layout.arrive[1] };
-place.wake = { ...place.arrive };
+// On an island he wakes where he steps ashore. A town keeps the spot the game gave it (in its square), unless his
+// layout names one; the tests say whether that spot is still ground.
+if (layout.wake) place.wake = { x: layout.wake[0], y: layout.wake[1] };
+else if (!place.town) place.wake = { ...place.arrive };
+// The stall is where one trades: the shop is at his stall, whoever keeps it.
+const stall = layout.props.find((p) => p.name === 'stall');
+if (place.shop && stall) Object.assign(place.shop, { x: stall.x, y: stall.y });
 if (place.chest && layout.chest) {
   place.chest.x = layout.chest[0];
   place.chest.y = layout.chest[1];
   place.solids.push({ x: layout.chest[0], y: layout.chest[1], r: CHEST_SOLID });
 }
 for (const zone of place.zones) {
-  const box = layout.zones[zone.kind]?.[0];
+  const box = layout.zones?.[zone.kind]?.[0];
   if (!box) fail(`the art has no zone for ${zone.kind}`);
   const [x, y, w, h] = box;
   Object.assign(zone, { x, y, w, h });
@@ -94,8 +108,8 @@ const text = JSON.stringify(data, null, 2)
   .replace(new RegExp(`\\[\\s+${num},\\s+${num}\\s+\\]`, 'g'), '[$1, $2]')
   .replace(/\{\s+("[a-zA-Z]+": (?:-?[\d.]+|"[^"]*")(?:,\s+"[a-zA-Z]+": (?:-?[\d.]+|"[^"]*"))*)\s+\}/g, (_all, body) => `{ ${body.replace(/,\s+/g, ', ')} }`);
 writeFileSync(dataFile, text + '\n');
-console.log(`${id} laid out from art/${art}/place.json: land ${place.land.length} corners, ${place.water.length} waters, ${place.solids.length} things to walk round`);
-console.log(`  dock ${place.dock.x}, ${place.dock.y}; ashore at ${place.arrive.x}, ${place.arrive.y}; chest ${place.chest ? `${place.chest.x}, ${place.chest.y}` : 'none'}`);
+console.log(`${id} laid out from art/${art}/place.json: land ${place.land.length} corners, ${place.water.length} waters, ${place.solids.length} round things and ${place.boxes.length} boxes to walk round`);
+console.log(`  dock ${place.dock.x}, ${place.dock.y}; ashore at ${place.arrive.x}, ${place.arrive.y}; wakes at ${place.wake.x}, ${place.wake.y}; chest ${place.chest ? `${place.chest.x}, ${place.chest.y}` : 'none'}; stall ${place.shop ? `${place.shop.x}, ${place.shop.y}` : 'none'}`);
 for (const z of place.zones) console.log(`  ${z.count} ${z.kind}: ${z.x}, ${z.y}, ${z.w} by ${z.h}`);
 
 function fail(msg) {

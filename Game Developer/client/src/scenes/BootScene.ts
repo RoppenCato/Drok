@@ -44,6 +44,13 @@ export class BootScene extends Phaser.Scene {
       this.load.image(`${folder}:ground`, `art/${folder}/ground.png`);
       atlas(folder, folder);
       this.load.json(`${folder}:place`, `art/${folder}/place.json`);
+      const folk = ART.folk[folder];
+      if (folk) atlas(`${folder}:folk`, folder, folk);
+    }
+    if (ART.chart) {
+      this.load.image('chart', 'art/chart/chart.png');
+      atlas('pins', 'chart', 'pins');
+      this.load.json('chart:places', 'art/chart/chart-places.json');
     }
   }
 

@@ -26,6 +26,7 @@ earlier games made, so the pane and Robin's device are part of the check.
 | Test or check | Command | Covers |
 | --- | --- | --- |
 | the ground (in `chapter1.test.ts`, 4) and the save's steps (2 more) | `npm test` | on Leonard, AD's island: the shore stops him and he slides along it; a tap from the landing to the chest and back finds the way and never stands in a solid thing; a tap on the sea or a rock takes him to the nearest ground; a landing is safe and walking monsters keep to the land; a version 2 save gets its `route`; a hero saved where the sea now is, is put ashore |
+| the harbour's ground (in `chapter1.test.ts`, 4) and one more save test | `npm test` | on Leonard, AD's town: a house is a box that cannot be stood in; a tap behind a house finds the way round and he never stands in a wall, the well or a person; pushed slantwise at a wall he slides along it; a tap on the stall takes him to its front, near enough to buy; a hero saved where a house now stands is put on the quay, one beside it is left be |
 | `rules\test\game.test.ts` (25) | `npm test` | the same seed plays out the same; the state is never changed; a bad step refused; walking by tap and by thumb; the place's edges; who the target is in each scheme; a swing while walking; a wind-up dodged; Charge; Cleave; health coming back; a fallen monster coming back in its zone |
 | `rules\test\chapter1.test.ts` (28) | `npm test` | the data is whole (places, zones clear of the dock, every wind-up can be walked out of, a piece for every slot in every tier); a rarer piece is better; a new hero; the town; sailing; the gull's retreat and the coconut crab's slam; experience, a level, the last level; armour; loot by its chances over 600 kills; picking up; a full bag; the chest and its refill by the clock; falling and its cost; potions; wearing, taking off, dropping; the stall's stock, buying, selling; the save out and back, broken files, the control test's save, data that is gone |
 | `rules\test\bot.test.ts` (4) | `npm test` | each scheme fighting crabs for 90 s on 3 seeds; chapter 1 played through on 3 seeds; the game stays whole; prints the numbers |
@@ -35,12 +36,15 @@ earlier games made, so the pane and Robin's device are part of the check.
 | the stepped page | the pane, `?mute=1&drive=1&seed=tide` | on 2026-11-20: a tap on the pier walks him there and opens the chart; a tap on the island sails; a fight; loot of two rarities picked up; wearing it from the bag; the hero window; the "Sea chart", "Trade" and "Open chest" buttons; buying a potion and a piece; the settings (steering, hand, "start over" asks twice); the save out and back, and a file that is not one; hold steering on the island; the chest |
 | the built page, offline | the pane, `localhost:4178` | on 2026-11-20: the service worker is active and has cached the page; with the server stopped the page still opens and keeps its save |
 
-Since Leonard, AD's island came in (2026-11-20) there are 90 tests: moving and fighting are tested on a plain test
-field (`rules\test\sim.ts`), so they do not depend on where he put a palm; what must hold on the real island is
-tested there. On the real island the bot still plays chapter 1 through on three seeds: level 5 at about 15.3
-minutes, no falls. A crab-fighting bot that never drinks now falls once or twice in four and a half minutes: the
-beach is denser than my first layout. The page was stepped again with the art on: the landing, a tap on a crab's
-picture, a fight, loot of three rarities, the stall and the bag on his glass.
+Since Leonard, AD's places came in (2026-11-20) there are 95 tests: moving and fighting are tested on a plain test
+field (`rules\test\sim.ts`), so they do not depend on where he put a palm; what must hold on the real island and
+in the real town is tested there. On the real places the bot still plays chapter 1 through on three seeds: level 5
+at about 15.2 minutes, no falls, two to four trips home to his stall. A crab-fighting bot that never drinks now
+falls once or twice in four and a half minutes: the beach is denser than my first layout. The page was stepped
+again with all the art on, the dev page and the built one: the town with its people; a tap on the stall walks him
+to it and opens it; a tap on the dock opens the chart; "Sail to Crab Cay" sails; a tap on the harbour's pin sails
+home; the cross closes the chart; a tap on a crab's picture, a fight, 40 crabs, loot of three rarities, the bag.
+No error in the page's own log.
 
 The numbers the tests printed on 2026-11-20, before the island came in:
 

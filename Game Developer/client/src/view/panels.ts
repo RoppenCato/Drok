@@ -26,13 +26,22 @@ import {
   type Scheme,
   type Slot,
 } from '../../../rules/src/index.ts';
-import { ART, GEAR_ART } from '../art.ts';
+import { ART, CHART_ART, GEAR_ART } from '../art.ts';
 import { COLORS, DEPTH, DESIGN_HEIGHT, DESIGN_WIDTH, FONT, RES, hex } from '../layout.ts';
 import type { Intent } from '../local-game.ts';
 import { settings } from '../settings.ts';
+import { picture } from './figures.ts';
 import { INK, hasGlass, inkFor, piece, stretch } from './glass.ts';
 
 export type PanelKind = 'menu' | 'bag' | 'hero' | 'chart' | 'shop';
+
+/** The Art Director's chart: where each of his places is on it, the dots of the way between, where the title and the button sit. In design units. */
+interface ChartArt {
+  places: Record<string, { x: number; y: number }>;
+  route: number[][];
+  title: { x: number; y: number };
+  sail: { x: number; y: number };
+}
 
 /** Marks an object as the glass's, so the camera that follows the hero leaves it out. */
 export type Register = <T extends Phaser.GameObjects.GameObject>(object: T) => T;
@@ -99,6 +108,8 @@ export class Panels {
   /** The piece of the bag that is being looked at, and whether the bag was opened from the stall to sell. */
   private selected: number | null = null;
   private selling = false;
+  /** The open window fills the whole screen (the drawn sea chart): there is no "beside it" to tap. */
+  private whole = false;
 
   constructor(scene: Phaser.Scene, reg: Register, actions: PanelActions) {
     this.scene = scene;
@@ -147,10 +158,11 @@ export class Panels {
     for (const o of this.objects) o.destroy();
     this.objects = [];
     this.zones = [];
+    this.whole = false;
   }
 
   private inside(x: number, y: number): boolean {
-    return x >= F.x && x <= F.x + F.w && y >= F.y && y <= F.y + F.h;
+    return this.whole || (x >= F.x && x <= F.x + F.w && y >= F.y && y <= F.y + F.h);
   }
 
   private hit(x: number, y: number): Zone | null {
@@ -448,7 +460,68 @@ export class Panels {
 
   // ---- the sea chart -----------------------------------------------------------------------------------------------
 
+  /** Sail to a place, if he stands on a dock; say so if he does not. */
+  private sail(id: string): void {
+    if (!this.actions.atDock()) {
+      this.actions.toast('Sail from the dock');
+      return;
+    }
+    if (this.actions.act({ type: 'sail', to: id })) this.close();
+  }
+
+  /**
+   * The Art Director's chart: one picture that fills the screen, with a pin on each place the game knows, a ring
+   * round the one he is in, the dotted way between them, the names under them, and his yellow button to sail.
+   */
+  private buildDrawnChart(state: GameState, chart: ChartArt): void {
+    const s = this.scene;
+    this.whole = true;
+    this.keep(s.add.image(CX, H / 2, 'chart').setDisplaySize(W, H).setDepth(DEPTH.panel + 1));
+    const plate = stretch(s, 'panel/title', 200, 44);
+    if (plate) this.keep(plate.setPosition(chart.title.x, chart.title.y).setDepth(DEPTH.panel + 2));
+    this.text(chart.title.x, chart.title.y - 1, 'Sea chart', 18, COLORS.text, 0.5, true);
+    const cross = piece(s, 'button/close');
+    if (cross) this.keep(cross.setPosition(W - 32, 35).setDepth(DEPTH.panel + 4));
+    this.zone(W - 32, 35, 60, 60, () => this.close());
+
+    const words = (x: number, y: number, text: string, size: number, color = '#ffffff'): void => {
+      this.text(x, y, text, size, color, 0.5, true).setStroke(INK.dark, 4);
+    };
+    const atDock = this.actions.atDock();
+    const ids = Object.keys(PLACES).filter((id) => chart.places[CHART_ART[id] ?? ''] !== undefined);
+    for (const [x = 0, y = 0] of chart.route.slice(1, -1)) {
+      const dot = picture(s, 'pins', 'mark/route');
+      if (dot) this.keep(dot.setPosition(x, y).setDepth(DEPTH.panel + 2));
+    }
+    for (const id of ids) {
+      const place = PLACES[id]!;
+      const at = chart.places[CHART_ART[id]!]!;
+      const here = id === state.place;
+      if (here) {
+        const ring = picture(s, 'pins', 'mark/here');
+        if (ring) this.keep(ring.setPosition(at.x, at.y).setDepth(DEPTH.panel + 2));
+      }
+      const pin = picture(s, 'pins', place.town ? 'pin/harbour' : 'pin/island');
+      if (pin) this.keep(pin.setPosition(at.x, at.y - 8).setDepth(DEPTH.panel + 3));
+      // His islands are painted taller than his harbour: the name goes under the painting, not under the point.
+      words(at.x, at.y + (place.town ? 56 : 76), place.town ? place.name : `${place.name}  Lv ${place.levels.replace(' to ', '-')}`, 13);
+      if (here) words(at.x, at.y - 68, 'You are here', 11, '#ffe9a8');
+      else this.zone(at.x, at.y - 6, 130, 150, () => this.sail(id));
+    }
+    const to = ids.find((id) => id !== state.place);
+    if (to) {
+      if (!atDock) words(chart.sail.x, chart.sail.y - 38, 'Walk down to the dock to sail.', 12);
+      this.button(chart.sail.x, chart.sail.y, 236, 46, `Sail to ${PLACES[to]!.name}`, () => this.sail(to), atDock, COLORS.buttonGo);
+      words(chart.sail.x, chart.sail.y + 35, 'What lies on the ground stays behind.', 11);
+    }
+  }
+
   private buildChart(state: GameState): void {
+    const drawn = ART.chart && hasGlass(this.scene) && this.scene.textures.exists('chart') && this.scene.textures.exists('pins') ? (this.scene.cache.json.get('chart:places') as ChartArt | undefined) : undefined;
+    if (drawn?.places && drawn.route && drawn.title && drawn.sail) {
+      this.buildDrawnChart(state, drawn);
+      return;
+    }
     this.frame('Sea chart');
     const atDock = this.actions.atDock();
     const box = { x: F.x + 16, y: F.y + 64, w: F.w - 32, h: 500 };
@@ -480,13 +553,7 @@ export class Panels {
         this.keep(this.scene.add.circle(at.x + 18, at.y - 10, 7, COLORS.bandana).setStrokeStyle(2, COLORS.foam).setDepth(DEPTH.panel + 3));
         this.text(at.x, at.y - 46 * big - 4, 'You are here', 12, COLORS.goldText, 0.5, true).setStroke(COLORS.textDark, 3);
       } else {
-        this.zone(at.x, at.y + 14, 150, 130, () => {
-          if (!this.actions.atDock()) {
-            this.actions.toast('Sail from the dock');
-            return;
-          }
-          if (this.actions.act({ type: 'sail', to: id })) this.close();
-        });
+        this.zone(at.x, at.y + 14, 150, 130, () => this.sail(id));
         if (atDock) this.text(at.x, at.y - 46 * big - 4, 'Tap to sail', 13, COLORS.good, 0.5, true).setStroke(COLORS.textDark, 3);
       }
     }
@@ -534,7 +601,17 @@ export class Panels {
       y += 84;
     });
     this.row(CX, y, F.w - 32, 76);
-    this.keep(this.scene.add.circle(x + 34, y + 3, 14, COLORS.potion).setStrokeStyle(2, COLORS.foam).setDepth(DEPTH.panel + 2));
+    // The Art Director's bottle from his loot, in a slot like the pieces above it; else a red disc.
+    const bottle = ART.loot && hasGlass(this.scene) ? this.scene.textures.exists('loot') && this.scene.textures.get('loot').has('potion') : false;
+    const slot = bottle ? piece(this.scene, 'slot/empty') : null;
+    if (slot) {
+      this.keep(slot.setPosition(x + 34, y).setScale(54 / slot.width).setDepth(DEPTH.panel + 1));
+      // His frame carries the point it stands on as its pivot; in a slot it is centred instead.
+      const bottled = this.scene.add.image(x + 34, y, 'loot', 'potion').setOrigin(0.5).setDepth(DEPTH.panel + 2);
+      this.keep(bottled.setScale(Math.min(36 / bottled.width, 36 / bottled.height)));
+    } else {
+      this.keep(this.scene.add.circle(x + 34, y + 3, 14, COLORS.potion).setStrokeStyle(2, COLORS.foam).setDepth(DEPTH.panel + 2));
+    }
     this.text(x + 70, y - 20, 'Healing potion', 15, COLORS.text, 0);
     this.text(x + 70, y, `mends ${N.potion.heal} health`, 13, COLORS.text, 0);
     this.text(x + 70, y + 20, `you carry ${h.potions} of ${N.potion.carry}`, 12, COLORS.dim, 0);

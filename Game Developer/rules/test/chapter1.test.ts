@@ -110,6 +110,67 @@ describe('the ground of the island', () => {
   });
 });
 
+describe('the ground of the harbour', () => {
+  // The town's shore, its houses, its stall and the people who stand about come from the Art Director's layout.
+  const stays = (sim: Sim): void => expect(clear(harbour, sim.state.hero.x, sim.state.hero.y, FEET - 0.01), `in the way at ${sim.state.hero.x.toFixed(0)}, ${sim.state.hero.y.toFixed(0)}`).toBe(true);
+  const walkTo = (sim: Sim, to: { x: number; y: number }): number => {
+    sim.act({ type: 'moveTo', ...to });
+    let steps = 0;
+    while (sim.state.hero.dest && steps++ < 60 * 30) {
+      sim.step();
+      stays(sim);
+    }
+    return steps / 60;
+  };
+
+  it('has houses and a stall to walk round, and they are boxes', () => {
+    expect(harbour.boxes.length).toBeGreaterThanOrEqual(4);
+    const house = harbour.boxes[0]!;
+    expect(clear(harbour, house.x + house.w / 2, house.y + house.h / 2, FEET)).toBe(false);
+    expect(clear(harbour, house.x - FEET + 1, house.y - FEET + 1, FEET)).toBe(true);
+    expect(clear(harbour, house.x + house.w / 2, house.y + house.h + FEET - 1, FEET)).toBe(false);
+    expect(clear(harbour, house.x + house.w / 2, house.y + house.h + FEET + 1, FEET)).toBe(true);
+  });
+
+  it('a tap behind a house finds the way round it, and he never stands in a wall, a well or a person', () => {
+    const sim = new Sim();
+    const house = harbour.boxes.find((b) => b.x < harbour.wake.x && b.x + b.w > harbour.wake.x && b.y < harbour.wake.y)!;
+    const behind = { x: harbour.wake.x, y: house.y - 30 };
+    const took = walkTo(sim, behind);
+    expect(Math.hypot(sim.state.hero.x - behind.x, sim.state.hero.y - behind.y)).toBeLessThan(1);
+    const straight = Math.hypot(behind.x - harbour.wake.x, behind.y - harbour.wake.y) / N.hero.speed;
+    expect(took).toBeGreaterThan(straight);
+    // And down to the dock, past the people on the quay.
+    walkTo(sim, harbour.dock);
+    expect(Math.hypot(sim.state.hero.x - harbour.dock.x, sim.state.hero.y - harbour.dock.y)).toBeLessThan(1);
+    say(`from the square to behind the house: ${took.toFixed(1)} s on foot; a straight line would be ${straight.toFixed(1)} s`);
+  });
+
+  it('pushed slantwise at a wall by the thumb, he slides along it', () => {
+    const sim = new Sim();
+    const house = harbour.boxes.reduce((a, b) => (b.w > a.w ? b : a));
+    const foot = house.y + house.h + FEET;
+    sim.hero({ x: house.x + 40, y: foot + 40 });
+    sim.act({ type: 'steer', x: 0.7, y: -0.7 });
+    sim.run(0.8);
+    stays(sim);
+    expect(sim.state.hero.y).toBeCloseTo(foot, 0);
+    expect(sim.state.hero.x).toBeGreaterThan(house.x + 40 + 90);
+  });
+
+  it('a tap on the stall takes him before it, near enough to trade', () => {
+    const sim = new Sim();
+    const shop = harbour.shop!;
+    expect(clear(harbour, shop.x, shop.y, FEET)).toBe(false);
+    walkTo(sim, shop);
+    expect(dist(sim.state.hero, shop)).toBeLessThanOrEqual(N.reach.shop);
+    expect(sim.state.hero.y).toBeGreaterThan(shop.y);
+    sim.hero({ gold: 500, potions: 0 });
+    expect(sim.act({ type: 'buy', what: 'potion' }).some((e) => e.type === 'rejected')).toBe(false);
+    expect(sim.state.hero.potions).toBe(1);
+  });
+});
+
 describe('the data is whole', () => {
   it('every place, monster and piece of gear has what the rules will ask of it', () => {
     expect(harbour.town).toBe(true);
@@ -133,6 +194,8 @@ describe('the data is whole', () => {
       if (place.chest) expect(clear(place, place.chest.x, place.chest.y + 40, FEET), `${id}: no ground before the chest`).toBe(true);
       expect(Math.hypot(place.dock.x - place.arrive.x, place.dock.y - place.arrive.y), `${id}: he steps ashore out of the dock's reach`).toBeLessThan(N.reach.dock);
       for (const s of place.solids) expect(s.r, id).toBeGreaterThan(0);
+      for (const b of place.boxes) expect(Math.min(b.w, b.h), id).toBeGreaterThan(0);
+      if (place.shop) expect(clear(place, place.shop.x, place.shop.y + 50, FEET), `${id}: no ground before the stall`).toBe(true);
       if (place.chest) expect(Object.values(BASES).some((b) => b.tier === place.chest!.itemTier), id).toBe(true);
     }
     for (const [id, k] of Object.entries(MONSTERS)) {
@@ -613,6 +676,20 @@ describe('the save', () => {
     expect(s.monsters).toHaveLength(0);
     expect(s.respawns).toHaveLength(island.zones.reduce((n, z) => n + z.count, 0));
     expect(s.hero.gold).toBe(sim.state.hero.gold);
+  });
+
+  it('puts him on the quay if a house now stands where he saved, and leaves him be when he stands beside one', () => {
+    const town = new Sim();
+    town.run(1);
+    const house = harbour.boxes[0]!;
+    const inside = JSON.parse(JSON.stringify(town.state));
+    inside.hero.x = house.x + house.w / 2;
+    inside.hero.y = house.y + house.h / 2;
+    expect(migrate(inside)!.hero).toMatchObject(harbour.arrive);
+    const beside = JSON.parse(JSON.stringify(town.state));
+    beside.hero.x = house.x + house.w / 2;
+    beside.hero.y = house.y + house.h + FEET;
+    expect(migrate(beside)!.hero).toMatchObject({ x: beside.hero.x, y: beside.hero.y });
   });
 
   it('drops what today\'s data no longer knows, and keeps the rest', () => {

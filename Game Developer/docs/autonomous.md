@@ -26,10 +26,11 @@ you are done." The game side of chapter 1 (items 1 to 11 of the plan) was built 
 needs no decision of his:
 
 - `[ ]` Each drop from Leonard, AD: copy the folder whole into `client\public\art\<name>\`, wire it in the place of
-  its stand-in, check it in the pane at 412 by 915, update `docs\state\art.md`, commit. His first drop is in
-  (2026-11-20: the Warrior, the gear, three monsters, the island, the loot, the glass). Still to come from him:
-  the harbour town (then `node tools/place-from-art.mjs harbour harbour` and a line in `ART.places`), the sea
-  chart for the chart window, the app's icon (into `client\public\pwa-*.png`), a coat on the body.
+  its stand-in, check it in the pane at 412 by 915, update `docs\state\art.md`, commit. All of wave 1 is in
+  (2026-11-20). Still to come from him when asked: a coat on the body; whatever Robin's judging changes.
+- `[ ]` Load the pictures by place: only the place he is in, its monsters and the glass in memory; the other place
+  and the chart loaded when he opens the chart or sails, and let go when he leaves. Today all of it is loaded at
+  the start, about 62 MB decoded, over the 48 MB set for a place (`docs\art-demands.md`). Before a third place.
 - `[ ]` The audio layer (mute, volumes, the sprite's map) when Hugh, SD's first sprite lands; `docs\state\sound.md`.
 - `[ ]` A longer balance run: the bot on ten seeds, with a clumsier player as well (no slam dodging, late potions),
   printing falls and time for each level, so Robin's first numbers have a range to sit in.
@@ -46,6 +47,7 @@ needs no decision of his:
 
 ## The last report
 
-2026-11-20 (chapter 1, the game side): built, tested and pushed on stand-in shapes; the plan's "Waits for Robin" is
-the list: play it; pick a way to steer; the deploy to Cloudflare Pages; start Hugh, SD's chat in the desktop app;
-the felt numbers; the smaller open points in the brief.
+2026-11-20 (chapter 1 with all of wave 1's art): the game side built and tested, Leonard, AD's whole wave 1 wired
+in (the Warrior, gear, monsters, island, loot, glass, the harbour town, the sea chart, the icon), 95 tests, pushed.
+The plan's "Waits for Robin" is the list: play it and judge the look; pick a way to steer; the deploy to
+Cloudflare Pages; start Hugh, SD's chat in the desktop app; the felt numbers; the smaller open points in the brief.

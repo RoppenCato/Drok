@@ -78,11 +78,12 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
       `npm run build` and then `npx wrangler@4 pages deploy dist --project-name drok --branch main --commit-dirty=true`
     - `[ ]` installed on his phone from that page and played with the network off
 
-12. `[ ] Built` `[ ] Checked` · AD · **Wave 1 art** (`art-demands.md`). **Where it stands, 2026-11-20:** his
-    first drop (the Warrior, the gear, three monsters, the island, the loot, the glass) is in the game and switched
-    on (`docs\state\art.md`). With it the rules got a shore, things to walk round and a way-finder for a tap (items
-    15 and 16 below). Still stand-ins: the harbour town, the sea chart, the app's icon, a coat on the body. The
-    sub-list below is kept as it was written before the drop.
+12. `[x] Built 2026-11-20` `[ ] Checked` · AD · **Wave 1 art** (`art-demands.md`). **Where it stands,
+    2026-11-20:** Leonard, AD delivered all of wave 1 and all of it is in the game and switched on
+    (`docs\state\art.md`): the Warrior, the gear, three monsters, the island, the loot, the glass, the harbour town
+    with its people, the sea chart, the app's icon. With the places the rules got a shore, things and houses to
+    walk round and a way-finder for a tap (items 15 to 17 below). Not drawn yet: a coat on his body. Every look is
+    his own choice and none has been seen by Robin. The sub-list below is kept as it was written before the drops.
     - `[x]` Robin's answers to questions 20 and 21; he then said (2026-11-20) "Let AD handle the art you need. I
       approve.", so Leonard, AD chooses the look himself, marked "mine", and Robin judges it when he is back
     - `[ ]` AD, in his `out\` on 2026-11-20 but not yet handed over with notes: `hero`, `gear`, `sand-crab`,
@@ -126,13 +127,24 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
     - `[x]` the save is version 3 (he carries the way he is walking), with the step up from version 2
     - tests: from the landing to the chest and back without ever standing in a solid thing; the version step
 
+17. `[x] Built 2026-11-20` `[ ] Checked` · GD · **The harbour as Leonard, AD laid it out, the chart and the icon**
+    - `[x]` his town in the rules: the shore, three houses and the stall as boxes to walk round, the well, lamps,
+      barrels and the four people as round things; he steps ashore on the quay; the stall is where one trades
+    - `[x]` on the screen: his ground, his props, his people standing and breathing, the keeper in his stall
+    - `[x]` his sea chart fills the screen: pins, the ring where he is, the way between, "Sail to …"
+    - `[x]` his icon is the app's icon
+    - `[x]` a save made in the old town does not leave him inside a house
+    - tests: a house stops him and he slides along its wall; a tap behind a house finds the way round; a tap on
+      the stall takes him to its front, near enough to trade; the old save
+
 ## Waits for Robin
 
-- Play it: `http://192.168.0.43:5178/` on the home Wi-Fi. The first minute: walk down to the pier with the red flag,
-  tap "Sea chart", tap Crab Cay.
+- Play it: `http://192.168.0.43:5178/` on the home Wi-Fi. The first minute: tap the stall to see what it sells,
+  tap the dock at the bottom of the town, tap "Sail to Crab Cay", tap a crab.
 - The look: Leonard, AD chose it himself, as told ("Let AD handle the art you need. I approve."), so the first
-  judging of the Warrior, the monsters, the island and the glass is this play. And the size: he finds the Warrior
-  small and offers the camera a quarter closer; kept as it is until Robin has seen it (`docs\state\art.md`).
+  judging of the Warrior, the monsters, the island, the town, the chart, the glass and the icon is this play. The
+  look and the chart would each have been three to pick from. And the size: he finds the Warrior small and offers
+  the camera a quarter closer; kept as it is until Robin has seen it (`docs\state\art.md`).
 - Which of the three ways to steer stays (≡, "Steering").
 - The deploy to Cloudflare Pages (item 11), so it installs and plays offline.
 - Starting Hugh, SD's chat (item 13).

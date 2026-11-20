@@ -83,6 +83,16 @@ Victor, GD's first guess of 2026-11-20 and is pending until Robin has played the
 8. The offline cache took pictures but not their data files, so the installed game would have had art it could not
    place. Rule: after adding a kind of file to the game, read the build's list of what it caches.
 
+9. The Art Director's second drop lay in his `out\` for half an hour before this chat saw it: his message did not
+   arrive, and the docs here still said "to come". Rule: before saying what is missing from a studio, look in its
+   `out\` and at the repo's log.
+10. A picture put in a window sat too high: its frame carries the point it stands on as a pivot, and the engine
+    takes that as the picture's middle. Rule: a picture from a set is placed by its own point on the ground, and
+    centred by hand everywhere else.
+11. The game loads every picture at the start: 62 MB decoded with two places, over its own rule of 48 a place.
+    Nobody broke a budget; the rule "by place" was simply never built. Rule: a budget that needs code gets an item
+    on the plan the day it is written.
+
 ## Harvested
 
 - 2026-11-20 (the setup): the questionnaire rule, the commit message file, the drive-mode clock, the root launch

@@ -15,10 +15,17 @@ export const ART = {
   /** `art/loot`: coins, a potion, a bundle of gear, a ring for each rarity, a spark. */
   loot: true,
   /** The places whose ground and props are drawn from a drop: the game's place, and the drop's folder. */
-  places: { 'crab-cay': 'island' } as Record<string, string>,
+  places: { 'crab-cay': 'island', harbour: 'harbour' } as Record<string, string>,
+  /** The people who stand about in a place: the drop's folder, and the atlas in it (its actions are who they are). */
+  folk: { harbour: 'folk' } as Record<string, string>,
   /** `art/glass`: bars, discs, buttons, panels, slots and marks for the glass and the windows. */
   glass: true,
+  /** `art/chart`: the sea chart as one picture that fills the screen, its pins and marks, and where each place is on it. */
+  chart: true,
 };
+
+/** The game's name for a place, and the Art Director's name for it on his chart. */
+export const CHART_ART: Record<string, string> = { harbour: 'harbour', 'crab-cay': 'island-1' };
 
 /** The game's name for a piece of gear, and the Art Director's name for its picture. */
 export const GEAR_ART: Record<string, string> = {

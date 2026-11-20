@@ -28,9 +28,12 @@ The pane is usually hidden while the AI works: its own clock barely runs and a s
    - a hold: a `touchstart` with a `Touch` of its own identifier, `touchmove`, then `touchend` with empty `touches`;
    - `window.dev.step(n)` between them; then read `window.dev.holder.state` and compare with what the rules give.
 3. A field point's place on the glass: `point - camera.midPoint + (206, 457.5)`.
-4. For a picture: step once, then take the screenshot; if it times out, step again and retry. A wait on
-   `requestAnimationFrame` can hang for good in a hidden pane: never await one.
-5. The console keeps errors from half-saved files during editing; `window.dev.log.errorCount` is the page's own count.
-6. Set the pane back to its own size when done.
+4. For a picture: step once, then take the screenshot; if it times out, step again and retry. If it keeps timing
+   out (it did after another tab was closed), load the page afresh and take the picture in the same call as the
+   steps. A wait on `requestAnimationFrame` can hang for good in a hidden pane: never await one.
+5. A field point that lies under a skill button is the button's: in the harbour the dock's lower half is under
+   them, so tap the dock's top (its place on the glass at about y 700).
+6. The console keeps errors from half-saved files during editing; `window.dev.log.errorCount` is the page's own count.
+7. Set the pane back to its own size when done.
 
 What cannot be judged this way: how it feels, and anything timed by the page's own clock. Say so in the report.

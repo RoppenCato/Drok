@@ -78,6 +78,8 @@ export interface Place {
   water: number[][][];
   /** Things to walk round: trunks, rocks, barrels, the chest. */
   solids: { x: number; y: number; r: number }[];
+  /** Things to walk round that are boxes (a house, a stall), each by its top left corner and its size. */
+  boxes: { x: number; y: number; w: number; h: number }[];
   shop: (Vec & { keeper: string }) | null;
   chest: ChestSpot | null;
   zones: Zone[];

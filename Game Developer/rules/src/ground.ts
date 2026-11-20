@@ -1,6 +1,6 @@
 // Where one can stand and walk in a place: on the land, out of the water, and round the things in the way. A
-// place's shore, its inner waters and its solid things come from the Art Director's layout of it
-// (tools/place-from-art.mjs); a place without a shore is its whole box.
+// place's shore, its inner waters and its solid things (circles for trunks and rocks, boxes for houses) come from
+// the Art Director's layout of it (tools/place-from-art.mjs); a place without a shore is its whole box.
 
 import { N, type Place } from './data.ts';
 import type { Vec } from './types.ts';
@@ -26,16 +26,51 @@ export function onLand(place: Place, x: number, y: number): boolean {
   return true;
 }
 
+type Box = Place['boxes'][number];
+
+/** How far a point is from a box: 0 inside it. */
+function gap(b: Box, x: number, y: number): number {
+  return Math.hypot(Math.max(b.x - x, 0, x - b.x - b.w), Math.max(b.y - y, 0, y - b.y - b.h));
+}
+
 /** Is this point ground a body of this size can stand on: land, and clear of every solid thing? */
 export function clear(place: Place, x: number, y: number, radius: number): boolean {
   if (!onLand(place, x, y)) return false;
   for (const s of place.solids) if (Math.hypot(x - s.x, y - s.y) < s.r + radius) return false;
+  for (const b of place.boxes) {
+    // Inside a box the gap is 0 whatever the body's size: a point in a wall is never clear.
+    const g = gap(b, x, y);
+    if (g === 0 || g < radius) return false;
+  }
   return true;
+}
+
+/** Push a point out of a box it is in or too near: straight out from the wall, or out through the nearest wall. */
+function outOfBox(b: Box, p: Vec, radius: number): void {
+  const nx = Math.min(b.x + b.w, Math.max(b.x, p.x));
+  const ny = Math.min(b.y + b.h, Math.max(b.y, p.y));
+  const d = Math.hypot(p.x - nx, p.y - ny);
+  if (d >= radius) return;
+  if (d > 0.001) {
+    p.x = nx + ((p.x - nx) / d) * radius;
+    p.y = ny + ((p.y - ny) / d) * radius;
+    return;
+  }
+  const left = p.x - b.x;
+  const right = b.x + b.w - p.x;
+  const top = p.y - b.y;
+  const bottom = b.y + b.h - p.y;
+  const least = Math.min(left, right, top, bottom);
+  if (least === left) p.x = b.x - radius;
+  else if (least === right) p.x = b.x + b.w + radius;
+  else if (least === top) p.y = b.y - radius;
+  else p.y = b.y + b.h + radius;
 }
 
 /** Push a point out of every solid thing it is in. `from` says which side to come out on when it is dead centre. */
 function outOfSolids(place: Place, p: Vec, from: Vec, radius: number): void {
   for (let pass = 0; pass < 2; pass++) {
+    for (const b of place.boxes) outOfBox(b, p, radius);
     for (const s of place.solids) {
       const min = s.r + radius;
       let dx = p.x - s.x;
@@ -68,7 +103,7 @@ export function besideSolids(place: Place, p: Vec, toward: Vec, radius: number):
 export function walk(place: Place, from: Vec, to: Vec, radius: number): Vec {
   const want = Math.hypot(to.x - from.x, to.y - from.y);
   const p = { x: to.x, y: to.y };
-  if (place.solids.length > 0) {
+  if (place.solids.length > 0 || place.boxes.length > 0) {
     outOfSolids(place, p, from, radius);
     // Head on into something, the push only sends it back the way it came: step aside instead, and slide from there.
     if (want > 0.001 && Math.hypot(p.x - from.x, p.y - from.y) < want * 0.2) {

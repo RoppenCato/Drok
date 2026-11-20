@@ -4,7 +4,7 @@
 
 import { BASES, MONSTERS, PLACES, START_PLACE } from './data.ts';
 import { newGame } from './game.ts';
-import { onLand } from './ground.ts';
+import { clear } from './ground.ts';
 import type { GameState, Item, Scheme } from './types.ts';
 
 /**
@@ -90,9 +90,10 @@ function checked(raw: Record<string, unknown>): GameState | null {
     Object.values(h.worn).every((item) => item === null || known(item)) &&
     s.shop.every((item) => item === null || known(item)) &&
     s.drops.every((d) => d.kind !== 'item' || known(d.item));
-  // A place whose layout has changed since the save (the island got its shore) may have him standing in the sea.
+  // A place whose layout has changed since the save (the island got its shore, the town its houses) may have him
+  // standing in the sea or inside a wall. Only a point right inside a thing counts: beside one he is where he slid.
   const here = PLACES[s.place];
-  const afoot = here !== undefined && onLand(here, h.x, h.y);
+  const afoot = here !== undefined && clear(here, h.x, h.y, 0);
   if (clean && afoot) return s;
 
   const place = here !== undefined ? s.place : START_PLACE;

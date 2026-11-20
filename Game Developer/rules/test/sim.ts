@@ -32,6 +32,7 @@ const field: Place = {
   land: null,
   water: [],
   solids: [],
+  boxes: [],
 };
 PLACES[FIELD] = field;
 

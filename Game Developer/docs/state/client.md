@@ -2,11 +2,12 @@
 
 `client\` is a Phaser 4 page in TypeScript, built by Vite as an installable page. It draws what the rules say and
 turns fingers into intents; it decides nothing about the game. All of it is Victor, GD's unless it says Robin.
-Since 2026-11-20 most of it is drawn with Leonard, AD's pieces: `client\src\art.ts` holds one switch a drop,
+Since 2026-11-20 it is drawn with Leonard, AD's pieces: `client\src\art.ts` holds one switch a drop,
 `view\figures.ts` draws his figures and single pictures, `view\glass.ts` his bars, buttons and panels, and
-`docs\state\art.md` says what is drawn from his art and what is still a stand-in (the harbour town, the sea chart).
-Every view keeps its plain stand-in drawing for when a switch is off. There is no sound yet. Where this file below
-describes a box, a disc or a colour, it describes the stand-in; the places and what can be pressed are the same.
+`docs\state\art.md` says what is drawn from his art and the few small things that are still plain shapes. Every
+view keeps its plain stand-in drawing for when a switch is off. There is no sound yet. Where this file below
+describes a box, a disc or a colour, it describes the stand-in; the places and what can be pressed are the same,
+but for the sea chart, which with his art fills the whole screen.
 
 ## The files
 
@@ -20,7 +21,7 @@ describes a box, a disc or a colour, it describes the stand-in; the places and w
 | `client\src\art.ts` | one switch for each of the Art Director's drops, and which picture belongs to which piece of gear |
 | `client\src\scenes\BootScene.ts` | paints the four stand-in grounds once (sand, grass, rock, cobble); loads the art that is switched on, each picture with its data; starts play |
 | `client\src\scenes\PlayScene.ts` | the one screen: wires fingers, the holder, the views and the windows; the camera; export and import |
-| `client\src\view\world-view.ts` | the place: ground, pier, chest, stall, the hero, the monsters, the loot, the small effects |
+| `client\src\view\world-view.ts` | the place: ground, props, dock, chest, stall, the people who stand about, the hero, the monsters, the loot, the small effects |
 | `client\src\view\figures.ts` | a figure from an atlas: its action, its facing (eight, three of them mirrored), its frames by time; the hero with his gear on his hand, arm and head; a single picture from a set |
 | `client\src\view\glass.ts` | the Art Director's pieces for the glass: a piece, a piece stretched without bending its corners, a bar, the ink colours for words on his panels |
 | `client\src\view\hud.ts` | the glass: bars, level and money, the top buttons, the skills and the potion, the button for the thing he stands by |
@@ -76,7 +77,10 @@ closes the open window so he can answer it.
   (at the stall only), Drop.
 - **Hero**: level and experience, health, a swing's damage, armour, money and potions, the four things he wears
   with "Take off", what he has felled, how often he fell.
-- **Sea chart**: the places on a sea, "You are here", "Tap to sail" when he stands on a dock.
+- **Sea chart**: with Leonard, AD's chart it fills the screen: a pin on each place, a ring and "You are here" on
+  the one he is in, the dotted way between, and a yellow button "Sail to …" at the foot (dim, and it says "Sail
+  from the dock", when he does not stand on one). A tap on the other place's pin sails too. The cross at the top
+  right closes it; there is no "beside it" to tap. The stand-in chart is a window like the others.
 - **Stall**: the three pieces with what he wears beside them and a price, the potion, "Sell from your bag".
 - **Settings**: steering, which hand, effects, export save, import save, save the log, start over (asks twice).
 
@@ -95,8 +99,9 @@ has the addresses and the way a test is run.
 
 ## What it costs
 
-The built page is 1.47 MB of script (394 kB gzipped), nearly all of it Phaser, and 1.2 MB of the Art Director's
-pictures with their data; no sound yet. The service worker caches all of it, 2.6 MB in 29 files (pictures and
-their data; his notes are left out): with the server gone the page still opens. The first load's budget is 3 MB
-with art and sound (`docs\platform.md`), so the harbour, the chart and the sound have 0.4 MB between them: the
-budget will have to be looked at again when they land (`docs\art-demands.md`).
+The built page is 1.47 MB of script (396 kB over the wire), nearly all of it Phaser, and 1.5 MB of the Art
+Director's pictures with their data; no sound yet. The service worker caches all of it, 3.0 MB in 39 files
+(pictures and their data; his notes are left out): with the server gone the page still opens. The first load is
+1.9 MB over the wire, of the 3 MB set for art and sound together (`docs\art-demands.md`), so the sound has about
+1 MB. All the pictures are loaded when the game starts, about 62 MB once decoded; by place it would be 46 at most
+(`docs\state\art.md`, "What it costs").

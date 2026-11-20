@@ -24,9 +24,13 @@ day, each island its own light.
   question 21 (drawn or modelled) and is Leonard, AD's to propose. The game flips left and right itself.
 - **File form**: one atlas (json and png) per creature or kit, trimmed frames, origin at the feet, a delay per frame
   (the form of `tools\pack.js`). Palette PNGs where they hold.
-- **Weights**: an atlas under 300 KB; a place's ground kit under 400 KB; the first load under 3 MB with the sound
-  (Phaser itself is 1.4 MB of that, 0.37 MB over the wire).
+- **Weights**: an atlas under 300 KB; a place's ground kit under 400 KB; the first load under 3 MB with the sound,
+  counted as it goes over the wire (Phaser itself is 1.5 MB on disk, 0.4 MB over the wire). Where it stands with
+  all of wave 1 in (2026-11-20): 1.9 MB over the wire, 3.0 MB on the phone, no sound yet.
 - **Memory**: decoded pictures for one place under 48 MB; lazy by place; nothing loaded for a place he is not in.
+  **Not kept yet, and that is the game's doing, not the art's**: the game loads both places, the chart and all the
+  figures when it starts, about 62 MB decoded together. Loading by place is on the list in `docs\autonomous.md`;
+  it must be done before a third place comes.
 - **Frames**: 60 a second on Robin's phone. No effect that reads the canvas back or blurs each frame.
 - **Gear on the hero**: a long-lived hero who finds a lot of gear, and it should show (Robin's open point, question
   21). Every way of showing it multiplies pictures: say what each way costs before one is picked, and the budget
@@ -55,7 +59,9 @@ picks, marks it "mine", and delivers without waiting; Robin judges it when he is
 
 ## Wave 1 (chapter 1): the look, the harbour and the first island
 
-In this order. The game holds stand-ins until each lands.
+**Delivered whole by Leonard, AD on 2026-11-20 and all of it in the game** (`docs\state\art.md`). Two rows were big
+work that would have had three concepts: the look and the sea chart. Robin had asked not to be asked, so each is one
+piece of Leonard, AD's own, made to be judged and changed. The list as it was asked:
 
 | Piece | What | Size on screen | Big work? |
 | --- | --- | --- | --- |

@@ -15,7 +15,12 @@ import { hasGlass, piece } from './glass.ts';
 /** A place as the Art Director laid it out: what stands where. The rules' own copy of the layout is in their data. */
 interface PlaceArt {
   props: { name: string; x: number; y: number }[];
+  /** Who stands about, where, and which way each looks. */
+  people?: { who: string; x: number; y: number; facing: string }[];
 }
+
+/** The eight ways, as the Art Director writes them, in the rules' turn (0 is east, a quarter turn is down the screen). */
+const WAY_ANGLE: Record<string, number> = { e: 0, se: Math.PI / 4, s: Math.PI / 2, sw: (3 * Math.PI) / 4, w: Math.PI, nw: (-3 * Math.PI) / 4, n: -Math.PI / 2, ne: -Math.PI / 4 };
 
 type Obj = Phaser.GameObjects.GameObject;
 
@@ -85,6 +90,8 @@ export class WorldView {
   private heroFigure: HeroFigure | null = null;
   /** Everything that belongs to the place he is in; gone when he leaves it. */
   private scenery: Obj[] = [];
+  /** The people who stand about in the place: they breathe, so they are moved on every frame. */
+  private folk: Figure[] = [];
   private place = '';
   private hero!: Phaser.GameObjects.Container;
   private heroBody!: Phaser.GameObjects.Arc;
@@ -160,6 +167,8 @@ export class WorldView {
   enter(state: GameState): void {
     for (const o of this.scenery) o.destroy();
     this.scenery = [];
+    for (const f of this.folk) f.destroy();
+    this.folk = [];
     for (const v of this.monsters.values()) this.dropMonster(v);
     this.monsters.clear();
     for (const v of this.drops.values()) v.body.destroy();
@@ -243,6 +252,7 @@ export class WorldView {
 
     this.destDot.setVisible(h.dest !== null);
     if (h.dest) this.destDot.setPosition(h.dest.x, h.dest.y);
+    for (const f of this.folk) f.advance(delta);
 
     const seen = new Set<number>();
     for (const m of state.monsters) {
@@ -497,6 +507,24 @@ export class WorldView {
       // What stands over the water (the dock, the boat) casts no shadow on the sand.
       if (!p.name.startsWith('dock') && !p.name.startsWith('boat')) shadow(p.x, p.y, p.name);
       this.put(image.setPosition(p.x, p.y).setDepth(DEPTH.bodies + p.y));
+    }
+    // The people who stand about: one atlas whose actions are who they are, each standing and breathing.
+    const people = this.atlas(`${folder}:folk`, true);
+    for (const p of (people && layout.people) || []) {
+      const f = new Figure(s, `${folder}:folk`, people!);
+      if (!f.has(p.who)) {
+        f.destroy();
+        continue;
+      }
+      this.reg(f.image);
+      f.play(p.who, true);
+      f.face(WAY_ANGLE[p.facing] ?? Math.PI / 2);
+      // The keeper stands inside his stall, under its awning: sorted by where he stands, the stall would hide him,
+      // so he is drawn just over it, as in the Art Director's own picture of the town.
+      const stall = layout.props.find((prop) => prop.name === 'stall' && Math.abs(prop.x - p.x) < 50 && prop.y >= p.y && prop.y - p.y < 40);
+      f.place(p.x, p.y, DEPTH.bodies + (stall ? stall.y + 0.5 : p.y));
+      this.put(s.add.ellipse(p.x, p.y + 1, 30, 11, 0x5b4a82, 0.25).setDepth(DEPTH.shadows));
+      this.folk.push(f);
     }
     if (place.chest) {
       const chest = picture(s, folder, 'chest/closed');
