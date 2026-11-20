@@ -18,7 +18,10 @@ them. Theres also no contrast to the floor so it all kinda melts together." Of t
 - **The props' atlas is new:** 33 pieces, 2048 by 896. The houses and the well are gone from it; three huts, a
   lookout, a fish rack, a post and a rope of flags are in. Six pieces carry their own shadow.
 - `square` is gone (no cobbles). `home`, `people`, `arrive`, where he wakes and the stall have new places.
-- The rest of the island (the grove, the cove, the flats, the chest, the zones) is as it was.
+- The rest of the island (the grove, the cove, the flats, the chest) is as it was.
+- **`zones` names the monsters that live there now** (2026-11-20, as Victor, GD placed them): `sand-crab` twice at
+  level 1 on the beach, `wharf-rat` at 2 on the tide flats, `bristle-piglet` at 3 and `palm-monkey` at 4 in the grove,
+  `coconut-crab` at 5 in the cove. The boxes are the ones there were; `reef-gull` is gone.
 
 ## The numbers
 
@@ -29,7 +32,11 @@ them. Theres also no contrast to the floor so it all kinda melts together." Of t
 | `folk.png`, `folk.json` | the four people, unchanged | 1024 by 512 | 2 MB | 72 + 21 KB |
 | `place.json` | the layout | | | 29 KB |
 
-- **With everything on it:** the ground 11.8, the props 7, the people 2, the three monsters 16, his body 8, gear 2,
+- **With everything on it, since the five monsters (2026-11-20):** the ground 11.8, the props 7, the people 2, the
+  monsters 21.9 (crab 4, rat 2.2, piglet 3.4, monkey 4.3, coconut crab 8), his body 8, gear 2, the glass 3.5, loot
+  0.3, the chest's light 0.9 and the big chest 1.1: **58.5 MB decoded, 2.5 over the 56 Victor, GD set.** The big
+  chest and the glass's four new discs are what was not counted then. Before the five monsters it was:
+- the ground 11.8, the props 7, the people 2, the three monsters 16, his body 8, gear 2,
   the glass 3.1, loot 0.3: **50.2 MB decoded**, under the 52 you set. The hero's own pictures for his window
   (`out\hero-sheet`) are 1.6 MB on top of that when they are loaded.
 - The atlases are not a power of two tall any more (`--tight`): the ground never was, and it saves 2.6 MB over three

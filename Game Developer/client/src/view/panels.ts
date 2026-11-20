@@ -44,7 +44,8 @@ export type PanelKind = 'menu' | 'bag' | 'hero' | 'chart' | 'shop' | 'skills';
 
 /** The Art Director's chart: where each of his places is on it, the dots of the way between, where the title and the button sit. In design units. */
 interface ChartArt {
-  places: Record<string, { x: number; y: number }>;
+  /** Each place's point, its pin's name, and how far below the point its painting ends. */
+  places: Record<string, { x: number; y: number; pin?: string; foot?: number }>;
   route: number[][];
   title: { x: number; y: number };
   sail: { x: number; y: number };
@@ -742,15 +743,15 @@ export class Panels {
     const atDock = this.actions.atDock();
     // A place the Art Director has not put on his chart yet stands on one of his unnamed spots.
     const spare = [...(chart.unknown ?? [])];
-    const spots: Record<string, { x: number; y: number }> = {};
+    const spots: Record<string, { x: number; y: number; pin?: string; foot?: number }> = {};
     for (const id of Object.keys(PLACES)) {
       const drawn = chart.places[CHART_ART[id] ?? ''];
       const spot = drawn ?? spare.shift();
       if (spot) spots[id] = spot;
     }
     const ids = Object.keys(spots);
-    // His dotted way was drawn from the old harbour to the first island: with the town on the island it leads nowhere.
-    for (const [x = 0, y = 0] of ids.length > 9 ? chart.route.slice(1, -1) : []) {
+    // His dotted way from Crab Cay's dock to Mire Cay's jetty.
+    for (const [x = 0, y = 0] of chart.route.slice(1, -1)) {
       const dot = picture(s, 'pins', 'mark/route');
       if (dot) this.keep(dot.setPosition(x, y).setDepth(DEPTH.panel + 2));
     }
@@ -762,10 +763,10 @@ export class Panels {
         const ring = picture(s, 'pins', 'mark/here');
         if (ring) this.keep(ring.setPosition(at.x, at.y).setDepth(DEPTH.panel + 2));
       }
-      const pin = picture(s, 'pins', 'pin/island');
+      const pin = picture(s, 'pins', at.pin ?? 'pin/island') ?? picture(s, 'pins', 'pin/island');
       if (pin) this.keep(pin.setPosition(at.x, at.y - 8).setDepth(DEPTH.panel + 3));
-      // His islands are painted taller than his harbour: the name goes under the painting, not under the point.
-      words(at.x, at.y + 76, `${place.name}  Lv ${place.levels.replace(' to ', '-')}`, 13);
+      // The name goes under the island's painting, a little below its foot.
+      words(at.x, at.y + (at.foot ?? 66) + 10, `${place.name}  Lv ${place.levels.replace(' to ', '-')}`, 13);
       if (here) words(at.x, at.y - 68, 'You are here', 11, '#ffe9a8');
       else this.zone(at.x, at.y - 6, 130, 150, () => this.sail(id));
     }

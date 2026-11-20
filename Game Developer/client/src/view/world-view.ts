@@ -4,7 +4,7 @@
 // he wears); only one-shots come from the events (a number, a puff, the sword's arc). Nothing here decides anything.
 
 import Phaser from 'phaser';
-import { MONSTERS, N, RARITIES, chestFull, heroMaxHp, inHome, kindOf, makeRng, placeOf, type Drop, type GameEvent, type GameState, type Monster, type Place, type Vec } from '../../../rules/src/index.ts';
+import { MONSTERS, N, RARITIES, chestFull, heroMaxHp, hopOf, inHome, kindOf, makeRng, placeOf, type Drop, type GameEvent, type GameState, type Monster, type Place, type Vec } from '../../../rules/src/index.ts';
 import { ART } from '../art.ts';
 import { COLORS, DEPTH, FONT, RES, hex, WEIGHT } from '../layout.ts';
 import type { Ground } from '../scenes/BootScene.ts';
@@ -334,7 +334,9 @@ export class WorldView {
         else if (!(f.playing === 'attack1' && !f.done)) f.play(walking ? 'move' : 'stand');
         v.mode = m.mode;
         f.face(m.facing);
-        f.advance(delta);
+        // A hopper's hop is drawn on the rules' own clock, so it is in the air exactly while it travels.
+        if (k.hopSeconds > 0 && f.playing === 'move') f.seek(hopOf(k, m.id, state.time).at * 1000);
+        else f.advance(delta);
         f.place(v.x, v.y, DEPTH.bodies + v.y, (1 + 0.1 * v.punch) * (1 - 0.5 * v.pop));
         f.flash(v.punch > 0.45);
         v.shadow.setPosition(v.x, v.y + 1);

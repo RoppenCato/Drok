@@ -120,6 +120,33 @@ describe('the swamp, Mire Cay', () => {
   });
 });
 
+describe('the hop toad', () => {
+  it('travels in hops: it stands while its feet are planted and covers its ground in the air, at its own pace over a whole hop', () => {
+    const k = MONSTERS['hop-toad']!;
+    const sim = Sim.empty();
+    sim.hero({ hp: 9999 });
+    // Near enough to stay on the test field and inside its leash, too far to reach him in four hops.
+    const m = sim.monster(400, 0, { kind: 'hop-toad', mode: 'chase' });
+    let still = 0;
+    let moving = 0;
+    let last = sim.find(m.id)!.x;
+    const from = last;
+    const steps = Math.round((k.hopSeconds * 4) / (1 / 60));
+    for (let i = 0; i < steps; i++) {
+      sim.step();
+      const x = sim.find(m.id)!.x;
+      if (Math.abs(x - last) < 0.001) still += 1;
+      else moving += 1;
+      last = x;
+    }
+    expect(still).toBeGreaterThan(steps * 0.3);
+    expect(moving).toBeGreaterThan(steps * 0.5);
+    // Four whole hops: as far as its speed would have taken it walking.
+    expect(from - last).toBeCloseTo(k.chaseSpeed * k.hopSeconds * 4, -1);
+    say(`a hop toad stands ${Math.round((1 - (k.hopTo - k.hopFrom) / k.hopSeconds) * 100)}% of a hop and covers ${(k.chaseSpeed * k.hopSeconds).toFixed(0)} units in each`);
+  });
+});
+
 describe('levels', () => {
   it('go to 8: the swamp is worth it, and the stall knows what to sell at every level', () => {
     expect(N.levels.max).toBe(8);

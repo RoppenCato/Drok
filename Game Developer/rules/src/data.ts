@@ -38,6 +38,13 @@ export interface MonsterKind {
    */
   rushSpeed: number;
   rushLength: number;
+  /**
+   * It moves in hops: one hop is this long, and it travels only between `hopFrom` and `hopTo` of it (in the air),
+   * that much faster, so its pace over a whole hop is its speed. 0: it walks.
+   */
+  hopSeconds: number;
+  hopFrom: number;
+  hopTo: number;
   damageMin: number;
   damageMax: number;
   respawnSeconds: number;
@@ -150,6 +157,17 @@ export function kindOf(m: { kind: string }): MonsterKind {
   const kind = MONSTERS[m.kind];
   if (!kind) throw new Error(`no such monster kind: ${m.kind}`);
   return kind;
+}
+
+/**
+ * How far into its hop a hopping monster is, in seconds, at this moment of the world; and how fast it travels just
+ * now, as a share of its speed (0 while its feet are planted). The screen reads the same clock for its picture.
+ */
+export function hopOf(kind: MonsterKind, id: number, time: number): { at: number; pace: number } {
+  if (kind.hopSeconds <= 0) return { at: 0, pace: 1 };
+  const at = (time + id * 0.137) % kind.hopSeconds;
+  const air = at >= kind.hopFrom && at < kind.hopTo;
+  return { at, pace: air ? kind.hopSeconds / (kind.hopTo - kind.hopFrom) : 0 };
 }
 
 export function placeOf(s: { place: string }): Place {

@@ -16,6 +16,7 @@ export {
   BASES,
   SHOP,
   kindOf,
+  hopOf,
   placeOf,
   baseOf,
   itemStats,

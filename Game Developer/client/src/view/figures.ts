@@ -166,6 +166,24 @@ export class Figure {
     this.show();
   }
 
+  /** Stand at this moment of the action now playing (ms from its start), whatever its own clock says: a hop in step with the rules. */
+  seek(ms: number): void {
+    const a = this.data.actions[this.action];
+    const frames = this.frames();
+    if (!a || frames.length === 0) return;
+    let left = ms;
+    let index = 0;
+    while (index < frames.length - 1 && left >= (frames[index]?.delay || a.delay)) {
+      left -= frames[index]?.delay || a.delay;
+      index += 1;
+    }
+    this.clock = 0;
+    if (index !== this.index) {
+      this.index = index;
+      this.show();
+    }
+  }
+
   /** Time passes: the action moves on, loops, or stops on its last frame. */
   advance(ms: number): void {
     const a = this.data.actions[this.action];

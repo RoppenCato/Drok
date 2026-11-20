@@ -33,7 +33,7 @@ export const ART = {
 };
 
 /** The game's name for a place, and the Art Director's name for it on his chart. */
-export const CHART_ART: Record<string, string> = { 'crab-cay': 'island-1' };
+export const CHART_ART: Record<string, string> = { 'crab-cay': 'crab-cay', 'mire-cay': 'mire-cay' };
 
 /** The game's name for a piece of gear, and the Art Director's name for its picture. */
 export const GEAR_ART: Record<string, string> = {

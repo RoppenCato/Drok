@@ -1,5 +1,5 @@
 {
-  "_about": "Every kind of monster. All share one way of living: stroll near home, come for him inside aggroRange or when hit, wind up (time to step away), strike, rest, go home and mend when he is down or leashRange from home. Two numbers give a kind its own trick: retreatSeconds (after a strike it backs off for that long instead of resting, so it must be caught) and slamRadius (its strike hits everything within that of it, not only what is in reach, so the wind-up is for getting clear). flies: the shore and the things in the way do not stop it. xp is what a kill gives; the drops are rolled by the rules: money with goldChance, a potion with potionChance, a piece of gear of itemTier with itemChance. Names are Victor, GD's placeholders (docs/names.md). Since 2026-11-20 (Robin: 'I think the birds are weird starting mobs'; then, of Leonard, AD's six candidates: 'Build all of them, and have the GD make a second island to go to with some of the new mobs'): the reef gull is gone. On Crab Cay: the wharf rat (2: darts in, nips, scurries off: the gull's own rule on the ground), the bristle piglet (3: a third trick, rushSpeed and rushLength: after its wind-up it runs straight through where he stood, hits him if it runs into him, skids and turns; a step aside dodges it), the palm monkey (4: the gull's rule). In the swamp, Mire Cay: the hop toad (6) and the plum viper (7), which strike from further off (reach 40 and 44, as Leonard, AD drew the tongue and the lunge), and the frill lizard (8: the gull's rule, harder). Every number of the six is Victor, GD's first guess; nobody has fought them.",
+  "_about": "Every kind of monster. All share one way of living: stroll near home, come for him inside aggroRange or when hit, wind up (time to step away), strike, rest, go home and mend when he is down or leashRange from home. Two numbers give a kind its own trick: retreatSeconds (after a strike it backs off for that long instead of resting, so it must be caught) and slamRadius (its strike hits everything within that of it, not only what is in reach, so the wind-up is for getting clear). flies: the shore and the things in the way do not stop it. xp is what a kill gives; the drops are rolled by the rules: money with goldChance, a potion with potionChance, a piece of gear of itemTier with itemChance. Names are Victor, GD's placeholders (docs/names.md). Since 2026-11-20 (Robin: 'I think the birds are weird starting mobs'; then, of Leonard, AD's six candidates: 'Build all of them, and have the GD make a second island to go to with some of the new mobs'): the reef gull is gone. On Crab Cay: the wharf rat (2: darts in, nips, scurries off: the gull's own rule on the ground), the bristle piglet (3: a third trick, rushSpeed and rushLength: after its wind-up it runs straight through where he stood, hits him if it runs into him, skids and turns; a step aside dodges it), the palm monkey (4: the gull's rule). In the swamp, Mire Cay: the hop toad (6) and the plum viper (7), which strike from further off (reach 40 and 44, as Leonard, AD drew the tongue and the lunge), and the frill lizard (8: the gull's rule, harder). Every number of the six is Victor, GD's first guess; nobody has fought them. The hop toad travels in hops (Leonard, AD: 'it must cover its ground in the 300 ms it is in the air'): hopSeconds is one hop's length as it is drawn, and it moves only between hopFrom and hopTo of it, that much faster, so its pace over a whole hop is its speed.",
   "sand-crab": {
     "name": "Sand crab",
     "level": 1,
@@ -30,7 +30,10 @@
     "itemChance": 0.1,
     "itemTier": 1,
     "rushSpeed": 0,
-    "rushLength": 0
+    "rushLength": 0,
+    "hopSeconds": 0,
+    "hopFrom": 0,
+    "hopTo": 0
   },
   "coconut-crab": {
     "name": "Coconut crab",
@@ -62,7 +65,10 @@
     "itemChance": 0.32,
     "itemTier": 3,
     "rushSpeed": 0,
-    "rushLength": 0
+    "rushLength": 0,
+    "hopSeconds": 0,
+    "hopFrom": 0,
+    "hopTo": 0
   },
   "wharf-rat": {
     "name": "Wharf rat",
@@ -94,7 +100,10 @@
     "itemChance": 0.12,
     "itemTier": 1,
     "rushSpeed": 0,
-    "rushLength": 0
+    "rushLength": 0,
+    "hopSeconds": 0,
+    "hopFrom": 0,
+    "hopTo": 0
   },
   "bristle-piglet": {
     "name": "Bristle piglet",
@@ -126,7 +135,10 @@
     "itemChance": 0.14,
     "itemTier": 2,
     "rushSpeed": 330,
-    "rushLength": 230
+    "rushLength": 230,
+    "hopSeconds": 0,
+    "hopFrom": 0,
+    "hopTo": 0
   },
   "palm-monkey": {
     "name": "Palm monkey",
@@ -158,7 +170,10 @@
     "itemChance": 0.16,
     "itemTier": 2,
     "rushSpeed": 0,
-    "rushLength": 0
+    "rushLength": 0,
+    "hopSeconds": 0,
+    "hopFrom": 0,
+    "hopTo": 0
   },
   "hop-toad": {
     "name": "Hop toad",
@@ -190,7 +205,10 @@
     "itemChance": 0.3,
     "itemTier": 3,
     "rushSpeed": 0,
-    "rushLength": 0
+    "rushLength": 0,
+    "hopSeconds": 0.48,
+    "hopFrom": 0.08,
+    "hopTo": 0.38
   },
   "plum-viper": {
     "name": "Plum viper",
@@ -222,7 +240,10 @@
     "itemChance": 0.32,
     "itemTier": 3,
     "rushSpeed": 0,
-    "rushLength": 0
+    "rushLength": 0,
+    "hopSeconds": 0,
+    "hopFrom": 0,
+    "hopTo": 0
   },
   "frill-lizard": {
     "name": "Frill lizard",
@@ -254,6 +275,9 @@
     "itemChance": 0.34,
     "itemTier": 3,
     "rushSpeed": 0,
-    "rushLength": 0
+    "rushLength": 0,
+    "hopSeconds": 0,
+    "hopFrom": 0,
+    "hopTo": 0
   }
 }

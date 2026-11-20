@@ -117,13 +117,9 @@ if (place.chest && layout.chest) {
 }
 // Every box of his is a zone; how many live in it is the game's, by the box's size.
 const ROOM = { 'sand-crab': 60000, 'wharf-rat': 60000, 'bristle-piglet': 115000, 'palm-monkey': 115000, 'coconut-crab': 230000, 'hop-toad': 90000, 'plum-viper': 100000, 'frill-lizard': 110000 };
-// Who lives where is the game's (Victor, GD with Leonard, AD, 2026-11-20, after Robin: 'I think the birds are weird
-// starting mobs'): his layout of Crab Cay still names the kinds of the day it was drawn, so a zone's kind is read
-// through this table, by its level: the rat on the tide flats, the piglet and the monkey in the grove.
-const LIVES = { 'sand-crab:2': 'wharf-rat', 'reef-gull:3': 'bristle-piglet', 'reef-gull:4': 'palm-monkey', 'reef-gull:0': 'palm-monkey' };
 place.zones = [];
 for (const [kind, boxes] of Object.entries(layout.zones ?? {})) {
-  for (const [x, y, w, h, level] of boxes) place.zones.push({ kind: LIVES[`${kind}:${level ?? 0}`] ?? kind, count: Math.max(1, Math.round((w * h) / (ROOM[LIVES[`${kind}:${level ?? 0}`] ?? kind] ?? 100000))), x, y, w, h, level: level ?? 0 });
+  for (const [x, y, w, h, level] of boxes) place.zones.push({ kind, count: Math.max(1, Math.round((w * h) / (ROOM[kind] ?? 100000))), x, y, w, h, level: level ?? 0 });
 }
 
 // Written the way the file is kept by hand: a point, a circle and a box each on one line.

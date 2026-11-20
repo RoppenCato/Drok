@@ -3,7 +3,7 @@
 // from the step's `now`. The state handed in is never changed; the step works on a copy and hands that back.
 
 import { MAX_DT, clampToPlace, clone, heroReach, monsterById, monsterReach, nearestMonster, reject, roll, setTarget } from './core.ts';
-import { N, START_PLACE, PLACES, heroArmour, heroBonusDamage, heroMaxHp, kindOf, placeOf } from './data.ts';
+import { N, START_PLACE, PLACES, heroArmour, heroBonusDamage, heroMaxHp, hopOf, kindOf, placeOf } from './data.ts';
 import { angleTo, dist, stepToward } from './geometry.ts';
 import { clear, inHome, onLand, walk } from './ground.ts';
 import { hurtMonster, stepDrops } from './loot.ts';
@@ -234,6 +234,8 @@ function stepMonsters(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void
     const heroUp = h.downFor <= 0 && (!safe || m.hp < k.maxHp);
     const fromX = m.x;
     const fromY = m.y;
+    // A hopper travels only while it is in the air, that much faster.
+    const pace = hopOf(k, m.id, s.time).pace;
     switch (m.mode) {
       case 'wander': {
         if (heroUp && d <= k.aggroRange) {
@@ -241,7 +243,7 @@ function stepMonsters(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void
           m.goal = null;
         } else if (m.goal) {
           m.facing = angleTo(m, m.goal);
-          if (stepToward(m, m.goal, k.wanderSpeed * dt)) {
+          if (stepToward(m, m.goal, k.wanderSpeed * pace * dt)) {
             m.goal = null;
             m.timer = pause(m, rng);
           }
@@ -266,7 +268,7 @@ function stepMonsters(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void
           ev.push({ type: 'monsterWindup', monster: m.id, seconds: k.windupSeconds });
         } else {
           m.facing = angleTo(m, h);
-          stepToward(m, h, Math.min(k.chaseSpeed * dt, d - (monsterReach(m) - 2)));
+          stepToward(m, h, Math.min(k.chaseSpeed * pace * dt, d - (monsterReach(m) - 2)));
         }
         break;
       }
@@ -333,7 +335,7 @@ function stepMonsters(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void
         m.hp = Math.min(k.maxHp, m.hp + k.maxHp * dt);
         const home = { x: m.homeX, y: m.homeY };
         m.facing = angleTo(m, home);
-        if (stepToward(m, home, k.chaseSpeed * dt)) {
+        if (stepToward(m, home, k.chaseSpeed * pace * dt)) {
           m.hp = k.maxHp;
           m.mode = 'wander';
           m.timer = pause(m, rng);

@@ -4,20 +4,20 @@
 
 **Why.** Robin, 2026-11-20, in Victor, GD's chat: "I think the birds are weird starting mobs." Six candidates went to him for the gull's place (`concepts\grove-mob\`); he said, in my chat: "Build all of them, and have the GD make a second island to go to with some of the new mobs." The design is mine; the id is mine to propose.
 
-**The numbers:** 120 frames, five facings (`s`, `se`, `e`, `ne`, `n`). `bristle-piglet.png` 1024 by 866 (not a power of two tall), 129 KB, 3.4 MB decoded.
+**The numbers:** 120 frames, five facings (`s`, `se`, `e`, `ne`, `n`). `bristle-piglet.png` 1024 by 872 (not a power of two tall), 130 KB, 3.4 MB decoded.
 
 | Action | Frames a facing | Delays (ms) | Note |
 | --- | --- | --- | --- |
 | `stand` | 4 | 200, looped |  |
 | `move` | 4 | 90, looped | `stride` 20.16: how far one turn of it carries the feet |
-| `charge` | 4 | 70, looped | a gallop with the head down, for a rule that has it charge; an extra, not one of the five every monster has |
+| `charge` | 4 | 42, looped | a gallop with the head down, for a rule that has it charge; an extra, not one of the five every monster has |
 | `attack1` | 7 | 120, 120, 120, 160, 60, 90, 100 | the wind-up is frames 1 to 4, 520 ms: it tips forward with its head down and scrapes a front hoof twice, then butts upward; the blow lands on frame 5 (`blow` 4) |
 | `hit1` | 1 | 160 | thrown back with its front in the air |
 | `die1` | 4 | 90, 90, 140, 220 | rolls onto its back, legs up; the last two frames fade |
 
 **How the game uses it:** copy the folder. It is in the monsters' form of today: frames `bristle-piglet/<action>/<facing>/<nnnn>`; the `actions` block has each frame's origin, delay, box and head, and each action's `blow`, `stride` and `note`. No gear points. Lay its shadow at the origin, about 17 units wide each way. Its body is about 14 units from its middle to its edge. The wind-up changes its outline, so it reads without a colour; tint it as well if you like.
 
-**What suits its body (mine; the rule is Victor, GD's):** A charge: after the wind-up it runs straight through where he stood, skids, turns and comes again; a step aside dodges it. `charge` is the gallop for that run. With today's rule it works too: it darts in and butts.
+**What suits its body (mine; the rule is Victor, GD's):** A charge: after the wind-up it runs straight through where he stood, skids, turns and comes again; a step aside dodges it. `charge` is the gallop for that run: it is drawn for about 128 units a second (one turn of it, 280 ms, carries the feet 36 units). With today's rule it works too: it darts in and butts.
 
 **Where I would put it (mine; Victor, GD's and Robin's to say):** Crab Cay's grove, level 3.
 
