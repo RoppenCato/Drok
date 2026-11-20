@@ -25,7 +25,7 @@ My reading of those three words (mine): the house goes ahead, and he is bean siz
 - **He is about 1.5 cm tall.** He stays 54 units on the screen, so a centimetre of the house is 36 design units and the
   screen shows about 11 cm of floor across.
 - **The things tell his size.** A place has things everybody knows, whole and bigger than he is: a coin is 83 units
-  across, a dice 58, a toy brick 115 long, a chair leg 126 wide, a pencil 25 thick and longer than the screen.
+  across, a dice 58, a letter block 108, a chair leg 126 wide, a pencil 25 thick and longer than the screen.
 - **The insects come in every size.** An ant about 40 units, a ladybird about 34, a cockroach about 125, a spider a
   boss. Most monsters stay between 30 and 130, as today.
 
@@ -34,9 +34,29 @@ Shown in still 2, mine, and not judged apart from it: the floor is drawn tilted 
 flat throws its own outline as a shadow; his gear is found things (a pin, a shirt button); the insects are round with
 big eyes.
 
-**No atlas is made yet.** Victor, GD rewrites the brief with Robin (the hero's aim, his weapons, the places, the
-monsters, the names) and says what the game needs first. Until then the pirate sections below are what the game is
-built as, and they are rewritten when the brief is. The look in use stays as it is.
+**What Robin picked next** (2026-11-20, by choice boxes in Victor, GD's chat; the brief has it): he wants to "Get big
+again"; he fights with "Pin and button" (better gear is other found things: a needle, a nail, a bottle cap, a thimble
+as hat); the town is "A doll's house"; spiders "Yes, like any insect".
+
+**The form of the house's art (mine, 2026-11-20).** The world is one place, far too big to paint as one picture. So:
+
+- **A world is a kit.** Floors that repeat (one small picture each), flat pieces laid on them (a rug's border and
+  fringe, the round corners of a shadow, the walls), things that stand or lie, and one `world.json` that places them
+  all. `tools\world.js` paints the floor whole, cuts the kit out of it, and draws the world again from the kit alone;
+  the two must match (`node tools/world.js check`).
+- **The first world is a corner of the kitchen** (`out\kitchen\`), 4320 by 5796 units: the tiles in the sun (level 1
+  and 2, home in the south west), the rug (level 3), the dark under the table with its legs as pillars (level 5).
+- **A floor under a shadow is its own floor**: the same tiles in violet and blue, not a grey laid over them. A grey
+  shadow over cream and aqua turns to mud; a floor in its own colours stays bright.
+- **Every thing carries its shadow in its picture.** One that lies flat throws its own outline; one that stands throws
+  the outline of what it covers. The game draws no shadow under a thing.
+- **A leg runs out of the top of its picture and goes out in flat steps**, not a smooth fade: the palette PNG keeps
+  steps and breaks a fade into uneven bands.
+- **Nothing with a maker's look.** No studded toy brick; a wooden letter block instead. No brand on a matchbox, a
+  bottle cap or a coin.
+
+The insects, his gear, the doll's house, the map and the icon are not made yet. The pirate sections below are how the
+pirate pieces were made; they stay until the house has its own, then they go. The look in use stays as it is.
 
 ## The look in use (mine, 2026-11-20; not judged by Robin)
 
