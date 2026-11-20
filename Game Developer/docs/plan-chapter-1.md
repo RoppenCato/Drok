@@ -140,7 +140,8 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
 ## Waits for Robin
 
 - Play it: `http://192.168.0.43:5178/` on the home Wi-Fi. The first minute: tap the stall to see what it sells,
-  tap the dock at the bottom of the town, tap "Sail to Crab Cay", tap a crab.
+  tap the dock at the bottom of the town, tap "Sail to Crab Cay", tap a crab. The link answers only while the dev
+  server runs on this PC; if it is dead, say so in the chat and it is started again (`docs\state\pages.md`).
 - The look: Leonard, AD chose it himself, as told ("Let AD handle the art you need. I approve."), so the first
   judging of the Warrior, the monsters, the island, the town, the chart, the glass and the icon is this play. The
   look and the chart would each have been three to pick from. And the size: he finds the Warrior small and offers

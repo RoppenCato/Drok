@@ -92,6 +92,10 @@ Victor, GD's first guess of 2026-11-20 and is pending until Robin has played the
 11. The game loads every picture at the start: 62 MB decoded with two places, over its own rule of 48 a place.
     Nobody broke a budget; the rule "by place" was simply never built. Rule: a budget that needs code gets an item
     on the plan the day it is written.
+12. Robin came to play and "the link doesnt seem to work" (Robin, 2026-11-20): the app had stopped the dev server
+    hours before, while the chat was quiet, and the report still gave the home link as if it would last. Rule: a
+    link in a report is fetched from this PC in the same turn, and a home link is said to live only while the chat
+    does; a game meant to be played when the developer is away needs its public page.
 
 ## Harvested
 
