@@ -62,8 +62,24 @@ function paint() {
     for (let i = 0; i < b[2] * b[3] / 15000; i++) { const x = b[0] + r() * b[2], y = b[1] + r() * b[3], s = 34 + r() * 50, pts = []; for (let k = 0; k < 5; k++) { const t = k / 5 * 6.283 + r() * 0.5; pts.push([x + Math.cos(t) * s * (0.75 + r() * 0.4), y + Math.sin(t) * s * 0.58 * (0.75 + r() * 0.4)]); } fill(g, poly(pts), i % 2 ? C.stoneHi : C.stoneLo); }
     for (let i = 0; i < b[2] * b[3] / 26000; i++) fill(g, blob(b[0] + r() * b[2], b[1] + r() * b[3], 18 + r() * 36, 8 + r() * 14, 8, 0.4, r), i % 3 ? C.moss : C.mossHi);
     ring(g, sh, C.moss, 34); g.restore(); }
-  // the mud tracks
-  for (const p of L.paths) { const q = curve(p.concat(p.slice(1, -1).reverse()), 0.5, 6).slice(0, (p.length - 1) * 6 + 1); g.beginPath(); q.forEach((v, k) => k ? g.lineTo(v[0], v[1]) : g.moveTo(v[0], v[1])); g.lineJoin = 'round'; g.lineCap = 'round'; g.strokeStyle = C.pathLo; g.lineWidth = 46; g.stroke(); g.strokeStyle = C.path; g.lineWidth = 38; g.stroke(); }
+  // the ways: trodden earth, never a drawn road (Robin, 2026-11-20: "Looks good except the roads. They clip over each other and
+  // doesnt look natural. I think you can get a lot of inapiration from my survival game project"). From the Survival game's
+  // village ways (its village.js): a way is dabs of bare earth that wander a little, wider where more feet go, paler down the
+  // middle, with a ragged rim and no line round it; ways join and share one ground, and where several meet the ground is a worn
+  // apron. So every way is laid in the same three passes, all the rims first, then all the earth, then all the pale middles: no
+  // way lies on another.
+  { const wr = P.rng(L.seed + 7), ways = L.paths.map((p, n) => { const q = curve(p.concat(p.slice(1, -1).reverse()), 0.5, 40).slice(0, (p.length - 1) * 40 + 1), ph = wr() * 6.283, out = [];
+      for (let k = 0; k < q.length; k++) { const t = k / (q.length - 1), a = q[Math.max(0, k - 1)], b = q[Math.min(q.length - 1, k + 1)], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1, end = Math.min(1, Math.min(t, 1 - t) * 6), off = (Math.sin(t * 9 + ph) * 9 + Math.sin(t * 23 + ph * 2) * 4) * end;      // it wanders, but not where it meets a bridge or another way
+        out.push([q[k][0] - dy / d * off, q[k][1] + dx / d * off, (n === 0 ? 21 : 16) * (1 + 0.16 * Math.sin(t * 13 + ph * 3))]); }
+      return out; });
+    const aprons = []; for (const w of ways) for (const e of [w[0], w[w.length - 1]]) aprons.push([e[0], e[1], 30 + wr() * 8]);
+    const dab = (x, y, rx, ry, col, al = 1) => { g.globalAlpha = al; g.fillStyle = col; g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, 7); g.fill(); g.globalAlpha = 1; };
+    for (const w of ways) for (const [x, y, r0] of w) { dab(x + (wr() - 0.5) * 5, y + 3 + (wr() - 0.5) * 4, r0 + 5 + wr() * 4, (r0 + 5) * 0.8, C.pathLo, 0.5); if (wr() < 0.07) dab(x + (wr() - 0.5) * (r0 * 2.6), y + (wr() - 0.5) * (r0 * 2), 5 + wr() * 6, 3 + wr() * 3, C.pathLo, 0.45); }      // the rim: darker, ragged, with stray patches
+    for (const [x, y, r0] of aprons) fill(g, blob(x, y + 3, r0 + 6, (r0 + 6) * 0.72, 10, 0.3, wr), 'rgba(143,119,79,0.5)');
+    for (const w of ways) for (const [x, y, r0] of w) dab(x + (wr() - 0.5) * 4, y + (wr() - 0.5) * 3, r0, r0 * 0.8, C.path);      // the earth
+    for (const [x, y, r0] of aprons) fill(g, blob(x, y, r0, r0 * 0.72, 10, 0.3, wr), C.path);
+    for (const w of ways) for (let k = 0; k < w.length; k += 2) { const [x, y, r0] = w[k]; dab(x + (wr() - 0.5) * 5, y - 1 + (wr() - 0.5) * 3, r0 * 0.5, r0 * 0.32, '#d6c090', 0.35); }      // paler down the middle, where the feet fall
+    for (const w of ways) for (const [x, y, r0] of w) { if (wr() < 0.04) fill(g, blob(x + (wr() < 0.5 ? -1 : 1) * r0 * (0.7 + wr() * 0.4), y + (wr() - 0.5) * 8, 6 + wr() * 7, 3 + wr() * 3, 7, 0.4, wr), wr() < 0.5 ? C.moss : C.mossLo); if (wr() < 0.03) dab(x + (wr() - 0.5) * r0 * 1.4, y + (wr() - 0.5) * r0, 1.8, 1.3, C.wet, 0.8); } }      // moss creeping in from the side, a pebble
   // the pools: a dark rim of wet mud, green water, deeper toward the far bank; lily pads lying flat, some with a lotus
   pools.forEach((ip, n) => { const il = poly(ip), b = box(ip), rr = P.rng(300 + n); ring(g, il, C.bogRim, 20); fill(g, il, C.bog); g.save(); il(g); g.clip(); fill(g, poly(ip.map(([x, y]) => [x, y - 34])), C.bogIn);
     for (let i = 0; i < 9; i++) { g.strokeStyle = 'rgba(190,236,220,0.5)'; g.lineWidth = 2.4; g.beginPath(); g.ellipse(b[0] + rr() * b[2], b[1] + rr() * b[3], 12 + rr() * 16, 3 + rr() * 2, 0, 0.3, 2.8); g.stroke(); }

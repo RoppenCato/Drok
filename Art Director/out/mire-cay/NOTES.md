@@ -19,6 +19,14 @@ each a colour the ground is not.
 boat or a hut, yours), and it is the safe part, as the town is". So the second drop has the camp: the trader's boat
 drawn up on the bank under a patched red awning (the `stall`), the trader beside it, a reed hut on stilts, a fire.
 
+**The third drop, 2026-11-20: the ways.** Robin, in my chat, of the swamp: "Looks good except the roads. They clip over
+each other and doesnt look natural. I think you can get a lot of inapiration from my survival game project". The ways
+were drawn as roads, each with a dark line round it, so one lay on the next where they met. Now they are trodden
+earth, as the Survival game's village ways are: dabs of bare ground that wander a little, wider on the main way,
+paler down the middle, a ragged rim with no line, moss creeping in, and a worn patch where ways meet. All of them are
+laid together, so none lies on another. **Only `ground.png` changed** (and the look pictures); `paths` in
+`place.json` is the same list, and the ways still run through its points.
+
 ## The numbers
 
 | File | What | Size | Decoded | On disk |
@@ -55,7 +63,7 @@ Copy the folder. It is Crab Cay's form (`out\crab-cay\NOTES.md`), with **one new
 
 ## Open
 
-- **The look is not judged.** Robin said "A swamp maybe"; the three screens went to him on 2026-11-20.
+- **The look:** Robin, 2026-11-20: "Looks good except the roads." The roads are redone (above) and shown to him again.
 - **A landmark.** The old stones want broken pillars and one great thing (I would make a mossy stone toad). Not made.
 - The camp has one person. More of them, and a second hut, when tasks come here.
 - The stall, the hut and the fire take the round shadow; the fire does not flicker.
