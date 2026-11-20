@@ -37,6 +37,19 @@ What it taught, and stays true for the islands (mine):
 - **A smooth fade breaks into uneven bands in a palette PNG.** Flat steps survive it.
 - **A shadow laid over bright ground as a grey turns it to mud.** Give the shaded ground its own colours.
 
+## A big island (Robin, 2026-11-20; the form is mine)
+
+Robin's pick, "3": "Both. Big islands with several biomes each, and the chart to sail between them." So an island is
+big, has several grounds with their own levels and monsters, and is walked without a break.
+
+- **Its ground is one painting at half a pixel a design unit**, drawn by the game at four times. 2800 by 4200 units
+  is 1400 by 2100 pixels, 11.8 MB. `tools\isle.js` paints it in the hand of `tools\ground.js`.
+- **Each ground has its outline in `place.json`** (`grounds`), and the shore drawn in by 24 units is there as `walk`.
+- **The beach lies all round an island;** the other grounds lie on it. He lands in the south and the levels rise to
+  the north.
+- **The first one is Crab Cay** (`out\crab-cay\`): the beach, the grove, the cove, and a reef whose ground is painted
+  but empty. For the reef I propose a wreck, a hermit crab in a tankard and an octopus in a barrel; Robin decides.
+
 ## The look in use (mine, 2026-11-20; not judged by Robin)
 
 Look 1 of the three, the toy-box models, with the thicker line and the bigger eyes of look 2. It is the one that gives
