@@ -4,13 +4,13 @@
 
 **Why.** Robin, 2026-11-20, in Victor, GD's chat: "I think the birds are weird starting mobs." Six candidates went to him for the gull's place (`concepts\grove-mob\`); he said, in my chat: "Build all of them, and have the GD make a second island to go to with some of the new mobs." The design is mine; the id is mine to propose.
 
-**The numbers:** 120 frames, five facings (`s`, `se`, `e`, `ne`, `n`). `bristle-piglet.png` 1024 by 866 (not a power of two tall), 129 KB, 3.4 MB decoded.
+**The numbers:** 120 frames, five facings (`s`, `se`, `e`, `ne`, `n`). `bristle-piglet.png` 1024 by 872 (not a power of two tall), 130 KB, 3.4 MB decoded.
 
 | Action | Frames a facing | Delays (ms) | Note |
 | --- | --- | --- | --- |
 | `stand` | 4 | 200, looped |  |
 | `move` | 4 | 90, looped | `stride` 20.16: how far one turn of it carries the feet |
-| `charge` | 4 | 70, looped | a gallop with the head down, for a rule that has it charge; an extra, not one of the five every monster has |
+| `charge` | 4 | 42, looped | a gallop with the head down, for a rule that has it charge; an extra, not one of the five every monster has |
 | `attack1` | 7 | 120, 120, 120, 160, 60, 90, 100 | the wind-up is frames 1 to 4, 520 ms: it tips forward with its head down and scrapes a front hoof twice, then butts upward; the blow lands on frame 5 (`blow` 4) |
 | `hit1` | 1 | 160 | thrown back with its front in the air |
 | `die1` | 4 | 90, 90, 140, 220 | rolls onto its back, legs up; the last two frames fade |

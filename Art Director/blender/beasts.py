@@ -161,7 +161,7 @@ def piglet(st, p):
         for front in (True, False):
             dy = lf = 0.0
             if p['phase'] is not None: dy, lf = step(p['phase'] + (0 if (s > 0) == front else math.pi), 0.09, 0.06)
-            if p['gallop'] is not None: dy, lf = step(p['gallop'] + (0 if front else 2.4) + (0.3 if s > 0 else 0), 0.16, 0.1)
+            if p['gallop'] is not None: dy, lf = step(p['gallop'] + (0 if front else 2.4) + (0.3 if s > 0 else 0), 0.24, 0.11)
             if p['scrape'] is not None and front and s > 0: dy = -0.1 * p['scrape']; lf = 0.05 * (1 - abs(p['scrape']))
             root = bp(s * 0.11, -0.2, -0.1) if front else bp(s * 0.12, 0.14, -0.1)
             foot = V((s * 0.12, (-0.14 if front else 0.24) + dy, 0.035 + lf)); foot = mix(foot, bp(s * 0.22, -0.28 if front else 0.32, -0.2), sp)
@@ -178,7 +178,7 @@ def piglet_clips():
     hit = [P(pitch=-24, nod=-15, spread=0.6, shut=True, fwd=-0.08, jump=0.05, ear=1.0)]
     die = [P(roll=70, shut=True, spread=0.5, ear=1.0), P(roll=150, shut=True, spread=0.7, ear=1.0), P(roll=180, shut=True, spread=0.9, ear=1.0), P(roll=180, shut=True, spread=1.0, ear=1.0)]
     return {'stand': {'frames': stand, 'delay': 200, 'loop': True}, 'move': {'frames': move, 'delay': 90, 'loop': True, 'stride': round(4 * 0.09 * D.UNIT, 2)},
-            'charge': {'frames': charge, 'delay': 70, 'loop': True, 'stride': round(4 * 0.16 * D.UNIT, 2), 'note': 'a gallop with the head down, for a rule that has it charge; not one of the five every monster has'},
+            'charge': {'frames': charge, 'delay': 42, 'loop': True, 'stride': round(4 * 0.24 * D.UNIT, 2), 'note': 'a gallop with the head down, for the rule that has it charge; drawn for 320 design units a second (Victor, GD runs it at 330): one turn of it, 168 ms, carries the feet 54'},
             'attack1': {'frames': attack, 'delay': [120, 120, 120, 160, 60, 90, 100], 'blow': 4, 'note': 'the wind-up is frames 1 to 4, 520 ms: head down, a front hoof scraping twice; the butt lands on frame 5; it is drawn up to 17 design units ahead of its origin while it butts'},
             'hit1': {'frames': hit, 'delay': 160}, 'die1': {'frames': die, 'delay': [90, 90, 140, 220], 'fade': 2}}
 
