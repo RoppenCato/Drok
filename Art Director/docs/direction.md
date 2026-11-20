@@ -52,9 +52,16 @@ big, has several grounds with their own levels and monsters, and is walked witho
   landing as its safe part (`home`), and round it lie the beach with its tide flats, the grove and the cove.
 - **A town on an island is its own layout** (`tools\isle.js`, `townOf`): moved there from a place of its own, its
   dock on the island's dock, or given whole. Today it is the harbour as it stood.
-- **The real pirate town** (open: Robin picks; he said "Yeah do an updated pirate town suggested", 2026-11-20): three
-  stills went to him the same day (`concepts\town\`): 1 a port, 2 a town built of ships, 3 a town on stilts. My pick
-  is 2. Until he has picked, the game keeps the old harbour at the landing.
+- **The real pirate town is a town on stilts** (Robin, 2026-11-20). He said "Yeah do an updated pirate town
+  suggested", was shown three (`concepts\town\`: a port, a town built of ships, a town on stilts) and picked, in my
+  chat: "3, but the buildings need to look nicer and have some depth to them. Theres also no contrast to the floor so
+  it all kinda melts together." One still with those changes went back to him the same day; the kit waits for his
+  word on it, and the game keeps the old harbour until then.
+- **A building has depth** (from his words; how is mine): it stands on its own dark platform, turned so two walls
+  show; a porch under the roof's overhang; the roof in two tiers. Never a flat front under a flat roof.
+- **What stands must not melt into what it stands on** (his words; how is mine): painted walls on a wooden floor,
+  never bare wood on wood; the floor paler and greyer than everything on it; and every building throws the outline
+  of its foot as a shadow, in its own picture.
 - **Kept for the second island (mine, a proposal):** a wreck on a reef, a hermit crab in a tankard, an octopus in a
   barrel.
 
@@ -77,9 +84,9 @@ Nice contrast. But mind the text needs to fit and not overlap with stuff"**.
   (`tools\window.js`): that is how his "the text needs to fit" is kept.
 - The field's glass (his bar, the monsters' bars, the discs, the stick) stays as it was.
 
-**The font** (Robin, 2026-11-20, in my chat: "Choose a good font for the game thats clear and easy to read"): my choice
-is Nunito, extra bold, free under the SIL Open Font Licence 1.1. Round, clear at 13, no wider than what the phone shows
-now. (decide with Robin: may I fetch the file; asked the same day.)
+**The font is Nunito** (Robin, 2026-11-20, in my chat: "Choose a good font for the game thats clear and easy to read";
+I chose Nunito and asked before fetching it; he answered "Yes, download it"). Free under the SIL Open Font Licence 1.1.
+Round, clear at 13, as wide as what the phone showed before. Written extra bold (800) is mine. It is in `out\font\`.
 
 ## The look in use (mine, 2026-11-20; not judged by Robin)
 

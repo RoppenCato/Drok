@@ -4,20 +4,22 @@
 // `slice` as the game does (glass.ts), lays the window out with the game's own numbers (client/src/view/panels.ts,
 // buildSheet) and fills it with long names and big numbers. --fix lays it out with the few changes that keep every word and
 // every piece clear of the frame and of each other; they are listed in out/glass/NOTES.md for Victor, GD.
-//   node tools/window.js <out.png> [--fix] [--sheet] [--state bag|worn|none] [--font "Segoe UI"] [--glass work/glass/out] [--crop x,y,w,h,zoom]
+//   node tools/window.js <out.png> [--fix] [--sheet] [--state bag|worn|none] [--font "Segoe UI"|Nunito] [--weight 800] [--glass work/glass/out] [--crop x,y,w,h,zoom]
 const P = require('./paint.js'); const D = require('./dress.js'); const G = require('./glass.js'); const fs = require('fs'); const path = require('path');
 const W = 412, H = 915, S = 2, CX = 206, F = { x: 20, y: 118, w: 372, h: 690 }, R = P.ROOT;
 async function main() {
-  const args = process.argv.slice(2), out = args[0], opt = k => { const i = args.indexOf('--' + k); return i >= 0 ? args[i + 1] : null; }, fix = args.includes('--fix'), state = opt('state') || 'bag', FONT = opt('font') || 'Segoe UI';
+  const args = process.argv.slice(2), out = args[0], opt = k => { const i = args.indexOf('--' + k); return i >= 0 ? args[i + 1] : null; }, fix = args.includes('--fix'), state = opt('state') || 'bag', FONT = opt('font') || 'Segoe UI', WEIGHT = opt('weight') || 'bold';
+  const fontFile = path.join(R, 'out/font/Nunito.ttf'); if (FONT === 'Nunito' && fs.existsSync(fontFile)) require(P.PATHS.canvas || '@napi-rs/canvas').GlobalFonts.registerFromPath(fontFile, 'Nunito');      // the game's own font, once it is delivered
   const gdir = path.join(R, opt('glass') || (fs.existsSync(path.join(R, 'work/glass/out/glass.json')) ? 'work/glass/out' : 'out/glass')), glass = await D.atlas(gdir, 'glass'), A = await D.load(), icons = await D.atlas(path.join(R, 'out/gear'), 'gear-icons'), I = G.CH.words;
   const bgF = path.join(R, 'work/wood/bg.png'), cv = P.createCanvas(W * S, H * S), g = cv.getContext('2d'); g.scale(S, S); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  if (FONT === 'Nunito') g.fontVariationSettings = `'wght' ${WEIGHT === 'bold' ? 700 : WEIGHT}`;      // one file holds every weight: the canvas must be told which, as a browser is by font-weight
   if (fs.existsSync(bgF)) g.drawImage(await P.loadImage(bgF), 0, 0, W, H); else { g.fillStyle = '#f8e7b6'; g.fillRect(0, 0, W, H); }
   const fr = key => { const f = glass.j.frames[key]; if (!f) throw new Error('no piece ' + key); return f.frame; }, it = key => glass.j.items[key];
   const piece = (key, x, y, k = 1, a = 1) => { g.save(); g.globalAlpha = a; g.translate(x, y); g.scale(0.5 * k, 0.5 * k); D.pic(g, glass, key); g.restore(); };
   // a piece cut in nine by its slice (left, top, right, bottom, file pixels) and stretched to w by h units about x, y
   const stretch = (key, x, y, w, h) => { const f = fr(key), [l, t, r, b] = it(key).slice, cw = [l, f.w - l - r, r], ch = [t, f.h - t - b, b], dw = [l / 2, w - (l + r) / 2, r / 2], dh = [t / 2, h - (t + b) / 2, b / 2]; let sy = f.y, dy = y - h / 2;
     for (let j = 0; j < 3; j++) { let sx = f.x, dx = x - w / 2; for (let i = 0; i < 3; i++) { if (cw[i] > 0 && ch[j] > 0 && dw[i] > 0 && dh[j] > 0) g.drawImage(glass.im, sx, sy, cw[i], ch[j], dx, dy, dw[i], dh[j]); sx += cw[i]; dx += dw[i]; } sy += ch[j]; dy += dh[j]; } };
-  const txt = (t, x, y, s, c, align = 'center') => P.label(g, t, x, y, s, c, { font: FONT, align }), wide = (t, s) => { g.save(); g.font = `bold ${s}px ${FONT}`; const w = g.measureText(t).width; g.restore(); return w; };
+  const txt = (t, x, y, s, c, align = 'center') => P.label(g, t, x, y, s, c, { font: FONT, align, weight: WEIGHT }), wide = (t, s) => { g.save(); g.font = `${WEIGHT} ${s}px ${FONT}`; const w = g.measureText(t).width; g.restore(); return w; };
   const wrap = (t, s, max) => { const out2 = []; let cur = ''; for (const w of t.split(' ')) { if (cur && wide(cur + ' ' + w, s) > max) { out2.push(cur); cur = w; } else cur = cur ? cur + ' ' + w : w; } out2.push(cur); return out2; };
   const icon = (key, x, y, size) => { const f = icons.j.frames['icon/' + key]; if (!f) return; const k = size * 0.74 / (f.frame.w / 2); g.save(); g.translate(x, y); g.scale(0.5 * k, 0.5 * k); D.pic(g, icons, 'icon/' + key); g.restore(); };
   const slot = (x, y, size, piece2, kind, chosen) => { const k = size / (fr('slot/empty').w / 2); piece(piece2 ? 'slot/' + piece2[1] : 'slot/empty', x, y + 1 * k, k); if (piece2) icon(piece2[0], x, y, size); else if (kind) piece('mark/slot-' + kind, x, y, k); if (chosen) piece('slot/chosen', x, y, k); };
@@ -25,7 +27,7 @@ async function main() {
   // the top of the screen and the veil
   g.fillStyle = 'rgba(0,0,0,0.35)'; g.fillRect(0, 0, W, H);
   for (const [k, x] of [['menu', 30], ['bag', 286], ['chart', 334], ['hero', 382]]) piece('button/' + k, x, 31);
-  P.label(g, 'Lv 5', 62, 30, 16, '#ffffff', { font: FONT, stroke: G.INK, strokeW: 4 }); piece('mark/coin', 122, 30); P.label(g, '9480', 134, 30, 16, '#ffffff', { font: FONT, stroke: G.INK, strokeW: 4 });
+  P.label(g, 'Lv 5', 62, 30, 16, '#ffffff', { font: FONT, weight: WEIGHT, stroke: G.INK, strokeW: 4 }); piece('mark/coin', 122, 30); P.label(g, '9480', 134, 30, 16, '#ffffff', { font: FONT, weight: WEIGHT, stroke: G.INK, strokeW: 4 });
   // the frame every window shares
   stretch('panel', F.x + F.w / 2, F.y + F.h / 2, F.w, F.h); stretch('panel/title', CX, F.y + 6, 236, 44); txt('Hero', CX, F.y + 5, 18, I.onGold); piece('button/close', F.x + F.w - 12, F.y + 10);
   const left = F.x + 22, right = F.x + F.w - 22, top = F.y + 82;

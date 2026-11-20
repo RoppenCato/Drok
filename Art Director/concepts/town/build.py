@@ -14,7 +14,7 @@ from mathutils import Vector, Matrix
 import drok as D, props
 from drok import sph, cap, box, cyl, plate
 
-D.HEX.update({'thatch': '#efc965', 'thatchLo': '#cf9c3c', 'hull': '#b9743f', 'hullLo': '#96592e', 'wallYellow': '#ffe08a', 'wallPink': '#ffc4b0', 'wallBlue': '#bfe6ee', 'roofTeal': '#2aa198', 'roofYellow': '#ffd640', 'cannon': '#3a3040', 'fish': '#9fd6e6'})
+D.HEX.update({'thatch': '#efc965', 'thatchLo': '#cf9c3c', 'hull': '#b9743f', 'hullLo': '#96592e', 'wallYellow': '#ffe08a', 'wallPink': '#ffc4b0', 'wallBlue': '#bfe6ee', 'roofTeal': '#2aa198', 'roofYellow': '#ffd640', 'cannon': '#3a3040', 'fish': '#9fd6e6', 'deckDark': '#7a4f30', 'wallTeal': '#2fb0a6', 'wallTealLo': '#1f8a82', 'wallCoral': '#ff7d5e', 'wallCoralLo': '#d95a40', 'wallCream': '#fff3d6', 'wallCreamLo': '#e0cca0'})
 def tube(bm, pts, r, seg=6):
     for a, b in zip(pts, pts[1:]): cap(bm, a, b, r, r, seg=seg)
 def pitched(bm, w, d, h, rh, along='y', over=0.12):
@@ -190,6 +190,61 @@ def hut(w, d, h, door=0.0, deep=False):
         bm = bmesh.new(); box(bm, (door * w, -d / 2 - 0.01, 0.34), (0.4, 0.04, 0.68)); box(bm, (-door * w if door else w * 0.28, -d / 2 - 0.01, h * 0.58), (0.3, 0.04, 0.28)); st.make(bm, 'openings', 'woodDark', smooth=False)
         bm = bmesh.new(); plate(bm, [(door * w - 0.2, -d / 2 - 0.04, 0.68), (door * w + 0.06, -d / 2 - 0.04, 0.68), (door * w - 0.02, -d / 2 - 0.04, 0.2), (door * w - 0.2, -d / 2 - 0.04, 0.12)]); st.make(bm, 'curtain', 'red', solid=0.02, smooth=False); return None
     return b
+def frustum(bm, cx, cy, a0, c0, z0, a1, c1, z1):
+    """a roof tier: a rectangle a0 by c0 (half sizes) at z0 drawn in to a1 by c1 at z1"""
+    lo = [bm.verts.new((cx + sx * a0, cy + sy * c0, z0)) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]; hi = [bm.verts.new((cx + sx * a1, cy + sy * c1, z1)) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+    for i in range(4): bm.faces.new((lo[i], lo[(i + 1) % 4], hi[(i + 1) % 4], hi[i]))
+    bm.faces.new(hi); bm.faces.new(list(reversed(lo)))
+def cabin(w, d, h, wall, door=-0.2, big=False):
+    """Robin, 2026-11-20, of the first huts: "the buildings need to look nicer and have some depth to them. Theres also no
+    contrast to the floor so it all kinda melts together." So: a hut on its own dark platform with steps, turned so two walls
+    show; painted planks, dark posts at its corners; a porch under the roof's deep overhang, with a rail; thatch in two tiers
+    with crossed poles at the ridge; a door in a frame, shutters, floats hung on the wall, a lantern."""
+    def b(st):
+        z0 = 0.2; yc = -0.2; a = w / 2 + 0.32; c = d / 2 + 0.56; zb = z0 + h - 0.06; zm = zb + 0.4; zr = zm + (0.82 if big else 0.68)
+        bm = bmesh.new(); box(bm, (0, -0.2, z0 / 2), (w + 0.62, d + 0.98, z0)); st.make(bm, 'platform', 'deckDark', smooth=False)
+        bm = bmesh.new(); box(bm, (0, -0.2, z0 + 0.006), (w + 0.5, d + 0.86, 0.012)); box(bm, (door * w, -d / 2 - 0.8, 0.05), (0.6, 0.22, 0.1)); st.make(bm, 'floor', 'woodHi', smooth=False)
+        bm = bmesh.new(); box(bm, (0, 0, z0 + h / 2), (w, d, h)); st.make(bm, 'walls', wall, smooth=False)
+        bm = bmesh.new(); z = 0.2
+        while z < h - 0.05:
+            box(bm, (0, -d / 2 - 0.006, z0 + z), (w, 0.012, 0.028))
+            for sx in (-1, 1): box(bm, (sx * (w / 2 + 0.006), 0, z0 + z), (0.012, d, 0.028))
+            z += 0.21
+        st.make(bm, 'planks', wall + 'Lo', smooth=False, line=False)
+        bm = bmesh.new()
+        for sx in (-1, 1):
+            for sy in (-1, 1): cyl(bm, (sx * (w / 2 + 0.02), sy * (d / 2 + 0.02), z0 + h / 2), 0.07, h + 0.04, seg=8)
+            cyl(bm, (sx * (w / 2 + 0.16), -d / 2 - 0.66, z0 + (h - 0.1) / 2), 0.055, h - 0.1, seg=8)
+        s = -1 if door < 0 else 1; rx0, rx1 = (-s * (w / 2 + 0.16), door * w - s * 0.36)
+        box(bm, ((rx0 + rx1) / 2, -d / 2 - 0.66, z0 + 0.4), (abs(rx1 - rx0), 0.05, 0.05))
+        for k in (0.25, 0.6): box(bm, (rx0 + (rx1 - rx0) * k, -d / 2 - 0.66, z0 + 0.2), (0.04, 0.04, 0.4))
+        st.make(bm, 'posts', 'woodDark')
+        bm = bmesh.new(); frustum(bm, 0, yc, a, c, zb, a * 0.62, c * 0.6, zm); st.make(bm, 'skirt', 'thatchLo', smooth=False)
+        bm = bmesh.new(); frustum(bm, 0, yc, a * 0.74, c * 0.72, zm - 0.1, w * 0.26, 0.03, zr); st.make(bm, 'roof', 'thatch', smooth=False)
+        bm = bmesh.new(); cyl(bm, (0, yc, zr + 0.02), 0.05, w * 0.62, axis=(1, 0, 0), seg=8)
+        for sx in (-1, 1):
+            for sy in (-1, 1): cap(bm, (sx * w * 0.27, yc - sy * 0.3, zr - 0.3), (sx * w * 0.27, yc + sy * 0.22, zr + 0.3), 0.035, 0.03, seg=6)
+        st.make(bm, 'ridge', 'woodDark')
+        bm = bmesh.new(); box(bm, (door * w, -d / 2 - 0.014, z0 + 0.37), (0.46, 0.03, 0.74)); st.make(bm, 'door', 'woodDark', smooth=False)
+        bm = bmesh.new(); box(bm, (door * w, -d / 2 - 0.03, z0 + 0.77), (0.6, 0.05, 0.07))
+        for sx in (-1, 1): box(bm, (door * w + sx * 0.27, -d / 2 - 0.03, z0 + 0.38), (0.07, 0.05, 0.78))
+        wx = -door * w if abs(door) > 0.05 else w * 0.28
+        for sx in (-1, 1): box(bm, (wx + sx * 0.27, -d / 2 - 0.03, z0 + h * 0.58), (0.16, 0.04, 0.34))
+        box(bm, (wx, -d / 2 - 0.05, z0 + h * 0.58 - 0.2), (0.5, 0.08, 0.05)); st.make(bm, 'trim', 'woodHi', smooth=False)
+        bm = bmesh.new(); box(bm, (wx, -d / 2 - 0.014, z0 + h * 0.58), (0.36, 0.03, 0.3))
+        for sx in (-1, 1): box(bm, (sx * (w / 2 + 0.014), 0.05, z0 + h * 0.58), (0.03, 0.34, 0.3))
+        st.make(bm, 'windows', 'glass', smooth=False)
+        bm = bmesh.new(); sph(bm, (door * w + 0.02, -d / 2 - 0.04, z0 + 0.4), 0.035, seg=8); st.make(bm, 'knob', 'gold', line=False)
+        fx = s * (w / 2 - 0.2)
+        bm = bmesh.new(); sph(bm, (fx, -d / 2 - 0.1, z0 + 0.42), 0.1, seg=12); st.make(bm, 'float', 'red')
+        bm = bmesh.new(); sph(bm, (fx - s * 0.16, -d / 2 - 0.1, z0 + 0.58), 0.09, seg=12); st.make(bm, 'float2', 'white')
+        bm = bmesh.new(); px = -s * (w / 2 + 0.16); box(bm, (px, -d / 2 - 0.74, z0 + h - 0.42), (0.14, 0.14, 0.18)); st.make(bm, 'lantern', 'yellow', smooth=False)
+        bm = bmesh.new(); cyl(bm, (px, -d / 2 - 0.74, z0 + h - 0.29), 0.11, 0.06, r2=0.02, seg=8); st.make(bm, 'cap', 'cannon')
+        if big:      # the tavern: a board with a mug hung under the porch
+            bm = bmesh.new(); box(bm, (door * w + 0.75, -d / 2 - 0.7, z0 + h - 0.36), (0.5, 0.05, 0.36)); st.make(bm, 'board', 'woodHi', smooth=False)
+            bm = bmesh.new(); cyl(bm, (door * w + 0.72, -d / 2 - 0.74, z0 + h - 0.37), 0.1, 0.03, axis=(0, 1, 0), seg=12); box(bm, (door * w + 0.85, -d / 2 - 0.74, z0 + h - 0.37), (0.07, 0.03, 0.11)); st.make(bm, 'mug', 'gold', line=False)
+        return None
+    return b
 def post():
     def b(st):
         bm = bmesh.new(); cyl(bm, (0, 0, 0.42), 0.1, 0.84, r2=0.085, seg=10); st.make(bm, 'post', 'woodDark')
@@ -217,6 +272,7 @@ ITEMS = [
     T('tower', tower(), (448, 760, 224, 680)), T('bunting', bunting(), (512, 320, 256, 250)), T('cannon', cannon(), (256, 256, 128, 190), 20),
     T('hull-house', hull_house(), (640, 600, 320, 470)), T('stern-house', stern_house(), (512, 600, 256, 480)), T('mast', mast(), (512, 720, 256, 640)), T('awning', awning(), (512, 512, 256, 400)), T('anchor', anchor(), (256, 320, 128, 250)),
     T('hut-a', hut(1.9, 1.3, 1.2, door=-0.18), (512, 512, 256, 400)), T('hut-b', hut(1.5, 1.2, 1.3, door=0.0, deep=True), (512, 560, 256, 440)), T('hut-c', hut(2.5, 1.5, 1.35, door=0.16, deep=True), (640, 600, 320, 470)),
+    T('cabin-a', cabin(2.0, 1.3, 1.6, 'wallTeal', door=-0.2), (640, 700, 320, 540), 24), T('cabin-b', cabin(1.7, 1.25, 1.5, 'wallCoral', door=0.2), (640, 700, 320, 540), -24), T('cabin-c', cabin(2.6, 1.5, 1.8, 'wallCream', door=-0.16, big=True), (768, 800, 384, 620), 20),
     T('tower-thatch', tower(thatch=True), (448, 760, 224, 680)), T('post', post(), (128, 192, 64, 150)), T('rack', rack(), (384, 320, 192, 250)),
 ]
 if __name__ == '__main__':

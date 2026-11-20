@@ -48,16 +48,17 @@ const ISLES = {
 // a town moved onto an island: the layout of out/<from>/place.json, shifted so its dock lies on the island's dock
 function townOf(L) {
   if (!L.town) return null; const H = L.town.layout || JSON.parse(fs.readFileSync(path.join(P.ROOT, 'out', L.town.from, 'place.json'), 'utf8')), dx = L.dock[0] - H.dock[0], dy = L.dock[1] - H.dock[1], mv = pts => pts.map(([x, y]) => [x + dx, y + dy]);
-  return { square: H.square && mv(H.square), grass: H.grass && mv(H.grass), decks: (H.decks || []).map(d => ({ sea: d.sea, pts: mv(d.pts) })), paths: H.paths.map(mv), props: H.props.filter(q => q.name !== 'dock').map(q => ({ name: q.name, x: q.x + dx, y: q.y + dy })), solid: H.solid.map(q => Object.assign({}, q, { x: q.x + dx, y: q.y + dy })),
+  return { square: H.square && mv(H.square), grass: H.grass && mv(H.grass), decks: (H.decks || []).map(d => ({ sea: d.sea, col: d.col || H.deckCol, pts: mv(d.pts) })), paths: H.paths.map(mv), props: H.props.filter(q => q.name !== 'dock').map(q => ({ name: q.name, x: q.x + dx, y: q.y + dy })), solid: H.solid.map(q => Object.assign({}, q, { x: q.x + dx, y: q.y + dy })),
     people: H.people.map(q => Object.assign({}, q, { x: q.x + dx, y: q.y + dy })), stall: (() => { const st = H.props.find(q => q.name === (H.stall || 'stall')); return [st.x + dx, st.y + dy]; })() };
 }
 
 // a deck of planks: boards lying east to west, their ends staggered. Over the sea it has a side and throws a shadow on the water.
 function deck(g, d) {
-  const sh = poly(d.pts), b = box(d.pts);
-  if (d.sea) { g.save(); g.translate(8, 18); sh(g); g.fillStyle = 'rgba(24,52,110,0.3)'; g.fill(); g.restore(); g.save(); g.translate(0, 11); fill(g, sh, '#96592e'); g.restore(); }
+  const sh = poly(d.pts), b = box(d.pts), [top, top2, seam, side] = d.col || [C.plank, C.plank, C.plankLo, '#96592e'];
+  if (d.sea) { g.save(); g.translate(8, 18); sh(g); g.fillStyle = 'rgba(24,52,110,0.3)'; g.fill(); g.restore(); g.save(); g.translate(0, 11); fill(g, sh, side); g.restore(); }
   else { g.save(); g.translate(0, 4); fill(g, sh, C.sandLo); g.restore(); }
-  fill(g, sh, C.plank); g.save(); sh(g); g.clip(); g.strokeStyle = C.plankLo; g.lineWidth = 2.6;
+  fill(g, sh, top); g.save(); sh(g); g.clip(); let row = 0; for (let y = b[1]; y < b[1] + b[3]; y += 15, row++) if (row % 3 === 1) { g.fillStyle = top2; g.fillRect(b[0], y, b[2], 15); }
+  g.strokeStyle = seam; g.lineWidth = 2.6;
   for (let y = b[1] + 15; y < b[1] + b[3]; y += 15) { g.beginPath(); g.moveTo(b[0], y); g.lineTo(b[0] + b[2], y); g.stroke(); }
   let k = 0; for (let y = b[1]; y < b[1] + b[3]; y += 15, k++) for (let x = b[0] + ((k * 53) % 90); x < b[0] + b[2]; x += 90 + (k % 3) * 22) { g.beginPath(); g.moveTo(x, y); g.lineTo(x, y + 15); g.stroke(); }
   g.restore();
