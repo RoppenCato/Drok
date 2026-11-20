@@ -27,13 +27,15 @@ deploy. A pirate save cannot be carried over (other places, other gear): it beco
 - **One world, walked from end to end.** No loading between biomes; he sees the next floor ahead of him, as the rug
   lies north of the tiles in the still.
 - **The size**: 36 units a centimetre (Leonard, AD's number for bean size). The screen shows 11 by 25 cm of floor.
-  The first world is a corner of the kitchen, about 1.2 by 1.6 metres: 4300 by 5800 units, many times the island.
-  At his speed that is 27 seconds from end to end: big enough to be a world, small enough to walk home.
+  **The first world is under a bed in a bedroom** (Robin, 2026-11-20: "Start building. But make the first space
+  under a bed in a bedroom"), with the floor beside it: about 1.2 by 1.6 metres, 4300 by 5800 units, many times
+  the island. At his speed that is 27 seconds from end to end: big enough to be a world, small enough to walk home.
 - **Three biomes for levels 1 to 5**, each with its own floor and its own things:
-  1. the tiles (cream and aqua, as in the still): crumbs, a coin, a dice, a toy brick. Ants. Level 1 and 2.
-  2. the rug: a soft weave, its fringe as a border you walk through, a lost button, a marble. Ladybirds. Level 3.
-  3. under the table: the shadow, chair legs as pillars, a pencil. Cockroaches, with the slow slam. Level 5.
-- **Home** is a doll's house on the tiles (Robin, 2026-11-20, his pick), where small folk live and trade: no
+  1. the bedside: the lit floor beside the bed. Ants. Level 1 and 2.
+  2. under the bed: the shadow, dust, lost things (a sock, a marble, a coin, a toy brick), the bed's legs as
+     pillars. Silverfish, which dart in, bite and back off. Level 3.
+  3. the far corner by the wall, behind the stored boxes. Cockroaches, with the slow slam. Level 5. The chest.
+- **Home** is a doll's house at the bedside (Robin, 2026-11-20, his pick), where small folk live and trade: no
   insect comes near, the stall is there, his health comes back, he wakes there after a fall. Whether he walks
   into it or it stands open towards him is Leonard, AD's to draw.
 - **A biome is a region of the one world** in the data: its outline, its floor, its level, its zones of monsters,
@@ -41,25 +43,29 @@ deploy. A pirate save cannot be carried over (other places, other gear): it beco
 
 ## The work, in order
 
-Each item is built with its tests and committed; the pirate game keeps working until item 7.
+Each item is built with its tests and committed. **Built on 2026-11-20, in one go: items 1, 2, 3, 5 and 6, and
+item 4 as flat stand-in shapes.** The home link plays the house; the public page still plays the pirate game. One
+thing went otherwise than planned: the code keeps the word "place" for a world that is walked without a break
+(`places.json`, `state.place`); there is one, `bedroom`. A second room that joins it is more of the same place.
 
-1. `[ ]` GD · **The data of one world**: `rules\data\world.json` (size, biomes, home, the chest, zones, things in the
+1. `[x]` GD · **The data of one world**: `rules\data\world.json` (size, biomes, home, the chest, zones, things in the
    way) in place of `places.json`; `state.place` goes. A stand-in world laid out by me, flat colours, until
    Leonard, AD's layout lands. Tests: the data is whole; every zone can be reached from home.
-2. `[ ]` GD · **Alive only near him**: a zone wakes when he is within two screens of it and sleeps when he is far;
-   a sleeping zone keeps its count and its timers. The state stays small however big the world grows. Tests: the
+2. `[x]` GD · **Alive only near him**: built simpler: a monster further than 1500 from him that is only strolling
+   does not move; the fallen still come back by their timers. The state stays small however big the world grows. Tests: the
    same seed plays the same; a zone left and come back to; nothing is lost at a border.
-3. `[ ]` GD · **Finding the way in a big world**: the way-finder searches only round him and the tap (a tap can
+3. `[x]` (measured: the old way-finder is quick enough: 58 ms for the first search, the whole world's length;
+   kept as it was) GD · **Finding the way in a big world**: the way-finder searches only round him and the tap (a tap can
    only land on the screen); walls and things in a grid per region, made once. Tests: round a chair leg; from
    biome to biome; the time one search takes.
-4. `[ ]` GD · **The floor on the screen**: a pattern per biome that repeats (one small picture, drawn many times),
+4. `[ ]` (stand-in built: flat floors with boards, the bed's shadow, every thing a plain shape with its name)
+   GD · **The floor on the screen**: a pattern per biome that repeats (one small picture, drawn many times),
    borders between biomes as their own strips (the rug's fringe), big things drawn only when near the screen and
    sorted by where they stand. Memory counted. Checked in the pane at 412 by 915.
-5. `[ ]` GD · **Without the sea**: falling wakes him at home; the stall is at home; `sail`, docks and the chart
+5. `[x]` GD · **Without the sea**: falling wakes him at home; the stall is at home; `sail`, docks and the chart
    go to `archive\`; the map button opens a small map of the house with a dot for him. The save is version 5.
-6. `[ ]` GD · **The insects**: the three kinds renamed and re-sized in `monsters.json` (the ant where the sand crab
-   was, the ladybird where the gull was: whether it flies is to be tried, the cockroach with the coconut crab's
-   slam); gear and places renamed in `names.md`. The bot plays home to level 5 on three seeds again; the long
+6. `[x]` GD · **The insects**: the three kinds renamed and re-sized in `monsters.json` (the ant where the sand crab
+   was, the silverfish where the gull was, on the ground, the cockroach with the coconut crab's slam); gear and places renamed in `names.md`. The bot plays home to level 5 on three seeds again; the long
    balance run printed again.
 7. `[ ]` AD · **Wave 1 again, for the house** (`art-demands.md`, asked by message): the three floors and their
    borders, about ten things a biome, the three insects with their actions, home, the Warrior's gear at bean size,

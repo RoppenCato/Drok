@@ -40,7 +40,8 @@ rare drops, in a top-down world."
 - **The world** (Robin, 2026-11-19): "A big world map." (Robin, 2026-11-20): "I think I like it more if its an open
   world and not tied to islands. Instead it should be biomes." So one world he walks through, with no sea chart and
   no sailing; the floors and rooms of the house are the biomes. This replaces the sea chart of islands (his pick
-  earlier the same day). How the rooms join and which come first is the Game Developer's, for him to judge.
+  earlier the same day). **The first space** (Robin, 2026-11-20): "make the first space under a bed in a bedroom".
+  How the rooms join and which come after is the Game Developer's, for him to judge.
 - **Day and night, weather** (Robin, 2026-11-20, his pick, made for the islands): always day for now. Each biome
   has its own fixed light and mood.
 - **The hero and what he is after** (Robin, 2026-11-20, his pick): "Get big again". Something in the house shrank
@@ -168,6 +169,7 @@ A line each, newest at the bottom: the date, the decision, Robin's words.
   islands. Instead it should be biomes."); the theme is a shrunk person among insects, in a house ("Lets do 1, but
   inside a house"); the colours and the look stay. Of Leonard, AD's three sizes he took the bean size, in the Art
   Director's chat: "Go for 2".
+- 2026-11-20: "Start building. But make the first space under a bed in a bedroom".
 - 2026-11-20: four picks for the house, by choice boxes: he wants to get big again; pin and button; the town is a
   doll's house; spiders are in, like any insect.
 

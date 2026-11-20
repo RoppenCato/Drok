@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { BASES, chestFull, dist, heroMaxHp, heroReach, itemStats, kindOf, MONSTERS, N, onLand, PLACES, RARITY_ORDER, START_PLACE, buyPrice, type Item, type Monster, type Vec } from '../src/index.ts';
-import { DT, ISLAND, Sim } from './sim.ts';
+import { BASES, chestFull, dist, heroMaxHp, heroReach, itemStats, kindOf, MONSTERS, N, onLand, PLACES, RARITY_ORDER, buyPrice, type Item, type Monster, type Vec } from '../src/index.ts';
+import { DT, Sim, WORLD } from './sim.ts';
 
 // Bots that play the game and print what they got. The numbers are for a person to read: the tests themselves only
-// ask that the game stays whole and that chapter 1 can be played through. When a number looks wrong, check the bot
+// ask that the game stays whole and that the first world can be played through. When a number looks wrong, check the bot
 // before the game.
 
-const island = PLACES[ISLAND]!;
-const harbour = PLACES[START_PLACE]!;
+const world = PLACES[WORLD]!;
+/** Where he stands to trade. */
+const stallFront = { x: world.shop!.x, y: world.shop!.y + 50 };
 
 function whole(sim: Sim): void {
   const s = sim.state;
@@ -19,7 +20,7 @@ function whole(sim: Sim): void {
     expect(p.y).toBeGreaterThanOrEqual(N.margin);
     expect(p.y).toBeLessThanOrEqual(place.height - N.margin);
   }
-  // Nobody who walks is in the sea, and nothing lies in it.
+  // Nobody who walks is off the floor, and nothing lies off it.
   expect(onLand(place, s.hero.x, s.hero.y)).toBe(true);
   for (const m of s.monsters) if (!kindOf(m).flies) expect(onLand(place, m.x, m.y), `${m.kind} at ${m.x.toFixed(0)}, ${m.y.toFixed(0)}`).toBe(true);
   for (const d of s.drops) expect(onLand(place, d.x, d.y)).toBe(true);
@@ -34,12 +35,14 @@ function whole(sim: Sim): void {
 type Hand = 'tap' | 'thumb';
 
 function fight(hand: Hand, seed: string, seconds: number): { kills: number; deaths: number; hpLost: number; refused: number } {
-  const sim = Sim.landed(seed);
+  const sim = Sim.started(seed);
+  // Out among the ants.
+  sim.hero({ x: 700, y: 5400 });
   const steps = Math.round(seconds / DT);
   for (let i = 0; i < steps; i++) {
     const h = sim.state.hero;
-    if (sim.state.place === ISLAND && h.downFor <= 0) {
-      const crabs = sim.state.monsters.filter((m) => m.kind === 'sand-crab');
+    if (h.downFor <= 0) {
+      const crabs = sim.state.monsters.filter((m) => m.kind === 'ant');
       let nearest = crabs[0];
       for (const m of crabs) if (nearest && dist(h, m) < dist(h, nearest)) nearest = m;
       if (nearest) {
@@ -64,7 +67,7 @@ function fight(hand: Hand, seed: string, seconds: number): { kills: number; deat
   return { kills: sim.state.kills, deaths: sim.state.deaths, hpLost: sim.of('heroHit').reduce((sum, e) => sum + e.amount, 0), refused: sim.count('rejected') };
 }
 
-describe('a bot fights crabs with each hand of the steering', () => {
+describe('a bot fights ants with each hand of the steering', () => {
   const seconds = 90;
   const seeds = ['tide', 'reef', 'gull'];
   for (const hand of ['tap', 'thumb'] as const) {
@@ -72,7 +75,7 @@ describe('a bot fights crabs with each hand of the steering', () => {
       const runs = seeds.map((seed) => fight(hand, seed, seconds));
       const minutes = (seconds * seeds.length) / 60;
       const sum = (of: (t: (typeof runs)[number]) => number): number => runs.reduce((total, t) => total + of(t), 0);
-      console.log(`  [numbers] by ${hand}: ${(sum((t) => t.kills) / minutes).toFixed(1)} crabs a minute, ${(sum((t) => t.hpLost) / minutes).toFixed(0)} health lost a minute, ${sum((t) => t.deaths)} falls, ${sum((t) => t.refused)} refused`);
+      console.log(`  [numbers] by ${hand}: ${(sum((t) => t.kills) / minutes).toFixed(1)} ants a minute, ${(sum((t) => t.hpLost) / minutes).toFixed(0)} health lost a minute, ${sum((t) => t.deaths)} falls, ${sum((t) => t.refused)} refused`);
       expect(sum((t) => t.kills)).toBeGreaterThan(0);
       // The bot only presses a skill when it should work.
       expect(sum((t) => t.refused)).toBe(0);
@@ -80,7 +83,7 @@ describe('a bot fights crabs with each hand of the steering', () => {
   }
 });
 
-// ---- chapter 1, played through: from a nobody in the harbour to level 5 and the chest ---------------------------
+// ---- the first world, played through: from a new hero before the doll's house to level 5 and the chest ----------
 
 const power = (item: Item | null): number => (item ? itemStats(item).damage * 3 + itemStats(item).hp * 0.5 + itemStats(item).armour * 6 : 0);
 
@@ -110,7 +113,7 @@ interface Style {
 const SENSIBLE: Style = { name: 'a sensible player', dodges: true, drinkAt: 0.5, charges: true };
 const CLUMSY: Style = { name: 'a clumsy player (stands in slams, drinks at a quarter health, forgets Charge)', dodges: false, drinkAt: 0.25, charges: false };
 
-/** A sensible player: hunts what his level can take, drinks when hurt, steps out of slams, sells and restocks in town. */
+/** A sensible player: hunts what his level can take, drinks when hurt, steps out of slams, walks home to sell and restock. */
 function journey(seed: string, limitMinutes: number, style: Style = SENSIBLE): Journey {
   const sim = new Sim(seed);
   const levelAt: number[] = [];
@@ -166,35 +169,8 @@ function journey(seed: string, limitMinutes: number, style: Style = SENSIBLE): J
       sim.step();
       continue;
     }
-    if (h.level >= N.levels.max && chestAt !== null && h.bag.length === 0 && s.place === START_PLACE) break;
     wearBetter();
 
-    if (s.place === START_PLACE) {
-      // In town: sell, restock, and sail out again.
-      const junk = h.bag.length > 0;
-      const wantPotions = h.potions < 8 && h.gold >= N.potion.price;
-      const better = s.shop.findIndex((item) => item !== null && power(item) > power(h.worn[BASES[item.base]!.slot]) && buyPrice(item) + 3 * N.potion.price <= h.gold);
-      if (junk || wantPotions || better >= 0) {
-        if (go({ x: harbour.shop!.x, y: harbour.shop!.y + 50 })) {
-          for (const item of [...sim.state.hero.bag]) sim.act({ type: 'sell', item: item.id });
-          if (better >= 0 && sim.state.shop[better]) {
-            sim.act({ type: 'buy', what: better });
-            wearBetter();
-            for (const item of [...sim.state.hero.bag]) sim.act({ type: 'sell', item: item.id });
-          }
-          while (sim.state.hero.potions < 8 && sim.state.hero.gold >= N.potion.price) sim.act({ type: 'buy', what: 'potion' });
-        }
-      } else if (h.level >= N.levels.max && chestAt !== null) {
-        break;
-      } else if (go(harbour.dock)) {
-        sim.act({ type: 'sail', to: ISLAND });
-        homeward = false;
-      }
-      sim.step();
-      continue;
-    }
-
-    // On the island.
     const max = heroMaxHp(h);
     if (h.hp < max * style.drinkAt && h.potions > 0 && h.potionCd <= 0) sim.act({ type: 'potion' });
     const after = s.monsters.filter((m) => m.mode !== 'wander' && m.mode !== 'return');
@@ -204,14 +180,26 @@ function journey(seed: string, limitMinutes: number, style: Style = SENSIBLE): J
       trips += 1;
     }
     if (homeward) {
-      if (go(island.dock)) sim.act({ type: 'sail', to: START_PLACE });
+      // Home on foot, to the stall: sell, buy what is better, fill up on potions, and out again.
+      if (go(stallFront)) {
+        for (const item of [...sim.state.hero.bag]) sim.act({ type: 'sell', item: item.id });
+        const now = sim.state.hero;
+        const better = sim.state.shop.findIndex((item) => item !== null && power(item) > power(now.worn[BASES[item.base]!.slot]) && buyPrice(item) + 3 * N.potion.price <= now.gold);
+        if (better >= 0) {
+          sim.act({ type: 'buy', what: better });
+          wearBetter();
+          for (const item of [...sim.state.hero.bag]) sim.act({ type: 'sell', item: item.id });
+        }
+        while (sim.state.hero.potions < 8 && sim.state.hero.gold >= N.potion.price) sim.act({ type: 'buy', what: 'potion' });
+        if (done) break;
+        homeward = false;
+      }
       sim.step();
       continue;
     }
-
     // The chest, once he is strong enough to stand where it stands.
     if (h.level >= N.levels.max && chestFull(s) && after.length === 0 && h.hp > max * 0.7) {
-      if (go({ x: island.chest!.x, y: island.chest!.y + 40 })) sim.act({ type: 'openChest' });
+      if (go({ x: world.chest!.x, y: world.chest!.y + 40 })) sim.act({ type: 'openChest' });
       sim.step();
       continue;
     }
@@ -227,14 +215,20 @@ function journey(seed: string, limitMinutes: number, style: Style = SENSIBLE): J
     }
     lingered = 0;
 
-    const preyKind = h.level < 3 ? 'sand-crab' : h.level < 4 ? 'reef-gull' : 'coconut-crab';
+    const preyKind = h.level < 3 ? 'ant' : h.level < 4 ? 'silverfish' : 'cockroach';
     let prey: Monster | undefined;
     // Whatever is biting him comes first; then the nearest of what his level hunts.
     for (const m of after) if (!prey || dist(h, m) < dist(h, prey)) prey = m;
     if (!prey) for (const m of s.monsters) if (m.kind === preyKind && (!prey || dist(h, m) < dist(h, prey))) prey = m;
     if (!prey) {
-      const zone = island.zones.find((z) => z.kind === preyKind)!;
+      const zone = world.zones.find((z) => z.kind === preyKind)!;
       go({ x: zone.x + zone.w / 2, y: zone.y + zone.h / 2 });
+      sim.step();
+      continue;
+    }
+    // One far off is walked towards first (a tap on the ground near its home: one search for the way), then tapped.
+    if (after.length === 0 && dist(h, prey) > 420) {
+      go({ x: prey.homeX, y: prey.homeY });
       sim.step();
       continue;
     }
@@ -272,11 +266,11 @@ function journey(seed: string, limitMinutes: number, style: Style = SENSIBLE): J
   };
 }
 
-describe('a bot plays chapter 1 through', () => {
+describe('a bot plays the first world through', () => {
   const seeds = ['tide', 'reef', 'gull'];
   const limit = 90;
   it(
-    `from a nobody in the harbour to level ${N.levels.max} and the chest, on ${seeds.length} seeds`,
+    `from a new hero at home to level ${N.levels.max} and the chest, on ${seeds.length} seeds`,
     () => {
       for (const seed of seeds) {
         const j = journey(seed, limit);

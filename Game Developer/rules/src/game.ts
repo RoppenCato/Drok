@@ -11,7 +11,7 @@ import { route } from './path.ts';
 import { hurtMonster, openChest } from './loot.ts';
 import { makeRng, type Rng } from './rng.ts';
 import { STATE_VERSION } from './save.ts';
-import { buy, discard, drinkPotion, enterPlace, equip, sail, sell, unequip } from './town.ts';
+import { buy, discard, drinkPotion, enterPlace, equip, sell, unequip } from './town.ts';
 import type { Action, ApplyResult, GameEvent, GameState, Item, SkillId, Slot } from './types.ts';
 import { tick } from './world.ts';
 
@@ -20,9 +20,9 @@ export interface NewGameOptions {
 }
 
 /**
- * A new hero: a nobody in the harbour town (Robin, 2026-11-20: "Make a name"), level 1, with a rusty cutlass, a
- * plank buckler, a few potions and no money. The stall's first pieces come from the seed, so the same seed gives
- * the same start.
+ * A new hero: a shrunk person before the doll's house (Robin, 2026-11-20: "Get big again"), level 1, with a pin,
+ * a button, a few potions and no money. The stall's first pieces come from the seed, so the same seed gives the
+ * same start.
  */
 export function newGame(o: NewGameOptions): GameState {
   const town = PLACES[START_PLACE]!;
@@ -35,8 +35,8 @@ export function newGame(o: NewGameOptions): GameState {
     now: 0,
     place: START_PLACE,
     hero: {
-      x: town.wake.x,
-      y: town.wake.y,
+      x: town.arrive.x,
+      y: town.arrive.y,
       facing: Math.PI / 2,
       hp: N.hero.maxHp,
       rage: 0,
@@ -62,6 +62,7 @@ export function newGame(o: NewGameOptions): GameState {
       cleaveCd: 0,
       sinceHit: N.hero.regenAfterSeconds,
       downFor: 0,
+      home: true,
     },
     monsters: [],
     respawns: [],
@@ -77,7 +78,7 @@ export function newGame(o: NewGameOptions): GameState {
     const base = START_GEAR[slot];
     if (base) worn[slot] = newItem(s, base, 'common');
   }
-  enterPlace(s, START_PLACE, town.wake, makeRng(`${o.seed}:stall`), []);
+  enterPlace(s, START_PLACE, town.arrive, makeRng(`${o.seed}:stall`), []);
   s.hero.hp = heroMaxHp(s.hero);
   return s;
 }
@@ -98,8 +99,6 @@ export function apply(state: GameState, action: Action, rng: Rng): ApplyResult {
       return drinkPotion(state);
     case 'openChest':
       return openChest(state, rng);
-    case 'sail':
-      return sail(state, action.to, rng);
     case 'equip':
       return equip(state, action.item);
     case 'unequip':

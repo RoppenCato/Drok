@@ -3,13 +3,13 @@
 // from the step's `now`. The state handed in is never changed; the step works on a copy and hands that back.
 
 import { MAX_DT, clampToPlace, clone, heroReach, monsterById, monsterReach, nearestMonster, reject, roll, setTarget } from './core.ts';
-import { N, START_PLACE, PLACES, heroArmour, heroBonusDamage, heroMaxHp, kindOf, placeOf } from './data.ts';
+import { N, heroArmour, heroBonusDamage, heroMaxHp, inHome, kindOf, placeOf } from './data.ts';
 import { angleTo, dist, stepToward } from './geometry.ts';
 import { clear, onLand, walk } from './ground.ts';
 import { hurtMonster, stepDrops } from './loot.ts';
 import { route, sight } from './path.ts';
 import type { Rng } from './rng.ts';
-import { enterPlace } from './town.ts';
+import { restock } from './town.ts';
 import type { ApplyResult, GameEvent, GameState, Monster, Vec } from './types.ts';
 
 /** The size of the hero where he meets the ground: what must fit past a rock. */
@@ -34,9 +34,10 @@ export function tick(state: GameState, dt: number, now: number | undefined, rng:
   if (h.downFor > 0) {
     h.moving = false;
     h.downFor -= dt;
-    if (h.downFor <= 0) standUp(s, rng, ev);
+    if (h.downFor <= 0) standUp(s, ev);
   } else {
     moveHero(s, dt, ev);
+    comeHome(s, rng, ev);
     pickTarget(s, ev);
     swing(s, dt, rng, ev);
     mend(s, dt);
@@ -48,7 +49,18 @@ export function tick(state: GameState, dt: number, now: number | undefined, rng:
   return { state: s, events: ev };
 }
 
-/** His health coming back: a potion's work, a quiet while in the wild, or simply being in town. */
+/** Coming into the safe spot from outside puts new pieces on the stall, as coming to town did. */
+function comeHome(s: GameState, rng: Rng, ev: GameEvent[]): void {
+  const h = s.hero;
+  const home = inHome(placeOf(s), h);
+  if (home && !h.home) {
+    if (placeOf(s).shop) restock(s, rng);
+    ev.push({ type: 'cameHome' });
+  }
+  h.home = home;
+}
+
+/** His health coming back: a potion's work, a quiet while in the wild, or simply being at home. */
 function mend(s: GameState, dt: number): void {
   const h = s.hero;
   const max = heroMaxHp(h);
@@ -56,7 +68,7 @@ function mend(s: GameState, dt: number): void {
     h.hp += (N.potion.heal / N.potion.seconds) * Math.min(dt, h.mending);
     h.mending = Math.max(0, h.mending - dt);
   }
-  if (placeOf(s).town) h.hp += N.hero.townRegenPerSecond * dt;
+  if (h.home) h.hp += N.hero.homeRegenPerSecond * dt;
   else if (h.sinceHit >= N.hero.regenAfterSeconds) h.hp += N.hero.regenPerSecond * dt;
   if (h.hp > max) h.hp = max;
 }
@@ -208,14 +220,19 @@ function swing(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void {
 
 function stepMonsters(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void {
   const h = s.hero;
+  // At home nothing comes for him: to a monster he is as good as gone.
+  const heroUp = h.downFor <= 0 && !h.home;
+  const awake: Monster[] = [];
   for (const m of [...s.monsters]) {
+    const d = dist(m, h);
+    // Far from him a monster that is only strolling sleeps: the world can be big without every step being long.
+    if (d > N.world.awake && m.mode === 'wander') continue;
+    awake.push(m);
     if (m.stunned > 0) {
       m.stunned = Math.max(0, m.stunned - dt);
       continue;
     }
     const k = kindOf(m);
-    const heroUp = h.downFor <= 0;
-    const d = dist(m, h);
     const fromX = m.x;
     const fromY = m.y;
     switch (m.mode) {
@@ -312,8 +329,8 @@ function stepMonsters(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void
       }
     }
   }
-  separate(s.monsters);
-  for (const m of s.monsters) clampToPlace(s, m);
+  separate(awake);
+  for (const m of awake) clampToPlace(s, m);
 }
 
 function hurtHero(s: GameState, m: Monster, rng: Rng, ev: GameEvent[]): void {
@@ -344,17 +361,28 @@ function hurtHero(s: GameState, m: Monster, rng: Rng, ev: GameEvent[]): void {
   }
 }
 
-/** He wakes in the harbour town, whole again (Robin, 2026-11-20). */
-function standUp(s: GameState, rng: Rng, ev: GameEvent[]): void {
+/**
+ * He wakes at home, whole again (Robin, 2026-11-20: he wakes in the town; the town is the doll's house now). The
+ * world goes on as it was: what he felled stays felled, what lay on the ground lies there until its time is up.
+ */
+function standUp(s: GameState, ev: GameEvent[]): void {
   const h = s.hero;
-  const town = PLACES[START_PLACE]!;
+  const wake = placeOf(s).wake;
   h.downFor = 0;
-  enterPlace(s, START_PLACE, town.wake, rng, ev);
+  h.x = wake.x;
+  h.y = wake.y;
+  h.dest = null;
+  h.route = [];
+  h.chase = false;
+  h.swing = null;
+  h.charging = null;
+  h.moving = false;
+  setTarget(s, null, 'lost', ev);
   h.hp = heroMaxHp(h);
   h.rage = 0;
   h.facing = Math.PI / 2;
   h.sinceHit = N.hero.regenAfterSeconds;
-  ev.push({ type: 'heroUp', place: START_PLACE });
+  ev.push({ type: 'heroUp', place: s.place });
 }
 
 function stepRespawns(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void {
@@ -378,9 +406,9 @@ function spawn(s: GameState, zoneIndex: number, rng: Rng, ev: GameEvent[]): void
   let spare: Vec | null = null;
   for (let i = 0; i < 24 && !at; i++) {
     const p = { x: zone.x + rng.next() * zone.w, y: zone.y + rng.next() * zone.h };
-    // A zone's box may reach over water or a rock: only ground it can stand on will do. And never where he steps
-    // ashore: a landing is safe.
-    if (!clear(place, p.x, p.y, radius) || dist(p, place.arrive) < N.spawn.landing) continue;
+    // A zone's box may reach over a thing in the way: only ground it can stand on will do. And never at home or
+    // where he wakes: those are safe.
+    if (!clear(place, p.x, p.y, radius) || inHome(place, p) || dist(p, place.wake) < N.spawn.landing) continue;
     spare = p;
     if (dist(p, s.hero) < N.spawn.clearance) continue;
     if (s.monsters.some((m) => dist(p, m) < N.spawn.apart)) continue;

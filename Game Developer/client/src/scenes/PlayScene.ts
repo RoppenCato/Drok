@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { N, chestFull, dist, placeOf, type GameEvent, type GameState } from '../../../rules/src/index.ts';
+import { N, biomeAt, chestFull, dist, placeOf, type GameEvent, type GameState } from '../../../rules/src/index.ts';
 import { Controls } from '../controls.ts';
 import type { GameLog } from '../game-log.ts';
 import { DESIGN_HEIGHT, DESIGN_WIDTH, RES } from '../layout.ts';
@@ -19,7 +19,7 @@ const CAMERA_CATCH_UP = 14;
 const LOOK_BELOW = 45;
 
 /** The events after which an open window may be showing something that is no longer so. */
-const STALE = new Set<GameEvent['type']>(['picked', 'bought', 'sold', 'equipped', 'unequipped', 'discarded', 'levelUp', 'xp', 'sailed', 'heroUp', 'potionUsed', 'chestOpened']);
+const STALE = new Set<GameEvent['type']>(['picked', 'bought', 'sold', 'equipped', 'unequipped', 'discarded', 'levelUp', 'xp', 'cameHome', 'heroUp', 'potionUsed', 'chestOpened']);
 
 /**
  * The game's one screen: the place he is in, with the glass over it and a window over that when one is open. The
@@ -37,6 +37,8 @@ export class PlayScene extends Phaser.Scene {
   private panels!: Panels;
   private controls!: Controls;
   private place = '';
+  /** The floor he stands on, by its id: when it changes, the glass says where he is. */
+  private biome = '';
   private camX = 0;
   private camY = 0;
   /** "Start over" must be pressed twice: until this time, a second press erases the hero. */
@@ -81,7 +83,6 @@ export class PlayScene extends Phaser.Scene {
       state: () => this.holder.state,
       act: (intent) => this.act(intent),
       atShop: () => this.near(this.holder.state) === 'shop',
-      atDock: () => this.near(this.holder.state, true) === 'dock',
       settingsChanged: () => this.hud.place(),
       exportSave: () => this.exportSave(),
       importSave: () => this.importSave(),
@@ -93,6 +94,12 @@ export class PlayScene extends Phaser.Scene {
     this.hud.build(state);
     this.controls = new Controls({ holder: this.holder, camera: field, hud: this.hud, world: this.world });
     this.arrive(state, false);
+    // A save from the pirate game could not be carried into the house: he is told, once, that this hero is new.
+    if (this.holder.fresh) {
+      this.holder.fresh = false;
+      this.hud.toast('A new game: the old hero stayed in the pirate game');
+      this.log.note('a pirate save became a new hero');
+    }
 
     // Fingers: an open window first, then the glass, then the field. A held finger is let go only by its own lift,
     // or when the page loses the screen (a call, a swipe to another app), so the hero never runs on unsteered.
@@ -126,14 +133,20 @@ export class PlayScene extends Phaser.Scene {
     for (const e of events) {
       if (STALE.has(e.type)) stale = true;
       sounds.event(e);
-      if (e.type === 'sailed') this.log.note(`sailed to ${e.to}`);
-      else if (e.type === 'levelUp') this.log.note(`level ${e.level} at ${(state.time / 60).toFixed(1)} min`);
+      if (e.type === 'levelUp') this.log.note(`level ${e.level} at ${(state.time / 60).toFixed(1)} min`);
       else if (e.type === 'heroDown') this.log.note(`down in ${state.place}; lost ${e.lost} gold; ${state.deaths} falls`);
       else if (e.type === 'chestOpened') this.log.note('chest opened');
       // A bite with a window open: the window gets out of the way.
       else if (e.type === 'heroHit' && this.panels.kind) this.panels.close();
     }
     if (state.place !== this.place) this.arrive(state, true);
+    // Another floor under his feet: the glass says which, once.
+    const biome = biomeAt(placeOf(state), state.hero)?.id ?? '';
+    if (biome !== this.biome) {
+      const b = placeOf(state).biomes.find((x) => x.id === biome);
+      if (b && this.biome !== '') this.hud.banner(b.name, `Levels ${b.levels}`);
+      this.biome = biome;
+    }
 
     this.world.sync(state, this.holder.prev, this.holder.alpha, time, delta);
     this.world.show(events, state);
@@ -175,26 +188,26 @@ export class PlayScene extends Phaser.Scene {
     const place = placeOf(state);
     if (place.chest && dist(h, place.chest) <= N.reach.chest && (evenEmpty || chestFull(state))) return 'chest';
     if (place.shop && dist(h, place.shop) <= N.reach.shop) return 'shop';
-    if (dist(h, place.dock) <= N.reach.dock) return 'dock';
     return null;
   }
 
   private use(thing: Thing): void {
     this.controls.letGo();
     if (thing === 'chest') this.act({ type: 'openChest' });
-    else this.panels.open(thing === 'shop' ? 'shop' : 'chart');
+    else this.panels.open('shop');
   }
 
   /** He is in a place: the camera gets its edges and jumps to him; when he has just come, the glass says where. */
   private arrive(state: GameState, announce: boolean): void {
     const place = placeOf(state);
     this.place = state.place;
+    this.biome = biomeAt(place, state.hero)?.id ?? '';
     this.cameras.main.setBounds(0, 0, place.width, place.height + FOOT);
     this.camX = state.hero.x;
     this.camY = state.hero.y + LOOK_BELOW;
     this.cameras.main.centerOn(this.camX, this.camY);
     this.panels.close();
-    if (announce) this.hud.banner(place.name, place.town ? 'The harbour town' : `Levels ${place.levels}`);
+    if (announce) this.hud.banner(place.name, `Levels ${place.levels}`);
   }
 
   /** "Export save" (Robin, 2026-11-20: from day one): the save as a file the player keeps. */
@@ -230,7 +243,8 @@ export class PlayScene extends Phaser.Scene {
         this.controls.letGo();
         this.world.enter(this.holder.state);
         this.arrive(this.holder.state, true);
-        this.hud.toast('Save loaded');
+        this.hud.toast(this.holder.fresh ? 'That save was the pirate game: a new hero' : 'Save loaded');
+        this.holder.fresh = false;
         this.log.note(`save imported: level ${this.holder.state.hero.level}`);
       });
     });

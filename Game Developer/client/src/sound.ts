@@ -13,7 +13,7 @@ interface Entry {
 }
 
 /** The actions whose refusal is worth a sound: a press on a button that could not act. A refused step is not. */
-const REFUSALS = new Set<string>(['skill', 'potion', 'openChest', 'sail', 'equip', 'unequip', 'buy', 'sell']);
+const REFUSALS = new Set<string>(['skill', 'potion', 'openChest', 'equip', 'unequip', 'buy', 'sell']);
 /** The same sound is not started twice within this many milliseconds: Cleave on five crabs is one blow to the ear. */
 const APART_MS = 50;
 
@@ -102,8 +102,6 @@ class Sounds {
       case 'bought':
       case 'sold':
         return this.play('coin');
-      case 'sailed':
-        return this.play('sail');
       case 'bagFull':
         return this.play('refuse');
       case 'rejected':

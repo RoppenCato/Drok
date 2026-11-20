@@ -115,7 +115,7 @@ export class Controls {
     this.world.tapMark(this.holder.state.hero.dest ?? to);
   }
 
-  /** Where he stands to use a thing: before the chest on his own side, before the stall's table, on the dock. */
+  /** Where he stands to use a thing: before the chest on his own side, before the stall's table. */
   private standBy(thing: Thing): Vec {
     const state = this.holder.state;
     const place = placeOf(state);
@@ -123,8 +123,8 @@ export class Controls {
       const d = Math.max(1, dist(state.hero, place.chest));
       return { x: place.chest.x + ((state.hero.x - place.chest.x) / d) * 42, y: place.chest.y + ((state.hero.y - place.chest.y) / d) * 42 };
     }
-    if (thing === 'shop' && place.shop) return { x: place.shop.x, y: place.shop.y + 62 };
-    return { x: place.dock.x, y: place.dock.y };
+    if (place.shop) return { x: place.shop.x, y: place.shop.y + 62 };
+    return { x: state.hero.x, y: state.hero.y };
   }
 
   /** The push is how far the thumb is from where the stick stands; past its reach the stick comes along. */

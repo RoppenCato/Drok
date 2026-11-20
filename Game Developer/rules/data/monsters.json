@@ -1,7 +1,7 @@
 {
-  "_about": "Every kind of monster. All share one way of living: stroll near home, come for him inside aggroRange or when hit, wind up (time to step away), strike, rest, go home and mend when he is down or leashRange from home. Two numbers give a kind its own trick: retreatSeconds (after a strike it backs off for that long instead of resting, so it must be caught) and slamRadius (its strike hits everything within that of it, not only what is in reach, so the wind-up is for getting clear). flies: the shore and the things in the way do not stop it. xp is what a kill gives; the drops are rolled by the rules: money with goldChance, a potion with potionChance, a piece of gear of itemTier with itemChance. Names are Victor, GD's placeholders (docs/names.md).",
-  "sand-crab": {
-    "name": "Sand crab",
+  "_about": "Every kind of monster. All share one way of living: stroll near home, come for him inside aggroRange or when hit, wind up (time to step away), strike, rest, go home and mend when he is down or leashRange from home. Two numbers give a kind its own trick: retreatSeconds (after a strike it backs off for that long instead of resting, so it must be caught) and slamRadius (its strike hits everything within that of it, not only what is in reach, so the wind-up is for getting clear). flies: the things in the way do not stop it (none does today). The three are the pirate game's three in new clothes (2026-11-20): the ant was the sand crab, the silverfish the reef gull (it walks now), the cockroach the coconut crab (bigger: 32 across the half, its slam 90). xp is what a kill gives; the drops are rolled by the rules: money with goldChance, a potion with potionChance, a piece of gear of itemTier with itemChance. Names are Victor, GD's placeholders (docs/names.md).",
+  "ant": {
+    "name": "Ant",
     "level": 1,
     "radius": 15,
     "maxHp": 55,
@@ -30,8 +30,8 @@
     "itemChance": 0.1,
     "itemTier": 1
   },
-  "reef-gull": {
-    "name": "Reef gull",
+  "silverfish": {
+    "name": "Silverfish",
     "level": 3,
     "radius": 14,
     "maxHp": 46,
@@ -48,7 +48,7 @@
     "restSeconds": 0.3,
     "retreatSeconds": 1.1,
     "slamRadius": 0,
-    "flies": true,
+    "flies": false,
     "damageMin": 9,
     "damageMax": 13,
     "respawnSeconds": 14,
@@ -60,10 +60,10 @@
     "itemChance": 0.14,
     "itemTier": 2
   },
-  "coconut-crab": {
-    "name": "Coconut crab",
+  "cockroach": {
+    "name": "Cockroach",
     "level": 5,
-    "radius": 23,
+    "radius": 32,
     "maxHp": 230,
     "wanderSpeed": 26,
     "wanderRange": 90,
@@ -77,7 +77,7 @@
     "windupSeconds": 0.9,
     "restSeconds": 2,
     "retreatSeconds": 0,
-    "slamRadius": 74,
+    "slamRadius": 90,
     "flies": false,
     "damageMin": 20,
     "damageMax": 28,

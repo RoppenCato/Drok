@@ -1,25 +1,28 @@
 import { describe, expect, it } from 'vitest';
 import { apply, dist, heroMaxHp, heroReach, makeRng, MONSTERS, N, PLACES, resumeRng, STATE_VERSION, type Action } from '../src/index.ts';
-import { DT, FIELD, ISLAND, MIDDLE, Sim } from './sim.ts';
+import { DT, FIELD, MIDDLE, Sim, WORLD } from './sim.ts';
 
 // Moving and fighting: what the control test proved, kept true as the game grows.
 // The numbers a person reads: every test that measures something prints it, so a green run can still be judged.
 const say = (text: string): void => console.log(`  [numbers] ${text}`);
 
-const CRAB = MONSTERS['sand-crab']!;
-const crabReach = heroReach({ kind: 'sand-crab' });
-/** The plain test field for moving and fighting; the real island for what must hold on its shore. */
+const CRAB = MONSTERS['ant']!;
+const crabReach = heroReach({ kind: 'ant' });
+/** The plain test field for moving and fighting; the real world for what must hold among its things. */
 const field = PLACES[FIELD]!;
-const island = PLACES[ISLAND]!;
+const world = PLACES[WORLD]!;
 
 describe('the same seed gives the same game', () => {
   const play = (seed: string): string => {
-    const sim = Sim.landed(seed);
+    const sim = Sim.started(seed);
+    // Out among the ants.
+    sim.hero({ x: 700, y: 5400, home: false });
     sim.run(1);
-    sim.act({ type: 'target', monster: sim.state.monsters[0]!.id });
+    const near = [...sim.state.monsters].sort((a, b) => dist(a, sim.state.hero) - dist(b, sim.state.hero))[0]!;
+    sim.act({ type: 'target', monster: near.id });
     sim.run(12);
     sim.act({ type: 'skill', skill: 'cleave' });
-    sim.act({ type: 'moveTo', x: 300, y: 1900 });
+    sim.act({ type: 'moveTo', x: 900, y: 5000 });
     sim.run(4);
     return JSON.stringify(sim.state);
   };
@@ -30,7 +33,7 @@ describe('the same seed gives the same game', () => {
   });
 
   it('never changes the state it was given', () => {
-    const sim = Sim.landed();
+    const sim = Sim.started();
     sim.run(1);
     sim.give('tricorn');
     const before = sim.state;
@@ -43,7 +46,6 @@ describe('the same seed gives the same game', () => {
       { type: 'skill', skill: 'charge' },
       { type: 'potion' },
       { type: 'openChest' },
-      { type: 'sail', to: 'harbour' },
       { type: 'equip', item: before.hero.bag[0]!.id },
       { type: 'unequip', slot: 'weapon' },
       { type: 'discard', item: before.hero.bag[0]!.id },
@@ -87,7 +89,7 @@ describe('moving: smooth and snappy', () => {
     sim.run(0.5);
     expect(sim.state.hero.x).toBeCloseTo(start.x + 300, 6);
     expect(sim.state.hero.moving).toBe(false);
-    say(`300 units in ${took.toFixed(2)} s at ${N.hero.speed} units a second; the screen is 412 wide: ${(412 / N.hero.speed).toFixed(2)} s to cross; the island's length in ${(island.height / N.hero.speed).toFixed(1)} s`);
+    say(`300 units in ${took.toFixed(2)} s at ${N.hero.speed} units a second; the screen is 412 wide: ${(412 / N.hero.speed).toFixed(2)} s to cross; the world's length in ${(world.height / N.hero.speed).toFixed(1)} s`);
   });
 
   it('the thumb steers at once and he stops the step it lifts; a half push is half speed', () => {
@@ -167,7 +169,7 @@ describe('fighting: a target and auto-attack', () => {
     expect(sim.state.hero.target).toBeNull();
     expect(sim.state.respawns).toHaveLength(1);
     const hits = sim.of('hit');
-    say(`walked up in ${walk.toFixed(2)} s; ${CRAB.name} (${CRAB.maxHp} hp) fell in ${fight.toFixed(2)} s to ${hits.length} hits of ${hits.map((h) => h.amount + (h.crit ? '!' : '')).join(' ')} with a rusty cutlass; rage ${sim.state.hero.rage}`);
+    say(`walked up in ${walk.toFixed(2)} s; ${CRAB.name} (${CRAB.maxHp} hp) fell in ${fight.toFixed(2)} s to ${hits.length} hits of ${hits.map((h) => h.amount + (h.crit ? '!' : '')).join(' ')} with a bent pin; rage ${sim.state.hero.rage}`);
     expect(hits.length).toBeGreaterThanOrEqual(3);
     expect(hits.length).toBeLessThanOrEqual(6);
   });
@@ -291,7 +293,7 @@ describe('fighting: a target and auto-attack', () => {
     away.runUntil((s) => s.count('heroHit') + s.count('monsterMissed') > 0, 3);
     expect(away.count('heroHit')).toBe(0);
     expect(away.count('monsterMissed')).toBe(1);
-    say(`a crab's wind-up is ${CRAB.windupSeconds} s; he covers ${(N.hero.speed * CRAB.windupSeconds).toFixed(0)} units in it and needs ${CRAB.reachGrace} to be missed`);
+    say(`an ant's wind-up is ${CRAB.windupSeconds} s; he covers ${(N.hero.speed * CRAB.windupSeconds).toFixed(0)} units in it and needs ${CRAB.reachGrace} to be missed`);
   });
 });
 
@@ -342,7 +344,7 @@ describe('Cleave', () => {
     expect(sim.find(behind.id)!.hp).toBe(CRAB.maxHp);
     expect(sim.state.hero.rage).toBe(0);
     expect(sim.act({ type: 'skill', skill: 'cleave' })).toEqual([{ type: 'rejected', action: 'skill', reason: 'not enough rage' }]);
-    say(`Cleave hit ${struck.length} for ${sim.of('hit').map((h) => h.amount).join(' ')} (a swing with a rusty cutlass is ${N.hero.damageMin + 2} to ${N.hero.damageMax + 2})`);
+    say(`Cleave hit ${struck.length} for ${sim.of('hit').map((h) => h.amount).join(' ')} (a swing with a bent pin is ${N.hero.damageMin + 2} to ${N.hero.damageMax + 2})`);
   });
 
   it('is refused, and not paid for, with too little rage, with nothing near, or on cooldown', () => {
@@ -399,14 +401,14 @@ describe('the monsters of a place', () => {
   });
 
   it('strolls near its home when left alone, comes for him when he is close, and never leaves the place', () => {
-    const sim = Sim.landed('reef');
+    const sim = Sim.started('reef');
     sim.run(40);
     expect(sim.state.monsters.length).toBeGreaterThan(0);
     for (const m of sim.state.monsters) {
       expect(m.x).toBeGreaterThanOrEqual(N.margin);
-      expect(m.x).toBeLessThanOrEqual(island.width - N.margin);
+      expect(m.x).toBeLessThanOrEqual(world.width - N.margin);
       expect(m.y).toBeGreaterThanOrEqual(N.margin);
-      expect(m.y).toBeLessThanOrEqual(island.height - N.margin);
+      expect(m.y).toBeLessThanOrEqual(world.height - N.margin);
     }
     const quiet = Sim.empty();
     const m = quiet.monster(CRAB.aggroRange - 10, 0);

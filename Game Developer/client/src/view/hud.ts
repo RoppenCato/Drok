@@ -25,7 +25,7 @@ export type Register = <T extends Phaser.GameObjects.GameObject>(object: T) => T
 export interface HudActions {
   skill(skill: SkillId): void;
   potion(): void;
-  /** Use the thing he stands by: open the chest, trade at the stall, look at the chart on the dock. */
+  /** Use the thing he stands by: open the chest, trade at the stall, */
   use(thing: Thing): void;
   open(panel: PanelKind): void;
 }
@@ -82,14 +82,13 @@ const REFUSED: Partial<Record<RejectReason, string>> = {
   'full health': 'Health is full',
   'chest is empty': 'The chest is empty',
   'too far': 'Too far away',
-  'not at the dock': 'Sail from the dock',
   'bag is full': 'The bag is full',
   'not enough gold': 'Not enough gold',
   'potions full': 'No room for more potions',
   'sold out': 'Sold',
 };
 
-const USE: Record<Thing, string> = { chest: 'Open chest', shop: 'Trade', dock: 'Sea chart' };
+const USE: Record<Thing, string> = { chest: 'Open chest', shop: 'Trade' };
 
 export class Hud {
   private readonly scene: Phaser.Scene;
@@ -153,7 +152,7 @@ export class Hud {
     // Top right: bag, chart, hero (Robin, 2026-11-20).
     const tops: [number, string, PanelKind][] = [
       [286, 'Bag', 'bag'],
-      [334, 'Chart', 'chart'],
+      [334, 'Map', 'chart'],
       [382, 'Hero', 'hero'],
     ];
     for (const [x, label, panel] of tops) {

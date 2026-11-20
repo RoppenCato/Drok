@@ -15,6 +15,8 @@ export {
   SHOP,
   kindOf,
   placeOf,
+  inHome,
+  biomeAt,
   baseOf,
   itemStats,
   itemName,
@@ -27,10 +29,11 @@ export {
   chestFull,
   type MonsterKind,
   type Place,
+  type Biome,
   type Zone,
   type ItemBase,
   type RarityInfo,
 } from './data.ts';
 export { dist, angleTo, angleDiff } from './geometry.ts';
 export { onLand, clear, walk } from './ground.ts';
-export { STATE_VERSION, migrate, packSave, unpackSave, type SaveFile } from './save.ts';
+export { STATE_VERSION, migrate, fromBeforeTheHouse, packSave, unpackSave, type SaveFile } from './save.ts';

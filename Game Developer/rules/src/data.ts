@@ -61,17 +61,30 @@ export interface ChestSpot extends Vec {
   potions: number;
 }
 
+/** A floor of the place: a box with its own levels and, until the art lands, a stand-in colour. */
+export interface Biome {
+  id: string;
+  name: string;
+  levels: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  floor: string;
+}
+
 export interface Place {
   name: string;
-  town: boolean;
   levels: string;
   width: number;
   height: number;
-  /** Where he must stand to sail, and where he steps ashore when he sails in. */
-  dock: Vec;
+  /** Where a new hero stands, and where he is put when the ground under a saved hero is gone. */
   arrive: Vec;
-  /** Where he stands when he wakes here after a fall. */
+  /** Where he stands when he wakes after a fall. */
   wake: Vec;
+  /** The safe round spot: no monster comes for him there, his health comes back fast. Null: the place has none. */
+  home: (Vec & { r: number }) | null;
+  biomes: Biome[];
   /** The shore, as the corners of an outline: outside it is sea. Null: the place is its whole box. */
   land: number[][] | null;
   /** Water inside the land, each as an outline. */
@@ -83,8 +96,6 @@ export interface Place {
   shop: (Vec & { keeper: string }) | null;
   chest: ChestSpot | null;
   zones: Zone[];
-  /** Where it sits on the sea chart, as shares of the chart's width and height. */
-  chart: Vec;
 }
 
 export interface ItemBase {
@@ -132,6 +143,17 @@ export function placeOf(s: { place: string }): Place {
   const place = PLACES[s.place];
   if (!place) throw new Error(`no such place: ${s.place}`);
   return place;
+}
+
+/** Does this point lie in the place's safe spot? */
+export function inHome(place: Place, p: Vec): boolean {
+  const home = place.home;
+  return home !== null && Math.hypot(p.x - home.x, p.y - home.y) <= home.r;
+}
+
+/** The floor a point lies on, if any. */
+export function biomeAt(place: Place, p: Vec): Biome | undefined {
+  return place.biomes.find((b) => p.x >= b.x && p.x < b.x + b.w && p.y >= b.y && p.y < b.y + b.h);
 }
 
 export function baseOf(item: Item): ItemBase {

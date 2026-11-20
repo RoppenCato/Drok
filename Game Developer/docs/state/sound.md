@@ -40,6 +40,9 @@ is not started; when his own set lands it replaces this one, name by name.
 - A phone plays nothing until the first touch (the browser's rule); Phaser unlocks the sound on that touch.
 - The offline cache takes the `.ogg` files (39 entries became 105).
 
+The `sail` sound is still in the folder and no longer plays (no sailing since the house, 2026-11-20). A monster
+falling still cracks like a shell, which fits an insect.
+
 ## Not there
 
 Steps, a monster's voice, the skill buttons' own press, the sea, any music: the library has none that fit, or

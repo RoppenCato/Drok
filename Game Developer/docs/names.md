@@ -17,27 +17,33 @@ open question 2.
 
 | Id | Name shown | Whose | Since |
 | --- | --- | --- | --- |
-| `harbour` | Marlow's Landing | mine | 2026-11-20 |
-| `crab-cay` | Crab Cay | mine | 2026-11-20 |
+| `bedroom` | The bedroom | mine | 2026-11-20 |
+| its floors: `bedside`, `under-bed`, `far-corner` | The bedside, Under the bed, The far corner | mine | 2026-11-20 |
+| (the safe spot) | Home | mine; it is the doll's house (Robin's pick, 2026-11-20) | 2026-11-20 |
+
+The pirate game's places (Marlow's Landing, Crab Cay) went out with it on 2026-11-20.
 
 ## Creatures (`rules\data\monsters.json`)
 
 | Id | Name shown | Whose | Since |
 | --- | --- | --- | --- |
-| `sand-crab` | Sand crab | mine | 2026-11-20 |
-| `reef-gull` | Reef gull | mine | 2026-11-20 |
-| `coconut-crab` | Coconut crab | mine | 2026-11-20 |
+| `ant` | Ant | mine (Leonard, AD's still has it) | 2026-11-20 |
+| `silverfish` | Silverfish | mine | 2026-11-20 |
+| `cockroach` | Cockroach | mine (Leonard, AD's still has it) | 2026-11-20 |
 
 ## Gear (`rules\data\items.json`)
 
 | Id | Name shown | Whose |
 | --- | --- | --- |
-| `rusty-cutlass`, `sailors-cutlass`, `corsairs-cutlass` | Rusty cutlass, Sailor's cutlass, Corsair's cutlass | mine |
-| `plank-buckler`, `iron-buckler`, `brass-buckler` | Plank buckler, Iron buckler, Brass buckler | mine |
-| `bandana`, `tricorn`, `feathered-hat` | Bandana, Tricorn, Feathered hat | mine |
-| `linen-shirt`, `sailors-coat`, `corsairs-coat` | Linen shirt, Sailor's coat, Corsair's coat | mine |
+| `rusty-cutlass`, `sailors-cutlass`, `corsairs-cutlass` | Bent pin, Ball-head pin, Darning needle | mine, on Robin's "Pin and button" |
+| `plank-buckler`, `iron-buckler`, `brass-buckler` | Shirt button, Coat button, Bottle cap | mine, on Robin's "Pin and button" |
+| `bandana`, `tricorn`, `feathered-hat` | Thread cap, Acorn cap, Thimble | mine |
+| `linen-shirt`, `sailors-coat`, `corsairs-coat` | Lint wrap, Felt coat, Ribbon coat | mine |
 | the rarities | Common, Uncommon, Rare, Epic | mine: the old grinders' words |
 | (a draught) | Healing potion, "Potion" on its button | mine |
+
+The gear's ids are still the pirate game's (Leonard, AD's gear pictures are keyed by them, and the hero still
+carries his cutlass picture); the names shown are the house's. Both change to his when his gear for the house lands.
 
 ## The hero and his skills
 
@@ -49,17 +55,16 @@ open question 2.
 | (the bar) | rage | Robin's pick of the suggested kit | 2026-11-20 |
 | (money) | gold | mine | 2026-11-20 |
 
-These are the common words of the old grinders. Whether Drok gets its own names for them in a pirate world is
-Robin's to say; not asked yet.
+These are the common words of the old grinders. Whether Drok gets its own names for them is Robin's to say; not asked yet.
 
 ## People
 
 | Id | Name shown | Lines | Whose | Since |
 | --- | --- | --- | --- | --- |
-| the stall's keeper | Old Marlow | none: his stall's window is titled "Old Marlow's stall" | mine | 2026-11-20 |
+| the stall's keeper | Old Thimble | none: the stall's window is titled "Old Thimble's stall" | mine | 2026-11-20 |
 
-Robin, 2026-11-20: light quests; a few people in the harbour who speak in short lines. Nobody speaks yet; two more
-townsfolk stand on the quay without names. Lines, when they come, are the Game Developer's placeholders, each marked.
+Robin, 2026-11-20: light quests; a few people in the town who speak in short lines (the town is the doll's house
+now, with small folk in it). Nobody speaks yet. Lines, when they come, are the Game Developer's placeholders, each marked.
 
 ## The screen's own words
 

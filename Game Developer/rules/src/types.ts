@@ -93,6 +93,8 @@ export interface Hero {
   sinceHit: number;
   /** Seconds until he stands up again; 0 while he stands. */
   downFor: number;
+  /** He stands in the safe spot. The step he comes into it from outside, the stall gets new pieces. */
+  home: boolean;
 }
 
 /** wander near home; chase the hero; windup before a strike; rest after one; retreat (back off); return home. */
@@ -126,7 +128,7 @@ export interface GameState {
   ticks: number;
   /** The real clock as the holder last told it, in milliseconds. The rules never read a clock themselves. */
   now: number;
-  /** The place he is in. Only that place is alive. */
+  /** The world he is in (one today). Its monsters far from him sleep. */
   place: string;
   hero: Hero;
   monsters: Monster[];
@@ -157,8 +159,6 @@ export type Action =
   | { type: 'skill'; skill: SkillId }
   | { type: 'potion' }
   | { type: 'openChest' }
-  /** Sail to another place on the chart; only from a dock. */
-  | { type: 'sail'; to: string }
   | { type: 'equip'; item: number }
   | { type: 'unequip'; slot: Slot }
   | { type: 'discard'; item: number }
@@ -178,9 +178,6 @@ export type RejectReason =
   | 'no chest here'
   | 'too far'
   | 'chest is empty'
-  | 'no such place'
-  | 'already there'
-  | 'not at the dock'
   | 'no such item'
   | 'bag is full'
   | 'no shop here'
@@ -204,7 +201,7 @@ export type GameEvent =
   | { type: 'heroHit'; monster: number; amount: number }
   /** He falls; `lost` is the money it cost him. */
   | { type: 'heroDown'; lost: number }
-  /** He wakes, whole, in the town. */
+  /** He wakes, whole, at home. */
   | { type: 'heroUp'; place: string }
   | { type: 'chargeStarted'; monster: number }
   | { type: 'charged'; monster: number; x: number; y: number }
@@ -215,7 +212,8 @@ export type GameEvent =
   | { type: 'picked'; drop: Drop }
   | { type: 'bagFull' }
   | { type: 'chestOpened'; x: number; y: number }
-  | { type: 'sailed'; from: string; to: string }
+  /** He came home from outside: the stall has new pieces. */
+  | { type: 'cameHome' }
   | { type: 'potionUsed' }
   | { type: 'equipped'; item: Item }
   | { type: 'unequipped'; item: Item }
