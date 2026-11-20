@@ -30,6 +30,8 @@ export interface MonsterKind {
   retreatSeconds: number;
   /** Its strike hits everything within this of it. 0: only what is in reach. */
   slamRadius: number;
+  /** It flies: the shore and the things in the way do not stop it. */
+  flies: boolean;
   damageMin: number;
   damageMax: number;
   respawnSeconds: number;
@@ -65,9 +67,17 @@ export interface Place {
   levels: string;
   width: number;
   height: number;
+  /** Where he must stand to sail, and where he steps ashore when he sails in. */
   dock: Vec;
+  arrive: Vec;
   /** Where he stands when he wakes here after a fall. */
   wake: Vec;
+  /** The shore, as the corners of an outline: outside it is sea. Null: the place is its whole box. */
+  land: number[][] | null;
+  /** Water inside the land, each as an outline. */
+  water: number[][][];
+  /** Things to walk round: trunks, rocks, barrels, the chest. */
+  solids: { x: number; y: number; r: number }[];
   shop: (Vec & { keeper: string }) | null;
   chest: ChestSpot | null;
   zones: Zone[];

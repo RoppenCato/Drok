@@ -1,14 +1,39 @@
 // A small holder for the tests: a state, its dice, and every event so far. The tests place things by hand (the state
 // is plain data) and let the world run in the same even steps the game uses.
 
-import { apply, kindOf, makeRng, newGame, placeOf, type Action, type GameEvent, type GameState, type Item, type Monster, type NewGameOptions, type Rarity, type Rng } from '../src/index.ts';
+import { apply, kindOf, makeRng, newGame, PLACES, placeOf, type Action, type GameEvent, type GameState, type Item, type Monster, type NewGameOptions, type Place, type Rarity, type Rng } from '../src/index.ts';
 
 export const DT = 1 / 60;
 /** A real clock for the tests: it starts here and moves with the world. */
 export const NOON = 1_800_000_000_000;
-/** The hunting ground the tests use, and a quiet spot in the middle of it. */
+/** The island as the game has it, with its shore and its things in the way. */
 export const ISLAND = 'crab-cay';
+
+/**
+ * A plain field for the tests of moving and fighting: an open box with nothing in the way, one zone for sand crabs
+ * and a chest. The real island's shore and rocks would make "he walked 300 units in a straight line" depend on
+ * where the Art Director put a palm. It exists only while the tests run.
+ */
+export const FIELD = 'test-field';
 export const MIDDLE = { x: 700, y: 1200 };
+const field: Place = {
+  name: 'Test field',
+  town: false,
+  levels: '',
+  width: 1400,
+  height: 2400,
+  dock: { x: 700, y: 2310 },
+  arrive: { x: 700, y: 2250 },
+  wake: { x: 700, y: 2250 },
+  shop: null,
+  chest: { x: 700, y: 120, refillMinutes: 20, goldMin: 40, goldMax: 80, itemTier: 3, potions: 2 },
+  zones: [{ kind: 'sand-crab', count: 0, x: 120, y: 1480, w: 1160, h: 600 }],
+  chart: { x: 0.5, y: 0.5 },
+  land: null,
+  water: [],
+  solids: [],
+};
+PLACES[FIELD] = field;
 
 export class Sim {
   state: GameState;
@@ -21,14 +46,14 @@ export class Sim {
     this.rng = makeRng(seed);
   }
 
-  /** The hero alone in the middle of the island: nobody there, and nobody on the way. */
+  /** The hero alone in the middle of the plain test field: nobody there, and nobody on the way. */
   static empty(seed = 'tide', options: Omit<NewGameOptions, 'seed'> = {}): Sim {
     const sim = new Sim(seed, options);
-    sim.state = { ...sim.state, place: ISLAND, monsters: [], respawns: [], drops: [], hero: { ...sim.state.hero, ...MIDDLE } };
+    sim.state = { ...sim.state, place: FIELD, monsters: [], respawns: [], drops: [], hero: { ...sim.state.hero, ...MIDDLE } };
     return sim;
   }
 
-  /** The hero just landed on the island's dock, the island filling up as it does after a sail. */
+  /** The hero just stepped ashore on the real island, the island filling up as it does after a sail. */
   static landed(seed = 'tide', options: Omit<NewGameOptions, 'seed'> = {}): Sim {
     const sim = new Sim(seed, options);
     sim.walkTo('dock');
@@ -61,12 +86,12 @@ export class Sim {
     return this.state.time - start;
   }
 
-  /** Put him on a spot of the place he is in, by hand. */
+  /** Put him on a spot of the place he is in, by hand: on the dock, before the stall, before the chest. */
   walkTo(where: 'dock' | 'shop' | 'chest'): void {
     const place = placeOf(this.state);
     const at = where === 'dock' ? place.dock : where === 'shop' ? place.shop : place.chest;
     if (!at) throw new Error(`no ${where} in ${this.state.place}`);
-    this.hero({ x: at.x, y: at.y + (where === 'dock' ? 0 : 40), dest: null });
+    this.hero({ x: at.x, y: at.y + (where === 'dock' ? 0 : 40), dest: null, route: [] });
   }
 
   /** Put a monster on the field. It stands still until something wakes it, unless the patch says otherwise. */

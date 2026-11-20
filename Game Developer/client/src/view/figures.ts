@@ -57,6 +57,32 @@ const DRAWN: Record<(typeof WAYS)[number], { facing: string; flip: boolean }> = 
   ne: { facing: 'ne', flip: false },
 };
 const EIGHTH = Math.PI / 4;
+/** When a facing is not drawn, the ones to take in its stead, nearest first. */
+const NEAREST: Record<string, string[]> = { se: ['e', 's'], ne: ['e', 'n'], e: ['se', 's'], s: ['se', 'e'], n: ['ne', 'e'] };
+
+/** A set of single pictures (gear, props, loot): each picture's size and the point it stands on, and its own data. */
+export interface SetData {
+  meta: { filePx: number };
+  items: Record<string, { w: number; h: number; origin: Vec; colour?: string; light?: string; slice?: number[] }>;
+}
+
+/** One picture from a set, standing on its own origin, at design size. Null when the set or the picture is not there. */
+export function picture(scene: Phaser.Scene, key: string, name: string): Phaser.GameObjects.Image | null {
+  const data = scene.cache.json.get(`${key}:data`) as SetData | undefined;
+  const info = data?.items?.[name];
+  if (!data || !info || !scene.textures.exists(key)) return null;
+  return scene.add
+    .image(0, 0, key, name)
+    .setOrigin(info.origin.x / info.w, info.origin.y / info.h)
+    .setScale(1 / data.meta.filePx);
+}
+
+/** Change which picture of its set an image shows, standing on that picture's own origin. */
+export function repicture(scene: Phaser.Scene, image: Phaser.GameObjects.Image, key: string, name: string): void {
+  const info = (scene.cache.json.get(`${key}:data`) as SetData | undefined)?.items?.[name];
+  if (!info || image.frame.name === name) return;
+  image.setFrame(name, true, false).setOrigin(info.origin.x / info.w, info.origin.y / info.h);
+}
 
 /** One body from an atlas: it plays an action, looks one of eight ways, and stands on its feet at a point. */
 export class Figure {
@@ -169,8 +195,18 @@ export class Figure {
     this.image.destroy();
   }
 
+  /** How far the picture now shown reaches above the point it stands on, in design units: where a bar goes. */
+  height(): number {
+    return this.frame ? this.frame.origin.y / this.data.meta.filePx : 0;
+  }
+
+  /** The frames of the action for the facing; a figure drawn in fewer facings (the coconut crab) gives the nearest. */
   private frames(): AtlasFrame[] {
-    return this.sets.get(`${this.action}/${this.facing}`) ?? this.sets.get(`${this.action}/s`) ?? [];
+    for (const facing of [this.facing, ...(NEAREST[this.facing] ?? [])]) {
+      const set = this.sets.get(`${this.action}/${facing}`);
+      if (set) return set;
+    }
+    return [];
   }
 
   /** Put the frame of the moment on the picture, standing on its feet. */

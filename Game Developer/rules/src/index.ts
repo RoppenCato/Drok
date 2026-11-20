@@ -32,4 +32,5 @@ export {
   type RarityInfo,
 } from './data.ts';
 export { dist, angleTo, angleDiff } from './geometry.ts';
+export { onLand, clear, walk } from './ground.ts';
 export { STATE_VERSION, migrate, packSave, unpackSave, type SaveFile } from './save.ts';

@@ -141,7 +141,7 @@ export class LocalGame {
 
 /** Nobody's thumb is on the screen when a save is opened: let go of whatever was held when it was written. */
 function rested(state: GameState): GameState {
-  return { ...state, hero: { ...state.hero, steer: { x: 0, y: 0 }, dest: null } };
+  return { ...state, hero: { ...state.hero, steer: { x: 0, y: 0 }, dest: null, route: [] } };
 }
 
 /** A fresh seed: the browser's UUID, or a stamp and some noise where there is none (plain http on the LAN). */

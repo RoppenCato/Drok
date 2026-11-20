@@ -4,14 +4,16 @@
 
 import { BASES, MONSTERS, PLACES, START_PLACE } from './data.ts';
 import { newGame } from './game.ts';
+import { onLand } from './ground.ts';
 import type { GameState, Item, Scheme } from './types.ts';
 
 /**
  * The shape of the state today.
  * 1: the control test's one field (2026-11-20).
  * 2: chapter 1: places, levels, money, a bag, gear, loot on the ground, the chest, the stall.
+ * 3: the hero carries the way he is walking (`route`), now that there are things to walk round.
  */
-export const STATE_VERSION = 2;
+export const STATE_VERSION = 3;
 
 /**
  * Bring a stored state up to today's version, or null for anything that is not a state we know (a broken save, a
@@ -21,8 +23,15 @@ export function migrate(raw: unknown): GameState | null {
   if (typeof raw !== 'object' || raw === null) return null;
   const version = (raw as { version?: unknown }).version;
   if (version === 1) return fromVersion1(raw as Record<string, unknown>);
+  if (version === 2) return fromVersion2(raw as Record<string, unknown>);
   if (version === STATE_VERSION) return checked(raw as Record<string, unknown>);
   return null;
+}
+
+/** 2 → 3. He was walking in straight lines; he now carries his way, and starts with none. */
+function fromVersion2(old: Record<string, unknown>): GameState | null {
+  if (typeof old.hero !== 'object' || old.hero === null) return null;
+  return checked({ ...old, version: STATE_VERSION, hero: { ...(old.hero as Record<string, unknown>), route: [], dest: null } });
 }
 
 /**
@@ -60,6 +69,7 @@ function checked(raw: Record<string, unknown>): GameState | null {
     typeof h.level === 'number' &&
     typeof h.gold === 'number' &&
     Array.isArray(h.bag) &&
+    Array.isArray(h.route) &&
     typeof h.worn === 'object' &&
     h.worn !== null &&
     Array.isArray(s.monsters) &&
@@ -80,22 +90,30 @@ function checked(raw: Record<string, unknown>): GameState | null {
     Object.values(h.worn).every((item) => item === null || known(item)) &&
     s.shop.every((item) => item === null || known(item)) &&
     s.drops.every((d) => d.kind !== 'item' || known(d.item));
-  if (clean) return s;
+  // A place whose layout has changed since the save (the island got its shore) may have him standing in the sea.
+  const here = PLACES[s.place];
+  const afoot = here !== undefined && onLand(here, h.x, h.y);
+  if (clean && afoot) return s;
 
-  const place = PLACES[s.place] !== undefined ? s.place : START_PLACE;
-  const moved = place !== s.place;
-  const town = PLACES[place]!;
+  const place = here !== undefined ? s.place : START_PLACE;
+  const there = PLACES[place]!;
+  // In a place he did not save in, or on ground that is gone, he is put where one arrives, and the place starts over.
+  const moved = place !== s.place || !afoot;
+  const spot = place !== s.place ? there.wake : there.arrive;
   return {
     ...s,
     place,
     monsters: moved ? [] : s.monsters.filter((m) => MONSTERS[m.kind] !== undefined),
-    respawns: moved ? [] : s.respawns,
+    respawns: moved ? there.zones.flatMap((zone, i) => Array.from({ length: zone.count }, () => ({ zone: i, in: 0 }))) : s.respawns,
     drops: moved ? [] : s.drops.filter((d) => d.kind !== 'item' || known(d.item)),
     shop: s.shop.map((item) => (known(item) ? item : null)),
     hero: {
       ...h,
-      x: moved ? town.wake.x : h.x,
-      y: moved ? town.wake.y : h.y,
+      x: moved ? spot.x : h.x,
+      y: moved ? spot.y : h.y,
+      dest: null,
+      route: [],
+      chase: false,
       target: null,
       swing: null,
       charging: null,

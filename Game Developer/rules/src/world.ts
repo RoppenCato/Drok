@@ -5,10 +5,15 @@
 import { MAX_DT, clampToPlace, clone, heroReach, monsterById, monsterReach, nearestMonster, reject, roll, setTarget } from './core.ts';
 import { N, START_PLACE, PLACES, heroArmour, heroBonusDamage, heroMaxHp, kindOf, placeOf } from './data.ts';
 import { angleTo, dist, stepToward } from './geometry.ts';
+import { clear, onLand, walk } from './ground.ts';
 import { hurtMonster, stepDrops } from './loot.ts';
+import { route, sight } from './path.ts';
 import type { Rng } from './rng.ts';
 import { enterPlace } from './town.ts';
 import type { ApplyResult, GameEvent, GameState, Monster, Vec } from './types.ts';
+
+/** The size of the hero where he meets the ground: what must fit past a rock. */
+const FEET = N.hero.radius * 0.5;
 
 /** The world moves on by `dt` seconds; `now` is the real clock the holder read, in ms. */
 export function tick(state: GameState, dt: number, now: number | undefined, rng: Rng): ApplyResult {
@@ -96,21 +101,51 @@ function moveHero(s: GameState, dt: number, ev: GameEvent[]): void {
       h.x += (h.steer.x / push) * speed * dt;
       h.y += (h.steer.y / push) * speed * dt;
       h.dest = null;
+      h.route = [];
       h.chase = false;
     } else if (h.dest) {
-      if (stepToward(h, h.dest, N.hero.speed * dt)) h.dest = null;
+      // Corner by corner along the way that was found for the tap; the last corner is where he was sent.
+      if (stepToward(h, h.route[0] ?? h.dest, N.hero.speed * dt)) {
+        h.route.shift();
+        if (h.route.length === 0) h.dest = null;
+      }
     } else if (h.chase && h.target !== null) {
       const m = monsterById(s, h.target);
       if (m) {
         const stop = heroReach(m) - 4;
         const d = dist(h, m);
-        if (d > stop) stepToward(h, m, Math.min(N.hero.speed * dt, d - stop));
+        if (d > stop) {
+          // With a straight way to it he walks at it; with something between, he walks the way round, found
+          // afresh twice a second because it moves.
+          const place = placeOf(s);
+          if (sight(place, h, m, FEET)) h.route = [];
+          else if (h.route.length === 0 || s.ticks % 30 === 0) h.route = route(place, h, m, FEET);
+          const corner = h.route.length > 1 ? h.route[0] : undefined;
+          if (corner) {
+            if (stepToward(h, corner, N.hero.speed * dt)) h.route.shift();
+          } else {
+            stepToward(h, m, Math.min(N.hero.speed * dt, d - stop));
+          }
+        } else {
+          h.route = [];
+        }
       }
     }
   }
 
-  clampToPlace(s, h);
+  // The ground has the last word: he walks on land only, and round the things in the way.
+  const wanted = Math.hypot(h.x - fromX, h.y - fromY);
+  if (wanted > 0) {
+    const at = walk(placeOf(s), { x: fromX, y: fromY }, h, FEET);
+    h.x = at.x;
+    h.y = at.y;
+  }
   const moved = Math.hypot(h.x - fromX, h.y - fromY);
+  // The way was found for him, so this is rare: if the ground will not let him on, he stops where he is.
+  if (h.dest && wanted > 0.01 && moved < wanted * 0.05) {
+    h.dest = null;
+    h.route = [];
+  }
   h.moving = moved > 0.01;
   if (h.moving) h.facing = Math.atan2(h.y - fromY, h.x - fromX);
 }
@@ -176,6 +211,8 @@ function stepMonsters(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void
     const k = kindOf(m);
     const heroUp = h.downFor <= 0;
     const d = dist(m, h);
+    const fromX = m.x;
+    const fromY = m.y;
     switch (m.mode) {
       case 'wander': {
         if (heroUp && d <= k.aggroRange) {
@@ -189,7 +226,12 @@ function stepMonsters(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void
           }
         } else {
           m.timer -= dt;
-          if (m.timer <= 0) m.goal = strollGoal(s, m, rng);
+          if (m.timer <= 0) {
+            // A stroll only goes where it can stand; if the dice point out to sea, it waits and tries again.
+            const goal = strollGoal(s, m, rng);
+            if (k.flies || onLand(placeOf(s), goal.x, goal.y)) m.goal = goal;
+            else m.timer = 0.5;
+          }
         }
         break;
       }
@@ -253,6 +295,17 @@ function stepMonsters(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void
         break;
       }
     }
+    // What walks keeps to the land and goes round the things in the way; what flies does not care.
+    if (!k.flies && (m.x !== fromX || m.y !== fromY)) {
+      const at = walk(placeOf(s), { x: fromX, y: fromY }, m, k.radius * 0.5);
+      m.x = at.x;
+      m.y = at.y;
+      // A stroll that runs into something ends there.
+      if (m.mode === 'wander' && m.goal && Math.hypot(m.x - fromX, m.y - fromY) < 0.01) {
+        m.goal = null;
+        m.timer = pause(m, rng);
+      }
+    }
   }
   separate(s.monsters);
   for (const m of s.monsters) clampToPlace(s, m);
@@ -275,6 +328,7 @@ function hurtHero(s: GameState, m: Monster, rng: Rng, ev: GameEvent[]): void {
     h.hp = 0;
     h.downFor = N.hero.reviveSeconds;
     h.dest = null;
+    h.route = [];
     h.swing = null;
     h.charging = null;
     h.mending = 0;
@@ -311,17 +365,28 @@ function stepRespawns(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void
 
 /** A new monster somewhere in its zone, away from the hero and from the others. */
 function spawn(s: GameState, zoneIndex: number, rng: Rng, ev: GameEvent[]): void {
-  const zone = placeOf(s).zones[zoneIndex];
+  const place = placeOf(s);
+  const zone = place.zones[zoneIndex];
   if (!zone) return;
+  const radius = kindOf(zone).radius;
   let at: Vec | null = null;
-  for (let i = 0; i < 12 && !at; i++) {
+  let spare: Vec | null = null;
+  for (let i = 0; i < 24 && !at; i++) {
     const p = { x: zone.x + rng.next() * zone.w, y: zone.y + rng.next() * zone.h };
+    // A zone's box may reach over water or a rock: only ground it can stand on will do. And never where he steps
+    // ashore: a landing is safe.
+    if (!clear(place, p.x, p.y, radius) || dist(p, place.arrive) < N.spawn.landing) continue;
+    spare = p;
     if (dist(p, s.hero) < N.spawn.clearance) continue;
     if (s.monsters.some((m) => dist(p, m) < N.spawn.apart)) continue;
     at = p;
   }
-  // Twelve unlucky tries: the corner of its zone furthest from him.
-  if (!at) at = { x: s.hero.x < zone.x + zone.w / 2 ? zone.x + zone.w : zone.x, y: s.hero.y < zone.y + zone.h / 2 ? zone.y + zone.h : zone.y };
+  // Unlucky: somewhere it can stand, even if near him; and if the dice found no ground at all, it tries again soon.
+  at = at ?? spare;
+  if (!at) {
+    s.respawns.push({ zone: zoneIndex, in: 1 });
+    return;
+  }
   const m: Monster = {
     id: s.nextId,
     kind: zone.kind,

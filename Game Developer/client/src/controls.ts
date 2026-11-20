@@ -8,7 +8,7 @@
 // because it slid somewhere, and steering is sent the frame it changes.
 
 import type Phaser from 'phaser';
-import { dist, kindOf, placeOf, type Vec } from '../../rules/src/index.ts';
+import { dist, placeOf, type Vec } from '../../rules/src/index.ts';
 import { RES } from './layout.ts';
 import type { LocalGame } from './local-game.ts';
 import type { Hud } from './view/hud.ts';
@@ -90,15 +90,7 @@ export class Controls {
   private tap(p: Phaser.Input.Pointer): void {
     const state = this.holder.state;
     const at = this.camera.getWorldPoint(p.x, p.y);
-    let best: number | null = null;
-    let bestD = Infinity;
-    for (const m of state.monsters) {
-      const d = dist(at, m);
-      if (d <= kindOf(m).radius + TAP_SLOP && d < bestD) {
-        best = m.id;
-        bestD = d;
-      }
-    }
+    const best = this.world.monsterAt(state, at, TAP_SLOP);
     if (best !== null) {
       this.holder.act({ type: 'target', monster: best });
       return;

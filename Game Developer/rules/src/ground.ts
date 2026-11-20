@@ -1,0 +1,87 @@
+// Where one can stand and walk in a place: on the land, out of the water, and round the things in the way. A
+// place's shore, its inner waters and its solid things come from the Art Director's layout of it
+// (tools/place-from-art.mjs); a place without a shore is its whole box.
+
+import { N, type Place } from './data.ts';
+import type { Vec } from './types.ts';
+
+/** Is a point inside an outline? (A ray to the right crosses its edge an odd number of times.) */
+function inside(outline: number[][], x: number, y: number): boolean {
+  let within = false;
+  for (let i = 0, j = outline.length - 1; i < outline.length; j = i++) {
+    const a = outline[i]!;
+    const b = outline[j]!;
+    const ay = a[1]!;
+    const by = b[1]!;
+    if (ay > y !== by > y && x < ((b[0]! - a[0]!) * (y - ay)) / (by - ay) + a[0]!) within = !within;
+  }
+  return within;
+}
+
+/** Is this point ground to stand on: inside the place's box, on its land, and not in water? */
+export function onLand(place: Place, x: number, y: number): boolean {
+  if (x < N.margin || y < N.margin || x > place.width - N.margin || y > place.height - N.margin) return false;
+  if (place.land && !inside(place.land, x, y)) return false;
+  for (const water of place.water) if (inside(water, x, y)) return false;
+  return true;
+}
+
+/** Is this point ground a body of this size can stand on: land, and clear of every solid thing? */
+export function clear(place: Place, x: number, y: number, radius: number): boolean {
+  if (!onLand(place, x, y)) return false;
+  for (const s of place.solids) if (Math.hypot(x - s.x, y - s.y) < s.r + radius) return false;
+  return true;
+}
+
+/** Push a point out of every solid thing it is in. `from` says which side to come out on when it is dead centre. */
+function outOfSolids(place: Place, p: Vec, from: Vec, radius: number): void {
+  for (let pass = 0; pass < 2; pass++) {
+    for (const s of place.solids) {
+      const min = s.r + radius;
+      let dx = p.x - s.x;
+      let dy = p.y - s.y;
+      let d = Math.hypot(dx, dy);
+      if (d >= min) continue;
+      if (d < 0.001) {
+        dx = from.x - s.x;
+        dy = from.y - s.y;
+        d = Math.hypot(dx, dy) || 1;
+      }
+      p.x = s.x + (dx / d) * min;
+      p.y = s.y + (dy / d) * min;
+    }
+  }
+}
+
+/** A point moved out of any solid thing it lies in: where a tap on a rock really sends him. */
+export function besideSolids(place: Place, p: Vec, toward: Vec, radius: number): Vec {
+  const out = { x: p.x, y: p.y };
+  outOfSolids(place, out, toward, radius);
+  return out;
+}
+
+/**
+ * A body wants to step from `from` to `to`: where it really ends up. A solid thing pushes it out to its edge, so
+ * it slides round; met head on, it steps aside. The shore lets it slide along but not cross. If no way is open it
+ * stays where it was.
+ */
+export function walk(place: Place, from: Vec, to: Vec, radius: number): Vec {
+  const want = Math.hypot(to.x - from.x, to.y - from.y);
+  const p = { x: to.x, y: to.y };
+  if (place.solids.length > 0) {
+    outOfSolids(place, p, from, radius);
+    // Head on into something, the push only sends it back the way it came: step aside instead, and slide from there.
+    if (want > 0.001 && Math.hypot(p.x - from.x, p.y - from.y) < want * 0.2) {
+      p.x = from.x - (to.y - from.y);
+      p.y = from.y + (to.x - from.x);
+      outOfSolids(place, p, from, radius);
+    }
+  }
+  // The place's own edge is a wall to slide along, right up to it.
+  p.x = Math.min(place.width - N.margin, Math.max(N.margin, p.x));
+  p.y = Math.min(place.height - N.margin, Math.max(N.margin, p.y));
+  if (onLand(place, p.x, p.y)) return p;
+  if (onLand(place, p.x, from.y)) return { x: p.x, y: from.y };
+  if (onLand(place, from.x, p.y)) return { x: from.x, y: p.y };
+  return { x: from.x, y: from.y };
+}

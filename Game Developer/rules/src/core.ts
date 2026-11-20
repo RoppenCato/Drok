@@ -3,6 +3,7 @@
 
 import { N, RARITY_ORDER, kindOf, placeOf } from './data.ts';
 import { clamp, dist } from './geometry.ts';
+import { onLand } from './ground.ts';
 import type { Rng } from './rng.ts';
 import type { Action, ApplyResult, Drop, GameEvent, GameState, Item, Monster, Rarity, RejectReason, TargetWhy, Vec } from './types.ts';
 
@@ -37,6 +38,7 @@ export function clone(s: GameState): GameState {
       bag: [...h.bag],
       worn: { ...h.worn },
       dest: h.dest ? { ...h.dest } : null,
+      route: [...h.route],
       steer: { ...h.steer },
       swing: h.swing ? { ...h.swing } : null,
       charging: h.charging ? { ...h.charging } : null,
@@ -115,6 +117,11 @@ export function putDrop(s: GameState, kind: Drop['kind'], amount: number, item: 
   const r = spread * (0.4 + 0.6 * rng.next());
   const drop: Drop = { id: s.nextId, x: at.x + Math.cos(a) * r, y: at.y + Math.sin(a) * r, kind, amount, item, age: 0 };
   s.nextId += 1;
+  // Nothing falls into the sea: what would, lies where the thing it came from stood.
+  if (!onLand(placeOf(s), drop.x, drop.y)) {
+    drop.x = at.x;
+    drop.y = at.y;
+  }
   clampToPlace(s, drop);
   s.drops.push(drop);
   ev.push({ type: 'dropped', drop: { ...drop } });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BASES, chestFull, dist, heroMaxHp, heroReach, itemStats, kindOf, MONSTERS, N, PLACES, RARITY_ORDER, START_PLACE, buyPrice, type Item, type Monster, type Scheme, type Vec } from '../src/index.ts';
+import { BASES, chestFull, dist, heroMaxHp, heroReach, itemStats, kindOf, MONSTERS, N, onLand, PLACES, RARITY_ORDER, START_PLACE, buyPrice, type Item, type Monster, type Scheme, type Vec } from '../src/index.ts';
 import { DT, ISLAND, Sim } from './sim.ts';
 
 // Bots that play the game and print what they got. The numbers are for a person to read: the tests themselves only
@@ -19,6 +19,10 @@ function whole(sim: Sim): void {
     expect(p.y).toBeGreaterThanOrEqual(N.margin);
     expect(p.y).toBeLessThanOrEqual(place.height - N.margin);
   }
+  // Nobody who walks is in the sea, and nothing lies in it.
+  expect(onLand(place, s.hero.x, s.hero.y)).toBe(true);
+  for (const m of s.monsters) if (!kindOf(m).flies) expect(onLand(place, m.x, m.y), `${m.kind} at ${m.x.toFixed(0)}, ${m.y.toFixed(0)}`).toBe(true);
+  for (const d of s.drops) expect(onLand(place, d.x, d.y)).toBe(true);
   expect(s.hero.hp).toBeLessThanOrEqual(heroMaxHp(s.hero));
   expect(s.hero.gold).toBeGreaterThanOrEqual(0);
   expect(s.hero.bag.length).toBeLessThanOrEqual(N.bagSize);
@@ -105,10 +109,15 @@ function journey(seed: string, limitMinutes: number): Journey {
   const found: Record<string, number> = { common: 0, uncommon: 0, rare: 0, epic: 0 };
   const refused: string[] = [];
 
+  // A tap where he wants to go, once: the rules find the way. Tapped again only when he has stopped short of it.
+  let tapped: Vec | null = null;
   const go = (to: Vec): boolean => {
     const h = sim.state.hero;
     if (dist(h, to) < 12) return true;
-    if (!h.dest || dist(h.dest, to) > 4) sim.act({ type: 'moveTo', x: to.x, y: to.y });
+    if (!h.dest || !tapped || dist(tapped, to) > 4) {
+      sim.act({ type: 'moveTo', x: to.x, y: to.y });
+      tapped = { x: to.x, y: to.y };
+    }
     return false;
   };
 

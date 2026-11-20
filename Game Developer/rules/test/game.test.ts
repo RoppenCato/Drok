@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { apply, dist, heroMaxHp, heroReach, makeRng, MONSTERS, N, PLACES, resumeRng, STATE_VERSION, type Action } from '../src/index.ts';
-import { DT, ISLAND, MIDDLE, Sim } from './sim.ts';
+import { DT, FIELD, ISLAND, MIDDLE, Sim } from './sim.ts';
 
 // Moving and fighting: what the control test proved, kept true as the game grows.
 // The numbers a person reads: every test that measures something prints it, so a green run can still be judged.
@@ -8,6 +8,8 @@ const say = (text: string): void => console.log(`  [numbers] ${text}`);
 
 const CRAB = MONSTERS['sand-crab']!;
 const crabReach = heroReach({ kind: 'sand-crab' });
+/** The plain test field for moving and fighting; the real island for what must hold on its shore. */
+const field = PLACES[FIELD]!;
 const island = PLACES[ISLAND]!;
 
 describe('the same seed gives the same game', () => {
@@ -118,14 +120,14 @@ describe('moving: smooth and snappy', () => {
 
   it('the place holds him: pushed against each edge for longer than the place is long, he stands at the edge', () => {
     const sim = Sim.empty();
-    const far = (Math.max(island.width, island.height) / N.hero.speed) * 1.5;
+    const far = (Math.max(field.width, field.height) / N.hero.speed) * 1.5;
     sim.act({ type: 'steer', x: -1, y: 0 });
     sim.run(far);
     expect(sim.state.hero.x).toBe(N.margin);
     sim.act({ type: 'steer', x: 1, y: 1 });
     sim.run(far);
-    expect(sim.state.hero.x).toBe(island.width - N.margin);
-    expect(sim.state.hero.y).toBe(island.height - N.margin);
+    expect(sim.state.hero.x).toBe(field.width - N.margin);
+    expect(sim.state.hero.y).toBe(field.height - N.margin);
     sim.act({ type: 'moveTo', x: -500, y: -500 });
     expect(sim.state.hero.dest).toEqual({ x: N.margin, y: N.margin });
   });
@@ -333,7 +335,7 @@ describe('the monsters of a place', () => {
     const took = sim.runUntil((s) => s.state.monsters.length > 0, 30);
     expect(took).toBeCloseTo(CRAB.respawnSeconds, 1);
     const back = sim.state.monsters[0]!;
-    const zone = island.zones[0]!;
+    const zone = field.zones[0]!;
     expect(back.kind).toBe(zone.kind);
     expect(back.x).toBeGreaterThanOrEqual(zone.x);
     expect(back.x).toBeLessThanOrEqual(zone.x + zone.w);

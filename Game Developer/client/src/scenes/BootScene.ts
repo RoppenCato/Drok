@@ -37,6 +37,14 @@ export class BootScene extends Phaser.Scene {
       atlas('gear-icons', 'gear');
     }
     for (const kind of ART.monsters) atlas(kind, kind);
+    if (ART.loot) atlas('loot', 'loot');
+    if (ART.glass) atlas('glass', 'glass');
+    // A place: its ground as one picture, its props as a set, and where each prop stands.
+    for (const folder of new Set(Object.values(ART.places))) {
+      this.load.image(`${folder}:ground`, `art/${folder}/ground.png`);
+      atlas(folder, folder);
+      this.load.json(`${folder}:place`, `art/${folder}/place.json`);
+    }
   }
 
   create(): void {

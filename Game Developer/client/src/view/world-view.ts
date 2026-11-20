@@ -9,7 +9,12 @@ import { ART } from '../art.ts';
 import { COLORS, DEPTH, FONT, RES, hex } from '../layout.ts';
 import type { Ground } from '../scenes/BootScene.ts';
 import { settings } from '../settings.ts';
-import { Figure, HeroFigure, type AtlasData, type GearData } from './figures.ts';
+import { Figure, HeroFigure, picture, repicture, type AtlasData, type GearData, type SetData } from './figures.ts';
+
+/** A place as the Art Director laid it out: what stands where. The rules' own copy of the layout is in their data. */
+interface PlaceArt {
+  props: { name: string; x: number; y: number }[];
+}
 
 type Obj = Phaser.GameObjects.GameObject;
 
@@ -45,8 +50,11 @@ interface MonsterView {
 
 interface DropView {
   body: Phaser.GameObjects.Container;
-  glow: Phaser.GameObjects.Arc | null;
-  beam: Phaser.GameObjects.Rectangle | null;
+  /** The ring or glow of its rarity, which breathes; and its size at rest. */
+  glow: Phaser.GameObjects.Image | Phaser.GameObjects.Arc | null;
+  glowSize: number;
+  /** What catches the eye on a rare piece: a beam (stand-in) or sparks (drawn), which blink. */
+  sparks: (Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle)[];
   pop: number;
 }
 
@@ -90,6 +98,11 @@ export class WorldView {
   private slash!: Phaser.GameObjects.Graphics;
   private chestLid: Phaser.GameObjects.Rectangle | null = null;
   private chestGlow: Phaser.GameObjects.Arc | null = null;
+  /** The drawn chest, the set its pictures are in, and until when it shows "opening". */
+  private chestPicture: Phaser.GameObjects.Image | null = null;
+  private chestSet = '';
+  private chestOpening = 0;
+  private now = 0;
   private coatColor: number = COLORS.hero;
   private dressed = '';
   private heroFlash = 0;
@@ -150,14 +163,38 @@ export class WorldView {
     this.dying = [];
     this.chestLid = null;
     this.chestGlow = null;
+    this.chestPicture = null;
     this.place = state.place;
     const place = placeOf(state);
-    if (place.town) this.paintTown(place);
+    // The Art Director's place, when that drop is in the game; else the stand-in painting.
+    const folder = ART.places[state.place];
+    const layout = folder && this.scene.textures.exists(`${folder}:ground`) ? (this.scene.cache.json.get(`${folder}:place`) as PlaceArt | undefined) : undefined;
+    if (folder && layout?.props) this.paintFromArt(place, folder, layout);
+    else if (place.town) this.paintTown(place);
     else this.paintIsland(place);
     this.heroAt.x = state.hero.x;
     this.heroAt.y = state.hero.y;
     this.hero.setPosition(state.hero.x, state.hero.y);
     this.hero.rotation = state.hero.facing;
+  }
+
+  /**
+   * Which monster a tap at this point is on, if any. A drawn monster is tapped on its picture, which stands up from
+   * the point the rules have it at (a gull flies well above its own); a thumb is wide, so `slop` is added all round.
+   */
+  monsterAt(state: GameState, at: Vec, slop: number): number | null {
+    let best: number | null = null;
+    let bestD = Infinity;
+    for (const m of state.monsters) {
+      const v = this.monsters.get(m.id);
+      const tall = v?.figure ? v.figure.height() : 0;
+      const d = Math.hypot(at.x - (v?.x ?? m.x), at.y - ((v?.y ?? m.y) - tall * 0.5));
+      if (d <= Math.max(kindOf(m).radius, tall * 0.5) + slop && d < bestD) {
+        best = m.id;
+        bestD = d;
+      }
+    }
+    return best;
   }
 
   /** Which thing of the place a tap at this point is on, if any. A thumb is wide: the things are generous. */
@@ -172,6 +209,7 @@ export class WorldView {
   /** Draw the state: `alpha` of the way from the step before (`prev`) to the last one (`state`). */
   sync(state: GameState, prev: GameState, alpha: number, time: number, delta: number): void {
     if (state.place !== this.place) this.enter(state);
+    this.now = time;
     const samePlace = prev.place === state.place;
     const h = state.hero;
     const fade = Math.min(1, delta / 140);
@@ -238,7 +276,9 @@ export class WorldView {
         v.shell.setFillStyle(v.punch > 0.45 ? 0xffffff : stunned ? COLORS.stunned : windup > 0 ? COLORS.windup : v.color);
         v.shadow.setPosition(v.x + 2, v.y + v.radius * 0.55);
       }
-      v.star.setVisible(stunned).setPosition(v.x, v.y - v.radius - 12);
+      // What floats over it (the star, the health bar) sits above its picture, however tall that is.
+      const top = v.figure ? v.figure.height() - 6 : v.radius;
+      v.star.setVisible(stunned).setPosition(v.x, v.y - top - 12);
       if (stunned) v.star.rotation = time * 0.006;
       if (v.slam) {
         // The ground a slam will hit fills in as the blow comes: stand outside it.
@@ -248,8 +288,8 @@ export class WorldView {
 
       const showBar = m.hp < k.maxHp || h.target === m.id;
       const w = v.radius * 2 + 2;
-      v.barBack.setVisible(showBar).setPosition(v.x - w / 2 - 1, v.y - v.radius - 13);
-      v.bar.setVisible(showBar).setPosition(v.x - w / 2, v.y - v.radius - 12);
+      v.barBack.setVisible(showBar).setPosition(v.x - w / 2 - 1, v.y - top - 13);
+      v.bar.setVisible(showBar).setPosition(v.x - w / 2, v.y - top - 12);
       v.bar.scaleX = Math.max(0, m.hp / k.maxHp);
     }
     for (const [id, v] of this.monsters) {
@@ -298,8 +338,8 @@ export class WorldView {
       v.body.setPosition(x, y - 14 * Math.sin(v.pop * Math.PI)).setDepth(DEPTH.bodies + y - 4);
       // The last seconds before it is gone, it blinks.
       v.body.setAlpha(d.age > N.drops.lifeSeconds - 8 && Math.sin(time * 0.02) > 0 ? 0.35 : 1);
-      if (v.glow) v.glow.setScale(1 + 0.15 * Math.sin(time * 0.006 + d.id));
-      if (v.beam) v.beam.setAlpha(0.35 + 0.2 * Math.sin(time * 0.004 + d.id));
+      if (v.glow) v.glow.setScale(v.glowSize * (1 + 0.12 * Math.sin(time * 0.006 + d.id)));
+      v.sparks.forEach((spark, i) => spark.setAlpha(0.3 + 0.55 * Math.max(0, Math.sin(time * 0.007 + d.id + i * 2.1))));
     }
     for (const [id, v] of this.drops) {
       if (lying.has(id)) continue;
@@ -312,6 +352,8 @@ export class WorldView {
       this.chestLid.setVisible(full);
       this.chestGlow.setVisible(full).setScale(1 + 0.12 * Math.sin(time * 0.005));
     }
+    // The drawn chest: closed while it is full, "opening" for a moment when he opens it, then open until it fills.
+    if (this.chestPicture) repicture(this.scene, this.chestPicture, this.chestSet, time < this.chestOpening ? 'chest/opening' : chestFull(state) ? 'chest/closed' : 'chest/open');
   }
 
   /** The one-shots: numbers, puffs, the sword's arc. */
@@ -369,6 +411,7 @@ export class WorldView {
           break;
         case 'chestOpened':
           this.puff(e.x, e.y, COLORS.gold, 26);
+          this.chestOpening = this.now + 160;
           break;
         default:
           break;
@@ -419,6 +462,38 @@ export class WorldView {
     this.put(s.add.circle(d.x + 34, top, 6, COLORS.woodDark).setDepth(DEPTH.decor + 1));
     this.put(s.add.rectangle(d.x + 44, d.y - 30, 4, 34, COLORS.woodDark).setDepth(DEPTH.bodies + d.y));
     this.put(s.add.triangle(d.x + 58, d.y - 40, 0, 0, 22, 8, 0, 16, COLORS.bandana).setDepth(DEPTH.bodies + d.y));
+  }
+
+  /**
+   * A place as the Art Director made it: his ground as one picture under everything (it is painted at one pixel a
+   * unit and drawn at the place's size), each prop standing on its own point and sorted with the figures by how far
+   * down the screen it stands, a flat shadow under each, and his chest.
+   */
+  private paintFromArt(place: Place, folder: string, layout: PlaceArt): void {
+    const s = this.scene;
+    this.put(s.add.image(0, 0, `${folder}:ground`).setOrigin(0).setDisplaySize(place.width, place.height).setDepth(DEPTH.ground));
+    const set = s.cache.json.get(`${folder}:data`) as SetData | undefined;
+    const shadow = (x: number, y: number, name: string): void => {
+      const wide = (set?.items[name]?.w ?? 60) / (set?.meta.filePx ?? 2);
+      this.put(s.add.ellipse(x, y + 1, Math.max(14, wide * 0.55), Math.max(6, wide * 0.2), 0x5b4a82, 0.25).setDepth(DEPTH.shadows));
+    };
+    for (const p of layout.props) {
+      const image = picture(s, folder, p.name);
+      if (!image) continue;
+      // What stands over the water (the dock, the boat) casts no shadow on the sand.
+      if (!p.name.startsWith('dock') && !p.name.startsWith('boat')) shadow(p.x, p.y, p.name);
+      this.put(image.setPosition(p.x, p.y).setDepth(DEPTH.bodies + p.y));
+    }
+    if (place.chest) {
+      const chest = picture(s, folder, 'chest/closed');
+      if (chest) {
+        shadow(place.chest.x, place.chest.y, 'chest/closed');
+        this.chestPicture = this.put(chest.setPosition(place.chest.x, place.chest.y).setDepth(DEPTH.bodies + place.chest.y));
+        this.chestSet = folder;
+      } else {
+        this.paintChest(place.chest);
+      }
+    }
   }
 
   /** The island: a beach in the south where he lands, grass in the middle, a rocky cove in the north. */
@@ -629,6 +704,34 @@ export class WorldView {
   /** A thing on the ground: coins, a bottle, or a bundle with the glow of its rarity and, when it is rare, a beam. */
   private makeDrop(d: Drop): DropView {
     const s = this.scene;
+    const pop = d.age < 0.2 ? 1 : 0;
+    if (ART.loot && s.textures.exists('loot')) {
+      // The Art Director's loot: under a piece of gear the ring of its rarity, then the bundle; coins and potions
+      // need no ring; a rare or epic piece gets a spark or two in its rarity's light tone, blinking.
+      const set = s.cache.json.get('loot:data') as SetData | undefined;
+      const drawn: Phaser.GameObjects.Image[] = [];
+      const sparks: Phaser.GameObjects.Image[] = [];
+      let ring: Phaser.GameObjects.Image | null = null;
+      if (d.kind === 'item' && d.item) {
+        ring = picture(s, 'loot', `ring/${d.item.rarity}`);
+        if (ring) drawn.push(ring);
+        const bundle = picture(s, 'loot', 'gear');
+        if (bundle) drawn.push(bundle);
+        const light = hex(set?.items[`ring/${d.item.rarity}`]?.light ?? RARITIES[d.item.rarity].color);
+        const count = d.item.rarity === 'epic' ? 2 : d.item.rarity === 'rare' ? 1 : 0;
+        for (let i = 0; i < count; i++) {
+          const spark = picture(s, 'loot', 'spark');
+          if (!spark) continue;
+          spark.setPosition(i === 0 ? 12 : -13, i === 0 ? -20 : -12).setTint(light);
+          drawn.push(spark);
+          sparks.push(spark);
+        }
+      } else {
+        const thing = picture(s, 'loot', d.kind === 'gold' ? 'coins' : 'potion');
+        if (thing) drawn.push(thing);
+      }
+      if (drawn.length > 0) return { body: this.reg(s.add.container(d.x, d.y, drawn)), glow: ring, glowSize: ring ? ring.scaleX : 1, sparks, pop };
+    }
     const parts: Phaser.GameObjects.GameObject[] = [s.add.ellipse(1, 7, 20, 8, COLORS.shadow, 0.22)];
     let glow: Phaser.GameObjects.Arc | null = null;
     let beam: Phaser.GameObjects.Rectangle | null = null;
@@ -652,7 +755,7 @@ export class WorldView {
       parts.push(s.add.rectangle(0, 0, 15, 13, COLORS.wood).setStrokeStyle(2.5, color));
       parts.push(s.add.rectangle(0, 0, 15, 3, color));
     }
-    return { body: this.reg(s.add.container(d.x, d.y, parts)), glow, beam, pop: d.age < 0.2 ? 1 : 0 };
+    return { body: this.reg(s.add.container(d.x, d.y, parts)), glow, glowSize: 1, sparks: beam ? [beam] : [], pop };
   }
 
   // ---- the one-shots ---------------------------------------------------------------------------------------------

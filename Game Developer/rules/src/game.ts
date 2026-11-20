@@ -5,8 +5,9 @@
 // in the tests, where a bot plays it.
 
 import { clampToPlace, clone, monsterById, nearestMonster, newItem, reject, roll, setTarget } from './core.ts';
-import { N, PLACES, SLOTS, START_GEAR, START_PLACE, heroBonusDamage, heroMaxHp, kindOf } from './data.ts';
+import { N, PLACES, SLOTS, START_GEAR, START_PLACE, heroBonusDamage, heroMaxHp, kindOf, placeOf } from './data.ts';
 import { angleDiff, angleTo, dist } from './geometry.ts';
+import { route } from './path.ts';
 import { hurtMonster, openChest } from './loot.ts';
 import { makeRng, type Rng } from './rng.ts';
 import { STATE_VERSION } from './save.ts';
@@ -50,6 +51,7 @@ export function newGame(o: NewGameOptions): GameState {
       bag: [],
       worn,
       dest: null,
+      route: [],
       steer: { x: 0, y: 0 },
       target: null,
       chase: false,
@@ -120,19 +122,26 @@ function setScheme(state: GameState, scheme: Scheme): ApplyResult {
   const s = clone(state);
   s.scheme = scheme;
   s.hero.dest = null;
+  s.hero.route = [];
   s.hero.steer = { x: 0, y: 0 };
   s.hero.chase = false;
   return { state: s, events: [] };
 }
 
-/** A tap on the ground: he walks there in a straight line. The target stays; he swings again when it is in reach. */
+/**
+ * A tap on the ground: he walks there, straight if nothing stands between, else round it. A tap on what he cannot
+ * reach (a rock, the sea) takes him as near as the ground goes. The target stays; he swings again when it is in reach.
+ */
 function moveTo(state: GameState, x: number, y: number): ApplyResult {
   if (!Number.isFinite(x) || !Number.isFinite(y)) return reject(state, 'moveTo', 'bad number');
   if (state.hero.downFor > 0) return reject(state, 'moveTo', 'down');
   const s = clone(state);
   const dest = { x, y };
   clampToPlace(s, dest);
-  s.hero.dest = dest;
+  const way = route(placeOf(s), s.hero, dest, N.hero.radius * 0.5);
+  const end = way[way.length - 1];
+  s.hero.route = way;
+  s.hero.dest = end ? { x: end.x, y: end.y } : null;
   s.hero.chase = false;
   return { state: s, events: [] };
 }
@@ -156,6 +165,7 @@ function target(state: GameState, id: number | null, approach: boolean): ApplyRe
   if (id !== null) {
     s.hero.chase = approach;
     s.hero.dest = null;
+    s.hero.route = [];
   }
   return { state: s, events: ev };
 }
@@ -185,6 +195,7 @@ function charge(state: GameState): ApplyResult {
   h.charging = { target: m.id, left: N.charge.maxSeconds };
   h.chargeCd = N.charge.cooldownSeconds;
   h.dest = null;
+  h.route = [];
   h.swing = null;
   // In scheme 1 he stays on it after landing, as after a tap; in 2 and 3 the thumb decides where he goes next.
   h.chase = s.scheme === 1;

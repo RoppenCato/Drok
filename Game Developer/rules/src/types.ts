@@ -65,6 +65,11 @@ export interface Hero {
   worn: Record<Slot, Item | null>;
   /** Where a tap sent him; null when he has arrived or was never sent. */
   dest: Vec | null;
+  /**
+   * The corners still to walk on the way there, round whatever stands between, the next one first; the last is
+   * `dest`. Also used while he walks up to a target he cannot see a straight way to. Empty when the way is straight.
+   */
+  route: Vec[];
   /** The thumb's push: a direction whose length is 0 (let go) to 1 (full speed). It wins over `dest` and `chase`. */
   steer: Vec;
   /** The monster he fights, by id. */

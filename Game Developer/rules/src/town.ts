@@ -18,6 +18,7 @@ export function enterPlace(s: GameState, id: string, at: Vec, rng: Rng, ev: Game
   h.y = at.y;
   clampToPlace(s, h);
   h.dest = null;
+  h.route = [];
   h.chase = false;
   h.swing = null;
   h.charging = null;
@@ -56,7 +57,7 @@ export function sail(state: GameState, to: string, rng: Rng): ApplyResult {
   const s = clone(state);
   const ev: GameEvent[] = [];
   const from = s.place;
-  enterPlace(s, to, there.dock, rng, ev);
+  enterPlace(s, to, there.arrive, rng, ev);
   // He steps off the boat facing inland.
   s.hero.facing = -Math.PI / 2;
   ev.push({ type: 'sailed', from, to });

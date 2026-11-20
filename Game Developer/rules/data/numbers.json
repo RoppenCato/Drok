@@ -2,9 +2,10 @@
   "_about": "The hero's own numbers and the numbers every place shares. Balancing is editing these files: numbers.json (the hero, the skills, loot and the chest's rules), monsters.json, places.json, items.json. Lengths are in world units (one unit is one design pixel at 412 by 915), times in seconds, speeds in units a second. All of them are Victor, GD's guesses (2026-11-20) unless a note says Robin; the ones Robin has felt and approved move to docs/lessons.md with his words.",
   "margin": 28,
   "spawn": {
-    "_about": "A monster arrives somewhere in its zone, at least clearance from him and apart from the others.",
+    "_about": "A monster arrives somewhere in its zone on ground it can stand on, at least clearance from him, apart from the others, and never within landing of where he steps ashore, so a landing is safe.",
     "clearance": 260,
-    "apart": 70
+    "apart": 70,
+    "landing": 270
   },
   "hero": {
     "_about": "speed is the number 'smooth and snappy' hangs on: he crosses the screen's width in about two seconds. No acceleration: he is at full speed on the first step and stops on the step the thumb lifts. reach is the gap between the two bodies inside which a swing lands; reachGrace is how much further the target may have stepped back while the swing was in the air. In a town his health comes back at once and fast.",

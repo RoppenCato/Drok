@@ -2,11 +2,11 @@
   "_about": "Gear for chapter 1: four slots (Robin, 2026-11-20, 'The big pieces': every cutlass, buckler and hat has its own shape; coats come in a handful of looks), three tiers, four rarities. A piece is a base and a rarity; its numbers are the base's times the rarity's `times`, and never less than the base plus one for each step of rarity. Affixes, uniques and sets are chapter 2. `value` is what a common one is worth; the shop sells at value times `buyTimes` and buys at value times `sellShare`. Names are Victor, GD's placeholders.",
   "slots": ["weapon", "shield", "hat", "coat"],
   "rarities": {
-    "_about": "weight is how often a drop is of that rarity. The colours are the Art Director's to set; these are stand-ins for the glow on the ground and the edge in the bag.",
-    "common": { "name": "Common", "times": 1, "weight": 70, "color": "#e8e4d8" },
-    "uncommon": { "name": "Uncommon", "times": 1.35, "weight": 22, "color": "#4fd06b" },
-    "rare": { "name": "Rare", "times": 1.8, "weight": 7, "color": "#4aa3ff" },
-    "epic": { "name": "Epic", "times": 2.4, "weight": 1, "color": "#c86bff" }
+    "_about": "weight is how often a drop is of that rarity. The colours are Leonard, AD's (his loot drop of 2026-11-20; Robin's to judge): the ring on the ground and the edge in the bag.",
+    "common": { "name": "Common", "times": 1, "weight": 70, "color": "#b9b2a6" },
+    "uncommon": { "name": "Uncommon", "times": 1.35, "weight": 22, "color": "#4cc463" },
+    "rare": { "name": "Rare", "times": 1.8, "weight": 7, "color": "#3d9cff" },
+    "epic": { "name": "Epic", "times": 2.4, "weight": 1, "color": "#b666f2" }
   },
   "chestWeights": { "common": 0, "uncommon": 60, "rare": 32, "epic": 8 },
   "shop": {

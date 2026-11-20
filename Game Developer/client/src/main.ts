@@ -63,16 +63,23 @@ function step(n = 1): void {
   }
 }
 if (holder.drive) {
-  // The game's clock starts just after it says it is ready, so it is stopped on its first step, not before.
-  phaser.events.once(Phaser.Core.Events.POST_STEP, () => {
+  // The page's own clock runs until the pictures are loaded and the play scene stands (the loader needs steps to
+  // work through its files); then it is stopped, and only a script moves time.
+  const stopWhenPlaying = (): void => {
+    if (!phaser.scene.isActive('play')) return;
+    phaser.events.off(Phaser.Core.Events.POST_STEP, stopWhenPlaying);
     phaser.loop.stop();
     fake = phaser.loop.now || performance.now();
-  });
+  };
+  phaser.events.on(Phaser.Core.Events.POST_STEP, stopWhenPlaying);
 }
+
+/** For a script: is the game up (pictures loaded, the play scene standing)? In a hidden pane that can take a while. */
+const ready = (): boolean => phaser.scene.isActive('play');
 
 declare global {
   interface Window {
-    dev: { holder: LocalGame; log: GameLog; phaser: Phaser.Game; rules: typeof rules; step: (n?: number) => void; res: number };
+    dev: { holder: LocalGame; log: GameLog; phaser: Phaser.Game; rules: typeof rules; step: (n?: number) => void; ready: () => boolean; res: number };
   }
 }
-window.dev = { holder, log, phaser, rules, step, res: RES };
+window.dev = { holder, log, phaser, rules, step, ready, res: RES };

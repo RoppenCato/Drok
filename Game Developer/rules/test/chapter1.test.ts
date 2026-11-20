@@ -3,7 +3,9 @@ import {
   BASES,
   buyPrice,
   chestFull,
+  clear,
   dist,
+  onLand,
   heroArmour,
   heroBonusDamage,
   heroMaxHp,
@@ -25,7 +27,7 @@ import {
   xpToNext,
   type Rarity,
 } from '../src/index.ts';
-import { DT, ISLAND, NOON, Sim } from './sim.ts';
+import { DT, FIELD, ISLAND, NOON, Sim } from './sim.ts';
 
 // What chapter 1 adds (Robin, 2026-11-20: "Harbour town plus island"): places and sailing, three kinds of monster,
 // levels 1 to 5, loot on the ground with rarities, a bag and gear, one chest, potions, death that costs money, the
@@ -33,6 +35,80 @@ import { DT, ISLAND, NOON, Sim } from './sim.ts';
 const say = (text: string): void => console.log(`  [numbers] ${text}`);
 const island = PLACES[ISLAND]!;
 const harbour = PLACES[START_PLACE]!;
+/** The size of the hero where he meets the ground. */
+const FEET = N.hero.radius * 0.5;
+
+describe('the ground of the island', () => {
+  // The island's shore, its inlet and its rocks and trunks come from the Art Director's layout (2026-11-20).
+  const stays = (sim: Sim): void => expect(clear(island, sim.state.hero.x, sim.state.hero.y, FEET - 0.01), `in the way at ${sim.state.hero.x.toFixed(0)}, ${sim.state.hero.y.toFixed(0)}`).toBe(true);
+
+  it('he walks on land only: pushed at the sea from the landing, he stops at the shore and slides along it', () => {
+    const sim = Sim.landed();
+    sim.act({ type: 'steer', x: 0, y: 1 });
+    sim.run(3);
+    expect(onLand(island, sim.state.hero.x, sim.state.hero.y)).toBe(true);
+    const shore = sim.state.hero.y;
+    expect(shore).toBeGreaterThan(island.arrive.y + 30);
+    sim.act({ type: 'steer', x: 0.7, y: 0.7 });
+    sim.run(2);
+    expect(onLand(island, sim.state.hero.x, sim.state.hero.y)).toBe(true);
+    expect(sim.state.hero.x).toBeGreaterThan(island.arrive.x + 60);
+    say(`from the landing at y ${island.arrive.y} the shore stops him at y ${shore.toFixed(0)}; pushed slantwise he slides along it`);
+  });
+
+  it('a tap far away finds the way round rocks and trunks, and never walks through one', () => {
+    const sim = Sim.landed();
+    sim.state = { ...sim.state, monsters: [], respawns: [] };
+    const before = { x: island.chest!.x, y: island.chest!.y + 40 };
+    sim.act({ type: 'moveTo', ...before });
+    expect(sim.state.hero.dest).toEqual(before);
+    let steps = 0;
+    while (sim.state.hero.dest && steps++ < 60 * 30) {
+      sim.step();
+      stays(sim);
+    }
+    expect(Math.hypot(sim.state.hero.x - before.x, sim.state.hero.y - before.y)).toBeLessThan(1);
+    const straight = Math.hypot(before.x - island.arrive.x, before.y - island.arrive.y) / N.hero.speed;
+    say(`from the landing to the chest: ${(steps / 60).toFixed(1)} s on foot; a straight line would be ${straight.toFixed(1)} s`);
+    // And back, through the notch between two rocks that a straight line walks into.
+    sim.act({ type: 'moveTo', ...island.dock });
+    steps = 0;
+    while (sim.state.hero.dest && steps++ < 60 * 30) {
+      sim.step();
+      stays(sim);
+    }
+    expect(Math.hypot(sim.state.hero.x - island.dock.x, sim.state.hero.y - island.dock.y)).toBeLessThan(1);
+  });
+
+  it('a tap on the sea, or on a rock, takes him as near as the ground goes', () => {
+    const sim = Sim.landed();
+    sim.state = { ...sim.state, monsters: [], respawns: [] };
+    sim.act({ type: 'moveTo', x: 700, y: 2380 });
+    const shore = sim.state.hero.dest!;
+    expect(onLand(island, shore.x, shore.y)).toBe(true);
+    expect(shore.y).toBeGreaterThan(island.arrive.y);
+    sim.runUntil((s) => s.state.hero.dest === null, 10);
+    expect(Math.hypot(sim.state.hero.x - shore.x, sim.state.hero.y - shore.y)).toBeLessThan(1);
+    const rock = island.solids[0]!;
+    sim.act({ type: 'moveTo', x: rock.x, y: rock.y });
+    const beside = sim.state.hero.dest!;
+    expect(Math.hypot(beside.x - rock.x, beside.y - rock.y)).toBeGreaterThanOrEqual(rock.r + FEET);
+    expect(Math.hypot(beside.x - rock.x, beside.y - rock.y)).toBeLessThan(rock.r + 40);
+  });
+
+  it('a landing is safe, and what walks keeps to the land while gulls fly where they like', () => {
+    const sim = Sim.landed('reef');
+    sim.step();
+    for (const m of sim.state.monsters) expect(Math.hypot(m.homeX - island.arrive.x, m.homeY - island.arrive.y), `${m.kind} at the landing`).toBeGreaterThanOrEqual(N.spawn.landing);
+    sim.hero({ steer: { x: 0, y: 0 } });
+    sim.run(60);
+    for (const m of sim.state.monsters) {
+      if (MONSTERS[m.kind]!.flies) continue;
+      expect(onLand(island, m.x, m.y), `${m.kind} off the land at ${m.x.toFixed(0)}, ${m.y.toFixed(0)}`).toBe(true);
+    }
+    for (const d of sim.state.drops) expect(onLand(island, d.x, d.y)).toBe(true);
+  });
+});
 
 describe('the data is whole', () => {
   it('every place, monster and piece of gear has what the rules will ask of it', () => {
@@ -40,7 +116,7 @@ describe('the data is whole', () => {
     expect(harbour.shop).not.toBeNull();
     for (const [id, place] of Object.entries(PLACES)) {
       expect(place.name, id).not.toBe('');
-      for (const spot of [place.dock, place.wake, place.shop, place.chest]) {
+      for (const spot of [place.dock, place.arrive, place.wake, place.shop, place.chest]) {
         if (!spot) continue;
         expect(spot.x, id).toBeGreaterThan(N.margin);
         expect(spot.x, id).toBeLessThan(place.width - N.margin);
@@ -51,10 +127,12 @@ describe('the data is whole', () => {
         expect(MONSTERS[zone.kind], `${id}: ${zone.kind}`).toBeDefined();
         expect(zone.x + zone.w, id).toBeLessThanOrEqual(place.width);
         expect(zone.y + zone.h, id).toBeLessThanOrEqual(place.height);
-        // A landing is safe: nothing lives where he steps off the boat.
-        const nearestY = Math.max(zone.y, Math.min(place.dock.y, zone.y + zone.h));
-        expect(Math.abs(place.dock.y - nearestY), `${id}: ${zone.kind} too near the dock`).toBeGreaterThan(MONSTERS[zone.kind]!.aggroRange);
       }
+      // He can stand where he must: on the dock's foot, where he steps ashore, where he wakes, before the chest.
+      for (const [what, spot] of [['dock', place.dock], ['arrive', place.arrive], ['wake', place.wake]] as const) expect(clear(place, spot.x, spot.y, FEET), `${id}: the ${what} is not ground`).toBe(true);
+      if (place.chest) expect(clear(place, place.chest.x, place.chest.y + 40, FEET), `${id}: no ground before the chest`).toBe(true);
+      expect(Math.hypot(place.dock.x - place.arrive.x, place.dock.y - place.arrive.y), `${id}: he steps ashore out of the dock's reach`).toBeLessThan(N.reach.dock);
+      for (const s of place.solids) expect(s.r, id).toBeGreaterThan(0);
       if (place.chest) expect(Object.values(BASES).some((b) => b.tier === place.chest!.itemTier), id).toBe(true);
     }
     for (const [id, k] of Object.entries(MONSTERS)) {
@@ -130,7 +208,7 @@ describe('sailing', () => {
     const walk = sim.runUntil((s) => s.state.hero.dest === null);
     expect(sim.act({ type: 'sail', to: ISLAND }).at(-1)).toEqual({ type: 'sailed', from: START_PLACE, to: ISLAND });
     expect(sim.state.place).toBe(ISLAND);
-    expect(sim.state.hero).toMatchObject(island.dock);
+    expect(sim.state.hero).toMatchObject(island.arrive);
     sim.step();
     const wanted = island.zones.reduce((n, z) => n + z.count, 0);
     expect(sim.state.monsters).toHaveLength(wanted);
@@ -312,7 +390,7 @@ describe('loot on the ground', () => {
 describe('the chest', () => {
   it('opens when he stands by it, spills money, potions and a piece better than common, and is then empty until it fills again on the real clock', () => {
     const sim = Sim.empty();
-    const chest = island.chest!;
+    const chest = PLACES[FIELD]!.chest!;
     expect(sim.act({ type: 'openChest' })).toEqual([{ type: 'rejected', action: 'openChest', reason: 'too far' }]);
     sim.walkTo('chest');
     expect(chestFull(sim.state)).toBe(true);
@@ -508,6 +586,33 @@ describe('the save', () => {
     expect(s).toEqual({ ...newGame({ seed: 'tide', scheme: 3 }), kills: 41, deaths: 2 });
     expect(s.version).toBe(STATE_VERSION);
     expect(migrate({ version: 1, seed: 'tide' })).toBeNull();
+  });
+
+  it('is brought up from chapter 1\'s first save: he carries no way yet, and gets an empty one', () => {
+    const sim = Sim.landed();
+    sim.run(2);
+    const old = JSON.parse(JSON.stringify(sim.state));
+    old.version = 2;
+    delete old.hero.route;
+    const s = migrate(old)!;
+    expect(s.version).toBe(STATE_VERSION);
+    expect(s.hero.route).toEqual([]);
+    expect(s.hero.level).toBe(sim.state.hero.level);
+    expect(s.monsters).toHaveLength(sim.state.monsters.length);
+  });
+
+  it('puts him ashore if the place has changed under him and he would stand in the sea', () => {
+    const sim = Sim.landed();
+    sim.run(2);
+    const old = JSON.parse(JSON.stringify(sim.state));
+    // Where the island's dock stood before the Art Director laid the island out: water now.
+    old.hero.x = 700;
+    old.hero.y = 2310;
+    const s = migrate(old)!;
+    expect(s.hero).toMatchObject(island.arrive);
+    expect(s.monsters).toHaveLength(0);
+    expect(s.respawns).toHaveLength(island.zones.reduce((n, z) => n + z.count, 0));
+    expect(s.hero.gold).toBe(sim.state.hero.gold);
   });
 
   it('drops what today\'s data no longer knows, and keeps the rest', () => {
