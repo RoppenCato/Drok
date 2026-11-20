@@ -5,13 +5,16 @@
 // at the bottom the pile: experience along the floor, Charge, Cleave and the potion in a row, rage and health over them,
 // who he fights over those. The Warrior stands 60 above the screen's middle. --pile mine draws the pile as Leonard, AD
 // would stack it. Everything comes from out/ as delivered, so if this picture is right the deliveries are right.
-//   node tools/scene.js <out.png> [--at 640,2040] [--no-glass] [--pile mine] [--stick 300,560] [--use "Open chest"] [--crop x,y,w,h,zoom]
+// --pile bare is the pile when his own bars go with him over his head (Robin, 2026-11-20; the game's three ways to try):
+// the plate with the name only, the discs, experience. --over <file.js> calls that module's draw(g, c) after the
+// figures, for a sketch of a piece that is not in out/ yet (c: sx, sy, hero, heroTop, piece, pill, P, G, W, H).
+//   node tools/scene.js <out.png> [--at 640,2040] [--no-glass] [--pile mine|bare] [--no-arrow] [--over work/x.js] [--stick 300,560] [--use "Open chest"] [--crop x,y,w,h,zoom]
 const P = require('./paint.js'); const D = require('./dress.js'); const fs = require('fs'); const path = require('path');
 const G = require('./glass.js');
 const W = P.JUDGE.w, H = P.JUDGE.h, FONT = 'Trebuchet MS';
 async function main() {
   const args = process.argv.slice(2), out = args[0], opt = k => { const i = args.indexOf('--' + k); return i >= 0 ? args[i + 1] : null; };
-  const at = (opt('at') || '640,2040').split(',').map(Number), S = 2, R = P.ROOT, mine = opt('pile') === 'mine';
+  const at = (opt('at') || '640,2040').split(',').map(Number), S = 2, R = P.ROOT, mine = opt('pile') === 'mine', bare = opt('pile') === 'bare', arrow = !args.includes('--no-arrow');
   const place = JSON.parse(fs.readFileSync(path.join(R, 'out/island/place.json'), 'utf8')), ground = await P.loadImage(path.join(R, 'out/island/ground.png'));
   const A = await D.load(), isl = await D.atlas(path.join(R, 'out/island'), 'island'), crab = await D.atlas(path.join(R, 'out/sand-crab'), 'sand-crab'), glass = await D.atlas(path.join(R, 'out/glass'), 'glass');
   const loot = fs.existsSync(path.join(R, 'out/loot/loot.json')) ? await D.atlas(path.join(R, 'out/loot'), 'loot') : null;
@@ -31,7 +34,7 @@ async function main() {
   // a bar of the glass: the well w long with its middle at y, a round-ended fill inside (and the pale part a blow just took)
   const bar = (kind, x, y, w, part, k = 1, lost = 0) => { pill('bar/well', x, y, w, k); const full = w - 6 * k; if (lost > part) pill('fill/lost', x + 3 * k, y - k, full * lost, k); if (part > 0) pill('fill/' + kind, x + 3 * k, y - k, Math.max(10 * k, full * part), k); };
   // the bar over a monster: w is the fill's whole length; the one he fights a fifth bigger, with the gold rim and the arrow
-  const mobBar = (x, y, w, part, lost, fought) => { const k = fought ? 1.2 : 1, key = fought ? 'mob/well-mine' : 'mob/well', inset = it(key).inset * k, full = w * k, x0 = x - full / 2; pill(key, x0 - inset, y, full + inset * 2, k); if (lost > part) pill('mob/lost', x0, y, full * lost, k); if (part > 0) pill('mob/hp', x0, y, Math.max(5 * k, full * part), k); if (fought) piece('mark/mine', x, y - 16); };
+  const mobBar = (x, y, w, part, lost, fought) => { const k = fought ? 1.2 : 1, key = fought ? 'mob/well-mine' : 'mob/well', inset = it(key).inset * k, full = w * k, x0 = x - full / 2; pill(key, x0 - inset, y, full + inset * 2, k); if (lost > part) pill('mob/lost', x0, y, full * lost, k); if (part > 0) pill('mob/hp', x0, y, Math.max(5 * k, full * part), k); if (fought && arrow) piece('mark/mine', x, y - 16); };
   // who is where: the hero in the middle, a crab he fights winding up, a hurt one coming, a whole one idling
   const hero = { x: at[0], y: at[1] }, c1 = { x: at[0] + 62, y: at[1] + 20, f: { action: 'attack1', facing: 'nw', i: 2 } }, c2 = { x: at[0] - 96, y: at[1] + 70, f: { action: 'move', facing: 'e', i: 1 } }, c3 = { x: at[0] + 120, y: at[1] - 150, f: { action: 'stand', facing: 's', i: 0 } }, drop = { x: at[0] + 70, y: at[1] - 70 }, coins = { x: at[0] - 30, y: at[1] + 150 };
   const things = [];
@@ -44,7 +47,8 @@ async function main() {
   // over the monsters: a bar on the one he fights and on any that is hurt, at one height for the kind (its standing picture's)
   const o0 = D.frameOf(crab, 'stand', 's', 0).origin, top = (o0.y !== undefined ? o0.y : o0[1]) / 2;
   mobBar(sx(c1.x), sy(c1.y) - top - 14, 44, 0.45, 0.62, true); mobBar(sx(c2.x), sy(c2.y) - top - 12, 44, 0.7, 0, false);
-  white('14', sx(c1.x) + 30, sy(c1.y) - top - 34, 20, { align: 'center' });                       // a blow's number rises beside the bar, not over it
+  white('14', sx(c1.x) + 30, sy(c1.y) - top - 34, 20, { align: 'center' });
+  const over = opt('over'); if (over) { const h0 = D.frameOf(A.hero, 'stand', 's', 0).origin; require(path.resolve(over)).draw(g, { sx, sy, hero, heroTop: (h0.y !== undefined ? h0.y : h0[1]) / 2, piece, pill, P, G, W, H }); }                       // a blow's number rises beside the bar, not over it
   if (!args.includes('--no-glass')) {
     // the top: the menu, his level and money; bag, chart and hero
     piece('button/menu', 30, 30); white('Lv 2', 62, 30, 16); piece('mark/coin', 122, 30); white('86', 134, 30, 16);
@@ -52,7 +56,9 @@ async function main() {
     // the pile in the middle at the bottom
     const ROW_Y = H - 64, BAR_W = 200, BAR_X = (W - BAR_W) / 2, XP_Y = H - 14, RAGE_Y = ROW_Y - 54, HP_Y = RAGE_Y - 20, PLATE_Y = HP_Y - 38, USE_Y = PLATE_Y - 50;
     const discs = () => { for (const [key, dx, r] of [['charge', -84, 36], ['cleave', 0, 36], ['potion', 78, 28]]) { const x = W / 2 + dx, y = ROW_Y + (36 - r); piece('skill/' + key, x, y, r * 2 / 76); if (key === 'potion') white('3', x + r * 0.55, y + r * 0.6, 13, { align: 'center' }); } };
-    if (!mine) {   // as the game stacks it (Victor, GD, 710cb4c), with the round fills
+    if (bare) {    // his own bars go with him: the pile is the plate with the name, the discs and experience
+      bar('xp', BAR_X, XP_Y, BAR_W, 0.38, 0.72); discs(); pill('plate', BAR_X, ROW_Y - 62, BAR_W); txt('Sand crab', W / 2 - 84, ROW_Y - 67, 14, G.INK); txt('Lv 1', W / 2 + 84, ROW_Y - 67, 12, '#7a6a80', { align: 'right' });
+    } else if (!mine) {   // as the game stacked it first (Victor, GD, 710cb4c), with the round fills
       bar('xp', BAR_X, XP_Y, BAR_W, 0.38); discs(); bar('rage', BAR_X, RAGE_Y, BAR_W, 0.45); bar('hp', BAR_X, HP_Y, BAR_W, 0.87); white('87 / 100', W / 2, HP_Y, 12, { align: 'center' });
       pill('plate', BAR_X, PLATE_Y, BAR_W); txt('Sand crab', W / 2 - 84, PLATE_Y - 5, 14, G.INK); txt('Lv 1', W / 2 + 84, PLATE_Y - 5, 12, '#7a6a80', { align: 'right' }); bar('hp', W / 2 - 88, PLATE_Y + 14, 176, 0.45, 1, 0.62);
     } else {       // mine: his health the biggest thing with a heart on its end; the monster's bar dark, as over its head
