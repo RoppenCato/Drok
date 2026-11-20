@@ -97,3 +97,5 @@ Victor, GD's first guess of 2026-11-20 and is pending until Robin has played the
 
 - 2026-11-20 (the setup): the questionnaire rule, the commit message file, the drive-mode clock, the root launch
   config and the port for the phone starter, and the questions a real-time fighting game needs, into the template.
+- 2026-11-20 (chapter 1 alone, then with the art): the template's lessons 70 to 81, and json in the phone
+  starter's offline cache. Committed in the template on this PC; not pushed (that is Robin's word to give).
