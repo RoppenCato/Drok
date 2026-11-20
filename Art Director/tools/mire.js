@@ -33,6 +33,7 @@ const L = { w: 2400, h: 3200, px: 0.5, seed: 23,
   // the camp at the landing, the island's safe part (Victor, GD, 2026-11-20: "the camp at the landing has a stall (a trader in a boat or a hut,
   // yours), and it is the safe part, as the town is"): the trader's boat under its awning is the stall, a reed hut on stilts, a fire
   stall: [1076, 2806], campProps: [['stall', 1076, 2806, [130, 44]], ['hut', 1345, 2776, 36], ['fire', 1282, 2868, 11], ['lantern', 1150, 2760, 5]], people: [['trader', 1152, 2818, 'se', 'beside his boat: the shop']],
+  ruin: [['idol', 1212, 622, [136, 76]], ['pillar-a', 1010, 690, 13], ['pillar-b', 1420, 700, 13], ['pillar-a', 1400, 930, 13], ['pillar-b', 1010, 915, 13], ['pillar-c', 1120, 950, 14], ['pillar-a', 1100, 610, 13], ['pillar-b', 1330, 605, 13], ['pillar-c', 1300, 950, 14]],
   zones: { 'hop-toad': [[330, 2180, 780, 580, 6], [1400, 2180, 700, 560, 6]], 'plum-viper': [[300, 1340, 820, 470, 7], [1300, 1340, 820, 500, 7]], 'frill-lizard': [[350, 420, 700, 660, 8], [1400, 420, 700, 680, 8]] },
 };
 const plank = (g, d) => {      // a bridge of planks over water: boards lying east to west, a side, a shadow on the water
@@ -97,7 +98,7 @@ function place() {
   const r = P.rng(L.seed + 100), props = [], solid = [], landP = curve(L.land), woodP = curve(L.wood), stonesP = curve(L.stones, 0.55), pools = L.pools.map(q => curve(q));
   const way = (x, y) => Math.min(...L.paths.map(p => { let d = 1e9; for (let i = 1; i < p.length; i++) d = Math.min(d, seg(p[i - 1], p[i], x, y)); return d; }));
   const wet = (x, y, d = 30) => pools.some(q => inside(q, x, y) || edge(q, x, y) < d), onDeck = (x, y, d = 40) => L.decks.some(k => { const b = box(k.pts); return x > b[0] - d && x < b[0] + b[2] + d && y > b[1] - d && y < b[1] + b[3] + d; });
-  const free = (x, y, d = 50) => inside(landP, x, y) && edge(landP, x, y) > 44 && !wet(x, y) && !onDeck(x, y) && way(x, y) > d && Math.hypot(L.camp[0] - x, L.camp[1] - y) > L.camp[2] && Math.hypot(L.chest[0] - x, L.chest[1] - y) > 90;
+  const free = (x, y, d = 50) => inside(landP, x, y) && edge(landP, x, y) > 44 && !wet(x, y) && !onDeck(x, y) && way(x, y) > d && Math.hypot(L.camp[0] - x, L.camp[1] - y) > L.camp[2] && Math.hypot(L.chest[0] - x, L.chest[1] - y) > 90 && !L.ruin.some(q => Math.hypot(q[1] - x, (q[2] - y) * 1.4) < (q[0] === 'idol' ? 150 : 46));
   const put = (n, x, y, block) => { props.push({ name: n, x: Math.round(x), y: Math.round(y) }); if (block) solid.push({ x: Math.round(x), y: Math.round(y - block * 0.3), r: block }); };
   const near = (x, y, d) => props.some(p => Math.hypot(p.x - x, (p.y - y) * 1.5) < d);
   const clump = (cx, cy, n, spread, pick, ok = () => true) => { let tries = 0; for (let i = 0; i < n && tries < n * 12; tries++) { const a = r() * 6.283, d = Math.sqrt(r()) * spread, x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d * 0.7; if (!free(x, y) || !ok(x, y) || near(x, y, 34)) continue; const [nm, bl] = pick(); put(nm, x, y, bl); i++; } };
@@ -115,7 +116,7 @@ function place() {
   // the old stones: mossy stones, dead trees, toadstools that glow
   for (const [x, y] of spots(stonesP, 26, 200, (x, y) => inStones(x, y) && way(x, y) > 90)) clump(x, y, 3 + Math.floor(r() * 3), 80, ruin, inStones);
   // reeds round every pool, in runs with gaps, never before a bridge
-  pools.forEach(ip => { const c = box(ip), cx = c[0] + c[2] / 2, cy = c[1] + c[3] / 2; for (let i = 0; i < ip.length; i += 2) { if (r() < 0.42) continue; const [x, y] = ip[i], d = Math.hypot(x - cx, y - cy) || 1, o = 14 + r() * 12, px = x + (x - cx) / d * o, py = y + (y - cy) / d * o; if (!inside(landP, px, py) || onDeck(px, py, 26) || way(px, py) < 34 || near(px, py, 22) || pools.some(q => inside(q, px, py))) continue; put(['reeds-a', 'reeds-b', 'reeds-c', 'reeds-b'][Math.floor(r() * 4)], px, py, 0); } });
+  pools.forEach(ip => { const c = box(ip), cx = c[0] + c[2] / 2, cy = c[1] + c[3] / 2; for (let i = 0; i < ip.length; i += 2) { if (r() < 0.42) continue; const [x, y] = ip[i], d = Math.hypot(x - cx, y - cy) || 1, o = 14 + r() * 12, px = x + (x - cx) / d * o, py = y + (y - cy) / d * o; if (!inside(landP, px, py) || onDeck(px, py, 26) || way(px, py) < 34 || near(px, py, 22) || pools.some(q => inside(q, px, py)) || L.ruin.some(q => Math.hypot(q[1] - px, q[2] - py) < (q[0] === 'idol' ? 150 : 40))) continue; put(['reeds-a', 'reeds-b', 'reeds-c', 'reeds-b'][Math.floor(r() * 4)], px, py, 0); } });
   // lanterns along the way north, on one side then the other
   { const p = L.paths[0]; let k = 0; for (let i = 1; i < p.length; i++) for (const t of [0.25, 0.75]) { const x = p[i - 1][0] + (p[i][0] - p[i - 1][0]) * t + (k++ % 2 ? 40 : -40), y = p[i - 1][1] + (p[i][1] - p[i - 1][1]) * t; if (!wet(x, y, 20) && !onDeck(x, y, 20) && !L.people.some(q => Math.hypot(q[1] - x, q[2] - y) < 70)) put('lantern', x, y, 5); } }      // never one before a person
   // the landing: the dock into the sea, a boat, crates and barrels; lanterns at the bridges' ends
@@ -123,6 +124,8 @@ function place() {
   for (const d of L.decks) { const b = box(d.pts); put('lantern', b[0] - 14, b[1] + b[3] + 6, 5); put('lantern', b[0] + b[2] + 14, b[1] - 4, 5); }
   for (const [n, x, y, f] of L.campProps) { props.push({ name: n, x, y }); if (Array.isArray(f)) solid.push({ x: x - f[0] / 2, y: y - f[1] + 8, w: f[0], h: f[1] }); else solid.push({ x, y: y - 3, r: f }); }
   for (let i = 0; i < L.dockN; i++) put('dock', L.dock[0], L.dock[1] + i * 56 + 56, 0);
+  // the old stones' landmark: a great stone toad looking south over the ruin's pool, broken pillars in a ring round the pool
+  for (const [n, x, y, f] of L.ruin) { props.push({ name: n, x, y }); if (Array.isArray(f)) solid.push({ x: x - f[0] / 2, y: y - f[1] + 8, w: f[0], h: f[1] }); else solid.push({ x, y: y - 3, r: f }); }
   put('chest/closed', L.chest[0], L.chest[1], 12);
   props.sort((a, b) => a.y - b.y || a.x - b.x);
   return { props, solid };

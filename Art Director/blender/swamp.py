@@ -175,11 +175,39 @@ def fire():
         bm = bmesh.new(); cyl(bm, (0, -0.02, 0.2), 0.055, 0.2, r2=0.008, seg=8); st.make(bm, 'flame_in', 'yellow', line=False); return None
     return b
 
+def idol():
+    """the old stones' landmark: a great stone toad on a plinth, moss on its back, its eyes still shining"""
+    def b(st):
+        bm = bmesh.new(); box(bm, (0, 0, 0.11), (1.5, 1.05, 0.22)); box(bm, (0, 0, 0.28), (1.3, 0.9, 0.12)); st.make(bm, 'plinth', 'rockDark', smooth=False)
+        bm = bmesh.new(); sph(bm, (0, 0.06, 0.78), 1.0, (0.6, 0.5, 0.5), seg=24)
+        for s in (-1, 1): sph(bm, (s * 0.3, -0.2, 1.2), 0.2, seg=14); sph(bm, (s * 0.5, 0.18, 0.52), 0.26, (1, 1.2, 0.8), seg=12); sph(bm, (s * 0.42, -0.34, 0.42), 0.14, (1, 1.2, 0.8), seg=10)
+        st.make(bm, 'toad', 'rock', remesh=0.03, soften=3)
+        bm = bmesh.new()
+        for s in (-1, 1): sph(bm, (s * 0.3, -0.37, 1.22), 0.1, seg=12)
+        st.make(bm, 'eyes', 'capGlow')
+        bm = bmesh.new(); pts = [V((u * 0.46, -0.47 + 0.16 * u * u, 0.84 + 0.05 * u * u)) for u in (i / 4 - 1 for i in range(9))]; tube(bm, pts, 0.022, 0.022, seg=6); st.make(bm, 'mouth', 'eye', line=False)
+        bm = bmesh.new(); sph(bm, (0.05, 0.16, 1.24), 0.36, (1.2, 1.0, 0.36), seg=12); sph(bm, (-0.4, 0.2, 0.86), 0.2, (1, 1, 0.5), seg=10); sph(bm, (0.55, -0.3, 0.36), 0.2, (1.2, 1, 0.4), seg=10); sph(bm, (-0.6, -0.38, 0.24), 0.16, (1.2, 1, 0.4), seg=10)
+        st.make(bm, 'moss', 'moss2', remesh=0.03, soften=2)
+        for o in st.objs: o.scale = (1.6, 1.6, 1.6)      # a landmark: three times the Warrior's width
+        return None
+    return b
+def pillar(seed, h, fallen=False):
+    """a broken pillar of the ruin: drums of stone, the top snapped off, moss on it; or one drum lying on its side"""
+    def b(st):
+        rnd = random.Random(seed); bm = bmesh.new()
+        if fallen: cyl(bm, (0, 0, 0.2), 0.2, 0.7, axis=(1, 0.25, 0), seg=14); o = st.make(bm, 'drum', 'rock'); bm = bmesh.new(); sph(bm, (0.05, -0.02, 0.38), 0.18, (1.5, 0.9, 0.4), seg=10); st.make(bm, 'moss', 'moss2', remesh=0.025, soften=2); return None
+        cyl(bm, (0, 0, 0.06), 0.3, 0.12, seg=14); z = 0.12; n = 0
+        while z < h: d = 0.26 + rnd.random() * 0.1; cyl(bm, (0.01 * n, 0, z + d / 2), 0.21, d - 0.015, seg=14); z += d; n += 1
+        st.make(bm, 'pillar', 'rock', smooth=False)
+        bm = bmesh.new(); sph(bm, (0.04, 0, z + 0.01), 0.2, (1.1, 1.0, 0.4), seg=10); sph(bm, (-0.16, -0.12, h * 0.45), 0.12, (0.8, 0.6, 1.2), seg=8); st.make(bm, 'moss', 'moss2', remesh=0.025, soften=2); return None
+    return b
+
 ITEMS = [('mangrove-a', mangrove(3, 2.5, 0.35, 1.05)), ('mangrove-b', mangrove(8, 2.05, -0.4, 0.9, roots=6)), ('mangrove-c', mangrove(12, 1.6, 0.15, 0.72, roots=5)), ('deadtree', deadtree(4, 1.9)),
          ('reeds-a', reeds(1, 6, 1.0, 3)), ('reeds-b', reeds(2, 5, 0.75, 2)), ('reeds-c', reeds(5, 4, 0.55, 0)), ('log', log(1)), ('stump', stump(2)),
          ('shroom-red', shrooms(3, 'capRed')), ('shroom-glow', shrooms(6, 'capGlow', n=4)), ('fern-a', fern(21, 0.42)), ('fern-b', fern(24, 0.55)),
          ('mossrock-a', mossrock(2, 0.46)), ('mossrock-b', mossrock(7, 0.3)), ('mossrock-c', mossrock(9, 0.72)), ('lantern', lantern()),
-         ('stall', stallboat()), ('hut', hut()), ('fire', fire())]
+         ('stall', stallboat()), ('hut', hut()), ('fire', fire()),
+         ('idol', idol()), ('pillar-a', pillar(1, 1.25)), ('pillar-b', pillar(4, 0.7)), ('pillar-c', pillar(2, 0, fallen=True))]
 if __name__ == '__main__':
     a = D.args(); out = os.path.abspath(a[0]) if a else os.path.join(HERE, '..', 'work', 'mire', 'render'); only = a[1].split(',') if len(a) > 1 else None; st = D.Stage(); recs = []
     for name, fn in ITEMS:
