@@ -155,7 +155,14 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
 19. `[ ] Built` `[ ] Checked` · GD, then AD · **His health over his head** (`playtests.md`, round 2; Robin,
     2026-11-20: "the heros health bar should show over his character, and the rage bar below it")
     - `[x]` three ways in the game to pick from, on the row "Bars" in the settings, and three pictures in the chat
-    - `[ ]` Robin picks (the brief's open question 7)
+    - `[x]` Leonard, AD looked at the three on the real screen (2026-11-20, `Art Director\concepts\own-bars\`,
+      `four.jpg`): he would not pick way 2 (the rage lies across the monster south of him); his sketch "4" is way
+      1 as ONE small piece (one dark outline with two rooms: health 7 tall, rage 3.4 under it, the heart on its
+      end, 52 long); his pick is 4, then 3. For any way: 52 long is enough (64 is twice the hero's width), and
+      the arrow over the one he fights is left out while his own bars are on the field (it touches his heart
+      when that monster stands beside him). **Held until Robin has picked**, so the ways he is trying on his
+      phone do not change between two taps of the row.
+    - `[ ]` Robin picks (the brief's open question 7): 1, 2, 3, or Leonard, AD's 4
     - `[ ]` GD: the picked way stays, the others and the row go; the camera and the place's foot follow the
       smaller pile
     - `[ ]` AD: his own bar for over the hero's head (the stand-in is his big bar drawn small), and for way 3 a
