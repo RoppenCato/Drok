@@ -20,12 +20,16 @@ trinkets side by side under the necklace. The stills were drawn first with eight
 **What I would pick (mine; Robin decides):** 1. It is the most wooden, it keeps the game's sunny colours, and dark
 words on light wood are easy to read.
 
-**Waiting for Robin's pick.** Sent into my chat on 2026-11-20. The page for his phone:
-https://claude.ai/artifact/JM6LsoKKQCBNXgZRpdSvwD . Nothing is built from any of them until he has picked.
+**Robin picked 3** (in my chat, 2026-11-20): "I think 3 is good. Nice contrast. But mind the text needs to fit and not
+overlap with stuff". The pieces are built from it: `out\glass\` (its NOTES.md has what the game changes so the text
+fits) and the new icons in `out\gear\`. Sent into my chat on 2026-11-20. The page for his phone:
+https://claude.ai/artifact/JM6LsoKKQCBNXgZRpdSvwD . 
 
-After the pick comes the kit for the glass: the panel, its title, the cross, the slots (empty and by rarity), the patch
-or card, the buttons, the four top buttons, a mark for each empty place (eight marks: the two trinkets share one), and
-the twelve new gear icons Victor, GD listed (breeches, boots, necklaces, trinkets, three of each).
+What was made from it: the window, its title, the cross, the slots (empty and by rarity), the board for words, the
+buttons, the four top buttons, a mark for each empty place (eight marks: the two trinkets share one), and the twelve
+new gear icons Victor, GD listed (breeches, boots, necklaces, trinkets, three of each). The cost in the table above was
+my guess before building: in the end the window is one piece as wide as a window, stretched in height only, with its
+studs in the parts that do not stretch.
 
 ## The files
 

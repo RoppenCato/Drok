@@ -10,6 +10,19 @@ const COL = { hp: '#f0503c', hpHi: '#ff7a62', rage: '#b8122f', rageHi: '#d2324a'
 // Rage is red (Robin, 2026-11-20: "rage is traditionally red. So they need to be distinctive different red colors"): health
 // keeps the light red of every health bar, rage is a deep crimson. The two differ most in how light they are (mine).
 const S = 2, OUT = path.join(P.ROOT, 'work/glass/render'), items = [];
+const CH = { wood: '#6b3f27', woodB: '#5e3621', grain: '#42241a', iron: '#4b4759', ironHi: '#77728a', ironLo: '#34313f', gold: '#f6c23a', goldHi: '#ffe27a', goldLo: '#c4871c', velvet: '#45294e', velvetLo: '#2f1b38', velvetHi: '#5d3b68', velvetMark: '#6d4a7a', linen: '#ecdcb4', linenLo: '#d6c294', cream: '#fff3d6', inset: '#43261a',
+  words: { text: '#fff3d6', dim: '#dab892', good: '#93e283', bad: '#ff9482', gold: '#ffd95e', onGold: '#3a2414' } };   // the window's colours; `words` is what the game writes with on the dark wood and on a gold plate
+// the mark of each place on him, about 0, 0 and about 24 across (one path; holes by the even-odd rule)
+const SLOTMARK = {
+  hat: g => { g.moveTo(-12, 5); g.quadraticCurveTo(-14, -2, -6, -3); g.quadraticCurveTo(0, -13, 6, -3); g.quadraticCurveTo(14, -2, 12, 5); g.quadraticCurveTo(0, 0, -12, 5); g.closePath(); },
+  coat: g => { g.moveTo(-5, -10); g.lineTo(-1.5, -7); g.lineTo(1.5, -7); g.lineTo(5, -10); g.lineTo(12, -5); g.lineTo(9, 0); g.lineTo(6, -2); g.lineTo(7, 11); g.lineTo(-7, 11); g.lineTo(-6, -2); g.lineTo(-9, 0); g.lineTo(-12, -5); g.closePath(); },
+  legs: g => { g.moveTo(-9, -10); g.lineTo(9, -10); g.lineTo(10.5, 10); g.lineTo(3, 10); g.lineTo(0, -1); g.lineTo(-3, 10); g.lineTo(-10.5, 10); g.closePath(); },
+  boots: g => { g.moveTo(-6, -11); g.lineTo(3, -11); g.lineTo(3, 2); g.quadraticCurveTo(12, 3, 12, 9); g.lineTo(12, 11); g.lineTo(-6, 11); g.closePath(); },
+  weapon: g => { g.moveTo(-10, 10); g.lineTo(-6, 6); g.lineTo(-8, 3); g.lineTo(-5, 1); g.lineTo(-3, 4); g.quadraticCurveTo(7, 0, 11, -11); g.quadraticCurveTo(11, 3, -1, 8); g.lineTo(-6, 12); g.closePath(); },
+  shield: g => { g.arc(0, 0, 11, 0, 7); g.closePath(); g.moveTo(4, 0); g.arc(0, 0, 4, 0, 7); },
+  necklace: g => { g.moveTo(-11, -9); g.quadraticCurveTo(0, 9, 11, -9); g.lineTo(8.4, -9.6); g.quadraticCurveTo(0, 5, -8.4, -9.6); g.closePath(); g.moveTo(-4, 2.5); g.lineTo(4, 2.5); g.lineTo(0, 12); g.closePath(); },
+  trinket: g => { g.arc(0, 0, 10.5, 0, 7); g.closePath(); g.moveTo(0, -6); g.lineTo(4.5, 0); g.lineTo(0, 6); g.lineTo(-4.5, 0); g.closePath(); },
+};
 const rr = (x, y, w, h, r) => g => { g.beginPath(); P.rr(g, x, y, w, h, r); };
 const disc = (x, y, r) => g => { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.closePath(); };
 // a piece: fill, a hard shadow below, the line
@@ -35,18 +48,44 @@ function build() {
     panel(g, disc(38, 38, 34), COL[k], { lw: 2, shadow: 3, hi: gg => { gg.fillStyle = 'rgba(255,255,255,0.22)'; gg.beginPath(); gg.ellipse(38, 19, 38, 21, 0, 0, 7); gg.fill(); } });
     g.fillStyle = '#ffffff'; g.strokeStyle = k === 'charge' ? '#ffffff' : INK; g.lineWidth = k === 'charge' ? 4 : 1.8; ICON[k](g, 38, 38, 34 / 24 * sc); });
   piece('skill/empty', 76, 78, (g) => { panel(g, disc(38, 38, 34), 'rgba(255,250,236,0.55)', { lw: 2, shadow: 3 }); }, { note: 'a place for a skill he has not learnt' });
-  // the top buttons, the menu and the close cross
-  for (const k of ['bag', 'chart', 'hero', 'menu']) piece('button/' + k, 44, 46, (g) => { panel(g, disc(22, 22, 19), CREAM, { lw: 1.6 }); g.fillStyle = '#ffe2a0'; g.strokeStyle = INK; g.lineWidth = k === 'menu' ? 2.4 : 1.5; ICON[k](g, 22, 22.5, 1); });
-  piece('button/close', 36, 38, (g) => { panel(g, disc(18, 18, 15), '#f0503c', { lw: 1.6 }); g.strokeStyle = '#ffffff'; g.lineWidth = 3; ICON.close(g, 18, 18, 1); });
-  // the button that names what a tap does here ("Open", "Shop", "Sail"), the target's name plate, a row, a panel and its title
-  piece('button/context', 64, 48, (g) => { panel(g, rr(2, 2, 60, 40, 20), COL.gold, { lw: 2, shadow: 3, hi: gg => { gg.fillStyle = 'rgba(255,255,255,0.3)'; gg.fillRect(0, 0, 64, 16); } }); }, { slice: [44, 0, 44, 0], note: 'dark words on it, 18 bold' });
+  // ---------------------------------------------------------------- the windows: the inside of a treasure chest
+  // Robin, 2026-11-20, of three wooden looks (concepts/wood): "I think 3 is good. Nice contrast. But mind the text needs to fit
+  // and not overlap with stuff". Dark wood in standing boards, iron bands, gold plates and angles, velvet in an empty slot,
+  // pale linen under a piece he owns. Everything that frames stays in the outer 12 units of a window, so no word meets it.
+  const line = (g, lw = 1.6, col = INK) => { g.lineWidth = lw; g.strokeStyle = col; g.lineJoin = 'round'; g.stroke(); };
+  const under = (g, shape, dy = 3) => { g.save(); g.translate(0, dy); shape(g); g.fillStyle = SH; g.fill(); g.restore(); };
+  const stud = (g, x, y, r) => { disc(x, y, r)(g); g.fillStyle = CH.goldLo; g.fill(); line(g, 1.1); disc(x - r * 0.3, y - r * 0.3, r * 0.36)(g); g.fillStyle = CH.goldHi; g.fill(); };
+  const band = (g, x, y, w, h) => { g.save(); rr(x, y, w, h, 1.5)(g); g.fillStyle = CH.iron; g.fill(); g.clip(); g.fillStyle = CH.ironHi; if (w > h) g.fillRect(x, y, w, h * 0.34); else g.fillRect(x, y, w * 0.34, h); g.restore(); rr(x, y, w, h, 1.5)(g); line(g, 1.3); };
+  const plated = (g, shape, x, y, w, h, [col, hi, lo]) => { g.save(); shape(g); g.fillStyle = col; g.fill(); g.clip(); g.fillStyle = hi; g.fillRect(x, y, w, h * 0.36); g.fillStyle = lo; g.fillRect(x, y + h * 0.84, w, h * 0.16); g.restore(); shape(g); line(g); };
+  const GOLD = [CH.gold, CH.goldHi, CH.goldLo], IRON = [CH.iron, CH.ironHi, CH.ironLo];
+  const lined = (g, x, y, w, h, r, rim) => { g.save(); rr(x, y, w, h, r)(g); g.fillStyle = CH.velvet; g.fill(); g.clip(); g.fillStyle = CH.velvetLo; g.fillRect(x, y, w, 6); g.fillStyle = CH.velvetHi; g.fillRect(x, y + h - 4, w, 4); g.restore(); rr(x + 1.6, y + 1.6, w - 3.2, h - 3.2, r - 1)(g); line(g, 3, rim); rr(x, y, w, h, r)(g); line(g); rr(x + 3.4, y + 3.4, w - 6.8, h - 6.8, Math.max(1, r - 3))(g); line(g, 1); };
+  // the top buttons and the close cross: a gold ring round dark wood, a pale sign; a red stone in a gold ring
+  for (const k of ['bag', 'chart', 'hero', 'menu']) piece('button/' + k, 44, 46, (g) => { under(g, disc(22, 22, 19), 2); disc(22, 22, 19)(g); g.fillStyle = CH.gold; g.fill(); line(g); g.save(); disc(22, 22, 15.5)(g); g.clip(); g.fillStyle = CH.wood; g.fillRect(0, 0, 44, 44); g.fillStyle = CH.goldHi; g.restore(); disc(22, 22, 15.5)(g); line(g, 1.3); g.fillStyle = CH.cream; g.strokeStyle = INK; g.lineWidth = k === 'menu' ? 2.4 : 1.5; if (k === 'menu') g.strokeStyle = CH.cream; ICON[k](g, 22, 22.5, 1); });
+  piece('button/close', 36, 38, (g) => { under(g, disc(18, 18, 16), 2); disc(18, 18, 16)(g); g.fillStyle = CH.gold; g.fill(); line(g); g.save(); disc(18, 18, 12)(g); g.fillStyle = '#e0352f'; g.fill(); g.clip(); g.fillStyle = '#f26a5c'; g.beginPath(); g.moveTo(6, 6); g.lineTo(22, 6); g.lineTo(6, 22); g.closePath(); g.fill(); g.restore(); disc(18, 18, 12)(g); line(g, 1.3); g.strokeStyle = '#ffffff'; g.lineWidth = 2.8; ICON.close(g, 18, 18, 0.82); });
+  // buttons: a gold plate for the one that does the thing ("Wear", "Open", "Sail"), an iron plate for the rest
+  piece('button/context', 64, 48, (g) => { under(g, rr(2, 2, 60, 40, 8)); plated(g, rr(2, 2, 60, 40, 8), 2, 2, 60, 40, GOLD); }, { slice: [44, 0, 44, 0], note: 'the button that does the thing: dark words on it (#3a2414), 15 to 18 bold' });
+  piece('button/plain', 64, 48, (g) => { under(g, rr(2, 2, 60, 40, 8)); plated(g, rr(2, 2, 60, 40, 8), 2, 2, 60, 40, IRON); }, { slice: [44, 0, 44, 0], note: 'every other button: pale words on it (#fff3d6), 15 bold. NEW: the game drew these with row' });
   piece('plate', 48, 34, (g) => { panel(g, rr(2, 2, 44, 28, 14), CREAM, { lw: 1.6 }); }, { slice: [32, 0, 32, 0] });
-  piece('row', 48, 44, (g) => { panel(g, rr(2, 2, 44, 38, 10), CREAM2, { lw: 1.4, shadow: 1.5 }); }, { slice: [24, 24, 24, 24] });
-  piece('panel', 96, 100, (g) => { panel(g, rr(3, 3, 90, 90, 18), CREAM, { lw: 2.2, shadow: 4 }); }, { slice: [44, 44, 44, 52] });
-  piece('panel/title', 96, 44, (g) => { panel(g, rr(3, 3, 90, 36, 18), '#3f9fe8', { lw: 2.2, shadow: 0, hi: gg => { gg.fillStyle = 'rgba(255,255,255,0.2)'; gg.fillRect(0, 0, 96, 16); } }); }, { slice: [44, 0, 44, 0], note: 'white words on it, 18 bold; it sits on the panel\'s top edge' });
-  // a slot of the bag, its edge in the rarity's colour
-  for (const [k, col] of Object.entries(RARITY)) piece('slot/' + k, 56, 58, (g) => { panel(g, rr(3, 3, 50, 50, 10), CREAM2, { lw: 0, shadow: 2 }); rr(4.5, 4.5, 47, 47, 8.5)(g); g.lineWidth = 4; g.strokeStyle = col; g.stroke(); rr(3, 3, 50, 50, 10)(g); g.lineWidth = 1.5; g.strokeStyle = INK; g.stroke(); }, { note: 'an icon of 48 sits in its middle' });
-  piece('slot/empty', 56, 58, (g) => { panel(g, rr(3, 3, 50, 50, 10), WELL, { lw: 1.5, shadow: 0 }); });
+  // what words lie on inside a window: a dark, sunk board with a thin gold edge; and the hero's own place, lined with velvet
+  piece('row', 48, 44, (g) => { rr(2, 2, 44, 38, 8)(g); g.fillStyle = CH.inset; g.fill(); rr(3.6, 3.6, 40.8, 34.8, 7)(g); line(g, 2.4, CH.goldLo); rr(2, 2, 44, 38, 8)(g); line(g); }, { slice: [24, 24, 24, 24], note: 'the card of a piece, a row of a list: pale words on it' });
+  piece('niche', 48, 48, (g) => { lined(g, 2, 2, 44, 44, 8, CH.gold); }, { slice: [24, 24, 24, 24], note: 'NEW: the box the hero stands in on his sheet' });
+  // the window itself. It is as wide as every window of the game (372) and is stretched only in height: its boards stand, so
+  // they take that. The bands' studs and the gold angles sit in the top and bottom 64 units, which do not stretch.
+  piece('panel', 372, 164, (g) => { const x = 2, y = 2, w = 368, h = 156, body = rr(x, y, w, h, 10), r = P.rng(6), n = 8;
+    under(g, body, 4); g.save(); body(g); g.clip(); for (let i = 0; i < n; i++) { g.fillStyle = i % 2 ? CH.woodB : CH.wood; g.fillRect(x + i * w / n, y, w / n + 1, h); }
+    g.strokeStyle = CH.grain; g.lineWidth = 1.4; for (let i = 1; i < n; i++) { g.beginPath(); g.moveTo(x + i * w / n, y); g.lineTo(x + i * w / n, y + h); g.stroke(); }
+    g.globalAlpha = 0.45; g.lineWidth = 1; for (let i = 0; i < n; i++) for (let k = 0; k < 2; k++) { const gx = x + (i + 0.18 + r() * 0.64) * w / n; g.beginPath(); g.moveTo(gx, y); g.lineTo(gx, y + h); g.stroke(); } g.restore();
+    band(g, x + 2, y + 2, 6, h - 4); band(g, x + w - 8, y + 2, 6, h - 4); band(g, x + 2, y + 2, w - 4, 6); band(g, x + 2, y + h - 8, w - 4, 6);
+    for (const sx of [40, 332]) stud(g, sx, y + 5, 2.4); for (let sx = 46; sx < 330; sx += 46.6) stud(g, sx, y + h - 5, 2.4); for (const sy of [50, h - 44]) { stud(g, x + 5, sy, 2.4); stud(g, x + w - 5, sy, 2.4); }
+    for (const [cx, cy, ex, ey] of [[x, y, 1, 1], [x + w, y, -1, 1], [x, y + h, 1, -1], [x + w, y + h, -1, -1]]) { g.save(); body(g); g.clip(); g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + ex * 22, cy); g.lineTo(cx + ex * 22, cy + ey * 9); g.lineTo(cx + ex * 9, cy + ey * 9); g.lineTo(cx + ex * 9, cy + ey * 22); g.lineTo(cx, cy + ey * 22); g.closePath(); g.fillStyle = CH.gold; g.fill(); line(g, 1.4); g.restore(); stud(g, cx + ex * 5, cy + ey * 5, 2.2); stud(g, cx + ex * 16.5, cy + ey * 4.6, 1.7); stud(g, cx + ex * 4.6, cy + ey * 16.5, 1.7); }
+    body(g); line(g, 2); }, { slice: [128, 128, 128, 128], note: 'every window is 372 wide, so it is never stretched across; its top and bottom 64 units keep their size and the 36 between are stretched in height. Keep words and pieces 14 units in from its sides and 14 up from its bottom; its gold angles fill 22 by 22 in each corner' });
+  piece('panel/title', 96, 44, (g) => { const shape = gg => { gg.beginPath(); gg.moveTo(17, 3); gg.lineTo(79, 3); gg.lineTo(93, 21); gg.lineTo(79, 39); gg.lineTo(17, 39); gg.lineTo(3, 21); gg.closePath(); }; under(g, shape); plated(g, shape, 3, 3, 90, 36, GOLD); stud(g, 18, 21, 2.6); stud(g, 78, 21, 2.6); }, { slice: [44, 0, 44, 0], note: 'DARK words on it now (#3a2414), 18 bold; it sits on the panel\'s top edge. The words have 190 units at the title\'s 236' });
+  // a slot: a piece he owns lies on pale linen inside its rarity's colour; an empty one is lined with velvet
+  for (const [k, col] of Object.entries(RARITY)) piece('slot/' + k, 56, 58, (g) => { under(g, rr(3, 3, 50, 50, 7), 2); g.save(); rr(3, 3, 50, 50, 7)(g); g.fillStyle = CH.linen; g.fill(); g.clip(); g.fillStyle = CH.linenLo; g.fillRect(3, 3, 50, 6); g.restore(); rr(4.8, 4.8, 46.4, 46.4, 5.5)(g); line(g, 3.6, col); rr(3, 3, 50, 50, 7)(g); line(g, 1.5); rr(7, 7, 42, 42, 3.5)(g); line(g, 1); }, { note: 'an icon of 48 sits in its middle' });
+  piece('slot/empty', 56, 58, (g) => { lined(g, 3, 3, 50, 50, 7, CH.ironHi); }, { note: 'draw it at full strength: the dark velvet already says empty' });
+  piece('slot/chosen', 64, 64, (g) => { rr(3.5, 3.5, 57, 57, 9)(g); line(g, 5.4); rr(3.5, 3.5, 57, 57, 9)(g); line(g, 2.6, CH.goldHi); }, { note: 'NEW: a gold frame laid over the slot that is being looked at, its middle on the slot\'s middle, scaled as the slot is (it is 64 where the slot is 56)' });
+  // the mark in an empty place on him: what belongs there
+  for (const [k, draw] of Object.entries(SLOTMARK)) piece('mark/slot-' + k, 32, 32, (g) => { g.translate(16, 16); g.beginPath(); draw(g); g.fillStyle = CH.velvetMark; g.fill('evenodd'); }, { note: 'NEW: in the middle of an empty slot of that place; the two trinket places share mark/slot-trinket' });
   // small marks: a coin, the quest's ! and ?, the ring under a picked target, the ring where a tap landed
   piece('mark/coin', 16, 16, (g) => { panel(g, disc(8, 8, 6.2), COL.gold, { lw: 1.4, shadow: 0 }); g.fillStyle = '#d99a26'; g.beginPath(); g.arc(8, 8, 2.6, 0, 7); g.fill(); });
   for (const [k, ch] of [['quest', '!'], ['done', '?']]) piece('mark/' + k, 28, 34, (g) => { panel(g, disc(14, 14, 11), k === 'quest' ? COL.gold : '#6fd060', { lw: 1.6 }); P.label(g, ch, 14, 14.5, 17, INK, { align: 'center', font: 'Trebuchet MS' }); });
@@ -83,7 +122,7 @@ function build() {
   piece('stick/ring', 100, 100, (g) => { const c = 50; g.beginPath(); g.arc(c, c, 44, 0, 7); g.fillStyle = 'rgba(51,32,58,0.07)'; g.fill(); g.beginPath(); g.arc(c, c, 43.5, 0, 7); g.lineWidth = 7; g.strokeStyle = 'rgba(51,32,58,0.5)'; g.stroke(); g.beginPath(); g.arc(c, c, 43.5, 0, 7); g.lineWidth = 4.2; g.strokeStyle = 'rgba(255,250,236,0.92)'; g.stroke();
     for (let k = 0; k < 4; k++) { g.save(); g.translate(c, c); g.rotate(k * Math.PI / 2); const v = () => { g.beginPath(); g.moveTo(-5, -29); g.lineTo(0, -34); g.lineTo(5, -29); }; v(); g.lineWidth = 4.6; g.strokeStyle = 'rgba(51,32,58,0.4)'; g.stroke(); v(); g.lineWidth = 2.2; g.strokeStyle = 'rgba(255,250,236,0.9)'; g.stroke(); g.restore(); } }, { soft: true, radius: 46, note: 'where the thumb came down; its see-through is in the picture, draw it at full strength' });
   piece('stick/knob', 52, 52, (g) => { disc(26, 28.5, 22)(g); g.fillStyle = 'rgba(51,32,58,0.16)'; g.fill(); disc(26, 26, 22)(g); g.fillStyle = 'rgba(255,250,236,0.46)'; g.fill(); g.save(); disc(26, 26, 22)(g); g.clip(); g.fillStyle = 'rgba(255,255,255,0.22)'; g.beginPath(); g.ellipse(26, 13, 24, 12, 0, 0, 7); g.fill(); g.restore(); disc(26, 26, 22)(g); g.lineWidth = 1.8; g.strokeStyle = 'rgba(51,32,58,0.8)'; g.stroke(); g.beginPath(); g.arc(26, 26, 12.5, 0, 7); g.lineWidth = 1.4; g.strokeStyle = 'rgba(51,32,58,0.28)'; g.stroke(); }, { soft: true, radius: 22, note: 'under the thumb' });
-  fs.writeFileSync(path.join(OUT, 'meta.json'), JSON.stringify({ px: S, items, rarity: RARITY, colours: COL, ink: INK, cream: CREAM }, null, 1)); console.log('drew', items.length, 'pieces of glass');
+  fs.writeFileSync(path.join(OUT, 'meta.json'), JSON.stringify({ px: S, items, rarity: RARITY, colours: COL, ink: INK, cream: CREAM, window: CH }, null, 1)); console.log('drew', items.length, 'pieces of glass');
 }
 if (require.main === module) build();
-module.exports = { RARITY, COL, INK, CREAM, CREAM2, WELL, ICON };
+module.exports = { RARITY, COL, INK, CREAM, CREAM2, WELL, ICON, CH, SLOTMARK };

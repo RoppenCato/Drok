@@ -55,12 +55,28 @@ big, has several grounds with their own levels and monsters, and is walked witho
 - **Kept for the second island (mine, a proposal):** a wreck on a reef, a hermit crab in a tankard, an octopus in a
   barrel.
 
-## The windows' look (open: Robin picks)
+## The windows' look: a treasure chest (Robin, 2026-11-20)
 
-Robin, 2026-11-20, in Victor, GD's chat: "You need to have some nice pirate design to menus and panels. Like some
-wooden feeling. Right now it looks bland. Also update icons so they look fitting." Three stills of the hero window went
-to him the same day (`concepts\wood\`): 1 lashed planks, 2 a chart table, 3 a treasure chest. My pick is 1. **He has
-not picked.** Until he has, the glass stays as it is; after it, this section says what the windows are made of.
+Robin, in Victor, GD's chat: "You need to have some nice pirate design to menus and panels. Like some wooden feeling.
+Right now it looks bland. Also update icons so they look fitting." He was shown the hero's window in three wooden
+looks (`concepts\wood\`: lashed planks, a chart table, a treasure chest) and said in my chat: **"I think 3 is good.
+Nice contrast. But mind the text needs to fit and not overlap with stuff"**.
+
+- **A window is the inside of a chest:** dark wood in standing boards, an iron band all round with gold studs, a gold
+  angle in each corner, a gold plate for its title, a red stone in a gold ring to close it.
+- **Words are pale on the dark wood** and dark on gold. What is read at length lies on a sunk board with a thin gold
+  edge.
+- **A slot:** a piece he owns lies on pale linen inside its rarity's colour; an empty one is lined with dark velvet
+  and shows what belongs there.
+- **Buttons:** a gold plate for the one that does the thing, an iron plate for the rest.
+- **The frame stays in the outer 14 units of a window.** Nothing that is read or tapped comes nearer its sides or its
+  foot. Every window is drawn from the pieces with long names and big numbers before it is delivered
+  (`tools\window.js`): that is how his "the text needs to fit" is kept.
+- The field's glass (his bar, the monsters' bars, the discs, the stick) stays as it was.
+
+**The font** (Robin, 2026-11-20, in my chat: "Choose a good font for the game thats clear and easy to read"): my choice
+is Nunito, extra bold, free under the SIL Open Font Licence 1.1. Round, clear at 13, no wider than what the phone shows
+now. (decide with Robin: may I fetch the file; asked the same day.)
 
 ## The look in use (mine, 2026-11-20; not judged by Robin)
 
