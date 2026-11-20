@@ -32,6 +32,27 @@ day, each island its own light.
   21). Every way of showing it multiplies pictures: say what each way costs before one is picked, and the budget
   above is set again with that in hand.
 
+## What was agreed with Leonard, AD on 2026-11-20 (newer than the guesses above where they differ)
+
+Robin, 2026-11-20: "Let AD handle the art you need. I approve." Leonard, AD chooses the look himself inside Robin's
+picks, marks it "mine", and delivers without waiting; Robin judges it when he is back.
+
+- **Facings**: the game plays eight and flips. Five are drawn (`s`, `se`, `e`, `ne`, `n`); the game mirrors the
+  other three. The light comes from above so a flip does not show.
+- **The canvas** is twice the design size, so files at 2 pixels a design unit are drawn one to one (`meta.filePx` 2).
+- **Gear on the hero** is way 4 of his `docs\gear-on-the-hero.md`: one body sprite, and the cutlass, the buckler
+  and the hat as small sprites placed on points the body's frame data carries (`hand`, `off`, `head`: x, y from the
+  frame's origin, the turn in degrees, `front`).
+- **Memory**, decoded: the hero's body 16 MB at most; one place with all that is in it 48 MB at most.
+- **The install**: all of chapter 1's art under 6 MB on disk; what the harbour needs under 2 MB.
+- **The atlas form**: what his `tools\pack.js` writes: a Phaser JSON hash with frames named
+  `<thing>/<action>/<facing>/<nnnn>`, and an `actions` block with each action's delay and loop and each frame's
+  origin, delay, hit box, head and points. The game wires to what he delivers; his NOTES.md is the authority.
+- **The game's ids** for wave 1: monsters `sand-crab`, `reef-gull`, `coconut-crab`; gear `rusty-cutlass`,
+  `sailors-cutlass`, `corsairs-cutlass`, `plank-buckler`, `iron-buckler`, `brass-buckler`, `bandana`, `tricorn`,
+  `feathered-hat`, `linen-shirt`, `sailors-coat`, `corsairs-coat`; places `harbour` (Marlow's Landing, 900 by 1100)
+  and `crab-cay` (Crab Cay, 1400 by 2400: sand below y 1440, grass to 720, rock above). All names are placeholders.
+
 ## Wave 1 (chapter 1): the look, the harbour and the first island
 
 In this order. The game holds stand-ins until each lands.

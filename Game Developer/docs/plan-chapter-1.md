@@ -1,96 +1,110 @@
 # Chapter 1: the plan
 
-The checklist of the control test and of chapter 1 (`chapters.md`), in the order it is built. Each item: who does it
-(GD, AD, SD), what it needs from the studios, its sub-items, **Built** when it works with its tests, **Checked** when
-Robin has tried it on his device and said so (with the date). A change to a checked item re-opens it. "What's next"
-reads this list top down.
+The list of things to do to finish chapter 1 (Robin, 2026-11-20: "Make a list of things to do to finish chapter 1.
+Then work through the list until you are done. Including tests. I dont need to approve or answer any questions until
+you are done. Let AD handle the art you need. I approve."). In the order it is built. Each item: who does it (GD, AD,
+SD), what it needs, its sub-items, **Built** when it works with its tests, **Checked** when Robin has tried it on his
+phone and said so (with the date). A change to a checked item re-opens it. "What's next" reads this list top down.
 
 Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until a drop lands, so nothing here waits.
 
 ## Before chapter 1: the control test
 
 0. `[x] Built 2026-11-20` `[ ] Checked` · GD · **Three ways to steer, on Robin's phone**
-   - `[x]` the rules: walking, a target with auto-attack, rage, Charge, Cleave, the crab, falling and standing up;
-     48 tests, a bot that plays each scheme
-   - `[x]` the screen: the field, stand-in shapes, the switch 1 Tap, 2 Hold, 3 Stick, the two skill buttons, the menu
-   - `[x]` checked in the pane at 412 by 915 by stepping the page: each scheme's steering, the buttons, the menu
-   - `[ ]` **Robin plays all three on his phone** (`http://192.168.0.43:5178/` on the home Wi-Fi) and names one
-   - `[ ]` his notes written as round 1 in `playtests.md`; the felt numbers into `lessons.md`
-   - needs: nothing from the studios
+   - `[x]` built, tested, checked in the pane (see `tests.md`)
+   - `[ ]` Robin plays all three and names one. Until he does, all three stay, on a switch in the settings
+     (≡, "Steering"); tap is the default, as his brief says ("Tap to move, with skill buttons").
 
 ## Chapter 1: Harbour town plus island
 
-Built on the scheme he picks. The two schemes he does not pick are moved to `archive\` then.
+1. `[x] Built 2026-11-20` `[ ] Checked` · GD · **Two places and the sea chart**
+   - `[x]` places in the data: Marlow's Landing (the harbour town) and Crab Cay (levels 1 to 5); only the place he is
+     in is alive; it fills from its zones when he lands
+   - `[x]` sailing from a dock only; he lands on the other dock; what lay on the ground stays behind
+   - `[x]` the chart window with both places; a tap on the pier walks him there and opens it
+   - tests: sailing and its refusals; the island's zones; the data is whole
 
-1. `[ ] Built` `[ ] Checked` · GD · **The one way of steering, tuned to his notes**
-   - `[ ]` the picked scheme only; its numbers (speed, dead zones, the tap's slop) as he felt them
-   - `[ ]` which hand is the default; Cleave or Whirlwind (idea bank 1 and 5)
-   - needs: Robin's pick and notes
+2. `[x] Built 2026-11-20` `[ ] Checked` · GD · **Three kinds of monster**
+   - `[x]` the sand crab (level 1), the reef gull (level 3: bites and backs off), the coconut crab (level 5: a slow
+     slam that hits all round it, with a long wind-up to get clear in)
+   - `[x]` on the screen: three stand-in shapes; the slam's ground shown while it winds up
+   - tests: the gull's retreat; the slam hit, near-miss and miss; every wind-up can be walked out of
 
-2. `[ ] Built` `[ ] Checked` · GD · **The save that can leave the phone** (Robin, 2026-11-20: from day one)
-   - `[ ]` "export save" writes a file; "import save" reads one back, through the same version check
-   - `[ ]` a test: export, import, the same state; a broken file changes nothing
-   - needs: nothing
+3. `[x] Built 2026-11-20` `[ ] Checked` · GD · **Experience and levels 1 to 5**
+   - `[x]` experience per kill, the curve in the data, a level gives health and damage and fills his health
+   - `[x]` the experience bar, the level, a banner at a new level
+   - tests: a level-up; the last level; his level and cutlass in every swing
 
-3. `[ ] Built` `[ ] Checked` · GD · **The island as a hunting ground**
-   - `[ ]` places in the data: the island and the harbour, each with its size, its monsters and their levels
-   - `[ ]` three kinds of monster in the data, each with its own numbers and one thing it does differently
-   - `[ ]` the bot hunts the island on many seeds and prints kills, falls and time for each level
-   - needs: AD wave 1 (the island's ground kit, three monsters); stand-ins until then
+4. `[x] Built 2026-11-20` `[ ] Checked` · GD · **Loot on the ground, the bag, gear**
+   - `[x]` money, potions and gear drop where the monster fell, rolled by the rules from each kind's chances
+   - `[x]` four rarities, each with its glow on the ground (and a beam for rare and epic) and its edge in the bag
+   - `[x]` drops fly to him when he walks close; a full bag leaves gear lying and says so
+   - `[x]` a bag of 20; four things to wear (cutlass, buckler, hat, coat); the bag and hero windows; what he wears
+     shows on the stand-in
+   - tests: the chances over 600 kills; pick-up; a full bag; wearing, taking off, dropping; a rarer piece is better
 
-4. `[ ] Built` `[ ] Checked` · GD · **Experience and levels 1 to 5**
-   - `[ ]` experience per kill, the curve in the data, what a level gives
-   - `[ ]` the level-up on the screen; the bar
-   - needs: SD wave 1 (the level-up sound)
+5. `[x] Built 2026-11-20` `[ ] Checked` · GD · **One chest**
+   - `[x]` at the north end of the island, behind the coconut crabs; money, potions and a piece better than common
+   - `[x]` it fills again 20 minutes later on the real clock, also while the game is closed
+   - tests: too far, open, empty, full again by the clock
 
-5. `[ ] Built` `[ ] Checked` · GD · **Loot on the ground**
-   - `[ ]` money and items drop where the monster fell; a drop table per monster in the data, rolled by the rules
-   - `[ ]` rarities with a coloured effect each; drops fly to him when he walks close
-   - `[ ]` the bag and what he wears; the top buttons: bag, chart, character
-   - needs: AD wave 1 (loot, the rarity effects, the UI kit), SD wave 1 (the pickup by rarity)
+6. `[x] Built 2026-11-20` `[ ] Checked` · GD · **Potions**
+   - `[x]` three to start, bought at the stall, sometimes dropped; a potion mends over three seconds
+   - tests: mending, the wait, the refusals
 
-6. `[ ] Built` `[ ] Checked` · GD · **One chest**
-   - `[ ]` a chest on the island with its own table; opened by walking up and tapping
-   - needs: AD wave 1 (the chest), SD wave 1 (the chest)
+7. `[x] Built 2026-11-20` `[ ] Checked` · GD · **Death that costs money**
+   - `[x]` a tenth of the money he carries is lost (Robin: "say 10%") and he wakes whole in the harbour
+   - tests: the cost, waking in town with his bag
 
-7. `[ ] Built` `[ ] Checked` · GD · **Death that costs money**
-   - `[ ]` a share of the money he carries is lost (Robin: "say 10%"; his to feel) and he wakes in the harbour
-   - needs: SD wave 1 (falling)
+8. `[x] Built 2026-11-20` `[ ] Checked` · GD · **The harbour's stall**
+   - `[x]` three pieces, each for another part of him, of the tier his level has earned; new ones each time he
+     comes to town; potions; it buys what he found
+   - tests: the stock, buying, selling, every refusal
 
-8. `[ ] Built` `[ ] Checked` · GD · **The harbour town and the sea chart**
-   - `[ ]` the harbour as a second place with no monsters; a shop that buys and sells
-   - `[ ]` the chart with the two places; a tap travels
-   - needs: AD wave 1 (the harbour's kit, the shop, the chart)
+9. `[x] Built 2026-11-20` `[ ] Checked` · GD · **The save that can leave the phone** (Robin, 2026-11-20: from day one)
+   - `[x]` version 2, with the step up from the control test's save; unknown gear, monsters and places are dropped
+   - `[x]` "Export save" and "Import save" in the settings; "Start over" asks twice
+   - tests: out and back; broken files; the old save; what today's data no longer knows
 
-9. `[ ] Built` `[ ] Checked` · AD · **Wave 1 art** (`art-demands.md`)
-   - `[ ]` Robin's answers to questions 20 and 21 (the looks he loves; drawn or modelled, how gear shows)
-   - `[ ]` three stills of the look, Robin picks (big work: three concepts)
-   - `[ ]` the Warrior, the island, three monsters, the harbour, loot and effects, the UI kit, the chart, the icon
-   - needs: the budgets confirmed by the GD once the form of the art is known (question 21)
+10. `[x] Built 2026-11-20` `[ ] Checked` · GD · **The whole chapter, played by a bot**
+    - `[x]` from a nobody in the harbour to level 5 and the chest on three seeds: about 16 minutes, no falls, two or
+      three trips home (a person: perhaps twice that; the numbers are in `tests.md`)
 
-10. `[ ] Built` `[ ] Checked` · SD · **Wave 1 sound** (`sound-demands.md`)
-    - `[ ]` Hugh, SD's chat started (Robin, 2026-11-20: when chapter 1 is planned; needs his go, see below)
-    - `[ ]` three one-minute pieces for the title, Robin picks; the library fetched for the effects
-    - `[ ]` the audio layer in the game with mute and volumes
-    - needs: the budgets in `sound-demands.md`
+11. `[x] Built 2026-11-20` `[ ] Checked` · GD · **Installed and offline**
+    - `[x]` the built page caches itself; with its server stopped it still opens and keeps the save (checked in
+      the pane on `localhost:4178`)
+    - `[ ]` **the public page: waits for Robin.** The deploy needs his Cloudflare login. From `Game Developer\`:
+      `npm run build` and then `npx wrangler@4 pages deploy dist --project-name drok --branch main --commit-dirty=true`
+    - `[ ]` installed on his phone from that page and played with the network off
 
-11. `[ ] Built` `[ ] Checked` · GD · **Alpha 1 on the public page**
-    - `[ ]` Robin runs the deploy to Cloudflare Pages (his login); the live build checked against `dist`
-    - `[ ]` installed on his phone and played with the network off
-    - needs: Robin's Cloudflare login for the deploy
+12. `[ ] Built` `[ ] Checked` · AD · **Wave 1 art** (`art-demands.md`)
+    - `[x]` Robin's answers to questions 20 and 21; he then said (2026-11-20) "Let AD handle the art you need. I
+      approve.", so Leonard, AD chooses the look himself, marked "mine", and Robin judges it when he is back
+    - `[ ]` the Warrior's body; cutlasses, bucklers and hats with their bag icons (in his `out\` as of 2026-11-20,
+      not yet delivered with notes)
+    - `[ ]` three monsters; the island's ground; loot and the rarity effects; the chest; the harbour; the glass;
+      the sea chart; the icon
+    - `[ ]` GD: each drop copied in whole and wired, the stand-in it replaces removed
 
-## Needs from the studios, in order
+13. `[ ] Built` `[ ] Checked` · SD · **Wave 1 sound** (`sound-demands.md`)
+    - `[ ]` **Hugh, SD's chat: waits for Robin.** It could not be started from a phone session; his first brief
+      stands ready in `sound-demands.md`. In the desktop app: a new chat in `C:\dev\Drok\Sound Director` with the
+      first message "You are Hugh, SD. Read CLAUDE.md, then ..\Game Developer\docs\sound-demands.md."
+    - `[ ]` the effects sprite; three one-minute pieces for the title, Robin picks
+    - `[ ]` GD: the audio layer in the game with mute and volumes, when the first sprite lands
 
-1. AD: questions 20 and 21 to Robin → the look (three stills) → the Warrior → the island's ground → three monsters →
-   loot and the rarity effects → the UI kit → the harbour and the shop → the chart → the icon.
-2. SD (once his chat is started): the budgets agreed → the swing and the hit → the pickup and the chest → three
-   pieces for the title → the level-up and falling.
+14. `[ ] Built` `[ ] Checked` · GD · **Alpha 1**: every item above Checked by Robin, the frame log read, a tag on main
 
 ## Waits for Robin
 
-- His pick of the three ways to steer, and his notes (item 0).
-- "Start Hugh, SD": he picked "when chapter 1 is planned", which is now; his chat starts on his word.
-- Leonard, AD's questions 20 and 21, in Leonard's chat.
+- Play it: `http://192.168.0.43:5178/` on the home Wi-Fi. The first minute: walk down to the pier with the red flag,
+  tap "Sea chart", tap Crab Cay.
+- Which of the three ways to steer stays (≡, "Steering").
+- The deploy to Cloudflare Pages (item 11), so it installs and plays offline.
+- Starting Hugh, SD's chat (item 13).
+- The felt numbers: how long a level takes, how hard the monsters bite, what things cost (`lessons.md`).
+- The smaller open points in the brief (Cleave or Whirlwind, what "Drok" means, the share lost on death, the job
+  advancements, which hand).
 
 ## Done when
 

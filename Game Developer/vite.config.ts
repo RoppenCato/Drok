@@ -19,17 +19,17 @@ export default defineConfig({
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
-      // Drok is a placeholder: the setup puts the game's name here, in client/index.html and in client/src/layout.ts.
+      // What the phone shows when the game is installed: its name, its colours, that it stands upright.
       manifest: {
         name: 'Drok',
         short_name: 'Drok',
-        description: 'A 2D game for the phone.',
+        description: 'A solo, old-school grinder: one hero, hunting grounds, chests and rare drops.',
         start_url: '/',
         scope: '/',
         display: 'standalone',
         orientation: 'portrait',
-        background_color: '#1b1f2a',
-        theme_color: '#1b1f2a',
+        background_color: '#12202b',
+        theme_color: '#12202b',
         icons: [
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },

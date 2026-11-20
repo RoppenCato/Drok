@@ -21,16 +21,16 @@ item, report in the morning. The rules first, then the list.
 
 ## The list (kept current; from `plan-chapter-1.md`, the items that need no decision of his)
 
-The items of chapter 1 are built on the way of steering he picks, so most of them wait for that. These do not:
+Robin, 2026-11-20: "work through the list until you are done... I dont need to approve or answer any questions until
+you are done." The game side of chapter 1 (items 1 to 11 of the plan) was built in that session. What is left that
+needs no decision of his:
 
-- `[ ]` Item 2, the save that can leave the phone: export and import, with their tests.
-- `[ ]` Item 3, the data's shape for places and for several kinds of monster, with the test that every monster has
-  its numbers and a name in `names.md`. Stand-in shapes; no new art asked for before the look is picked.
-- `[ ]` Item 4, experience and levels 1 to 5 in the rules, with the bot printing the time for each level. The curve's
-  numbers are marked "mine" and are Robin's to feel.
-- `[ ]` Item 5, drop tables and rarities in the rules (rolled by the rules, tested with fixed seeds); stand-in drops
-  on the ground.
-- `[ ]` A bot that hunts for ten minutes on many seeds, printing money and items an hour, for the first balance.
+- `[ ]` Each drop from Leonard, AD: copy the folder whole into `client\public\art\<name>\`, wire it in the place of
+  its stand-in, check it in the pane at 412 by 915, update `docs\state\art.md`, commit.
+- `[ ]` The audio layer (mute, volumes, the sprite's map) when Hugh, SD's first sprite lands; `docs\state\sound.md`.
+- `[ ]` A longer balance run: the bot on ten seeds, with a clumsier player as well (no slam dodging, late potions),
+  printing falls and time for each level, so Robin's first numbers have a range to sit in.
+- `[ ]` Obstacles: houses and rocks that cannot be walked through, with a path round them for a tap (idea bank).
 
 ## Never alone
 
@@ -42,5 +42,6 @@ The items of chapter 1 are built on the way of steering he picks, so most of the
 
 ## The last report
 
-2026-11-20 (the setup): the control test is built and waits for Robin's thumb. Waits for Robin: his pick of the three
-schemes and his notes; his word to start Hugh, SD; Leonard, AD's questions 20 and 21.
+2026-11-20 (chapter 1, the game side): built, tested and pushed on stand-in shapes; the plan's "Waits for Robin" is
+the list: play it; pick a way to steer; the deploy to Cloudflare Pages; start Hugh, SD's chat in the desktop app;
+the felt numbers; the smaller open points in the brief.

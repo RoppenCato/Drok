@@ -24,6 +24,17 @@ Victor, GD's first guess of 2026-11-20 and is pending until Robin has played the
 | The stick | reach 46 units, dead middle 7; the base follows the thumb | pending | |
 | The skill buttons | 68 across, pressed within 84; 108 from the corner, 24 above the bottom | pending | |
 | The canvas | twice the design size (824 by 1830) | pending: the frame log | |
+| The climb to level 5 | 150, 420, 1000, 2200 experience; a bot does it in 16 minutes, a person perhaps in 30 | pending | |
+| The monsters' bite | sand crab 5 to 8, reef gull 9 to 13, coconut crab's slam 20 to 28, against 100 health at level 1 | pending | |
+| The gull | backs off about 200 units for 1.1 s after each bite | pending | |
+| The slam | 0.9 s of wind-up; everything within 74 is hit | pending | |
+| Loot | money from 7 kills in 10; gear from 1 in 10 (crab) to 1 in 3 (coconut crab); 70, 22, 7, 1 by rarity | pending | |
+| Picking up | flies to him from 72 units | pending | |
+| The chest | fills again 20 minutes later, by the clock | pending | |
+| Falling | a tenth of his money; 2 s down; wakes in the harbour | Robin: "say 10%"; pending | |
+| A potion | 45 health over 3 s, an 8 s wait, 12 gold, 10 carried | pending | |
+| Prices | the stall sells at three times a piece's worth and buys at half | pending | |
+| The island | 1400 by 2400: 11 s to walk its length | pending | |
 
 ## What worked
 
@@ -35,6 +46,14 @@ Victor, GD's first guess of 2026-11-20 and is pending until Robin has played the
    second each time.
 3. **Drawn from the state.** A wind-up, a stun, the target's ring and every position are read from the state each
    frame; only one-shots come from events. Nothing on screen can drift from the rules.
+
+4. **A bot that plays the chapter.** The first run finished chapter 1 in nine minutes with no falls, which no
+   reading of the numbers had shown. The bot is twenty lines of "what a sensible thumb does"; it is the cheapest
+   balance tool there is, and it found that money piles up unspent.
+5. **A kind of monster is two numbers.** The gull's retreat and the coconut crab's slam are `retreatSeconds` and
+   `slamRadius` in the data, on top of one shared way of living. A fourth kind is a row in a file.
+6. **One window at a time, rebuilt whole.** Each window is drawn again from the state whenever it may be stale,
+   so it cannot show an old number, and there is no code that updates a window in place.
 
 ## What went wrong, and the rule each left
 

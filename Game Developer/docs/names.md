@@ -1,7 +1,8 @@
 # Everything in the game that carries a name
 
 All placeholders until Robin names them (or says the placeholders stay). The studios read this for the words they put
-on screen and in files; a change here is a change everywhere, so the Game Developer keeps it current.
+on screen and in files; a change here is a change everywhere, so the Game Developer keeps it current. Every name
+below marked "mine" is Victor, GD's placeholder of 2026-11-20 and is in the data files, one edit away from another.
 
 ## The game
 
@@ -12,19 +13,31 @@ on screen and in files; a change here is a change everywhere, so the Game Develo
 Whether "Drok" means something in the world (the sea, the islands, a pirate lord, the ship) is open: idea bank,
 open question 2.
 
-## Places
-
-| Id (in the data) | Name shown | Whose | Since |
-| --- | --- | --- | --- |
-| (none yet) | the control test's field has no name on screen | mine | 2026-11-20 |
-| _harbour_ | _the harbour town of chapter 1: to name_ | placeholder | 2026-11-20 |
-| _island-1_ | _the first island of chapter 1: to name_ | placeholder | 2026-11-20 |
-
-## Creatures and things
+## Places (`rules\data\places.json`)
 
 | Id | Name shown | Whose | Since |
 | --- | --- | --- | --- |
-| `sand-crab` | Sand crab | mine, a placeholder for the control test | 2026-11-20 |
+| `harbour` | Marlow's Landing | mine | 2026-11-20 |
+| `crab-cay` | Crab Cay | mine | 2026-11-20 |
+
+## Creatures (`rules\data\monsters.json`)
+
+| Id | Name shown | Whose | Since |
+| --- | --- | --- | --- |
+| `sand-crab` | Sand crab | mine | 2026-11-20 |
+| `reef-gull` | Reef gull | mine | 2026-11-20 |
+| `coconut-crab` | Coconut crab | mine | 2026-11-20 |
+
+## Gear (`rules\data\items.json`)
+
+| Id | Name shown | Whose |
+| --- | --- | --- |
+| `rusty-cutlass`, `sailors-cutlass`, `corsairs-cutlass` | Rusty cutlass, Sailor's cutlass, Corsair's cutlass | mine |
+| `plank-buckler`, `iron-buckler`, `brass-buckler` | Plank buckler, Iron buckler, Brass buckler | mine |
+| `bandana`, `tricorn`, `feathered-hat` | Bandana, Tricorn, Feathered hat | mine |
+| `linen-shirt`, `sailors-coat`, `corsairs-coat` | Linen shirt, Sailor's coat, Corsair's coat | mine |
+| the rarities | Common, Uncommon, Rare, Epic | mine: the old grinders' words |
+| (a draught) | Healing potion, "Potion" on its button | mine |
 
 ## The hero and his skills
 
@@ -34,23 +47,29 @@ open question 2.
 | `charge` | Charge | Robin's pick of the suggested kit, 2026-11-20 | 2026-11-20 |
 | `cleave` | Cleave | Robin's pick; "Cleave or Whirlwind" still open | 2026-11-20 |
 | (the bar) | rage | Robin's pick of the suggested kit | 2026-11-20 |
+| (money) | gold | mine | 2026-11-20 |
 
 These are the common words of the old grinders. Whether Drok gets its own names for them in a pirate world is
 Robin's to say; not asked yet.
 
-## People (only if the game has any; a Lore Director when they grow)
+## People
 
-Robin, 2026-11-20: light quests; a few people in the harbour who speak in short lines. None exist yet. Their lines
-will be the Game Developer's placeholders, each marked as such with an id.
-
-| Id | Name shown | Lines marked | Whose | Since |
+| Id | Name shown | Lines | Whose | Since |
 | --- | --- | --- | --- | --- |
+| the stall's keeper | Old Marlow | none: his stall's window is titled "Old Marlow's stall" | mine | 2026-11-20 |
 
-## The screen's own words (the control test)
+Robin, 2026-11-20: light quests; a few people in the harbour who speak in short lines. Nobody speaks yet; two more
+townsfolk stand on the quay without names. Lines, when they come, are the Game Developer's placeholders, each marked.
 
-`1 Tap`, `2 Hold`, `3 Stick`; `Charge` / `dash`; `Cleave` / `30 rage`; `Crabs N   Falls N`; `Down!` / `Up in N`;
-`Not ready`, `Not enough rage`, `Nothing in range`; `missed`.
-The help lines: "Tap the sand to walk. Tap a crab to fight it." / "Hold a finger down: he walks towards it. He fights
-the nearest crab." / "Put your thumb down anywhere and push. He fights the nearest crab."
-The menu: `Control test`, `Crabs: N`, `Buttons: right hand` / `left hand`, `Effects: full` / `fewer`, `Save the log`,
-`Start over`, `Close`.
+## The screen's own words
+
+The glass: `Level N`, `N gold`, `Bag`, `Chart`, `Hero`; `Cleave` / `30 rage`; `Charge` / `dash`; `Potion`;
+`Open chest`, `Trade`, `Sea chart`; `<monster>  ·  level N`; `Down!` / `Lost N gold` / `Waking in N`;
+`Level N` / `Stronger, and whole again` / `As far as this chapter goes`; the place's name / `Levels 1 to 5` /
+`The harbour town`.
+The refusals: `Not ready`, `Not enough rage`, `Nothing in range`, `No potions left`, `Health is full`, `The chest
+is empty`, `Too far away`, `Sail from the dock`, `The bag is full`, `Not enough gold`, `No room for more potions`,
+`Sold`, `Sell at the stall in the harbour`, `That file is not a Drok save`, `Press again to erase this hero for good`.
+The help lines: "Tap the ground to walk. Tap a monster to fight it." / "Hold a finger down: he walks towards it and
+fights the nearest monster." / "Put your thumb down anywhere and push. He fights the nearest monster."
+The windows' words are in `client\src\view\panels.ts`.

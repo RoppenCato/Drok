@@ -34,27 +34,30 @@ screen") and playing offline need a real web address: the public page on Cloudfl
 
 ## What it does today
 
-One screen. The Warrior stands on a field of sand with three sand crabs. At the top, a switch between three ways
-to steer: **1 Tap** (tap the sand to walk, tap a crab to fight it), **2 Hold** (he walks towards a held finger and
-fights the nearest crab), **3 Stick** (a stick where the thumb comes down; he fights the nearest crab). He swings by
-himself at his target; hitting builds rage; **Charge** dashes to a crab and stuns it; **Cleave** spends rage on a
-wide swing. A crab winds up before it bites, and a step away makes it miss. At no health he is down for two seconds
-and stands up in the middle. The **≡** menu sets the number of crabs, which hand the buttons sit under, fewer
-effects, saves the log as a file, and starts over.
+Chapter 1's game side, on stand-in shapes and in silence. A new hero wakes in the harbour town, Marlow's Landing,
+with a rusty cutlass, a plank buckler and three potions. He walks to the pier, opens the sea chart and sails to Crab
+Cay: sand crabs on the beach, reef gulls on the grass, coconut crabs in the rocky cove, and a chest behind them. He
+swings by himself at his target; hitting builds rage; **Charge** dashes and stuns; **Cleave** spends rage on a wide
+swing. Kills give experience (levels 1 to 5), and money, potions and gear that lie on the ground with the glow of
+their rarity and fly to him when he walks close. **Bag**, **Chart** and **Hero** at the top open their windows; a
+button appears by the chest, the stall and the pier. Falling costs a tenth of his money and wakes him in the harbour,
+where Old Marlow's stall sells a few pieces and potions and buys what he found. The **≡** settings hold the three
+ways to steer (**1 Tap**, **2 Hold**, **3 Stick**), which hand, fewer effects, export and import of the save, the
+log, and "start over".
 
 ## Where things live
 
 ```
-rules/data/numbers.json   every number of the game; balancing is editing this file
-rules/src/                types, game (the actions), world (the step), geometry, rng, save, index (the exports)
-rules/test/               game.test.ts, bot.test.ts (a bot plays each scheme), purity.test.ts, sim.ts (their holder)
+rules/data/               numbers, monsters, places, items: every number of the game; balancing is editing these
+rules/src/                types, data, core, game, world (the step), loot, town, save, geometry, rng, index
+rules/test/               game, chapter1, bot (a bot plays chapter 1 through), purity; sim.ts is their holder
 client/index.html         the page: phone viewport, no zoom, the canvas fills the screen
 client/src/main.ts        Phaser, the holder, the frame log, window.dev
 client/src/layout.ts      the name, the design size, RES, the stand-in colours
 client/src/local-game.ts  holds the state, steps the rules evenly, saves to localStorage (drok.save)
 client/src/controls.ts    the three ways to steer: fingers into intents
 client/src/scenes/        BootScene (paints the sand once), PlayScene (the one screen)
-client/src/view/          world-view.ts (the field), hud.ts (the glass: bars, switch, skill buttons, menu)
+client/src/view/          world-view.ts (the place), hud.ts (the glass), panels.ts (bag, hero, chart, stall, settings)
 client/src/game-log.ts    the frame log and the error log, saved from the menu
 client/src/settings.ts    sound off, fewer effects, which hand, in localStorage (drok.settings)
 client/public/            the two placeholder icons; files here are served from /

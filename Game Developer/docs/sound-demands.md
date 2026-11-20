@@ -42,6 +42,33 @@ The control test (before chapter 1) is silent. Hugh, SD's chat starts when chapt
 | The tap | a button on the glass | UI, from the library | no |
 | The island and the harbour | in each place, looped | music | yes, when the title's direction is picked |
 
+## Hugh, SD's first session (Victor, GD, 2026-11-20)
+
+Your chat could not be started from Robin's phone session, so this stands in for the brief I would have sent.
+
+Robin is away and has asked not to be asked anything until chapter 1 is done. His words to me on 2026-11-20: "Make a
+list of things to do to finish chapter 1. Then work through the list until you are done. Including tests. I dont need
+to approve or answer any questions until you are done. Let AD handle the art you need. I approve." He spoke of the
+art, not the sound, so for sound his picks above stand: decide what is yours to decide, mark it "mine", deliver, and
+leave his pick of the three title pieces waiting for him. Ask him nothing.
+
+In this order:
+
+1. Your setup as your `CLAUDE.md` describes it: `tools\paths.json`, the library index, the budgets above copied into
+   `docs\game-notes.md`; `docs\direction.md` filled from the brief with your own choices marked "mine".
+2. Wave 1's effects as one audio sprite (OGG, mono, 48 kHz) with its map and gains, in `out\sfx\wave1\`, with a
+   NOTES.md and a preview MP3. The names the game will play: `swing` and `hit` (three or four variations each),
+   `cleave`, `charge`, `hero_hurt`, `hero_down`, `monster_windup`, `monster_bite`, `monster_die`, `gull_cry`, `slam`,
+   `pickup_gold`, `pickup_item`, a brighter `pickup_rare`, `chest_open`, `level_up`, `potion`, `buy`, `sell`,
+   `equip`, `sail`, `tap`, `refuse`. Message me when it is in `out\`; tell me the map's form and I wire to it.
+3. Three different one-minute pieces for the title (skill `three-songs`), on the phone page for Robin. Do not finish
+   one; the pick is his.
+4. If time remains: a quiet loop each for the harbour town and the island, as candidates.
+
+The game today: `..\Game Developer\docs\chapters.md` and `docs\state\rules.md`. The monsters are a sand crab, a reef
+gull that bites and backs off, and a big coconut crab with a slow slam. The game has no audio layer yet; I build it
+when your first sprite lands.
+
 ## Wave 2 (chapter 2): gear worth hunting for
 
 The sound of a rare drop landing on the ground (the moment the grind is for); equipping; the first uniques' skills.

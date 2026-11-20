@@ -27,16 +27,22 @@ brief, his notes into `playtests.md` as round 1, and chapter 1 is built on it.
 
 (Robin, 2026-11-20, his pick): one island with three monsters, levelling 1 to 5, loot on the ground with rarities, one
 chest, death that costs money, and the save; plus a small harbour town with a shop to walk back to, and the sea chart
-between the two. Real art and sound for just that.
+between the two. Real art and sound for just that. (Robin, 2026-11-20): "Make a list of things to do to finish
+chapter 1. Then work through the list until you are done."
 
-**Game** (what exists is marked "exists")
-- The way of steering Robin picked in the control test, and only that one. The field, the hero, the fighting, rage,
-  Charge and Cleave, the save: exist, from the control test.
-- **To build**: the island as a hunting ground with three kinds of monster; experience and levels 1 to 5; money and
-  items that drop on the ground with a coloured effect by rarity and fly to him when he walks close; a bag and what he
-  wears; one chest; death that costs a share of his money and wakes him in the harbour; the harbour town with a shop;
-  the sea chart with the two places; the top buttons (bag, chart, character); "export save" and "import save" in the
-  settings; the public page on Cloudflare Pages so it installs and plays offline.
+**Where it stands (2026-11-20)**: the game side is built and tested, on stand-in shapes and in silence. The art is
+being made by Leonard, AD on his own calls (Robin: "Let AD handle the art you need. I approve."). The sound, the
+public page and Robin's own play wait for Robin. The list is `plan-chapter-1.md`.
+
+**Game** (all of it exists)
+- Marlow's Landing, the harbour town, and Crab Cay, the island, on a sea chart; sailing from a dock.
+- Three kinds of monster: the sand crab, the reef gull, the coconut crab. Experience and levels 1 to 5.
+- Money, potions and gear that drop on the ground with the glow of their rarity and fly to him when he walks close;
+  a bag; four things to wear; one chest that fills again by the clock; potions.
+- Death that costs a tenth of his money and wakes him in the harbour; a stall that sells and buys.
+- Bag, chart and hero at the top; export and import of the save in the settings; the built page works offline.
+- The three ways to steer, on a switch, until Robin picks one.
+- **Still to do**: the public page on Cloudflare Pages (Robin's login); the audio layer when the first sounds land.
 
 **Art** (wave 1): the look (three stills, Robin picks); the Warrior with cutlass and buckler; the island's ground kit;
 three monsters; the harbour's ground kit and the shop; loot on the ground and the rarity effects; the UI kit; the sea

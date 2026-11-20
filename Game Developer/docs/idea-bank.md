@@ -27,6 +27,17 @@ brief's "Open questions" lists them in short, with one more at its head: which o
 3. Day and night later (Victor, GD, 2026-11-20): he picked "always day for now"; a night with its own monsters or
    rare spawns is a later chapter's idea.
 
+4. Things in the way (Victor, GD, 2026-11-20): today nothing blocks him; he walks over crates and up to house
+   fronts drawn at a place's edge. Houses, rocks and palms that must be walked round would make a town feel like a
+   town and give monsters something to be caught on, but a tap then needs a path round them. A system of its own.
+5. Somewhere for money to go (Victor, GD, 2026-11-20): the bot ends chapter 1 with about 1200 gold and nothing to
+   buy. Risky upgrading (Robin's pick, a later chapter) is the old grinders' answer; until then the stall could
+   sell one costly piece of the next tier.
+6. A window that stops the world (Victor, GD, 2026-11-20): today the world goes on behind an open bag, as in the old
+   grinders, and a bite closes the window. On a phone that may be harsh; a pause in the wild is one line to add.
+7. Names of his own for the pirate world (Victor, GD, 2026-11-20): places, monsters, gear and the keeper carry my
+   placeholders (`names.md`). A list for Robin to rename when he likes.
+
 ## Decided (moved to the brief; kept here as a record)
 
 All of the brainstorm's suggestions (Claude's, 2026-11-19; Robin: "not decided: ask me") were asked and decided on
