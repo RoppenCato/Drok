@@ -203,7 +203,7 @@ export class PlayScene extends Phaser.Scene {
     this.camY = state.hero.y + LOOK_BELOW;
     this.cameras.main.centerOn(this.camX, this.camY);
     this.panels.close();
-    if (announce) this.hud.banner(place.name, place.town ? 'The harbour town' : `Levels ${place.levels}`);
+    if (announce) this.hud.banner(place.name, `Levels ${place.levels}`);
   }
 
   /** "Export save" (Robin, 2026-11-20: from day one): the save as a file the player keeps. */

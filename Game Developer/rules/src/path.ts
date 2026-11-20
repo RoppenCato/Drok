@@ -42,6 +42,42 @@ function gridOf(place: Place, radius: number): Grid {
   return grid;
 }
 
+const reached = new Map<Place, Uint8Array>();
+
+/**
+ * Can he walk to this point from where he wakes? A big island has pockets between stones that nothing leads into;
+ * a monster born in one could never be fought. Worked out once for a place, from its data alone: the squares he can
+ * stand in, flooded from where he wakes.
+ */
+export function reachable(place: Place, x: number, y: number, radius: number): boolean {
+  const g = gridOf(place, radius);
+  let seen = reached.get(place);
+  if (!seen) {
+    seen = new Uint8Array(g.cols * g.rows);
+    const start = nearestOpen(g, place.wake.x, place.wake.y, 3);
+    const todo = start >= 0 ? [start] : [];
+    if (start >= 0) seen[start] = 1;
+    while (todo.length > 0) {
+      const cell = todo.pop()!;
+      const c = cell % g.cols;
+      const r = Math.floor(cell / g.cols);
+      for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
+        const nc = c + dc;
+        const nr = r + dr;
+        if (nc < 0 || nr < 0 || nc >= g.cols || nr >= g.rows) continue;
+        const next = nr * g.cols + nc;
+        if (!g.open[next] || seen[next]) continue;
+        seen[next] = 1;
+        todo.push(next);
+      }
+    }
+    reached.set(place, seen);
+  }
+  const c = Math.min(g.cols - 1, Math.max(0, Math.floor(x / CELL)));
+  const r = Math.min(g.rows - 1, Math.max(0, Math.floor(y / CELL)));
+  return seen[r * g.cols + c] === 1;
+}
+
 /** Can a body of this size go straight from a to b? */
 export function sight(place: Place, a: Vec, b: Vec, radius: number): boolean {
   const d = Math.hypot(b.x - a.x, b.y - a.y);

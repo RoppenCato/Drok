@@ -18,7 +18,6 @@ export const FIELD = 'test-field';
 export const MIDDLE = { x: 700, y: 1200 };
 const field: Place = {
   name: 'Test field',
-  town: false,
   levels: '',
   width: 1400,
   height: 2400,
@@ -30,6 +29,7 @@ const field: Place = {
   zones: [{ kind: 'sand-crab', count: 0, x: 120, y: 1480, w: 1160, h: 600 }],
   chart: { x: 0.5, y: 0.5 },
   biomes: [],
+  home: null,
   land: null,
   water: [],
   solids: [],
@@ -42,7 +42,7 @@ export class Sim {
   readonly rng: Rng;
   events: GameEvent[] = [];
 
-  /** A new hero in the harbour, as a player starts. */
+  /** A new hero in the town on the island, as a player starts. */
   constructor(seed = 'tide', options: Omit<NewGameOptions, 'seed'> = {}) {
     this.state = { ...newGame({ seed, ...options }), now: NOON };
     this.rng = makeRng(seed);
@@ -55,11 +55,13 @@ export class Sim {
     return sim;
   }
 
-  /** The hero just stepped ashore on the real island, the island filling up as it does after a sail. */
+  /**
+   * The hero on the real island, out of the town: where he steps ashore (the dock's foot, on the beach south of
+   * the town... inside the town's outline since the town is on the island), the island filled from its zones.
+   */
   static landed(seed = 'tide', options: Omit<NewGameOptions, 'seed'> = {}): Sim {
     const sim = new Sim(seed, options);
-    sim.walkTo('dock');
-    sim.act({ type: 'sail', to: ISLAND });
+    sim.step();
     return sim;
   }
 

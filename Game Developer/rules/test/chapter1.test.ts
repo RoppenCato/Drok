@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   BASES,
   biomeAt,
+  inHome,
   buyPrice,
   chestFull,
   clear,
@@ -86,10 +87,10 @@ describe('the ground of the island', () => {
   it('a tap on the sea, or on a rock, takes him as near as the ground goes', () => {
     const sim = Sim.landed();
     sim.state = { ...sim.state, monsters: [], respawns: [] };
-    sim.act({ type: 'moveTo', x: 700, y: 2380 });
+    sim.act({ type: 'moveTo', x: island.dock.x + 200, y: island.height - 40 });
     const shore = sim.state.hero.dest!;
     expect(onLand(island, shore.x, shore.y)).toBe(true);
-    expect(shore.y).toBeGreaterThan(island.arrive.y);
+    expect(shore.y).toBeGreaterThan(island.wake.y);
     sim.runUntil((s) => s.state.hero.dest === null, 10);
     expect(Math.hypot(sim.state.hero.x - shore.x, sim.state.hero.y - shore.y)).toBeLessThan(1);
     const rock = island.solids[0]!;
@@ -176,7 +177,9 @@ describe('the ground of the harbour', () => {
 
 describe('the data is whole', () => {
   it('every place, monster and piece of gear has what the rules will ask of it', () => {
-    expect(harbour.town).toBe(true);
+    expect(harbour.home).not.toBeNull();
+    expect(inHome(harbour, harbour.wake)).toBe(true);
+    expect(inHome(harbour, harbour.shop!)).toBe(true);
     expect(harbour.shop).not.toBeNull();
     for (const [id, place] of Object.entries(PLACES)) {
       expect(place.name, id).not.toBe('');
@@ -200,8 +203,7 @@ describe('the data is whole', () => {
       for (const zone of place.zones) if (place.biomes.length > 0) expect(biomeAt(place, { x: zone.x + zone.w / 2, y: zone.y + zone.h / 2 }), `${id}: a zone of ${zone.kind} on no ground`).toBeDefined();
       for (const b of place.biomes) {
         expect(b.name, id).not.toBe('');
-        expect(b.x + b.w, id).toBeLessThanOrEqual(place.width);
-        expect(b.y + b.h, id).toBeLessThanOrEqual(place.height);
+        expect(b.outline.length, id).toBeGreaterThan(2);
       }
       for (const s of place.solids) expect(s.r, id).toBeGreaterThan(0);
       for (const b of place.boxes) expect(Math.min(b.w, b.h), id).toBeGreaterThan(0);
@@ -264,11 +266,77 @@ describe('a big place', () => {
     expect(sim.find(hunter.id)!.y).toBeGreaterThan(hunter.y);
   });
 
-  it('Crab Cay has three grounds, and he is on the beach where he lands', () => {
-    expect(island.biomes.map((b) => b.id)).toEqual(['beach', 'grove', 'cove']);
+  it('Crab Cay has three grounds: he lands on the beach, the town is on it, the chest is in the cove', () => {
+    // A ground that lies inside another comes first, so the beach (all the land the others are not) is last.
+    expect(island.biomes.map((b) => b.id)).toEqual(['grove', 'cove', 'beach']);
     expect(biomeAt(island, island.arrive)?.id).toBe('beach');
-    expect(biomeAt(island, island.chest!)?.id).toBe('grove');
-    expect(biomeAt(harbour, harbour.wake)).toBeUndefined();
+    expect(biomeAt(island, island.wake)?.id).toBe('beach');
+    expect(biomeAt(island, island.chest!)?.id).toBe('cove');
+    expect(biomeAt(island, { x: 1400, y: 2400 })?.id).toBe('grove');
+    expect(biomeAt(island, { x: 40, y: 40 })).toBeUndefined();
+  });
+});
+
+describe('the town on the island', () => {
+  // Robin, 2026-11-20: "Make the starter island a pirate town, and the other part of the island beginner friendly
+  // with low level mobs."
+  it('is where he starts, wakes and trades, and no monster is born in it', () => {
+    const sim = new Sim('reef');
+    sim.step();
+    expect(sim.state.place).toBe(ISLAND);
+    expect(inHome(island, sim.state.hero)).toBe(true);
+    expect(sim.state.monsters).toHaveLength(island.zones.reduce((n, z) => n + z.count, 0));
+    for (const m of sim.state.monsters) {
+      const zone = island.zones[m.zone]!;
+      expect(m.kind).toBe(zone.kind);
+      expect(inHome(island, { x: m.homeX, y: m.homeY }), `a ${m.kind} born in the town`).toBe(false);
+    }
+    say(`the island holds ${island.zones.map((z) => `${z.count} ${MONSTERS[z.kind]!.name}s`).join(', ')}`);
+  });
+
+  it('his health comes back fast there, and nothing comes for him: one that is after him turns back', () => {
+    const sim = new Sim();
+    sim.step();
+    sim.state = { ...sim.state, monsters: [], respawns: [] };
+    sim.hero({ hp: 10 });
+    const hunter = sim.monster(60, 0, { mode: 'chase' });
+    const idler = sim.monster(-60, 0);
+    sim.run(3);
+    expect(sim.state.hero.hp).toBeGreaterThan(80);
+    expect(sim.count('heroHit')).toBe(0);
+    expect(sim.count('monsterWindup')).toBe(0);
+    expect(sim.find(hunter.id)!.mode).not.toBe('chase');
+    expect(sim.find(idler.id)!.mode).toBe('wander');
+  });
+
+  it('one he has hurt fights on, town or not: he cannot fell them for nothing from the town\'s edge', () => {
+    const sim = new Sim();
+    sim.step();
+    sim.state = { ...sim.state, monsters: [], respawns: [] };
+    const m = sim.monster(40, 0);
+    sim.act({ type: 'target', monster: m.id, approach: false });
+    sim.runUntil((s) => s.count('heroHit') > 0 || s.count('monsterDied') > 0, 6);
+    expect(sim.count('hit')).toBeGreaterThan(0);
+    expect(sim.count('heroHit')).toBeGreaterThan(0);
+  });
+
+  it('walking out and coming back puts new pieces on the stall', () => {
+    const sim = new Sim();
+    sim.step();
+    sim.state = { ...sim.state, monsters: [], respawns: [] };
+    const stock = sim.state.shop.map((i) => i!.id);
+    sim.run(1);
+    expect(sim.state.shop.map((i) => i!.id)).toEqual(stock);
+    // Out by the thumb, north through the town's edge, and back in.
+    sim.hero({ x: island.wake.x - 90, y: 3170 });
+    sim.act({ type: 'steer', x: 0, y: -1 });
+    sim.runUntil((s) => !inHome(island, s.state.hero), 5);
+    expect(inHome(island, sim.state.hero)).toBe(false);
+    expect(sim.state.shop.map((i) => i!.id)).toEqual(stock);
+    sim.act({ type: 'steer', x: 0, y: 1 });
+    sim.runUntil((s) => inHome(island, s.state.hero), 5);
+    sim.act({ type: 'steer', x: 0, y: 0 });
+    expect(sim.state.shop.map((i) => i!.id)).not.toEqual(stock);
   });
 });
 
@@ -285,49 +353,18 @@ describe('a new hero', () => {
     expect(heroBonusDamage(s.hero)).toBe(2);
     expect(newGame({ seed: 'tide' })).toEqual(s);
   });
-
-  it('finds no monsters in town, and his health comes back fast there', () => {
-    const sim = new Sim();
-    sim.hero({ hp: 10 });
-    sim.run(3);
-    expect(sim.state.monsters).toHaveLength(0);
-    expect(sim.state.hero.hp).toBeGreaterThan(80);
-  });
 });
 
 describe('sailing', () => {
-  it('goes from a dock only, lands him on the other dock, and fills the island from its zones', () => {
+  it('goes from a dock only, and with one island there is nowhere to sail yet', () => {
     const sim = new Sim();
-    expect(sim.act({ type: 'sail', to: ISLAND })).toEqual([{ type: 'rejected', action: 'sail', reason: 'not at the dock' }]);
     expect(sim.act({ type: 'sail', to: 'atlantis' })).toEqual([{ type: 'rejected', action: 'sail', reason: 'no such place' }]);
     expect(sim.act({ type: 'sail', to: START_PLACE })).toEqual([{ type: 'rejected', action: 'sail', reason: 'already there' }]);
-    sim.act({ type: 'moveTo', ...harbour.dock });
+    sim.act({ type: 'moveTo', ...island.dock });
     const walk = sim.runUntil((s) => s.state.hero.dest === null);
-    expect(sim.act({ type: 'sail', to: ISLAND }).at(-1)).toEqual({ type: 'sailed', from: START_PLACE, to: ISLAND });
-    expect(sim.state.place).toBe(ISLAND);
-    expect(sim.state.hero).toMatchObject(island.arrive);
-    sim.step();
-    const wanted = island.zones.reduce((n, z) => n + z.count, 0);
-    expect(sim.state.monsters).toHaveLength(wanted);
-    for (const m of sim.state.monsters) {
-      const zone = island.zones[m.zone]!;
-      expect(m.kind).toBe(zone.kind);
-      expect(m.y).toBeGreaterThanOrEqual(zone.y);
-      expect(m.y).toBeLessThanOrEqual(zone.y + zone.h);
-    }
-    say(`the walk from where he wakes to the harbour's dock takes ${walk.toFixed(1)} s; the island holds ${island.zones.map((z) => `${z.count} ${MONSTERS[z.kind]!.name}s`).join(', ')}`);
-  });
-
-  it('leaves what lay on the ground behind', () => {
-    const sim = Sim.landed();
-    const m = sim.monster(40, 0, { hp: 1, stunned: 999, kind: 'coconut-crab' });
-    sim.hero({ steer: { x: 0, y: 0 } });
-    sim.act({ type: 'target', monster: m.id, approach: false });
-    sim.runUntil((s) => s.count('monsterDied') > 0, 3);
-    sim.walkTo('dock');
-    sim.act({ type: 'sail', to: START_PLACE });
-    expect(sim.state.drops).toHaveLength(0);
-    expect(sim.state.monsters).toHaveLength(0);
+    expect(dist(sim.state.hero, island.dock)).toBeLessThan(1);
+    expect(sim.act({ type: 'sail', to: START_PLACE })).toEqual([{ type: 'rejected', action: 'sail', reason: 'already there' }]);
+    say(`the walk from where he wakes to the dock takes ${walk.toFixed(1)} s`);
   });
 });
 
@@ -518,9 +555,9 @@ describe('the chest', () => {
     say(`the chest gave ${sim.state.hero.gold} money, ${chest.potions} potions and a ${gear.rarity} ${BASES[gear.base]!.name}; it fills again ${chest.refillMinutes} minutes later by the clock`);
   });
 
-  it('is not to be had in a place without one', () => {
+  it('is not to be had from the other end of the island', () => {
     const sim = new Sim();
-    expect(sim.act({ type: 'openChest' })).toEqual([{ type: 'rejected', action: 'openChest', reason: 'no chest here' }]);
+    expect(sim.act({ type: 'openChest' })).toEqual([{ type: 'rejected', action: 'openChest', reason: 'too far' }]);
   });
 });
 
@@ -543,7 +580,10 @@ describe('falling', () => {
     expect(sim.state.place).toBe(START_PLACE);
     expect(sim.state.hero).toMatchObject({ ...harbour.wake, hp: heroMaxHp(sim.state.hero), rage: 0, downFor: 0 });
     expect(sim.state.hero.bag).toEqual([kept]);
-    expect(sim.state.monsters).toHaveLength(0);
+    // The island starts over as he wakes: every monster back in its zone, nothing on the ground.
+    expect(sim.state.monsters.length + sim.state.respawns.length).toBe(island.zones.reduce((n, z) => n + z.count, 0));
+    expect(sim.state.monsters.every((m) => m.hp === MONSTERS[m.kind]!.maxHp)).toBe(true);
+    expect(sim.state.drops).toHaveLength(0);
     say(`falling with 87 money cost ${lost}; he was down for ${took.toFixed(1)} s`);
   });
 });
@@ -644,11 +684,12 @@ describe("the harbour's stall", () => {
     expect(stock).toHaveLength(SHOP.pieces);
     expect(new Set(stock.map((i) => BASES[i!.base]!.slot)).size).toBe(SHOP.pieces);
     for (const item of stock) expect(BASES[item!.base]!.tier).toBe(SHOP.tierAtLevel[1]);
-    sim.hero({ level: 5 });
-    sim.walkTo('dock');
-    sim.act({ type: 'sail', to: ISLAND });
-    sim.walkTo('dock');
-    sim.act({ type: 'sail', to: START_PLACE });
+    // Out of the town and in again, at level 5.
+    sim.hero({ level: 5, x: island.wake.x - 90, y: 3170 });
+    sim.act({ type: 'steer', x: 0, y: -1 });
+    sim.runUntil((s) => !inHome(island, s.state.hero), 5);
+    sim.act({ type: 'steer', x: 0, y: 1 });
+    sim.runUntil((s) => inHome(island, s.state.hero), 5);
     expect(sim.state.shop.map((i) => i!.id)).not.toEqual(stock.map((i) => i!.id));
     for (const item of sim.state.shop) expect(BASES[item!.base]!.tier).toBe(SHOP.tierAtLevel[5]);
   });
@@ -739,7 +780,7 @@ describe('the save', () => {
     expect(s.hero.route).toEqual([]);
     expect(s.hero.chosen).toBe(false);
     expect(s.hero.level).toBe(sim.state.hero.level);
-    expect(s.monsters).toHaveLength(sim.state.monsters.length);
+    expect(s.hero).toMatchObject(island.wake);
   });
 
   it('is brought up from the save with four parts to wear gear on: he wears what he wore, the new places are bare', () => {
@@ -750,7 +791,8 @@ describe('the save', () => {
     old.version = 4;
     for (const slot of ['legs', 'boots', 'necklace', 'trinket', 'trinket2']) delete old.hero.worn[slot];
     const s = migrate(old)!;
-    expect(s).toEqual(sim.state);
+    expect(s.hero.bag).toEqual(sim.state.hero.bag);
+    expect(s.hero.worn.weapon).toEqual(sim.state.hero.worn.weapon);
     expect(s.hero.worn).toMatchObject({ legs: null, boots: null, necklace: null, trinket: null, trinket2: null });
     expect(SLOTS).toEqual(['weapon', 'shield', 'hat', 'coat', 'legs', 'boots', 'necklace', 'trinket', 'trinket2']);
   });
@@ -784,19 +826,45 @@ describe('the save', () => {
     old.scheme = 2;
     delete old.hero.chosen;
     const s = migrate(old)!;
-    expect(s).toEqual({ ...sim.state, hero: { ...sim.state.hero, chosen: false } });
+    expect(s.hero.chosen).toBe(false);
+    expect(s.hero.bag).toEqual(sim.state.hero.bag);
     expect('scheme' in s).toBe(false);
     // What it was like before today is no state of today's.
     expect(migrate({ ...old, version: STATE_VERSION })).toBeNull();
+  });
+
+  it('is brought up from before the big island: he keeps all he is and has, wakes in the town, and the island starts over', () => {
+    const sim = Sim.landed();
+    sim.run(2);
+    const kept = sim.give('tricorn', 'rare');
+    sim.hero({ level: 4, gold: 321, xp: 77 });
+    for (const from of ['harbour', 'crab-cay']) {
+      const old = JSON.parse(JSON.stringify(sim.state));
+      old.version = 6;
+      old.place = from;
+      old.hero.x = 700;
+      old.hero.y = 2000;
+      old.monsters = [{ ...old.monsters[0], x: 300, y: 300 }];
+      old.drops = [{ id: 950, x: 700, y: 2010, kind: 'gold', amount: 3, item: null, age: 1 }];
+      const s = migrate(old)!;
+      expect(s.version).toBe(STATE_VERSION);
+      expect(s.place).toBe(ISLAND);
+      expect(s.hero).toMatchObject({ ...island.wake, level: 4, gold: 321, xp: 77, dest: null, target: null });
+      expect(s.hero.bag).toEqual([kept]);
+      expect(s.hero.worn).toEqual(sim.state.hero.worn);
+      expect(s.monsters).toHaveLength(0);
+      expect(s.drops).toHaveLength(0);
+      expect(s.respawns).toHaveLength(island.zones.reduce((n, z) => n + z.count, 0));
+    }
   });
 
   it('puts him ashore if the place has changed under him and he would stand in the sea', () => {
     const sim = Sim.landed();
     sim.run(2);
     const old = JSON.parse(JSON.stringify(sim.state));
-    // Where the island's dock stood before the Art Director laid the island out: water now.
-    old.hero.x = 700;
-    old.hero.y = 2310;
+    // Out in the sea south of the dock.
+    old.hero.x = island.dock.x + 300;
+    old.hero.y = island.height - 60;
     const s = migrate(old)!;
     expect(s.hero).toMatchObject(island.arrive);
     expect(s.monsters).toHaveLength(0);

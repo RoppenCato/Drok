@@ -5,11 +5,11 @@
 import { MAX_DT, clampToPlace, clone, heroReach, monsterById, monsterReach, nearestMonster, reject, roll, setTarget } from './core.ts';
 import { N, START_PLACE, PLACES, heroArmour, heroBonusDamage, heroMaxHp, kindOf, placeOf } from './data.ts';
 import { angleTo, dist, stepToward } from './geometry.ts';
-import { clear, onLand, walk } from './ground.ts';
+import { clear, inHome, onLand, walk } from './ground.ts';
 import { hurtMonster, stepDrops } from './loot.ts';
-import { route, sight } from './path.ts';
+import { reachable, route, sight } from './path.ts';
 import type { Rng } from './rng.ts';
-import { enterPlace } from './town.ts';
+import { enterPlace, restock } from './town.ts';
 import type { ApplyResult, GameEvent, GameState, Monster, Vec } from './types.ts';
 
 /** The size of the hero where he meets the ground: what must fit past a rock. */
@@ -36,7 +36,10 @@ export function tick(state: GameState, dt: number, now: number | undefined, rng:
     h.downFor -= dt;
     if (h.downFor <= 0) standUp(s, rng, ev);
   } else {
+    const wasHome = inHome(placeOf(s), h);
     moveHero(s, dt, ev);
+    // Coming into the town from outside puts new pieces on the stall, as sailing in did.
+    if (!wasHome && inHome(placeOf(s), h) && placeOf(s).shop) restock(s, rng);
     pickTarget(s, ev);
     swing(s, dt, rng, ev);
     mend(s, dt);
@@ -56,7 +59,7 @@ function mend(s: GameState, dt: number): void {
     h.hp += (N.potion.heal / N.potion.seconds) * Math.min(dt, h.mending);
     h.mending = Math.max(0, h.mending - dt);
   }
-  if (placeOf(s).town) h.hp += N.hero.townRegenPerSecond * dt;
+  if (inHome(placeOf(s), h)) h.hp += N.hero.townRegenPerSecond * dt;
   else if (h.sinceHit >= N.hero.regenAfterSeconds) h.hp += N.hero.regenPerSecond * dt;
   if (h.hp > max) h.hp = max;
 }
@@ -208,6 +211,7 @@ function swing(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void {
 
 function stepMonsters(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void {
   const h = s.hero;
+  const safe = inHome(placeOf(s), h);
   for (const m of [...s.monsters]) {
     const d = dist(m, h);
     // Far from him a monster that is only strolling sleeps: an island can be big without every step being long.
@@ -217,7 +221,9 @@ function stepMonsters(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void
       continue;
     }
     const k = kindOf(m);
-    const heroUp = h.downFor <= 0;
+    // In the town nothing comes for him: to a monster he is as good as gone. But one he has hurt fights on, town
+    // or not, as far as its leash goes: he cannot stand on the town's edge and fell them for nothing.
+    const heroUp = h.downFor <= 0 && (!safe || m.hp < k.maxHp);
     const fromX = m.x;
     const fromY = m.y;
     switch (m.mode) {
@@ -382,7 +388,9 @@ function spawn(s: GameState, zoneIndex: number, rng: Rng, ev: GameEvent[]): void
     const p = { x: zone.x + rng.next() * zone.w, y: zone.y + rng.next() * zone.h };
     // A zone's box may reach over water or a rock: only ground it can stand on will do. And never where he steps
     // ashore: a landing is safe.
-    if (!clear(place, p.x, p.y, radius) || dist(p, place.arrive) < N.spawn.landing) continue;
+    if (!clear(place, p.x, p.y, radius) || inHome(place, p) || dist(p, place.arrive) < N.spawn.landing) continue;
+    // And only where he can walk to: nothing is born in a pocket between stones.
+    if (!reachable(place, p.x, p.y, FEET)) continue;
     spare = p;
     if (dist(p, s.hero) < N.spawn.clearance) continue;
     if (s.monsters.some((m) => dist(p, m) < N.spawn.apart)) continue;

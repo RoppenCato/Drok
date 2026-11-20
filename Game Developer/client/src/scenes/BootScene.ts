@@ -44,7 +44,7 @@ export class BootScene extends Phaser.Scene {
     // A place: its ground as one picture, its props as a set, and where each prop stands.
     for (const folder of new Set(Object.values(ART.places))) {
       this.load.image(`${folder}:ground`, `art/${folder}/ground.png`);
-      atlas(folder, folder);
+      atlas(folder, folder, ART.sets[folder] ?? folder);
       this.load.json(`${folder}:place`, `art/${folder}/place.json`);
       const folk = ART.folk[folder];
       if (folk) atlas(`${folder}:folk`, folder, folk);

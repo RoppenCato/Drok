@@ -66,9 +66,17 @@ the data, nothing else is stored.
 - **Places** (Robin, 2026-11-20: a sea chart of islands): a new hero starts in the harbour town. Only the place he
   is in is alive. Sailing is from a dock (within 90) and lands him where one steps ashore (`arrive`); the place he left is emptied
   with everything on its ground. Soft gates: nothing stops him sailing anywhere.
-- **Grounds** (Robin, 2026-11-20: big islands with several biomes each): a place may have `biomes`, each a box
-  with a name and its levels (`biomeAt`); the screen says the name when he walks into one. Crab Cay: the beach,
-  the grove, the cove. A monster further than 1500 from him (`numbers.json`, `world.awake`) that is only strolling
+- **One island with the town on it** (Robin, 2026-11-20: "Make the starter island a pirate town, and the other
+  part of the island beginner friendly with low level mobs"): Crab Cay is 2800 by 4200, Leonard, AD's layout, and
+  the only place; the lines below that speak of the harbour as its own place and of sailing between two are the
+  small game's. `home` is the town's outline (`inHome`): he starts and wakes there; no monster is born in it or
+  comes for him while he stands in it, but one he has hurt fights on, town or not; his health comes back at 25 a
+  second; coming in from outside puts new pieces on the stall. Nothing is born where he cannot walk to
+  (`reachable`). 48 monsters: 23 sand crabs in three zones on the beach, 17 gulls in two in the grove, 8 coconut
+  crabs in the cove. With one place `sail` is always refused.
+- **Grounds** (Robin, 2026-11-20: big islands with several biomes each): a place may have `biomes`, each an
+  outline with a name and its levels (`biomeAt`; one that lies inside another comes first); the screen says the
+  name when he walks into one. Crab Cay: the grove, the cove, and the beach all round them. A monster further than 1500 from him (`numbers.json`, `world.awake`) that is only strolling
   does not move, so an island can be big.
 - **Monsters** all stroll near home, come for him inside their range or when hit, wind up, strike, rest, and go home
   when he is down or they are far from home. Two numbers make a kind its own: `retreatSeconds` (the reef gull backs

@@ -202,11 +202,18 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
     - `[x]` a piece he finds for a bare part of him is put on at once (Zite's rule)
     - not taken from Zite, because this game has none yet: stacks of flasks and cards, sets, ranks, tabs
 
-23. `[ ]` · AD then GD · **The town on the starter island** (Robin, 2026-11-20: "Make the starter island a pirate
+23. `[x] Built 2026-11-20` `[ ]` Checked · AD then GD · **The town on the starter island** (Robin, 2026-11-20: "Make the starter island a pirate
     town, and the other part of the island beginner friendly with low level mobs")
-    - `[ ]` AD: the big island with the town at its landing, asked 2026-11-20
-    - `[ ]` GD: a safe part inside a place (built once for the house: commit `0ee2db9`, `home`), waking there
-      after a fall, the harbour off the chart; the bot plays it through
+    - `[x]` AD: big Crab Cay, 2800 by 4200, with the town at its landing (`art\crab-cay`, his commit c179620): one
+      painted ground at half a pixel a unit, 432 props, three grounds as outlines, the town's outline as `home`
+    - `[x]` GD: his layout in the rules by `tools\place-from-art.mjs` (48 monsters in six zones, counted by each
+      box's size); the town is safe (nothing comes for him there, none is born there, his health comes back, new
+      pieces on the stall when he comes in from outside); one he has hurt fights on, town or not; nothing is born
+      where he cannot walk to; he starts and wakes in the town; the harbour is no place of its own; the save is
+      version 7 (he keeps all he is and has, wakes in the town)
+    - `[x]` the bot plays it through on three seeds: level 5 at 11.3 minutes, no falls, 2 or 3 trips home on foot
+    - open: the chart has one island and nowhere to sail; Leonard, AD finds the town small for an island this
+      size and offers three stills of a real pirate town (big work): Robin's to say
 
 24. `[x] Built 2026-11-20` `[ ] Checked` · GD · **Eight parts to wear gear on** (Robin, 2026-11-20: "There should
     also be more slots for items ... take a lot from the zite inventory and equip")

@@ -17,8 +17,11 @@ open question 2.
 
 | Id | Name shown | Whose | Since |
 | --- | --- | --- | --- |
-| `harbour` | Marlow's Landing | mine | 2026-11-20 |
-| `crab-cay` | Crab Cay | mine | 2026-11-20 |
+| `crab-cay` | Crab Cay, the starter island with the town on it | mine | 2026-11-20 |
+| its grounds: `beach`, `grove`, `cove` | The beach, The grove, The cove | mine | 2026-11-20 |
+
+Marlow's Landing was the harbour town as a place of its own; since 2026-11-20 the town stands on Crab Cay (Robin:
+"Make the starter island a pirate town") and has no name of its own on the screen yet.
 
 ## Creatures (`rules\data\monsters.json`)
 

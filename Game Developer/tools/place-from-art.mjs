@@ -2,8 +2,7 @@
 // Takes a place's layout from the Art Director's drop and writes it into the rules' data, so the place the rules
 // know is the place his ground picture shows. Run from the Game Developer folder after copying a place's drop:
 //
-//   node tools/place-from-art.mjs island crab-cay
-//   node tools/place-from-art.mjs harbour harbour
+//   node tools/place-from-art.mjs crab-cay crab-cay
 //
 // It reads client/public/art/<art>/place.json (his: the shore `land` and the `inlet` as corner points of a smooth
 // curve, `solid` circles and boxes to walk round, `dock`, `arrive`, `chest`, a box for each monster, the `people`
@@ -19,6 +18,11 @@
 // - The zones' boxes are his as they are. A box may reach over water, a rock or the landing: the rules only let a
 //   monster arrive on ground it can stand on, and never near where he steps ashore (numbers.json, spawn.landing).
 // - The chest is something to walk round.
+// - Since the big island (2026-11-20): his `walk` outline, when he gives one, is the ground as it is (no scaling of
+//   `land`); `home` is the town's outline, where he wakes and the stall; `grounds` are the biomes, the ones that lie
+//   inside another first; `zones` has several boxes for a kind, and the game counts how many live in each by its
+//   size (one sand crab to 60 000 square units, a gull to 115 000, a coconut crab to 230 000: mine, from the small
+//   island's own crowding, the coconut crabs thinner).
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -68,7 +72,7 @@ function curve(pts) {
 const scaled = (pts, cx, cy, kx, ky) => pts.map(([x, y]) => [round(cx + (x - cx) * kx), round(cy + (y - cy) * ky)]);
 const middle = (pts) => [pts.reduce((s, p) => s + p[0], 0) / pts.length, pts.reduce((s, p) => s + p[1], 0) / pts.length];
 
-place.land = scaled(curve(layout.land), layout.size.w / 2, layout.size.h / 2, LAND_IN[0], LAND_IN[1]);
+place.land = layout.walk ? layout.walk.map(([x, y]) => [round(x), round(y)]) : scaled(curve(layout.land), layout.size.w / 2, layout.size.h / 2, LAND_IN[0], LAND_IN[1]);
 place.water = [];
 if (layout.inlet) {
   const [cx, cy] = middle(layout.inlet);
@@ -85,8 +89,16 @@ place.dock = { x: layout.dock[0], y: layout.dock[1] - DOCK_INLAND };
 place.arrive = { x: layout.arrive[0], y: layout.arrive[1] };
 // On an island he wakes where he steps ashore. A town keeps the spot the game gave it (in its square), unless his
 // layout names one; the tests say whether that spot is still ground.
-if (layout.wake) place.wake = { x: layout.wake[0], y: layout.wake[1] };
-else if (!place.town) place.wake = { ...place.arrive };
+const wake = layout.home?.wake ?? layout.wake;
+if (wake) place.wake = { x: wake[0], y: wake[1] };
+else place.wake = { ...place.arrive };
+// The town on the island: its outline is home, where nothing comes for him.
+place.home = layout.home ? { outline: curve(layout.home.outline).map(([x, y]) => [round(x), round(y)]) } : null;
+// The grounds, the ones that lie inside another first (his beach is the land where the other two are not).
+if (layout.grounds) {
+  const area = (g) => g.box[2] * g.box[3];
+  place.biomes = [...layout.grounds].sort((a, b) => area(a) - area(b)).map((g) => ({ id: g.id, name: g.name, levels: g.levels, outline: curve(g.outline).map(([x, y]) => [round(x), round(y)]) }));
+}
 // The stall is where one trades: the shop is at his stall, whoever keeps it.
 const stall = layout.props.find((p) => p.name === 'stall');
 if (place.shop && stall) Object.assign(place.shop, { x: stall.x, y: stall.y });
@@ -95,11 +107,11 @@ if (place.chest && layout.chest) {
   place.chest.y = layout.chest[1];
   place.solids.push({ x: layout.chest[0], y: layout.chest[1], r: CHEST_SOLID });
 }
-for (const zone of place.zones) {
-  const box = layout.zones?.[zone.kind]?.[0];
-  if (!box) fail(`the art has no zone for ${zone.kind}`);
-  const [x, y, w, h] = box;
-  Object.assign(zone, { x, y, w, h });
+// Every box of his is a zone; how many live in it is the game's, by the box's size.
+const ROOM = { 'sand-crab': 60000, 'reef-gull': 115000, 'coconut-crab': 230000 };
+place.zones = [];
+for (const [kind, boxes] of Object.entries(layout.zones ?? {})) {
+  for (const [x, y, w, h, level] of boxes) place.zones.push({ kind, count: Math.max(1, Math.round((w * h) / (ROOM[kind] ?? 100000))), x, y, w, h, level: level ?? 0 });
 }
 
 // Written the way the file is kept by hand: a point, a circle and a box each on one line.

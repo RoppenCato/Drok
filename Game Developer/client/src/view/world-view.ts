@@ -4,7 +4,7 @@
 // he wears); only one-shots come from the events (a number, a puff, the sword's arc). Nothing here decides anything.
 
 import Phaser from 'phaser';
-import { MONSTERS, N, RARITIES, chestFull, heroMaxHp, kindOf, makeRng, placeOf, type Drop, type GameEvent, type GameState, type Monster, type Place, type Vec } from '../../../rules/src/index.ts';
+import { MONSTERS, N, RARITIES, chestFull, heroMaxHp, inHome, kindOf, makeRng, placeOf, type Drop, type GameEvent, type GameState, type Monster, type Place, type Vec } from '../../../rules/src/index.ts';
 import { ART } from '../art.ts';
 import { COLORS, DEPTH, FONT, RES, hex } from '../layout.ts';
 import type { Ground } from '../scenes/BootScene.ts';
@@ -224,7 +224,7 @@ export class WorldView {
     const folder = ART.places[state.place];
     const layout = folder && this.scene.textures.exists(`${folder}:ground`) ? (this.scene.cache.json.get(`${folder}:place`) as PlaceArt | undefined) : undefined;
     if (folder && layout?.props) this.paintFromArt(place, folder, layout);
-    else if (place.town) this.paintTown(place);
+    else if (place.home) this.paintTown(place);
     else this.paintIsland(place);
     this.heroAt.x = state.hero.x;
     this.heroAt.y = state.hero.y;
@@ -292,7 +292,7 @@ export class WorldView {
 
     // His own bar: not in a town, where nothing can hurt him, and not while he is down (mine). It is put in its
     // place by `pin`, once the camera stands for this frame.
-    const ownShown = this.ownBar !== null && !placeOf(state).town && !down;
+    const ownShown = this.ownBar !== null && !inHome(placeOf(state), h) && !down;
     if (this.ownBar) {
       this.ownBar.setVisible(ownShown);
       if (ownShown) this.ownBar.set(h.hp / heroMaxHp(h), h.rage / N.hero.maxRage, delta);

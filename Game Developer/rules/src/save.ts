@@ -17,8 +17,10 @@ import type { GameState, Item, Slot } from './types.ts';
  * 5: eight parts of him to wear gear on, where there were four (Robin, 2026-11-20: "more slots for items").
  * 6: the places Robin named the same day ("Head, chest, legs, boots, necklace, two trinkets"): gloves and rings are
  *    gone, breeches, necklaces and trinkets have come.
+ * 7: the big Crab Cay with the town on it (Robin, 2026-11-20: "Make the starter island a pirate town"): the
+ *    harbour is no place of its own, and nothing on the island stands where it stood.
  */
-export const STATE_VERSION = 6;
+export const STATE_VERSION = 7;
 
 /**
  * Bring a stored state up to today's version, or null for anything that is not a state we know (a broken save, a
@@ -33,8 +35,27 @@ export function migrate(raw: unknown): GameState | null {
   if (r?.version === 3) r = fromVersion3(r);
   if (r?.version === 4) r = fromVersion4(r);
   if (r?.version === 5) r = fromVersion5(r);
+  if (r?.version === 6) r = fromVersion6(r);
   if (r?.version === STATE_VERSION) return checked(r);
   return null;
+}
+
+/**
+ * 6 → 7. He keeps all he is and has; only where he stood is gone (the small island, the harbour as its own place).
+ * He wakes in the town on the island, and the island starts over.
+ */
+function fromVersion6(old: Record<string, unknown>): Record<string, unknown> | null {
+  if (typeof old.hero !== 'object' || old.hero === null) return null;
+  const there = PLACES[START_PLACE]!;
+  return {
+    ...old,
+    version: 7,
+    place: START_PLACE,
+    monsters: [],
+    drops: [],
+    respawns: there.zones.flatMap((zone, i) => Array.from({ length: zone.count }, () => ({ zone: i, in: 0 }))),
+    hero: { ...(old.hero as Record<string, unknown>), x: there.wake.x, y: there.wake.y, dest: null, route: [], chase: false, target: null, chosen: false, swing: null, charging: null, steer: { x: 0, y: 0 } },
+  };
 }
 
 /** What version 5's gloves, rings and charms are in version 6: the piece of the same tier that took its place. */

@@ -2,7 +2,7 @@
 // place's shore, its inner waters and its solid things (circles for trunks and rocks, boxes for houses) come from
 // the Art Director's layout of it (tools/place-from-art.mjs); a place without a shore is its whole box.
 
-import { N, type Place } from './data.ts';
+import { N, type Biome, type Place } from './data.ts';
 import type { Vec } from './types.ts';
 
 /** Is a point inside an outline? (A ray to the right crosses its edge an odd number of times.) */
@@ -16,6 +16,16 @@ function inside(outline: number[][], x: number, y: number): boolean {
     if (ay > y !== by > y && x < ((b[0]! - a[0]!) * (y - ay)) / (by - ay) + a[0]!) within = !within;
   }
   return within;
+}
+
+/** Is this point in the place's town, where nothing comes for him? */
+export function inHome(place: Place, p: Vec): boolean {
+  return place.home !== null && inside(place.home.outline, p.x, p.y);
+}
+
+/** The ground a point lies on, if the place has grounds and the point is on one. */
+export function biomeAt(place: Place, p: Vec): Biome | undefined {
+  return place.biomes.find((b) => inside(b.outline, p.x, p.y));
 }
 
 /** Is this point ground to stand on: inside the place's box, on its land, and not in water? */

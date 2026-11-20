@@ -606,14 +606,15 @@ export class Panels {
         const ring = picture(s, 'pins', 'mark/here');
         if (ring) this.keep(ring.setPosition(at.x, at.y).setDepth(DEPTH.panel + 2));
       }
-      const pin = picture(s, 'pins', place.town ? 'pin/harbour' : 'pin/island');
+      const pin = picture(s, 'pins', 'pin/island');
       if (pin) this.keep(pin.setPosition(at.x, at.y - 8).setDepth(DEPTH.panel + 3));
       // His islands are painted taller than his harbour: the name goes under the painting, not under the point.
-      words(at.x, at.y + (place.town ? 56 : 76), place.town ? place.name : `${place.name}  Lv ${place.levels.replace(' to ', '-')}`, 13);
+      words(at.x, at.y + 76, `${place.name}  Lv ${place.levels.replace(' to ', '-')}`, 13);
       if (here) words(at.x, at.y - 68, 'You are here', 11, '#ffe9a8');
       else this.zone(at.x, at.y - 6, 130, 150, () => this.sail(id));
     }
     const to = ids.find((id) => id !== state.place);
+    if (!to) words(chart.sail.x, chart.sail.y, 'No other island is charted yet.', 13);
     if (to) {
       if (!atDock) words(chart.sail.x, chart.sail.y - 38, 'Walk down to the dock to sail.', 12);
       this.button(chart.sail.x, chart.sail.y, 236, 46, `Sail to ${PLACES[to]!.name}`, () => this.sail(to), atDock, COLORS.buttonGo);
@@ -649,11 +650,11 @@ export class Panels {
       const place = PLACES[id]!;
       const at = spot(id);
       const here = id === state.place;
-      const big = place.town ? 0.8 : 1.1;
+      const big = 1.1;
       this.keep(this.scene.add.ellipse(at.x, at.y, 92 * big, 66 * big, COLORS.chartLand).setStrokeStyle(3, here ? COLORS.buttonOn : COLORS.chartLandEdge).setDepth(DEPTH.panel + 2));
-      this.keep(this.scene.add.ellipse(at.x - 6, at.y - 4, 50 * big, 30 * big, place.town ? COLORS.roofs[0] : COLORS.palm, 0.9).setDepth(DEPTH.panel + 2));
+      this.keep(this.scene.add.ellipse(at.x - 6, at.y - 4, 50 * big, 30 * big, COLORS.palm, 0.9).setDepth(DEPTH.panel + 2));
       this.text(at.x, at.y + 46 * big + 6, place.name, 15, COLORS.text, 0.5, true).setStroke(COLORS.textDark, 4);
-      this.text(at.x, at.y + 46 * big + 26, place.town ? 'the harbour town' : `levels ${place.levels}`, 12, COLORS.text, 0.5, true).setStroke(COLORS.textDark, 3);
+      this.text(at.x, at.y + 46 * big + 26, `levels ${place.levels}`, 12, COLORS.text, 0.5, true).setStroke(COLORS.textDark, 3);
       if (here) {
         this.keep(this.scene.add.circle(at.x + 18, at.y - 10, 7, COLORS.bandana).setStrokeStyle(2, COLORS.foam).setDepth(DEPTH.panel + 3));
         this.text(at.x, at.y - 46 * big - 4, 'You are here', 12, COLORS.goldText, 0.5, true).setStroke(COLORS.textDark, 3);
@@ -736,7 +737,7 @@ export class Panels {
     );
     y += 96;
     this.button(CX, y, 260, 50, `Sell from your bag (${h.bag.length})`, () => this.open('bag', true));
-    this.text(CX, F.y + F.h - 54, 'New pieces come each time you sail in.', 12, COLORS.dim);
+    this.text(CX, F.y + F.h - 54, 'New pieces come each time you come to town.', 12, COLORS.dim);
     this.text(CX, F.y + F.h - 36, `The stall pays about ${Math.round((SHOP.sellShare / SHOP.buyTimes) * 100)}% of what it asks.`, 12, COLORS.dim);
   }
 }

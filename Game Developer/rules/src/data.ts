@@ -47,6 +47,8 @@ export interface MonsterKind {
 export interface Zone {
   kind: string;
   count: number;
+  /** How hard the Art Director means this part to be; the rules do not read it yet. */
+  level?: number;
   x: number;
   y: number;
   w: number;
@@ -61,20 +63,16 @@ export interface ChestSpot extends Vec {
   potions: number;
 }
 
-/** A ground of a place: a box with a name and its own levels. The screen says the name when he walks into it. */
+/** A ground of a place: an outline with a name and its own levels. The screen says the name when he walks into it. */
 export interface Biome {
   id: string;
   name: string;
   levels: string;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
+  outline: number[][];
 }
 
 export interface Place {
   name: string;
-  town: boolean;
   levels: string;
   width: number;
   height: number;
@@ -94,8 +92,10 @@ export interface Place {
   shop: (Vec & { keeper: string }) | null;
   chest: ChestSpot | null;
   zones: Zone[];
-  /** The grounds of the place, if it has more than one kind. */
+  /** The grounds of the place, if it has more than one kind; one that lies inside another comes before it. */
   biomes: Biome[];
+  /** The town on it, as an outline: no monster comes for him inside, and his health comes back fast. */
+  home: { outline: number[][] } | null;
   /** Where it sits on the sea chart, as shares of the chart's width and height. */
   chart: Vec;
 }
@@ -148,11 +148,6 @@ export function placeOf(s: { place: string }): Place {
   const place = PLACES[s.place];
   if (!place) throw new Error(`no such place: ${s.place}`);
   return place;
-}
-
-/** The ground a point lies on, if the place has grounds and the point is on one. */
-export function biomeAt(place: Place, p: Vec): Biome | undefined {
-  return place.biomes.find((b) => p.x >= b.x && p.x < b.x + b.w && p.y >= b.y && p.y < b.y + b.h);
 }
 
 export function baseOf(item: Item): ItemBase {
