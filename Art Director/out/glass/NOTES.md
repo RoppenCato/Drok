@@ -107,7 +107,8 @@ window is the reason: it is one piece as wide as a window. Sizes in design units
   9. **"Felled ... · Falls" as two lines** (`by - 9` and `by + 8`). On one line it is wider than the window once he
      has felled three kinds.
   10. **The hero's box 164 wide, and he stands 8 to the right, 4 lower, at 2.0 times.** At 2.2 times in a box of 150
-      the corsair's cutlass reaches the coat's slot and the feathered hat's plume leaves the box.
+      the corsair's cutlass reaches the coat's slot and the feathered hat's plume leaves the box. At 2.0 he is also
+      sharp, drawn from `out\hero-sheet\` (his own picture for this window, at twice the field's pixels).
   11. **The experience bar** in the window: `#42241a` for its ground, the green as it is.
   Keep words and pieces 14 units in from the window's sides and 14 up from its bottom; the gold angles fill 22 by 22
   in each corner.

@@ -35,16 +35,17 @@ house), with their notes. The first world made for it is in `concepts\house\kitc
 | Folder | Atlas | Decoded | On disk |
 | --- | --- | --- | --- |
 | `hero` | 1024 by 2048 | 8 MB | 254 KB |
-| `gear` | two of 512 by 512 | 2 MB | 35 KB |
+| `gear` | two of 512 by 512 (24 icons) | 2 MB | 49 KB |
 | `sand-crab` | 1024 by 1024 | 4 MB | 141 KB |
 | `reef-gull` | 1024 by 1024 | 4 MB | 95 KB |
 | `coconut-crab` | 1024 by 2048 | 8 MB | 202 KB |
 | `island` | ground 1400 by 2400, props 1024 by 1024 | 13.4 + 4 MB | 67 + 52 KB |
 | `loot` | 256 by 256 | 0.3 MB | 18 KB |
-| `glass` | 1024 by 512 | 2 MB | 101 KB |
+| `glass` | 1024 by 1024 | 4 MB | 129 KB |
 | `harbour` | ground 900 by 1100, props 1024 by 1024, people 1024 by 512 | 4 + 4 + 2 MB | 41 + 32 + 72 KB |
 | `chart` | the chart 824 by 1830, pins 256 by 256 | 6 + 0.3 MB | about 100 + 20 KB |
 | `icon` | 512 and 192 | | about 150 KB |
+| `hero-sheet` | the hero and his gear for his window, two of 512 by 512 at FOUR pixels a unit | 1 + 1 MB | about 60 KB |
 | `crab-cay` | ground 1400 by 2100 for 2800 by 4200 units, props 1024 by 1024 (the island's and the town's, 30), people 1024 by 512 | 11.8 + 4 + 2 MB | 93 + 67 + 72 KB |
 
 The island with everything on it: about 46 MB decoded, under the 48 MB set for a place. The harbour with the hero and the glass: about 22 MB. All of it on disk: about 1.6 MB, of the 6 MB set for chapter 1.

@@ -11,9 +11,9 @@
 //   node tools/pack.js <name> <render dir> <out dir> [--soft] [--width 1024] [--frames]
 // --frames also writes the loose frames into <out dir>/frames; --soft keeps the edge's soft pixels (a glow, a fade); --width fixes the atlas's width.
 const P = require('./paint.js'); const fs = require('fs'); const path = require('path');
-const argv = process.argv.slice(2), flags = {}; const pos = []; for (let i = 0; i < argv.length; i++) { if (argv[i] === '--soft') flags.soft = true; else if (argv[i] === '--frames') flags.frames = true; else if (argv[i] === '--width') flags.width = +argv[++i]; else pos.push(argv[i]); }
+const argv = process.argv.slice(2), flags = {}; const pos = []; for (let i = 0; i < argv.length; i++) { if (argv[i] === '--soft') flags.soft = true; else if (argv[i] === '--frames') flags.frames = true; else if (argv[i] === '--width') flags.width = +argv[++i]; else if (argv[i] === '--px') flags.px = +argv[++i]; else pos.push(argv[i]); }
 const [name, dir, out] = pos;
-if (!name || !dir || !out) { console.log('usage: node tools/pack.js <name> <render dir> <out dir> [--soft] [--width 1024]'); process.exit(1); }
+if (!name || !dir || !out) { console.log('usage: node tools/pack.js <name> <render dir> <out dir> [--soft] [--width 1024] [--px 4]'); process.exit(1); }
 (async () => {
   const meta = JSON.parse(fs.readFileSync(path.join(dir, 'meta.json'), 'utf8')), O = meta.origin;
   const frames = [], actions = {}, facings = new Set();
@@ -40,7 +40,7 @@ if (!name || !dir || !out) { console.log('usage: node tools/pack.js <name> <rend
   const shelf = (MAXW) => { let x = PAD, y = PAD, rowH = 0; const places = []; for (const f of order) { if (x + f.cv.width + PAD > MAXW) { x = PAD; y += rowH + PAD; rowH = 0; } places.push({ f, x, y }); x += f.cv.width + PAD; rowH = Math.max(rowH, f.cv.height); } return { places, H: y + rowH + PAD }; };
   let W = flags.width || 1024, { places, H } = shelf(W); if (!flags.width) { for (const w of [256, 512]) { const s = shelf(w); if (s.H <= w) { W = w; places = s.places; H = s.H; break; } } if (H > 2048) { W = 2048; ({ places, H } = shelf(W)); } } H = pot(H);
   if (H > 2048) console.warn('!! the atlas runs past 2048 by 2048: fewer or smaller frames, or a second atlas');
-  const atlas = P.createCanvas(W, H), g = atlas.getContext('2d'); const json = { frames: {}, meta: { image: name + '.png', size: { w: W, h: H }, scale: '1', format: 'RGBA8888', app: 'Art Director/tools/pack.js', filePx: P.FILE_PX }, actions };
+  const atlas = P.createCanvas(W, H), g = atlas.getContext('2d'); const json = { frames: {}, meta: { image: name + '.png', size: { w: W, h: H }, scale: '1', format: 'RGBA8888', app: 'Art Director/tools/pack.js', filePx: flags.px || P.FILE_PX }, actions };
   if (facings.size) json.meta.facings = [...facings]; else json.meta.facing = P.PATHS.facing || 'left';
   for (const p of places) { g.drawImage(p.f.cv, p.x, p.y); json.frames[p.f.key] = { frame: { x: p.x, y: p.y, w: p.f.cv.width, h: p.f.cv.height }, rotated: false, trimmed: true, spriteSourceSize: { x: 0, y: 0, w: p.f.cv.width, h: p.f.cv.height }, sourceSize: { w: p.f.cv.width, h: p.f.cv.height }, pivot: { x: +(p.f.origin.x / p.f.cv.width).toFixed(4), y: +(p.f.origin.y / p.f.cv.height).toFixed(4) } }; }   // the pivot at the feet, so trimmed frames do not jump
   fs.mkdirSync(out, { recursive: true }); P.save(atlas, path.join(out, name + '.png')); fs.writeFileSync(path.join(out, name + '.json'), JSON.stringify(json));

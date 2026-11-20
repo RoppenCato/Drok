@@ -4,7 +4,7 @@
 // `slice` as the game does (glass.ts), lays the window out with the game's own numbers (client/src/view/panels.ts,
 // buildSheet) and fills it with long names and big numbers. --fix lays it out with the few changes that keep every word and
 // every piece clear of the frame and of each other; they are listed in out/glass/NOTES.md for Victor, GD.
-//   node tools/window.js <out.png> [--fix] [--state bag|worn|none] [--font "Segoe UI"] [--glass work/glass/out] [--crop x,y,w,h,zoom]
+//   node tools/window.js <out.png> [--fix] [--sheet] [--state bag|worn|none] [--font "Segoe UI"] [--glass work/glass/out] [--crop x,y,w,h,zoom]
 const P = require('./paint.js'); const D = require('./dress.js'); const G = require('./glass.js'); const fs = require('fs'); const path = require('path');
 const W = 412, H = 915, S = 2, CX = 206, F = { x: 20, y: 118, w: 372, h: 690 }, R = P.ROOT;
 async function main() {
@@ -33,7 +33,9 @@ async function main() {
   g.fillStyle = G.CH.grain; g.fillRect(left, F.y + 61, F.w - 44, 10); g.fillStyle = G.COL.xp; g.fillRect(left + 1, F.y + 62, (F.w - 46) * 0.92, 8);
   // the hero and the nine places on him
   const boxW = fix ? 164 : 150, hx = fix ? CX + 8 : CX; stretch(glass.j.frames.niche ? 'niche' : 'row', CX, top + 73, boxW, 146);      // changed: the box 164 wide, he stands 8 to the right, 4 lower and at 2.0 times, so his longest cutlass and tallest hat stay inside it
-  D.hero(g, A, { action: 'stand', facing: 's', i: 0, cutlass: 'corsair', buckler: 'brass', hat: 'feathered' }, hx, top + (fix ? 136 : 132), 0.5 * (fix ? 2.0 : 2.2));
+  // the hero: his field picture blown up, or (--sheet) the one rendered for this window at twice the pixels (out/hero-sheet, meta.filePx 4)
+  const sdir = path.join(R, 'out/hero-sheet'), big = args.includes('--sheet') && fs.existsSync(path.join(sdir, 'hero.json')) ? { hero: await D.atlas(sdir, 'hero'), gear: await D.atlas(sdir, 'gear') } : null, times = fix ? 2.0 : 2.2;
+  D.hero(g, big || A, { action: 'stand', facing: 's', i: 0, cutlass: 'corsair', buckler: 'brass', hat: 'feathered' }, hx, top + (fix ? 136 : 132), (big ? 1 / big.hero.j.meta.filePx : 0.5) * times);
   const worn = { hat: ['hat-feathered', 'epic'], coat: ['coat-corsair', 'rare'], weapon: ['cutlass-corsair', 'rare'], shield: ['buckler-brass', 'epic'] };
   const places = [...['hat', 'coat', 'legs', 'boots'].map((k, i) => [k, CX - 122, top + 23 + i * 50]), ...['weapon', 'shield', 'necklace'].map((k, i) => [k, CX + 122, top + 23 + i * 50]), ['trinket', CX + 72, top + 173], ['trinket', CX + 122, top + 173]];
   for (const [kind, x, y] of places) slot(x, y, 46, worn[kind], kind, state === 'worn' && kind === 'weapon');
