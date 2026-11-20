@@ -8,10 +8,10 @@
 // Drok: a frame may carry "facing" (s, se, e, ne, n: the game flips the other three), and then its name is
 // <name>/<action>/<facing>/<nnnn>, counted within the facing; and "points" (where gear rides: { hand: { x, y, r, front }, ... },
 // x and y already from the origin), passed on as they are. An action's "stride" and "blow" are passed on too.
-//   node tools/pack.js <name> <render dir> <out dir> [--soft] [--width 1024] [--frames]
+//   node tools/pack.js <name> <render dir> <out dir> [--soft] [--width 1024] [--frames] [--tight]
 // --frames also writes the loose frames into <out dir>/frames; --soft keeps the edge's soft pixels (a glow, a fade); --width fixes the atlas's width.
 const P = require('./paint.js'); const fs = require('fs'); const path = require('path');
-const argv = process.argv.slice(2), flags = {}; const pos = []; for (let i = 0; i < argv.length; i++) { if (argv[i] === '--soft') flags.soft = true; else if (argv[i] === '--frames') flags.frames = true; else if (argv[i] === '--width') flags.width = +argv[++i]; else if (argv[i] === '--px') flags.px = +argv[++i]; else pos.push(argv[i]); }
+const argv = process.argv.slice(2), flags = {}; const pos = []; for (let i = 0; i < argv.length; i++) { if (argv[i] === '--soft') flags.soft = true; else if (argv[i] === '--frames') flags.frames = true; else if (argv[i] === '--tight') flags.tight = true; else if (argv[i] === '--width') flags.width = +argv[++i]; else if (argv[i] === '--px') flags.px = +argv[++i]; else pos.push(argv[i]); }
 const [name, dir, out] = pos;
 if (!name || !dir || !out) { console.log('usage: node tools/pack.js <name> <render dir> <out dir> [--soft] [--width 1024] [--px 4]'); process.exit(1); }
 (async () => {
@@ -36,13 +36,18 @@ if (!name || !dir || !out) { console.log('usage: node tools/pack.js <name> <rend
   }
   // a shelf atlas with 2 px of padding, on power-of-two sides (mipmaps when the camera zooms), 1024 wide unless it would run past 2048 tall
   const PAD = 2, pot = v => 1 << Math.ceil(Math.log2(Math.max(1, v)));
-  const order = [...frames].sort((a, b) => b.cv.height - a.cv.height);   // tallest first, so the short frames share short rows
-  const shelf = (MAXW) => { let x = PAD, y = PAD, rowH = 0; const places = []; for (const f of order) { if (x + f.cv.width + PAD > MAXW) { x = PAD; y += rowH + PAD; rowH = 0; } places.push({ f, x, y }); x += f.cv.width + PAD; rowH = Math.max(rowH, f.cv.height); } return { places, H: y + rowH + PAD }; };
-  let W = flags.width || 1024, { places, H } = shelf(W); if (!flags.width) { for (const w of [256, 512]) { const s = shelf(w); if (s.H <= w) { W = w; places = s.places; H = s.H; break; } } if (H > 2048) { W = 2048; ({ places, H } = shelf(W)); } } H = pot(H);
+  // two frames that are the same picture with the same origin share one place in the atlas (a pose held, a fall's last two frames)
+  const seen = new Map(), uniq = []; for (const f of frames) { const d = f.cv.getContext('2d').getImageData(0, 0, f.cv.width, f.cv.height).data, sig = f.cv.width + 'x' + f.cv.height + '@' + f.origin.x + ',' + f.origin.y + ':' + require('crypto').createHash('md5').update(Buffer.from(d.buffer, d.byteOffset, d.byteLength)).digest('hex'); if (seen.has(sig)) f.same = seen.get(sig); else { seen.set(sig, f); uniq.push(f); } }
+  const order = [...uniq].sort((a, b) => b.cv.height - a.cv.height);   // tallest first, so the short frames share short rows
+  const shelf = (MAXW) => { const rows = [], places = []; let y = PAD;      // first fit: a frame goes on the first row that still has room for it, so the ends of rows are not wasted
+    for (const f of order) { let row = rows.find(q => q.x + f.cv.width + PAD <= MAXW); if (!row) { row = { x: PAD, y, h: f.cv.height }; rows.push(row); y += f.cv.height + PAD; } places.push({ f, x: row.x, y: row.y }); row.x += f.cv.width + PAD; }
+    for (const f of frames) if (f.same) { const q = places.find(v => v.f === f.same); places.push({ f, x: q.x, y: q.y, dup: true }); }
+    return { places, H: y }; };
+  let W = flags.width || 1024, { places, H } = shelf(W); if (!flags.width) { for (const w of [256, 512]) { const s = shelf(w); if (s.H <= w) { W = w; places = s.places; H = s.H; break; } } if (H > 2048) { W = 2048; ({ places, H } = shelf(W)); } } H = flags.tight ? H + (H % 2) : pot(H);      // --tight: no taller than what is in it (the game's ground and glass are not powers of two either)
   if (H > 2048) console.warn('!! the atlas runs past 2048 by 2048: fewer or smaller frames, or a second atlas');
   const atlas = P.createCanvas(W, H), g = atlas.getContext('2d'); const json = { frames: {}, meta: { image: name + '.png', size: { w: W, h: H }, scale: '1', format: 'RGBA8888', app: 'Art Director/tools/pack.js', filePx: flags.px || P.FILE_PX }, actions };
   if (facings.size) json.meta.facings = [...facings]; else json.meta.facing = P.PATHS.facing || 'left';
-  for (const p of places) { g.drawImage(p.f.cv, p.x, p.y); json.frames[p.f.key] = { frame: { x: p.x, y: p.y, w: p.f.cv.width, h: p.f.cv.height }, rotated: false, trimmed: true, spriteSourceSize: { x: 0, y: 0, w: p.f.cv.width, h: p.f.cv.height }, sourceSize: { w: p.f.cv.width, h: p.f.cv.height }, pivot: { x: +(p.f.origin.x / p.f.cv.width).toFixed(4), y: +(p.f.origin.y / p.f.cv.height).toFixed(4) } }; }   // the pivot at the feet, so trimmed frames do not jump
+  for (const p of places) { if (!p.dup) g.drawImage(p.f.cv, p.x, p.y); json.frames[p.f.key] = { frame: { x: p.x, y: p.y, w: p.f.cv.width, h: p.f.cv.height }, rotated: false, trimmed: true, spriteSourceSize: { x: 0, y: 0, w: p.f.cv.width, h: p.f.cv.height }, sourceSize: { w: p.f.cv.width, h: p.f.cv.height }, pivot: { x: +(p.f.origin.x / p.f.cv.width).toFixed(4), y: +(p.f.origin.y / p.f.cv.height).toFixed(4) } }; }   // the pivot at the feet, so trimmed frames do not jump
   fs.mkdirSync(out, { recursive: true }); P.save(atlas, path.join(out, name + '.png')); fs.writeFileSync(path.join(out, name + '.json'), JSON.stringify(json));
   if (flags.frames) for (const p of places) P.save(p.f.cv, path.join(out, 'frames', p.f.key.split('/').slice(1).join('_') + '.png'));   // --frames: the loose frames too, for tools/anim_gif.js; never in a delivery (the game does not read them)
   const kb = Math.round(fs.statSync(path.join(out, name + '.png')).size / 1024);

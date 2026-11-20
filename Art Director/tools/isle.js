@@ -148,12 +148,12 @@ function place(L) {
 const inset = (pts, d) => { const s = area(pts) > 0 ? 1 : -1, n = pts.length; return pts.map((p, i) => { const a = pts[(i - 1 + n) % n], b = pts[(i + 1) % n], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1; return [Math.round(p[0] - dy / l * d * s), Math.round(p[1] + dx / l * d * s)]; }); };
 
 function walkCheck(J) {
-  const c = 14, rad = 12, nx = Math.ceil(J.size.w / c), ny = Math.ceil(J.size.h / c), free = new Uint8Array(nx * ny), seen = new Uint8Array(nx * ny), pool = curve(J.inlet);
+  const c = 14, rad = 12, nx = Math.ceil(J.size.w / c), ny = Math.ceil(J.size.h / c), free = new Uint8Array(nx * ny), seen = new Uint8Array(nx * ny), pools = (J.inlet ? [curve(J.inlet)] : []).concat(J.pools || []), wet = (x, y) => pools.some(q => inside(q, x, y) || edge(q, x, y) <= 16);
   const onDeck = (x, y) => (J.decks || []).some(d => inside(d.pts, x, y));
-  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const x = (i + 0.5) * c, y = (j + 0.5) * c; free[j * nx + i] = ((inside(J.walk, x, y) && !inside(pool, x, y) && edge(pool, x, y) > 16) || onDeck(x, y)) && !J.solid.some(q => q.r ? Math.hypot(q.x - x, q.y - y) < q.r + rad : x > q.x - rad && x < q.x + q.w + rad && y > q.y - rad && y < q.y + q.h + rad) ? 1 : 0; }
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const x = (i + 0.5) * c, y = (j + 0.5) * c; free[j * nx + i] = ((inside(J.walk, x, y) && !wet(x, y)) || onDeck(x, y)) && !J.solid.some(q => q.r ? Math.hypot(q.x - x, q.y - y) < q.r + rad : x > q.x - rad && x < q.x + q.w + rad && y > q.y - rad && y < q.y + q.h + rad) ? 1 : 0; }
   const cell = (x, y) => Math.floor(y / c) * nx + Math.floor(x / c), q = [cell(...J.arrive)]; seen[q[0]] = 1; if (!free[q[0]]) console.log('!! where he lands is blocked');
   while (q.length) { const k = q.pop(), i = k % nx, j = (k - i) / nx; for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const a = i + di, b = j + dj; if (a < 0 || b < 0 || a >= nx || b >= ny) continue; const m = b * nx + a; if (free[m] && !seen[m]) { seen[m] = 1; q.push(m); } } }
-  const ask = (n, x, y) => console.log((seen[cell(x, y)] ? 'ok  ' : '!!  ') + n, x, y); ask('below the chest', J.chest[0], J.chest[1] + 30); if (J.home) { ask('where he wakes', ...J.home.wake); ask('before the stall', J.home.stall[0], J.home.stall[1] + 40); }
+  const ask = (n, x, y) => console.log((seen[cell(x, y)] ? 'ok  ' : '!!  ') + n, x, y); ask('below the chest', J.chest[0], J.chest[1] + 30); if (J.home) { ask('where he wakes', ...J.home.wake); if (J.home.stall) ask('before the stall', J.home.stall[0], J.home.stall[1] + 40); }
   for (const [kind, list] of Object.entries(J.zones)) for (const z of list) { let got = 0, all = 0; for (let y = z[1]; y < z[1] + z[3]; y += c) for (let x = z[0]; x < z[0] + z[2]; x += c) { all++; if (seen[cell(x, y)]) got++; } console.log((got / all > 0.5 ? 'ok  ' : '!!  ') + `${kind} level ${z[4]}: he can stand on ${Math.round(got / all * 100)}% of its box`); }
   let cut = 0, all = 0; for (let k = 0; k < free.length; k++) if (free[k]) { all++; if (!seen[k]) cut++; } console.log(`${(cut / all * 100).toFixed(2)}% of the free ground cannot be reached; he can walk on ${(all * c * c / 1e6).toFixed(1)} million square units`);
 }
@@ -184,4 +184,4 @@ async function make(name) {
   console.log('painted', name, `${L.w}x${L.h} units as ${cv.width}x${cv.height} px (${(cv.width * cv.height * 4 / 1048576).toFixed(1)} MB decoded),`, props.length, 'props,', solid.length, 'in the way');
 }
 if (require.main === module) make(process.argv[2] || 'crab-cay').catch(e => { console.error(e); process.exit(1); });
-module.exports = { ISLES, make, paint, place, curve, inside, box, C };
+module.exports = { ISLES, make, paint, place, curve, inside, box, C, poly, edge, seg, fill, ring, blob, inset, area, walkCheck };

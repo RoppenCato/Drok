@@ -29,6 +29,9 @@ HEX = {
     'red': '#e9423a', 'navy': '#2b3f78', 'gold': '#f6c23a', 'steel': '#dbe6ee', 'iron': '#8e9aa8', 'rust': '#b9744a', 'brass': '#f2b63a', 'wood': '#c98646', 'woodHi': '#dba060', 'woodDark': '#96592e',
     'black': '#3a3040', 'feather': '#fff3e0', 'plume': '#e9423a', 'crab': '#f4603c', 'crabDark': '#d94a34', 'claw': '#fa7e50', 'coco': '#8a5a34', 'cocoDark': '#6a4226', 'cocoClaw': '#b97a45',
     'gull': '#fbf7ee', 'gullGrey': '#aeb9c8', 'beak': '#f6b03a', 'leg': '#f29a4a',
+    'fur': '#a8683a', 'furPale': '#f7dcae', 'furDark': '#7a4526', 'pig': '#b9744a', 'pigDark': '#8a4f2e', 'pigStripe': '#f6dcae', 'snout': '#ff9a9a', 'hoof': '#5a3622',
+    'rat': '#8e9aa8', 'ratPink': '#ff9aa8', 'ratBelly': '#e8e2d6', 'liz': '#2f9fd0', 'lizBelly': '#ffe27a', 'frill': '#ff9a3a', 'frillRim': '#e9423a',
+    'frog': '#ffd640', 'frogLeg': '#2b3f78', 'frogToe': '#ff8a3a', 'frogBelly': '#fff3c8', 'viper': '#8d63d2', 'viperDark': '#6a45ad', 'viperBelly': '#ffe9a8', 'tongue': '#e9423a', 'mouth': '#7a2a3a',
     'trunk': '#c98c4c', 'leaf': '#3fb95e', 'leaf2': '#73cf52', 'leaf3': '#2b9a58', 'nut': '#8a5628', 'rock': '#aab4cc', 'rockWarm': '#c9b6a0', 'pink': '#ff6a94', 'yellow': '#ffd640',
     'plaster': '#f7ead0', 'roof': '#e2553c', 'roofBlue': '#3d86b8', 'awning': '#ffd640', 'cloth': '#73cf52', 'glass': '#7fd6e6', 'stone': '#c2c7d2', 'sail': '#fbf3dc', 'rare': '#3d9cff',
 }

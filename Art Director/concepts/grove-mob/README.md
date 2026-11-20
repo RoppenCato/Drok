@@ -5,8 +5,14 @@ monster takes its place in the grove of Crab Cay, levels 3 to 4, between the san
 (5). Asked by Victor, GD the same day: a monster, not big work, so candidates with pictures, Robin says which, then the
 build (`.claude\skills\new-asset`).
 
-**Waiting for Robin's pick.** Nothing is built: these are one standing still each, quick models in the game's look
-(`build.py`), beside the Warrior in the grove at the game's size (`pick.jpg`).
+**Robin picked all six** (in my chat, 2026-11-20): "Build all of them, and have the GD make a second island to go to
+with some of the new mobs. That island needs to look different and have its own theme. A swamp maybe." They are built
+(`blender\beasts.py`) and delivered, each in its own folder of `out\`. `six-beasts.html` is their moving page:
+https://claude.ai/artifact/BGaj7BQj44y6dNL6v91Zv5 . `crab-cay-screens.jpg` shows the monkey, the piglet and the rat on
+Crab Cay; the toad, the viper and the lizard are shown on the swamp island (`out\mire-cay\look-screens.jpg`).
+
+What follows is the showing he picked from: one standing still each, quick models in the game's look (`build.py`),
+beside the Warrior in the grove at the game's size (`pick.jpg`).
 
 What the gull does in the rules today (Victor, GD): it darts in, bites and backs off about 200 units, then comes again;
 fast, small, 46 health. The new one may keep that or want a trick of its own; what suits each body is said below, and

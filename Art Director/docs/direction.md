@@ -47,6 +47,11 @@ big, has several grounds with their own levels and monsters, and is walked witho
 - **Each ground has its outline in `place.json`** (`grounds`), and the shore drawn in by 24 units is there as `walk`.
 - **The beach lies all round an island;** the other grounds lie on it. He lands in the south and the levels rise to
   the north.
+- **The second one is a swamp** (`out\mire-cay\`; Robin, 2026-11-20: "That island needs to look different and have its
+  own theme. A swamp maybe."). Mud, deep moss and teal water where Crab Cay is sand, bright grass and blue sea; pools
+  with lily pads inside the land (`pools`), plank bridges over them, mangroves hung with moss, old mossy stones in
+  the north. Its bright points are small: lotus, toadstools, lanterns. `tools\mire.js` paints it. The look is mine
+  until Robin has judged it.
 - **The first one is Crab Cay, the starter island** (`out\crab-cay\`). Robin, 2026-11-20: "Make the starter island a
   pirate town, and the other part of the island beginner friendly with low level mobs." So the town stands at the
   landing as its safe part (`home`), and round it lie the beach with its tide flats, the grove and the cove.
@@ -160,7 +165,10 @@ the choice's.
 - **The monster book** (Robin, 2026-11-20, his pick): each monster has one rare signature drop, and a book fills in as
   he hunts. So every monster needs a picture for its page, and its signature drop an icon.
 - **No birds to start with** (Robin, 2026-11-20, in Victor, GD's chat): "I think the birds are weird starting mobs."
-  The reef gull leaves the grove; six candidates for its place are in `concepts\grove-mob\`, waiting for his pick.
+  The reef gull leaves the grove. Of six candidates for its place (`concepts\grove-mob\`) he said, in my chat:
+  **"Build all of them, and have the GD make a second island to go to with some of the new mobs."** So there are six
+  new beasts (`blender\beasts.py`): palm monkey, bristle piglet, wharf rat, frill lizard, hop toad, plum viper. Each
+  has a wind-up that changes its whole outline, and a colour its ground is not.
 - **Loot** (Robin, 2026-11-19): "Needs to have coloroed effects for rarity." (Robin, 2026-11-20, his pick): money and
   items drop on the ground and fly to him when he walks close.
 - **How the player is guided** (Robin, 2026-11-20, his pick): light quests. A few people in the harbour give hunting

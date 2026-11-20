@@ -21,6 +21,8 @@ a NOTES.md. Nothing here has been judged by Robin: **every look and design is mi
   `lt` and `rb`, `head`, and `a0`, `a1` where it fades.
 - **A set of single pictures** (gear, props, loot, glass) is the same hash with an `items` block: each picture's `w`,
   `h`, `origin` and its own data.
+- **The second island** (`mire-cay`): Crab Cay's form, and `pools`: outlines of water inside the land where he cannot
+  stand; a deck over a pool wins. Its NOTES.md lists it.
 - **A big island** (`crab-cay`): the small island's form, with the ground at HALF a pixel a unit (`ground.px` 0.5: drawn
   at four times), `walk` (the shore drawn in), `grounds` (each ground's name, levels, box and outline), zones with a
   level, the town on it as `home` with its `people`, and `decks` (planks he can stand on, also over the water). A
@@ -40,6 +42,12 @@ house), with their notes. The first world made for it is in `concepts\house\kitc
 | `sand-crab` | 1024 by 1024 | 4 MB | 141 KB |
 | `reef-gull` | 1024 by 1024 | 4 MB | 95 KB |
 | `coconut-crab` | 1024 by 2048 | 8 MB | 202 KB |
+| `palm-monkey` | 1024 by 1090 | 4.3 MB | 139 KB |
+| `bristle-piglet` | 1024 by 866 | 3.4 MB | 129 KB |
+| `wharf-rat` | 1024 by 926 | 3.6 MB | 114 KB |
+| `frill-lizard` | 1024 by 1048 | 4.1 MB | 136 KB |
+| `hop-toad` | 1024 by 924 | 3.6 MB | 126 KB |
+| `plum-viper` | 1024 by 950 | 3.7 MB | 113 KB |
 | `island` | ground 1400 by 2400, props 1024 by 1024 | 13.4 + 4 MB | 67 + 52 KB |
 | `loot` | 256 by 256 | 0.3 MB | 18 KB |
 | `chest-burst` | 512 by 470, soft, not a palette PNG | 0.9 MB | 46 KB |
@@ -49,6 +57,7 @@ house), with their notes. The first world made for it is in `concepts\house\kitc
 | `icon` | 512 and 192 | | about 150 KB |
 | `font` | Nunito, one file | | 277 KB |
 | `hero-sheet` | the hero and his gear for his window, 512 by 512 and 512 by 294, at FOUR pixels a unit | 1 + 0.6 MB | about 35 KB |
+| `mire-cay` | ground 1200 by 1600 for 2400 by 3200 units, props 1024 by 610 (25) | 7.3 + 2.4 MB | 96 + 58 KB |
 | `crab-cay` | ground 1400 by 2100 for 2800 by 4200 units, props 2048 by 896 (the island's and the stilt town's, 33), people 1024 by 512 | 11.8 + 7 + 2 MB | 85 + 127 + 72 KB |
 
 The island with everything on it: about 46 MB decoded, under the 48 MB set for a place. The harbour with the hero and the glass: about 22 MB. All of it on disk: about 1.6 MB, of the 6 MB set for chapter 1.
@@ -58,7 +67,7 @@ The island with everything on it: about 46 MB decoded, under the 48 MB set for a
 Everything is built by scripts; nothing is edited by hand. `blender\drok.py` is the look, the camera and the render
 loop. `node tools/blender.js blender/hero.py -- work/hero/render`, then `node tools/pack.js hero work/hero/render out/hero`,
 then `python tools/shrink.py out/hero`. The same for `crab.py` (sand-crab, coconut-crab), `gull.py`, `gear.py` and
-`props.py` (island, harbour, loot) with `tools/packset.js`; `tools/ground.js` paints a place and `tools/isle.js` a big island; `tools/glass.js` the glass; `tools/burst.js` the chest's burst.
+`props.py` (island, harbour, loot) with `tools/packset.js`; `tools/ground.js` paints a place and `tools/isle.js` a big island; `tools/glass.js` the glass; `tools/burst.js` the chest's burst. The six beasts: `blender/beasts.py` with `tools/pack.js --tight`. The swamp island: `blender/swamp.py` and `tools/mire.js`.
 The Warrior's 195 frames render in about three minutes.
 The house's kitchen (a concept): `blender/house.py`, `tools/things.js`, `tools/world.js`; the commands are at the end of
 `concepts\house\kitchen\NOTES.md`.
