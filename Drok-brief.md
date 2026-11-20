@@ -50,7 +50,11 @@ rare drops, in a top-down world."
 - **The font** (Robin, 2026-11-20, in the Art Director's chat): "Choose a good font for the game thats clear and
   easy to read"; to Leonard, AD's choice of Nunito, extra bold: "Yes, download it".
 - **The starter monsters** (Robin, 2026-11-20): "I think the birds are weird starting mobs." The reef gull goes;
-  Leonard, AD shows candidates for the grove and Robin says which.
+  Leonard, AD showed six candidates (a monkey, a viper, a piglet, a rat, a lizard, a toad).
+- **A second island** (Robin, 2026-11-20, in the Art Director's chat, of the six): "Build all of them, and have
+  the GD make a second island to go to with some of the new mobs. That island needs to look different and have its
+  own theme. A swamp maybe." Who lives where is the studios': the rat, the piglet and the monkey on Crab Cay, the
+  toad, the viper and the lizard in the swamp, levels 6 to 8.
 - **Chests** (Robin, 2026-11-20): "chests should have a cool effect when you open them like in zite." (Robin,
   2026-11-20, after seeing the effect in the field): "I think the chests should open like in zite where its a big
   pop up screen and the game pauses".

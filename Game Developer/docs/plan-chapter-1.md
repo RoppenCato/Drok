@@ -255,6 +255,10 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
     - `[ ]` AD: discs for the four new skills and for the top button (asked 2026-11-20); letters stand in
     - not yet: gear and trinkets that change what a skill does (chapter 2: uniques); a third place for a skill on the glass
 
+30. `[ ]` · AD then GD · **Six new monsters and a second island, a swamp** (Robin, 2026-11-20, in the Art Director's chat: "Build all of them, and have the GD make a second island to go to with some of the new mobs. That island needs to look different and have its own theme. A swamp maybe.")
+    - `[ ]` AD: the piglet and the monkey (the grove, 3 and 4; the gull goes), the rat (the tide flats, 2); then Mire Cay's kit with the toad, the viper and the lizard (6 to 8)
+    - `[ ]` GD: each monster's own rule as it lands (a charge through, a lunge, a hop and a tongue); the top level 5 to 8; a place's monsters loaded with the place; Mire Cay on the chart with a safe camp and a stall; the bot plays both islands
+
 ## Waits for Robin
 
 - Play it: `http://192.168.0.43:5178/` on the home Wi-Fi. The first minute: tap the stall to see what it sells,

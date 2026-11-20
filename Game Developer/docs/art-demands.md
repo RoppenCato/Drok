@@ -27,7 +27,7 @@ day, each island its own light.
 - **Weights**: an atlas under 300 KB; a place's ground kit under 400 KB; the first load under 3 MB with the sound,
   counted as it goes over the wire (Phaser itself is 1.5 MB on disk, 0.4 MB over the wire). Where it stands with
   all of wave 1 in (2026-11-20): 1.9 MB over the wire, 3.0 MB on the phone, no sound yet.
-- **Memory**: decoded pictures for one place under 48 MB (the starter island with its town: 52, since 2026-11-20, mine: the harbour as a second place of 10 MB is gone); lazy by place; nothing loaded for a place he is not in.
+- **Memory**: decoded pictures for one place under 48 MB (the starter island with its town and five monsters: 56, since 2026-11-20, mine: the harbour as a second place of 10 MB is gone, and a place's monsters will load with the place); lazy by place; nothing loaded for a place he is not in.
   **Not kept yet, and that is the game's doing, not the art's**: the game loads both places, the chart and all the
   figures when it starts, about 62 MB decoded together. Loading by place is on the list in `docs\autonomous.md`;
   it must be done before a third place comes.
@@ -47,7 +47,7 @@ picks, marks it "mine", and delivers without waiting; Robin judges it when he is
 - **Gear on the hero** is way 4 of his `docs\gear-on-the-hero.md`: one body sprite, and the cutlass, the buckler
   and the hat as small sprites placed on points the body's frame data carries (`hand`, `off`, `head`: x, y from the
   frame's origin, the turn in degrees, `front`).
-- **Memory**, decoded: the hero's body 16 MB at most; one place with all that is in it 48 MB at most (Crab Cay with its town: 52).
+- **Memory**, decoded: the hero's body 16 MB at most; one place with all that is in it 48 MB at most (Crab Cay with its town and five monsters: 56).
 - **The install**: all of chapter 1's art under 6 MB on disk; what the harbour needs under 2 MB.
 - **The atlas form**: what his `tools\pack.js` writes: a Phaser JSON hash with frames named
   `<thing>/<action>/<facing>/<nnnn>`, and an `actions` block with each action's delay and loop and each frame's

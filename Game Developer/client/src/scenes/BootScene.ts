@@ -38,6 +38,7 @@ export class BootScene extends Phaser.Scene {
       atlas('gear', 'gear');
       atlas('gear-icons', 'gear');
     }
+    if (ART.burst) atlas('burst', 'chest-burst', 'burst');
     if (ART.heroSheet) {
       atlas('hero-sheet', 'hero-sheet', 'hero');
       atlas('gear-sheet', 'hero-sheet', 'gear');

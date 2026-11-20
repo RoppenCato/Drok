@@ -48,7 +48,9 @@ export class Reveal {
   private chest: Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle | null = null;
   private chestKey = '';
   private chestScale = 1;
-  private glow: Phaser.GameObjects.Arc | null = null;
+  private glow: Phaser.GameObjects.Arc | Phaser.GameObjects.Image | null = null;
+  /** The glow's size at rest: the picture's own scale, or 1 for the stand-in circle. */
+  private glowScale = 1;
   private hint: Phaser.GameObjects.Text | null = null;
   private count: Phaser.GameObjects.Text | null = null;
   private rumble = 0;
@@ -92,7 +94,15 @@ export class Reveal {
     s.tweens.add({ targets: veil, fillAlpha: 0.88, duration: 150 });
     this.words(CX, 170, 'Treasure chest', 26, WOOD.gold);
     this.count = this.words(CX, 204, '', 14, WOOD.dim);
-    this.glow = this.keep(s.add.circle(CX, CHEST_Y - 10, 96, this.color, 0.2).setBlendMode(Phaser.BlendModes.ADD).setDepth(TOP + 1));
+    // Leonard, AD's pieces for the light (white, tinted with the rarity's colour) when that drop is in; else shapes.
+    const glow = this.lit('glow');
+    if (glow) {
+      this.glowScale = (glow.scaleX * 230) / 96;
+      this.glow = this.keep(glow.setPosition(CX, CHEST_Y - 14).setTint(this.color).setAlpha(0.2).setScale(this.glowScale * 0.5).setDepth(TOP + 1));
+    } else {
+      this.glowScale = 1;
+      this.glow = this.keep(s.add.circle(CX, CHEST_Y - 10, 96, this.color, 0.2).setBlendMode(Phaser.BlendModes.ADD).setDepth(TOP + 1));
+    }
     const drawn = chestKey ? picture(s, chestKey, 'chest/closed') : null;
     if (drawn) {
       this.chestScale = drawn.scaleX * 3.4;
@@ -130,7 +140,7 @@ export class Reveal {
           this.chest.setTint(Phaser.Display.Color.GetColor(c.r, c.g, c.b));
         }
       }
-      this.glow?.setAlpha(0.2 + 0.8 * t).setScale(0.5 + 0.8 * t);
+      this.glow?.setAlpha(0.2 + 0.8 * t).setScale(this.glowScale * (0.5 + 0.8 * t));
       // The rarest rumbles: the ground shakes in ticks that come faster and faster.
       if (this.tier >= 3 && !few && this.clock >= this.rumble) {
         this.shake(100, 0.0006 + t * t * 0.004);
@@ -191,15 +201,95 @@ export class Reveal {
       }
     }
     if (this.glow) {
-      if (few) this.glow.setAlpha(0.85).setScale(1.4);
-      else s.tweens.add({ targets: this.glow, alpha: 1, scale: 1.5, duration: 250, onComplete: () => this.glow && s.tweens.add({ targets: this.glow, alpha: 0.85, scale: 1.4, duration: 300 }) });
+      const g = this.glowScale;
+      if (few) this.glow.setAlpha(0.85).setScale(g * 1.4);
+      else s.tweens.add({ targets: this.glow, alpha: 1, scale: g * 1.5, duration: 250, onComplete: () => this.glow && s.tweens.add({ targets: this.glow, alpha: 0.85, scale: g * 1.4, duration: 300 }) });
     }
     if (few) return;
     const lit = <T extends Phaser.GameObjects.Shape>(o: T): T => this.keep(o.setBlendMode(Phaser.BlendModes.ADD).setDepth(TOP + 4) as T);
     // A white flash that grows and is gone.
     const flash = lit(s.add.circle(CX, CHEST_Y - 20, 40, 0xffffff, 0.9));
     s.tweens.add({ targets: flash, scale: 5 + this.tier * 2.5, alpha: 0, duration: 200 + this.tier * 60, ease: 'Quad.easeOut', onComplete: () => flash.setVisible(false) });
-    // Rays of light in the rarity's colour, turning as they fade.
+    if (s.textures.exists('burst')) this.burst();
+    else this.shapes(lit);
+    if (JOLT[this.tier]! > 0) this.shake(140, JOLT[this.tier]!);
+  }
+
+  /**
+   * The burst from Leonard, AD's pieces (his drop of 2026-11-20, made for the chest in the field and used here on
+   * its own screen): a ring that runs out under the chest, rays that turn behind it for as long as the screen is
+   * up, a beam on its mouth, stars thrown out, and gold coins that fly up and fall. The coloured pieces are drawn
+   * plain and only the beam is added as light: his lesson, a coloured piece added as light goes white.
+   */
+  private burst(): void {
+    const s = this.scene;
+    const mouth = CHEST_Y - 24;
+    const ring = this.lit('ring');
+    if (ring) {
+      const k = ring.scaleX * 1.6;
+      this.keep(ring.setPosition(CX, CHEST_Y + 6).setTint(this.light).setScale(k * 0.3).setDepth(TOP + 1));
+      s.tweens.add({ targets: ring, scale: k * 1.8, alpha: 0, duration: 420, ease: 'Quad.easeOut', onComplete: () => ring.setVisible(false) });
+    }
+    const rays = this.lit('rays');
+    if (rays) {
+      const k = rays.scaleX * (2.2 + this.tier * 0.25);
+      this.keep(rays.setPosition(CX, mouth).setTint(this.light).setAlpha(0).setScale(k * 0.6).setDepth(TOP + 1));
+      s.tweens.add({ targets: rays, alpha: 0.75, scale: k, duration: 260, ease: 'Quad.easeOut' });
+      // About forty degrees a second, for as long as the screen is up.
+      s.tweens.add({ targets: rays, angle: 360, duration: 9000, repeat: -1 });
+    }
+    const beam = this.lit('beam');
+    if (beam) {
+      const k = beam.scaleX * 1.6;
+      this.keep(beam.setPosition(CX, mouth).setTint(this.light).setBlendMode(Phaser.BlendModes.ADD).setScale(k, k * 0.2).setAlpha(0.9).setDepth(TOP + 3));
+      s.tweens.add({ targets: beam, scaleY: k * (1.2 + this.tier * 0.2), duration: 220, ease: 'Quad.easeOut' });
+      s.tweens.add({ targets: beam, alpha: 0, delay: 420, duration: 380, onComplete: () => beam.setVisible(false) });
+    }
+    for (let i = 0; i < SPARKLES[this.tier]!; i++) {
+      const star = this.lit('star');
+      if (!star) break;
+      const a = -Math.PI / 2 + ((i / Math.max(1, SPARKLES[this.tier]! - 1)) - 0.5) * 2.6;
+      const far = 90 + ((i * 53) % 70);
+      const k = star.scaleX * (0.5 + ((i * 37) % 5) * 0.12);
+      this.keep(star.setPosition(CX, mouth).setTint(this.light).setScale(k * 0.3).setDepth(TOP + 4));
+      s.tweens.add({ targets: star, x: CX + Math.cos(a) * far, y: mouth + Math.sin(a) * far, angle: 200, duration: 480 + (i % 4) * 60, ease: 'Quad.easeOut' });
+      s.tweens.add({ targets: star, scale: k, duration: 200, yoyo: true, hold: 120, onComplete: () => star.setVisible(false) });
+    }
+    // Coins: up out of the mouth, turning, and down past the chest.
+    const coins = [5, 7, 9, 12][this.tier]!;
+    for (let i = 0; i < coins; i++) {
+      const coin = picture(s, 'burst', `coin/${(i % 4) + 1}`);
+      if (!coin) break;
+      const dx = ((i * 61) % 220) - 110;
+      const high = 90 + ((i * 29) % 90);
+      this.keep(coin.setPosition(CX, mouth).setScale(coin.scaleX * 1.6).setDepth(TOP + 4));
+      let frame = i % 4;
+      const turn = s.time.addEvent({ delay: 70, loop: true, callback: () => coin.active && repicture(s, coin, 'burst', `coin/${(frame = (frame + 1) % 4) + 1}`) });
+      s.tweens.add({ targets: coin, x: CX + dx, duration: 760 + (i % 3) * 80, ease: 'Linear' });
+      s.tweens.add({ targets: coin, y: mouth - high, duration: 300, ease: 'Quad.easeOut' });
+      s.tweens.add({
+        targets: coin,
+        y: CHEST_Y + 70 + ((i * 17) % 40),
+        alpha: 0,
+        delay: 300,
+        duration: 460 + (i % 3) * 80,
+        ease: 'Quad.easeIn',
+        onComplete: () => {
+          turn.remove();
+          coin.setVisible(false);
+        },
+      });
+    }
+  }
+
+  /** One of his light pieces, or null when that drop is not in the game. */
+  private lit(name: string): Phaser.GameObjects.Image | null {
+    return this.scene.textures.exists('burst') ? picture(this.scene, 'burst', name) : null;
+  }
+
+  /** The burst as plain shapes, for a game without his pieces. */
+  private shapes(lit: <T extends Phaser.GameObjects.Shape>(o: T) => T): void {
+    const s = this.scene;
     const rays = 8 + this.tier * 2;
     for (let i = 0; i < rays; i++) {
       const long = 150 + this.tier * 40;
@@ -207,7 +297,6 @@ export class Reveal {
       ray.setRotation((i / rays) * Math.PI * 2);
       s.tweens.add({ targets: ray, rotation: ray.rotation + 0.8, alpha: 0, scale: 1.5, duration: 700 + this.tier * 120, ease: 'Quad.easeOut', onComplete: () => ray.setVisible(false) });
     }
-    // Sparkles rise; petals in the colour pop up and fall past the chest.
     for (let i = 0; i < SPARKLES[this.tier]!; i++) {
       const star = lit(s.add.star(CX + ((i * 37) % 160) - 80, CHEST_Y - 10, 4, 3, 9, this.light, 1));
       s.tweens.add({ targets: star, y: CHEST_Y - 80 - ((i * 53) % 80), alpha: 0, angle: 180, duration: 460 + (i % 4) * 70, ease: 'Quad.easeOut', onComplete: () => star.setVisible(false) });
@@ -217,7 +306,6 @@ export class Reveal {
       s.tweens.add({ targets: petal, x: CX + ((i * 61) % 200) - 100, y: CHEST_Y - 50 - ((i * 29) % 50), duration: 240, ease: 'Quad.easeOut' });
       s.tweens.add({ targets: petal, y: CHEST_Y + 90 + ((i * 17) % 40), alpha: 0, angle: 300, delay: 240, duration: 520 + ((i * 71) % 300), ease: 'Quad.easeIn', onComplete: () => petal.setVisible(false) });
     }
-    if (JOLT[this.tier]! > 0) this.shake(140, JOLT[this.tier]!);
   }
 
   /** The prize's card slides up from behind the chest; when it rests, a bell, and its name swells for a moment. */
