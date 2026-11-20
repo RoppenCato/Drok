@@ -15,13 +15,13 @@ export const ART = {
   burst: true,
   /** `art/hero-sheet`: the hero and his gear drawn once at twice the field's sharpness, for his window. */
   heroSheet: true,
-  monsters: ['sand-crab', 'reef-gull', 'coconut-crab'] as string[],
+  monsters: ['sand-crab', 'wharf-rat', 'bristle-piglet', 'palm-monkey', 'coconut-crab', 'hop-toad', 'plum-viper', 'frill-lizard'] as string[],
   /** `art/loot`: coins, a potion, a bundle of gear, a ring for each rarity, a spark. */
   loot: true,
   /** The places whose ground and props are drawn from a drop: the game's place, and the drop's folder. */
-  places: { 'crab-cay': 'crab-cay' } as Record<string, string>,
+  places: { 'crab-cay': 'crab-cay', 'mire-cay': 'mire-cay' } as Record<string, string>,
   /** The name of the props' atlas in a place's folder, where it is not the folder's own name. */
-  sets: { 'crab-cay': 'island' } as Record<string, string>,
+  sets: { 'crab-cay': 'island', 'mire-cay': 'island' } as Record<string, string>,
   /** The people who stand about in a place: the drop's folder, and the atlas in it (its actions are who they are). */
   folk: { 'crab-cay': 'folk' } as Record<string, string>,
   /** `art/glass`: bars, discs, buttons, panels, slots and marks for the glass and the windows. */

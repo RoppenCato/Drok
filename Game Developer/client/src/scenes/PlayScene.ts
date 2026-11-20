@@ -7,6 +7,7 @@ import type { Intent, LocalGame } from '../local-game.ts';
 import { sounds } from '../sound.ts';
 import { Hud } from '../view/hud.ts';
 import { ART } from '../art.ts';
+import { dropOtherPlaces, loadPlace, placeLoaded } from '../place-assets.ts';
 import { Reveal } from '../view/reveal.ts';
 import { Panels } from '../view/panels.ts';
 import { FOOT, WorldView, type Thing } from '../view/world-view.ts';
@@ -41,6 +42,8 @@ export class PlayScene extends Phaser.Scene {
   /** The chest's opening: a screen over the game, which stands still while it is up. */
   private reveal!: Reveal;
   private place = '';
+  /** An island's pictures are being fetched before he sails there. */
+  private sailing = false;
   /** The ground he stands on, by its id: when it changes, the glass says where he is. */
   private biome = '';
   private camX = 0;
@@ -87,6 +90,7 @@ export class PlayScene extends Phaser.Scene {
       state: () => this.holder.state,
       act: (intent) => this.act(intent),
       atShop: () => this.near(this.holder.state) === 'shop',
+      sail: (to) => this.sail(to),
       atDock: () => this.near(this.holder.state, true) === 'dock',
       settingsChanged: () => this.hud.place(),
       exportSave: () => this.exportSave(),
@@ -214,9 +218,39 @@ export class PlayScene extends Phaser.Scene {
     else this.panels.open(thing === 'shop' ? 'shop' : 'chart');
   }
 
+  /**
+   * Sail to another island. Its pictures are fetched first if they are not in memory (a place's pictures come with
+   * the place), so he steps ashore on the real island and not on a stand-in.
+   */
+  private sail(to: string): void {
+    if (this.sailing) return;
+    if (placeLoaded(this, to)) {
+      this.act({ type: 'sail', to });
+      return;
+    }
+    this.sailing = true;
+    this.hud.toast('Setting sail…');
+    loadPlace(this, to, () => {
+      this.sailing = false;
+      this.act({ type: 'sail', to });
+    });
+  }
+
   /** He is in a place: the camera gets its edges and jumps to him; when he has just come, the glass says where. */
   private arrive(state: GameState, announce: boolean): void {
     const place = placeOf(state);
+    // His place's pictures, if they are not here (he fell on another island and woke in the town): he sees the
+    // stand-in for the moment they take, then the place is painted again. The other places' pictures are let go:
+    // by now the field has taken down everything drawn from them.
+    if (placeLoaded(this, state.place)) dropOtherPlaces(this, state.place);
+    else {
+      const id = state.place;
+      loadPlace(this, id, () => {
+        if (this.holder.state.place !== id) return;
+        this.world.enter(this.holder.state);
+        dropOtherPlaces(this, id);
+      });
+    }
     this.place = state.place;
     this.biome = biomeAt(place, state.hero)?.id ?? '';
     this.cameras.main.setBounds(0, 0, place.width, place.height + FOOT);

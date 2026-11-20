@@ -378,15 +378,15 @@ describe('sailing', () => {
 describe('the three kinds of monster', () => {
   it('a reef gull bites and backs off, and comes again', () => {
     const sim = Sim.empty();
-    const gull = sim.monster(40, 0, { kind: 'reef-gull', mode: 'chase' });
+    const gull = sim.monster(40, 0, { kind: 'palm-monkey', mode: 'chase' });
     sim.runUntil((s) => s.count('heroHit') + s.count('monsterMissed') > 0, 3);
     expect(sim.find(gull.id)!.mode).toBe('retreat');
-    sim.run(MONSTERS['reef-gull']!.retreatSeconds - 0.2);
+    sim.run(MONSTERS['palm-monkey']!.retreatSeconds - 0.2);
     const far = dist(sim.state.hero, sim.find(gull.id)!);
     expect(far).toBeGreaterThan(120);
     sim.runUntil((s) => s.find(gull.id)!.mode === 'windup', 5);
     expect(dist(sim.state.hero, sim.find(gull.id)!)).toBeLessThan(60);
-    say(`a gull backs off to ${far.toFixed(0)} units between bites; he cannot follow at ${N.hero.speed} against its ${MONSTERS['reef-gull']!.chaseSpeed}, so Charge or patience catches it`);
+    say(`a gull backs off to ${far.toFixed(0)} units between bites; he cannot follow at ${N.hero.speed} against its ${MONSTERS['palm-monkey']!.chaseSpeed}, so Charge or patience catches it`);
   });
 
   it("a coconut crab's slam hits everything near it, and its long wind-up is for getting clear", () => {

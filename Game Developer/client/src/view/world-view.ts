@@ -329,6 +329,8 @@ export class WorldView {
         const walking = m.mode === 'chase' || m.mode === 'return' || m.mode === 'retreat' || (m.mode === 'wander' && m.goal !== null);
         if (stunned) f.play('hit1');
         else if (m.mode === 'windup') f.play('attack1', v.mode !== 'windup');
+        // The piglet's run through him: its own gallop, head down.
+        else if (m.mode === 'rush') f.play(f.has('charge') ? 'charge' : 'move');
         else if (!(f.playing === 'attack1' && !f.done)) f.play(walking ? 'move' : 'stand');
         v.mode = m.mode;
         f.face(m.facing);

@@ -3,6 +3,7 @@
 // know is the place his ground picture shows. Run from the Game Developer folder after copying a place's drop:
 //
 //   node tools/place-from-art.mjs crab-cay crab-cay
+//   node tools/place-from-art.mjs mire-cay mire-cay
 //
 // It reads client/public/art/<art>/place.json (his: the shore `land` and the `inlet` as corner points of a smooth
 // curve, `solid` circles and boxes to walk round, `dock`, `arrive`, `chest`, a box for each monster, the `people`
@@ -76,6 +77,8 @@ place.land = layout.walk ? layout.walk.map(([x, y]) => [round(x), round(y)]) : s
 // Decks: planks to stand on, over sand or over water; he stands where he is on the land or on a deck.
 place.decks = (layout.decks ?? []).map((d) => d.pts.map(([x, y]) => [round(x), round(y)]));
 place.water = [];
+// Pools: water inside the land, as he drew them (straight points). A deck over one is a bridge: decks win.
+for (const pool of layout.pools ?? []) place.water.push(pool.map(([x, y]) => [round(x), round(y)]));
 if (layout.inlet) {
   const [cx, cy] = middle(layout.inlet);
   place.water.push(scaled(curve(layout.inlet), cx, cy, WATER_OUT, WATER_OUT));
@@ -102,7 +105,7 @@ place.home = layout.home ? { outline: curve(layout.home.outline).map(([x, y]) =>
 // The grounds, the ones that lie inside another first (his beach is the land where the other two are not).
 if (layout.grounds) {
   const area = (g) => g.box[2] * g.box[3];
-  place.biomes = [...layout.grounds].sort((a, b) => area(a) - area(b)).map((g) => ({ id: g.id, name: g.name, levels: g.levels, outline: curve(g.outline).map(([x, y]) => [round(x), round(y)]) }));
+  place.biomes = [...layout.grounds].sort((a, b) => area(a) - area(b)).map((g) => ({ id: g.id, name: g.name, levels: Array.isArray(g.levels) ? (g.levels[0] === g.levels[1] ? `${g.levels[0]}` : `${g.levels[0]} to ${g.levels[1]}`) : g.levels, outline: curve(g.outline).map(([x, y]) => [round(x), round(y)]) }));
 }
 // The stall is where one trades: the shop is at his stall, whoever keeps it.
 const stall = layout.home?.stall ? { x: layout.home.stall[0], y: layout.home.stall[1] } : layout.props.find((p) => p.name === 'stall');
@@ -113,10 +116,14 @@ if (place.chest && layout.chest) {
   place.solids.push({ x: layout.chest[0], y: layout.chest[1], r: CHEST_SOLID });
 }
 // Every box of his is a zone; how many live in it is the game's, by the box's size.
-const ROOM = { 'sand-crab': 60000, 'reef-gull': 115000, 'coconut-crab': 230000 };
+const ROOM = { 'sand-crab': 60000, 'wharf-rat': 60000, 'bristle-piglet': 115000, 'palm-monkey': 115000, 'coconut-crab': 230000, 'hop-toad': 90000, 'plum-viper': 100000, 'frill-lizard': 110000 };
+// Who lives where is the game's (Victor, GD with Leonard, AD, 2026-11-20, after Robin: 'I think the birds are weird
+// starting mobs'): his layout of Crab Cay still names the kinds of the day it was drawn, so a zone's kind is read
+// through this table, by its level: the rat on the tide flats, the piglet and the monkey in the grove.
+const LIVES = { 'sand-crab:2': 'wharf-rat', 'reef-gull:3': 'bristle-piglet', 'reef-gull:4': 'palm-monkey', 'reef-gull:0': 'palm-monkey' };
 place.zones = [];
 for (const [kind, boxes] of Object.entries(layout.zones ?? {})) {
-  for (const [x, y, w, h, level] of boxes) place.zones.push({ kind, count: Math.max(1, Math.round((w * h) / (ROOM[kind] ?? 100000))), x, y, w, h, level: level ?? 0 });
+  for (const [x, y, w, h, level] of boxes) place.zones.push({ kind: LIVES[`${kind}:${level ?? 0}`] ?? kind, count: Math.max(1, Math.round((w * h) / (ROOM[LIVES[`${kind}:${level ?? 0}`] ?? kind] ?? 100000))), x, y, w, h, level: level ?? 0 });
 }
 
 // Written the way the file is kept by hand: a point, a circle and a box each on one line.

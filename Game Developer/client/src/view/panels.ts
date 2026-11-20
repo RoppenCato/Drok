@@ -48,6 +48,8 @@ interface ChartArt {
   route: number[][];
   title: { x: number; y: number };
   sail: { x: number; y: number };
+  /** Spots on the chart with no place on them yet. */
+  unknown?: { x: number; y: number }[];
 }
 
 /** Marks an object as the glass's, so the camera that follows the hero leaves it out. */
@@ -58,6 +60,8 @@ export interface PanelActions {
   /** Ask the rules for something; the scene says why if it is refused. True when it was done. */
   act(intent: Intent): boolean;
   atShop(): boolean;
+  /** Sail to a place: its pictures are fetched first if they are not in memory. */
+  sail(to: string): void;
   atDock(): boolean;
   /** The hand or the effects switch changed: the glass must lay itself out again. */
   settingsChanged(): void;
@@ -711,7 +715,8 @@ export class Panels {
       this.actions.toast('Sail from the dock');
       return;
     }
-    if (this.actions.act({ type: 'sail', to: id })) this.close();
+    this.close();
+    this.actions.sail(id);
   }
 
   /**
@@ -733,14 +738,23 @@ export class Panels {
       this.text(x, y, text, size, color, 0.5, true).setStroke(INK.dark, 4);
     };
     const atDock = this.actions.atDock();
-    const ids = Object.keys(PLACES).filter((id) => chart.places[CHART_ART[id] ?? ''] !== undefined);
-    for (const [x = 0, y = 0] of chart.route.slice(1, -1)) {
+    // A place the Art Director has not put on his chart yet stands on one of his unnamed spots.
+    const spare = [...(chart.unknown ?? [])];
+    const spots: Record<string, { x: number; y: number }> = {};
+    for (const id of Object.keys(PLACES)) {
+      const drawn = chart.places[CHART_ART[id] ?? ''];
+      const spot = drawn ?? spare.shift();
+      if (spot) spots[id] = spot;
+    }
+    const ids = Object.keys(spots);
+    // His dotted way was drawn from the old harbour to the first island: with the town on the island it leads nowhere.
+    for (const [x = 0, y = 0] of ids.length > 9 ? chart.route.slice(1, -1) : []) {
       const dot = picture(s, 'pins', 'mark/route');
       if (dot) this.keep(dot.setPosition(x, y).setDepth(DEPTH.panel + 2));
     }
     for (const id of ids) {
       const place = PLACES[id]!;
-      const at = chart.places[CHART_ART[id]!]!;
+      const at = spots[id]!;
       const here = id === state.place;
       if (here) {
         const ring = picture(s, 'pins', 'mark/here');
@@ -754,7 +768,6 @@ export class Panels {
       else this.zone(at.x, at.y - 6, 130, 150, () => this.sail(id));
     }
     const to = ids.find((id) => id !== state.place);
-    if (!to) words(chart.sail.x, chart.sail.y, 'No other island is charted yet.', 13);
     if (to) {
       if (!atDock) words(chart.sail.x, chart.sail.y - 38, 'Walk down to the dock to sail.', 12);
       this.button(chart.sail.x, chart.sail.y, 236, 46, `Sail to ${PLACES[to]!.name}`, () => this.sail(to), atDock, COLORS.buttonGo);

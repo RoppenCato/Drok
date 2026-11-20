@@ -3,6 +3,7 @@ import { makeRng } from '../../../rules/src/index.ts';
 import { ART } from '../art.ts';
 import type { GameLog } from '../game-log.ts';
 import { COLORS, RES } from '../layout.ts';
+import { queuePlace } from '../place-assets.ts';
 import { sounds } from '../sound.ts';
 
 /** A ground tile's size, in design units. Drawn once at RES times that, so it is sharp under the zoom. */
@@ -16,9 +17,13 @@ export type Ground = (typeof GROUNDS)[number];
 export class BootScene extends Phaser.Scene {
   private readonly log: GameLog;
 
-  constructor(o: { log: GameLog }) {
+  /** The place he is in as the game starts: its pictures are loaded here, the other places' when he sails. */
+  private readonly place: string;
+
+  constructor(o: { log: GameLog; place: string }) {
     super({ key: 'boot' });
     this.log = o.log;
+    this.place = o.place;
   }
 
   /**
@@ -43,17 +48,10 @@ export class BootScene extends Phaser.Scene {
       atlas('hero-sheet', 'hero-sheet', 'hero');
       atlas('gear-sheet', 'hero-sheet', 'gear');
     }
-    for (const kind of ART.monsters) atlas(kind, kind);
     if (ART.loot) atlas('loot', 'loot');
     if (ART.glass) atlas('glass', 'glass');
-    // A place: its ground as one picture, its props as a set, and where each prop stands.
-    for (const folder of new Set(Object.values(ART.places))) {
-      this.load.image(`${folder}:ground`, `art/${folder}/ground.png`);
-      atlas(folder, folder, ART.sets[folder] ?? folder);
-      this.load.json(`${folder}:place`, `art/${folder}/place.json`);
-      const folk = ART.folk[folder];
-      if (folk) atlas(`${folder}:folk`, folder, folk);
-    }
+    // A place's ground, props, people and monsters come with the place (place-assets.ts): only his own now.
+    queuePlace(this, this.place);
     if (ART.chart) {
       this.load.image('chart', 'art/chart/chart.png');
       atlas('pins', 'chart', 'pins');

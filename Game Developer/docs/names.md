@@ -18,6 +18,7 @@ open question 2.
 | Id | Name shown | Whose | Since |
 | --- | --- | --- | --- |
 | `crab-cay` | Crab Cay, the starter island with the town on it | mine | 2026-11-20 |
+| `mire-cay` | Mire Cay, the swamp (its grounds: The reed banks, the wood, the stones, Leonard, AD's) | Leonard, AD's stand-in | 2026-11-20 |
 | its grounds: `beach`, `grove`, `cove` | The beach, The grove, The cove | mine | 2026-11-20 |
 
 Marlow's Landing was the harbour town as a place of its own; since 2026-11-20 the town stands on Crab Cay (Robin:
@@ -28,8 +29,11 @@ Marlow's Landing was the harbour town as a place of its own; since 2026-11-20 th
 | Id | Name shown | Whose | Since |
 | --- | --- | --- | --- |
 | `sand-crab` | Sand crab | mine | 2026-11-20 |
-| `reef-gull` | Reef gull | mine | 2026-11-20 |
+| `wharf-rat`, `bristle-piglet`, `palm-monkey` | Wharf rat, Bristle piglet, Palm monkey | Leonard, AD's ids, my names from them | 2026-11-20 |
 | `coconut-crab` | Coconut crab | mine | 2026-11-20 |
+| `hop-toad`, `plum-viper`, `frill-lizard` | Hop toad, Plum viper, Frill lizard | Leonard, AD's ids, my names from them | 2026-11-20 |
+
+The reef gull went on 2026-11-20 (Robin: "I think the birds are weird starting mobs").
 
 ## Gear (`rules\data\items.json`)
 

@@ -37,7 +37,7 @@ const phaser = new Phaser.Game({
   input: { activePointers: 3 },
   render: { antialias: true },
   // The first scene starts on its own; the rest wait to be started.
-  scene: [new BootScene({ log }), new PlayScene({ holder, log })],
+  scene: [new BootScene({ log, place: holder.state.place }), new PlayScene({ holder, log })],
 });
 
 // The frame log: one write a frame, a line a second.

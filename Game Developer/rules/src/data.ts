@@ -32,6 +32,12 @@ export interface MonsterKind {
   slamRadius: number;
   /** It flies: the shore and the things in the way do not stop it. */
   flies: boolean;
+  /**
+   * After its wind-up it does not strike where it stands: it runs straight through where he stood, this fast and
+   * this far, and hits him if it runs into him. 0: it strikes as the others do.
+   */
+  rushSpeed: number;
+  rushLength: number;
   damageMin: number;
   damageMax: number;
   respawnSeconds: number;

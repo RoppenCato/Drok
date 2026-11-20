@@ -273,6 +273,16 @@ function stepMonsters(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void
       case 'windup': {
         m.timer -= dt;
         if (m.timer <= 0) {
+          if (k.rushSpeed > 0) {
+            // The piglet's way: no bite where it stands. It runs straight through where he stands now, and on.
+            const far = Math.max(k.rushLength, d + 80);
+            m.mode = 'rush';
+            m.goal = d > 0.001 ? { x: m.x + ((h.x - m.x) / d) * far, y: m.y + ((h.y - m.y) / d) * far } : { x: m.x + far, y: m.y };
+            // 1 while it can still hit him on this run.
+            m.timer = 1;
+            m.facing = angleTo(m, m.goal);
+            break;
+          }
           // He had the wind-up's time to get away: a bite lands only if he is still close, a slam on all within it.
           const struck = k.slamRadius > 0 ? d <= k.slamRadius : d <= monsterReach(m) + k.reachGrace;
           if (heroUp && struck) hurtHero(s, m, rng, ev);
@@ -284,6 +294,21 @@ function stepMonsters(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void
             m.mode = 'rest';
             m.timer = k.restSeconds;
           }
+        }
+        break;
+      }
+      case 'rush': {
+        // Head down, straight on: it hits him once if it runs into him, and skids to a rest at the end of its run.
+        const there = m.goal ? stepToward(m, m.goal, k.rushSpeed * dt) : true;
+        if (m.timer > 0 && heroUp && dist(m, h) <= k.radius + N.hero.radius + 4) {
+          hurtHero(s, m, rng, ev);
+          m.timer = 0;
+        }
+        if (there) {
+          if (m.timer > 0) ev.push({ type: 'monsterMissed', monster: m.id });
+          m.goal = null;
+          m.mode = 'rest';
+          m.timer = k.restSeconds;
         }
         break;
       }
@@ -325,6 +350,12 @@ function stepMonsters(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void
       if (m.mode === 'wander' && m.goal && Math.hypot(m.x - fromX, m.y - fromY) < 0.01) {
         m.goal = null;
         m.timer = pause(m, rng);
+      }
+      // So does a run: into a palm, and it sits down.
+      if (m.mode === 'rush' && Math.hypot(m.x - fromX, m.y - fromY) < 0.5) {
+        m.goal = null;
+        m.mode = 'rest';
+        m.timer = k.restSeconds;
       }
     }
   }

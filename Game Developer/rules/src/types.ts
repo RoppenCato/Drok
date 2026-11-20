@@ -121,8 +121,8 @@ export interface Hero {
   downFor: number;
 }
 
-/** wander near home; chase the hero; windup before a strike; rest after one; retreat (back off); return home. */
-export type MonsterMode = 'wander' | 'chase' | 'windup' | 'rest' | 'retreat' | 'return';
+/** wander near home; chase the hero; windup before a strike; rest after one; retreat (back off); return home; rush (run through where he stood). */
+export type MonsterMode = 'wander' | 'chase' | 'windup' | 'rest' | 'retreat' | 'return' | 'rush';
 
 export interface Monster {
   id: number;

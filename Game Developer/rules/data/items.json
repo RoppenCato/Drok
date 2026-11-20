@@ -13,7 +13,7 @@
     "_about": "A stall of a few pieces, new ones each time he comes to town (Zite's lesson: a phone screen shows a few things; rotate, don't list). The tier on sale follows his level.",
     "pieces": 3,
     "weights": { "common": 80, "uncommon": 20, "rare": 0, "epic": 0 },
-    "tierAtLevel": [1, 1, 1, 2, 2, 3],
+    "tierAtLevel": [1, 1, 1, 2, 2, 3, 3, 3, 3],
     "buyTimes": 3,
     "sellShare": 0.5
   },

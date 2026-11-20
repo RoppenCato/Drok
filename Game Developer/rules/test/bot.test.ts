@@ -7,6 +7,8 @@ import { DT, ISLAND, Sim } from './sim.ts';
 // before the game.
 
 const world = PLACES[ISLAND]!;
+/** The level the bot plays to: Crab Cay's last. The swamp's three levels are not played by a bot yet. */
+const GOAL = 5;
 /** Where he stands to trade. */
 const stallFront = { x: world.shop!.x, y: world.shop!.y + N.reach.shopFront };
 
@@ -174,7 +176,7 @@ function journey(seed: string, limitMinutes: number, style: Style = SENSIBLE): J
     const max = heroMaxHp(h);
     if (h.hp < max * style.drinkAt && h.potions > 0 && h.potionCd <= 0) sim.act({ type: 'potion' });
     const after = s.monsters.filter((m) => m.mode !== 'wander' && m.mode !== 'return');
-    const done = h.level >= N.levels.max && chestAt !== null;
+    const done = h.level >= GOAL && chestAt !== null;
     if (!homeward && (done || h.bag.length >= N.bagSize - 1 || (h.potions === 0 && h.hp < max * 0.45) || (h.potions === 0 && h.gold >= 60 && after.length === 0))) {
       homeward = true;
       trips += 1;
@@ -198,7 +200,7 @@ function journey(seed: string, limitMinutes: number, style: Style = SENSIBLE): J
       continue;
     }
     // The chest, once he is strong enough to stand where it stands.
-    if (h.level >= N.levels.max && chestFull(s) && after.length === 0 && h.hp > max * 0.7) {
+    if (h.level >= GOAL && chestFull(s) && after.length === 0 && h.hp > max * 0.7) {
       if (go({ x: world.chest!.x, y: world.chest!.y + 40 })) sim.act({ type: 'openChest' });
       sim.step();
       continue;
@@ -215,7 +217,8 @@ function journey(seed: string, limitMinutes: number, style: Style = SENSIBLE): J
     }
     lingered = 0;
 
-    const preyKind = h.level < 3 ? 'sand-crab' : h.level < 4 ? 'reef-gull' : 'coconut-crab';
+    // What his level hunts on Crab Cay: crabs, then the piglets, then the monkeys, then the coconut crabs.
+    const preyKind = h.level < 3 ? 'sand-crab' : h.level < 4 ? 'bristle-piglet' : h.level < 5 ? 'palm-monkey' : 'coconut-crab';
     let prey: Monster | undefined;
     // Whatever is biting him comes first; then the nearest of what his level hunts.
     for (const m of after) if (!prey || dist(h, m) < dist(h, prey)) prey = m;
@@ -270,7 +273,7 @@ describe('a bot plays the starter island through', () => {
   const seeds = ['tide', 'reef', 'gull'];
   const limit = 90;
   it(
-    `from a new hero at home to level ${N.levels.max} and the chest, on ${seeds.length} seeds`,
+    `from a new hero at home to level ${GOAL} and the chest, on ${seeds.length} seeds`,
     () => {
       for (const seed of seeds) {
         const j = journey(seed, limit);
@@ -283,7 +286,7 @@ describe('a bot plays the starter island through', () => {
             `  [numbers] ${seed}: ${kills}; ${j.deaths} falls, ${j.trips} trips home, ${j.potions} potions drunk; ${j.goldEarned} money earned, ${j.goldAtEnd} left; gear found: ${RARITY_ORDER.map((r) => `${j.found[r]} ${r}`).join(', ')}\n` +
             `  [numbers] ${seed}: wears ${j.worn}${j.refused.length ? `; refused: ${j.refused.join('; ')}` : ''}`,
         );
-        expect(j.levelAt[N.levels.max], `${seed} never reached level ${N.levels.max}`).toBeDefined();
+        expect(j.levelAt[GOAL], `${seed} never reached level ${GOAL}`).toBeDefined();
         expect(j.chestAt, `${seed} never opened the chest`).not.toBeNull();
         expect(j.minutes).toBeLessThan(limit);
       }
@@ -311,9 +314,9 @@ describe.runIf(LONG)('the long balance run', () => {
       `${style.name}, ${seeds.length} seeds, at most ${limit} minutes each`,
       () => {
         const runs = seeds.map((seed) => journey(seed, limit, style));
-        const done = runs.filter((j) => j.levelAt[N.levels.max] !== undefined && j.chestAt !== null);
+        const done = runs.filter((j) => j.levelAt[GOAL] !== undefined && j.chestAt !== null);
         console.log(
-          `  [numbers] ${style.name}: ${done.length} of ${runs.length} reached level ${N.levels.max} and the chest inside ${limit} minutes\n` +
+          `  [numbers] ${style.name}: ${done.length} of ${runs.length} reached level ${GOAL} and the chest inside ${limit} minutes\n` +
             [2, 3, 4, 5].map((l) => `  [numbers]   level ${l} at minute ${range(runs.filter((j) => j.levelAt[l] !== undefined).map((j) => j.levelAt[l]!))}, reached by ${runs.filter((j) => j.levelAt[l] !== undefined).length}`).join('\n') +
             `\n  [numbers]   the chest at minute ${range(runs.filter((j) => j.chestAt !== null).map((j) => j.chestAt!))}\n` +
             `  [numbers]   falls ${range(runs.map((j) => j.deaths), 0)}; trips home ${range(runs.map((j) => j.trips), 0)}; potions drunk ${range(runs.map((j) => j.potions), 0)}\n` +

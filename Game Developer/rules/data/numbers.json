@@ -29,9 +29,9 @@
     "ragePerHitTaken": 6
   },
   "levels": {
-    "_about": "Chapter 1 goes from level 1 to 5 (Robin, 2026-11-20). xpToNext[level] is what a level needs to become the next. Each level gives health and a little damage, and fills his health. The whole climb is meant to take about half an hour of hunting; the bot prints the real time.",
-    "max": 5,
-    "xpToNext": [0, 150, 420, 1000, 2200],
+    "_about": "Levels 1 to 5 are Crab Cay's (Robin, 2026-11-20: chapter 1), 6 to 8 the swamp's, Mire Cay, since Robin asked for a second island the same day; the swamp's three numbers are Victor, GD's guesses. xpToNext[level] is what a level needs to become the next. Each level gives health and a little damage, and fills his health. The whole climb is meant to take about half an hour of hunting; the bot prints the real time.",
+    "max": 8,
+    "xpToNext": [0, 150, 420, 1000, 2200, 3600, 5200, 7200],
     "hpPerLevel": 14,
     "damagePerLevel": 1.5
   },
