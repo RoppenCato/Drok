@@ -27,6 +27,12 @@ paler down the middle, a ragged rim with no line, moss creeping in, and a worn p
 laid together, so none lies on another. **Only `ground.png` changed** (and the look pictures); `paths` in
 `place.json` is the same list, and the ways still run through its points.
 
+**The fourth drop, 2026-11-20: the landmark.** Robin said the swamp "Looks good", so the old stones have their
+landmark: a great stone toad on a plinth, moss on its head, its eyes still shining, looking south over the ruin's
+pool, with eight broken pillars in a ring round the pool. New props: `idol`, `pillar-a`, `pillar-b`, `pillar-c`.
+The atlas is 1024 by 810 with 32 props (3.2 MB); 436 props stand, 194 things are in the way (two boxes now: the stall
+and the toad). `ground.png` did not change. The toad stands at 1212, 622; a few reeds round it are gone.
+
 ## The numbers
 
 | File | What | Size | Decoded | On disk |
@@ -64,7 +70,7 @@ Copy the folder. It is Crab Cay's form (`out\crab-cay\NOTES.md`), with **one new
 ## Open
 
 - **The look:** Robin, 2026-11-20: "Looks good except the roads." The roads are redone (above) and shown to him again.
-- **A landmark.** The old stones want broken pillars and one great thing (I would make a mossy stone toad). Not made.
+- The stone toad only stands there. If the rules want it to be something (a door, a boss's seat, a place to pray), say.
 - The camp has one person. More of them, and a second hut, when tasks come here.
 - The stall, the hut and the fire take the round shadow; the fire does not flicker.
 - The lanterns do not glow and the water does not move. Fireflies would be the chest's `mote`, tinted yellow.
