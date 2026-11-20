@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { makeRng } from '../../../rules/src/index.ts';
+import { ART } from '../art.ts';
 import type { GameLog } from '../game-log.ts';
 import { COLORS, RES } from '../layout.ts';
 
@@ -19,8 +20,23 @@ export class BootScene extends Phaser.Scene {
     this.log = o.log;
   }
 
+  /**
+   * The Art Director's drops that are switched on in art.ts. Each atlas is loaded twice over: as pictures, and as
+   * plain data for its `actions` block (delays, origins, the points gear rides on), which the picture loader drops.
+   * A file that fails to load is logged; the view then draws the stand-in.
+   */
   preload(): void {
-    // Files in client/public are served from /: this.load.image('hero', '/hero.png');
+    this.load.on(Phaser.Loader.Events.FILE_LOAD_ERROR, (file: Phaser.Loader.File) => this.log.error(`art did not load: ${file.key} (${String(file.url)})`));
+    const atlas = (key: string, folder: string, name = key): void => {
+      this.load.atlas(key, `art/${folder}/${name}.png`, `art/${folder}/${name}.json`);
+      this.load.json(`${key}:data`, `art/${folder}/${name}.json`);
+    };
+    if (ART.hero) atlas('hero', 'hero');
+    if (ART.gear) {
+      atlas('gear', 'gear');
+      atlas('gear-icons', 'gear');
+    }
+    for (const kind of ART.monsters) atlas(kind, kind);
   }
 
   create(): void {

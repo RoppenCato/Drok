@@ -26,6 +26,7 @@ import {
   type Scheme,
   type Slot,
 } from '../../../rules/src/index.ts';
+import { ART, GEAR_ART } from '../art.ts';
 import { COLORS, DEPTH, DESIGN_HEIGHT, DESIGN_WIDTH, FONT, RES, hex } from '../layout.ts';
 import type { Intent } from '../local-game.ts';
 import { settings } from '../settings.ts';
@@ -195,6 +196,14 @@ export class Panels {
     const edge = item ? hex(RARITIES[item.rarity].color) : COLORS.panelEdge;
     this.rect(x, y, size, size, COLORS.panelLight, 1, chosen ? COLORS.mark : edge, chosen ? 4 : 3);
     const s = this.scene;
+    // The Art Director's icon for the piece, when that drop is in the game; else a plain shape for its slot.
+    const art = item ? `icon/${GEAR_ART[item.base] ?? ''}` : '';
+    if (item && ART.gear && s.textures.exists('gear-icons') && s.textures.get('gear-icons').has(art)) {
+      const picture = s.add.image(x, y, 'gear-icons', art).setDepth(DEPTH.panel + 2);
+      picture.setScale(Math.min((size * 0.82) / picture.width, (size * 0.82) / picture.height));
+      this.keep(picture);
+      return;
+    }
     const tint = item ? 0xf3f6f8 : 0x3a6072;
     const k = size / 62;
     let shape: Phaser.GameObjects.Shape;

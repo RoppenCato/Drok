@@ -5,9 +5,11 @@
 
 import Phaser from 'phaser';
 import { MONSTERS, N, RARITIES, chestFull, kindOf, makeRng, placeOf, type Drop, type GameEvent, type GameState, type Monster, type Place, type Vec } from '../../../rules/src/index.ts';
+import { ART } from '../art.ts';
 import { COLORS, DEPTH, FONT, RES, hex } from '../layout.ts';
 import type { Ground } from '../scenes/BootScene.ts';
 import { settings } from '../settings.ts';
+import { Figure, HeroFigure, type AtlasData, type GearData } from './figures.ts';
 
 type Obj = Phaser.GameObjects.GameObject;
 
@@ -18,9 +20,12 @@ export type Register = <T extends Obj>(object: T) => T;
 export type Thing = 'chest' | 'shop' | 'dock';
 
 interface MonsterView {
-  body: Phaser.GameObjects.Container;
+  /** The Art Director's figure, when this kind has one; else the stand-in below. */
+  figure: Figure | null;
+  mode: string;
+  body: Phaser.GameObjects.Container | null;
   /** The part that flashes and changes colour with its mood, and the colour it has at rest. */
-  shell: Phaser.GameObjects.Shape;
+  shell: Phaser.GameObjects.Shape | null;
   color: number;
   shadow: Phaser.GameObjects.Ellipse;
   barBack: Phaser.GameObjects.Rectangle;
@@ -65,6 +70,10 @@ export class WorldView {
   private readonly reg: Register;
   private readonly monsters = new Map<number, MonsterView>();
   private readonly drops = new Map<number, DropView>();
+  /** Fallen monsters playing out their fall: the figure, and the ms it still has. */
+  private dying: { figure: Figure; left: number }[] = [];
+  /** The hero as the Art Director drew him, when that drop is in the game; else the stand-in shapes. */
+  private heroFigure: HeroFigure | null = null;
   /** Everything that belongs to the place he is in; gone when he leaves it. */
   private scenery: Obj[] = [];
   private place = '';
@@ -112,8 +121,21 @@ export class WorldView {
     this.swordArm.rotation = 0.5;
     this.hero = this.reg(s.add.container(state.hero.x, state.hero.y, [this.heroBody, this.heroBuckler, this.swordArm, this.heroHat, this.heroFeather, face]));
     this.hero.rotation = state.hero.facing;
+    const drawn = this.atlas('hero', ART.hero);
+    if (drawn) {
+      const gear = ART.gear && s.textures.exists('gear') ? ((s.cache.json.get('gear:data') as GearData | undefined) ?? null) : null;
+      this.heroFigure = new HeroFigure(s, this.reg, drawn, gear);
+      this.hero.setVisible(false);
+    }
     this.slash = this.reg(s.add.graphics().setDepth(DEPTH.effects).setAlpha(0));
     this.enter(state);
+  }
+
+  /** An atlas's data, if that drop is switched on and its files loaded. */
+  private atlas(key: string, on: boolean): AtlasData | null {
+    if (!on || !this.scene.textures.exists(key)) return null;
+    const data = this.scene.cache.json.get(`${key}:data`) as AtlasData | undefined;
+    return data?.actions ? data : null;
   }
 
   /** He is in another place: take the old one down and put this one up. */
@@ -124,6 +146,8 @@ export class WorldView {
     this.monsters.clear();
     for (const v of this.drops.values()) v.body.destroy();
     this.drops.clear();
+    for (const d of this.dying) d.figure.destroy();
+    this.dying = [];
     this.chestLid = null;
     this.chestGlow = null;
     this.place = state.place;
@@ -159,14 +183,20 @@ export class WorldView {
     this.heroAt.x = hx;
     this.heroAt.y = hy;
     const down = h.downFor > 0;
-    const bob = h.moving && !down ? Math.sin(time * 0.022) * 1.3 : 0;
-    this.hero.setPosition(hx, hy + bob).setDepth(DEPTH.bodies + hy);
-    this.hero.rotation = Phaser.Math.Angle.RotateTo(this.hero.rotation, h.facing, delta * 0.02);
-    this.hero.setAlpha(down ? 0.4 : 1).setScale(down ? 0.85 : 1);
-    this.heroShadow.setPosition(hx + 2, hy + 9);
     this.heroFlash = Math.max(0, this.heroFlash - fade);
-    this.dress(h);
-    this.heroBody.setFillStyle(this.heroFlash > 0.3 ? 0xffffff : this.coatColor);
+    if (this.heroFigure) {
+      // The drawn hero stands on his feet at the point the rules give.
+      this.heroFigure.sync({ x: hx, y: hy, depth: DEPTH.bodies + hy, facing: h.facing, moving: h.moving, charging: h.charging !== null, down, worn: h.worn, delta, flash: this.heroFlash > 0.3 });
+      this.heroShadow.setPosition(hx, hy + 1);
+    } else {
+      const bob = h.moving && !down ? Math.sin(time * 0.022) * 1.3 : 0;
+      this.hero.setPosition(hx, hy + bob).setDepth(DEPTH.bodies + hy);
+      this.hero.rotation = Phaser.Math.Angle.RotateTo(this.hero.rotation, h.facing, delta * 0.02);
+      this.hero.setAlpha(down ? 0.4 : 1).setScale(down ? 0.85 : 1);
+      this.heroShadow.setPosition(hx + 2, hy + 9);
+      this.dress(h);
+      this.heroBody.setFillStyle(this.heroFlash > 0.3 ? 0xffffff : this.coatColor);
+    }
 
     this.destDot.setVisible(h.dest !== null);
     if (h.dest) this.destDot.setPosition(h.dest.x, h.dest.y);
@@ -188,11 +218,26 @@ export class WorldView {
 
       const stunned = m.stunned > 0;
       const windup = m.mode === 'windup' && !stunned ? 1 - m.timer / k.windupSeconds : 0;
-      v.body.setPosition(v.x, v.y).setDepth(DEPTH.bodies + v.y);
-      v.body.rotation = Phaser.Math.Angle.RotateTo(v.body.rotation, m.facing, delta * 0.012);
-      v.body.setScale((1 + 0.28 * windup + 0.16 * v.punch) * (1 - 0.5 * v.pop));
-      v.shell.setFillStyle(v.punch > 0.45 ? 0xffffff : stunned ? COLORS.stunned : windup > 0 ? COLORS.windup : v.color);
-      v.shadow.setPosition(v.x + 2, v.y + v.radius * 0.55);
+      if (v.figure) {
+        // The drawn monster: its wind-up is its own animation, started the step the wind-up starts.
+        const f = v.figure;
+        const walking = m.mode === 'chase' || m.mode === 'return' || m.mode === 'retreat' || (m.mode === 'wander' && m.goal !== null);
+        if (stunned) f.play('hit1');
+        else if (m.mode === 'windup') f.play('attack1', v.mode !== 'windup');
+        else if (!(f.playing === 'attack1' && !f.done)) f.play(walking ? 'move' : 'stand');
+        v.mode = m.mode;
+        f.face(m.facing);
+        f.advance(delta);
+        f.place(v.x, v.y, DEPTH.bodies + v.y, (1 + 0.1 * v.punch) * (1 - 0.5 * v.pop));
+        f.flash(v.punch > 0.45);
+        v.shadow.setPosition(v.x, v.y + 1);
+      } else if (v.body && v.shell) {
+        v.body.setPosition(v.x, v.y).setDepth(DEPTH.bodies + v.y);
+        v.body.rotation = Phaser.Math.Angle.RotateTo(v.body.rotation, m.facing, delta * 0.012);
+        v.body.setScale((1 + 0.28 * windup + 0.16 * v.punch) * (1 - 0.5 * v.pop));
+        v.shell.setFillStyle(v.punch > 0.45 ? 0xffffff : stunned ? COLORS.stunned : windup > 0 ? COLORS.windup : v.color);
+        v.shadow.setPosition(v.x + 2, v.y + v.radius * 0.55);
+      }
       v.star.setVisible(stunned).setPosition(v.x, v.y - v.radius - 12);
       if (stunned) v.star.rotation = time * 0.006;
       if (v.slam) {
@@ -209,8 +254,24 @@ export class WorldView {
     }
     for (const [id, v] of this.monsters) {
       if (seen.has(id)) continue;
+      // A drawn monster that is gone plays its fall where it stood; a stand-in simply goes.
+      if (v.figure && samePlace && v.figure.has('die1')) {
+        v.figure.play('die1', true);
+        v.figure.flash(false);
+        this.dying.push({ figure: v.figure, left: v.figure.length('die1') + 350 });
+        v.figure = null;
+      }
       this.dropMonster(v);
       this.monsters.delete(id);
+    }
+    if (this.dying.length > 0) {
+      for (const d of this.dying) {
+        d.left -= delta;
+        d.figure.advance(delta);
+        d.figure.image.setAlpha(Math.min(1, Math.max(0, d.left / 350)));
+        if (d.left <= 0) d.figure.destroy();
+      }
+      this.dying = this.dying.filter((d) => d.left > 0);
     }
 
     const target = h.target !== null ? this.monsters.get(h.target) : undefined;
@@ -259,6 +320,7 @@ export class WorldView {
       switch (e.type) {
         case 'swing':
           this.swingSword();
+          this.heroFigure?.play('attack1');
           break;
         case 'hit': {
           const v = this.monsters.get(e.monster);
@@ -271,6 +333,7 @@ export class WorldView {
           break;
         case 'heroHit':
           this.heroFlash = 1;
+          this.heroFigure?.play('hit1');
           this.number(this.heroAt.x, this.heroAt.y - 32, `-${e.amount}`, COLORS.hurt, 17);
           if (!settings.get().fewerEffects) this.scene.cameras.main.shake(90, 0.004);
           break;
@@ -291,6 +354,7 @@ export class WorldView {
         case 'cleaved':
           this.sweep(state.hero, e.facing);
           this.swingSword();
+          this.heroFigure?.play('cleave');
           break;
         case 'picked': {
           const d = e.drop;
@@ -499,10 +563,18 @@ export class WorldView {
     const s = this.scene;
     const k = kindOf(m);
     const r = k.radius;
-    let shell: Phaser.GameObjects.Shape;
-    let color: number;
-    let parts: Phaser.GameObjects.GameObject[];
-    if (m.kind === 'reef-gull') {
+    const drawn = this.atlas(m.kind, ART.monsters.includes(m.kind));
+    let figure: Figure | null = null;
+    let body: Phaser.GameObjects.Container | null = null;
+    let shell: Phaser.GameObjects.Shape | null = null;
+    let color = 0;
+    let parts: Phaser.GameObjects.GameObject[] = [];
+    if (drawn) {
+      figure = new Figure(s, m.kind, drawn);
+      this.reg(figure.image);
+      figure.face(m.facing);
+      figure.place(m.x, m.y, DEPTH.bodies + m.y);
+    } else if (m.kind === 'reef-gull') {
       color = COLORS.gull;
       shell = s.add.ellipse(0, 0, r * 2.2, r * 1.5, color).setStrokeStyle(2, COLORS.gullDark);
       const wingLeft = s.add.ellipse(-3, -r * 0.95, r * 1.5, r * 0.75, COLORS.gullDark);
@@ -520,10 +592,14 @@ export class WorldView {
       parts = [clawLeft, clawRight, shell, s.add.circle(r * 0.6, -r * 0.27, 2.5, 0xffffff), s.add.circle(r * 0.6, r * 0.27, 2.5, 0xffffff)];
       if (big) parts.push(s.add.circle(-r * 0.25, 0, r * 0.42, dark, 0.55));
     }
-    const body = this.reg(s.add.container(m.x, m.y, parts));
-    body.rotation = m.facing;
+    if (!figure) {
+      body = this.reg(s.add.container(m.x, m.y, parts));
+      body.rotation = m.facing;
+    }
     const w = r * 2 + 2;
     return {
+      figure,
+      mode: m.mode,
       body,
       shell,
       color,
@@ -541,7 +617,8 @@ export class WorldView {
   }
 
   private dropMonster(v: MonsterView): void {
-    v.body.destroy();
+    v.figure?.destroy();
+    v.body?.destroy();
     v.shadow.destroy();
     v.barBack.destroy();
     v.bar.destroy();
