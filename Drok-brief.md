@@ -38,7 +38,14 @@ rare drops, in a top-down world."
   each, and the chart to sail between them." So the sea chart of islands stays (his pick earlier the same day),
   and his wish for an open world of biomes ("I think I like it more if its an open world and not tied to islands.
   Instead it should be biomes.") is met inside each island: it is big, walked without a break, and has several
-  grounds with their own levels and monsters. What "expand" is first is the Game Developer's to propose.
+  grounds with their own levels and monsters.
+- **The starter island** (Robin, 2026-11-20): "Make the starter island a pirate town, and the other part of the
+  island beginner friendly with low level mobs." So the town is on the first island, not a place of its own: he
+  walks out of it into the hunting ground. This takes the place of the harbour town as its own pin on the chart.
+- **Loot** (Robin, 2026-11-20): "items should pop out of monsters when dropped."
+- **The inventory** (Robin, 2026-11-20): "you need to make a proper inventory system like my other games, look at
+  zite for example." Zite's is the hero sheet he picked there on 2026-11-02: the hero wearing his gear, a slot for
+  each part of him, his numbers, the bag as a grid, one card for the piece that is tapped.
 - **The house, tried and left** (Robin, 2026-11-20): a shrunk person in a house, and the enemies are insects. His words: "A shrunk
   person and enemies are insects"; "Lets do 1, but inside a house." It replaces vibrant pirate (his pick earlier
   the same day), which replaced "Dark fantasy" (Robin, 2026-11-19). The colours stay: "I really liked the color and
@@ -184,6 +191,10 @@ A line each, newest at the bottom: the date, the decision, Robin's words.
   on pirate".
 - 2026-11-20: the pirate world is big islands with several biomes each and the chart between them (his pick,
   "3", of: one big island, islands as they were, or both).
+- 2026-11-20: "Youll need to stop the AD and have him make pirate stuff instead. Make the starter island a pirate
+  town, and the other part of the island beginner friendly with low level mobs. Also, items should pop out of
+  monsters when dropped. And you need to make a proper inventory system like my other games, look at zite for
+  example."
 - 2026-11-20: four picks for the house, by choice boxes: he wants to get big again; pin and button; the town is a
   doll's house; spiders are in, like any insect.
 

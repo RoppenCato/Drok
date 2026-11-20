@@ -201,6 +201,11 @@ export class Figure {
   }
 
   /** White for a moment when struck, else its own colours. */
+  /** Draw it bigger or smaller than life (the hero in his window). */
+  size(times: number): void {
+    this.image.setScale(times / this.data.meta.filePx);
+  }
+
   flash(on: boolean): void {
     if (on) this.image.setTint(0xffffff).setTintMode(Phaser.TintModes.FILL);
     else this.image.clearTint().setTintMode(Phaser.TintModes.MULTIPLY);
@@ -271,6 +276,12 @@ export class HeroFigure {
     }
   }
 
+  destroy(): void {
+    this.body.destroy();
+    for (const image of this.pieces.values()) image.destroy();
+    this.pieces.clear();
+  }
+
   /** A swing, a Cleave, a flinch: played once from its start. A flinch never cuts a blow short. */
   play(action: string): void {
     if (action === 'hit1' && this.once && this.once !== 'hit1' && !this.body.done) return;
@@ -278,7 +289,7 @@ export class HeroFigure {
     this.body.play(action, true);
   }
 
-  sync(o: { x: number; y: number; depth: number; facing: number; moving: boolean; charging: boolean; down: boolean; worn: Record<Slot, Item | null>; delta: number; flash: boolean }): void {
+  sync(o: { x: number; y: number; depth: number; facing: number; moving: boolean; charging: boolean; down: boolean; worn: Record<Slot, Item | null>; delta: number; flash: boolean; size?: number }): void {
     const b = this.body;
     if (this.once && (b.done || b.playing !== this.once)) this.once = null;
     if (o.down) {
@@ -294,6 +305,8 @@ export class HeroFigure {
     if (!o.down) b.face(o.facing);
     b.advance(o.delta);
     b.image.setPosition(o.x, o.y).setDepth(o.depth).setAlpha(o.down ? 0.75 : 1);
+    const k = o.size ?? 1;
+    if (o.size !== undefined) b.size(k);
     b.flash(o.flash);
 
     for (const [slot, pointName] of GEAR_POINTS) {
@@ -311,7 +324,8 @@ export class HeroFigure {
       }
       image.setVisible(true).setFrame(name, true, false).setFlipX(b.flip);
       image.setOrigin(b.flip ? 1 - info.origin.x / info.w : info.origin.x / info.w, info.origin.y / info.h);
-      image.setPosition(o.x + p.x, o.y + p.y).setRotation((p.r * Math.PI) / 180);
+      image.setPosition(o.x + p.x * k, o.y + p.y * k).setRotation((p.r * Math.PI) / 180);
+      if (o.size !== undefined) image.setScale(k / this.gear.meta.filePx);
       image.setDepth(o.depth + (p.front ? 0.5 : -0.5));
     }
   }

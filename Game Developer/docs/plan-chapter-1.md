@@ -188,6 +188,26 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
       and edge strips, not one painting: a painting of that size would not fit a phone's memory
     - `[ ]` GD: draw a place from patterns and strips; lay his island into the rules; the bot plays it through
 
+21. `[x] Built 2026-11-20` `[ ] Checked` · GD · **Loot pops out of a monster** (Robin, 2026-11-20: "items should pop
+    out of monsters when dropped")
+    - `[x]` each thing flies out of the fallen monster (or the opened chest) in an arc, lands with a small bounce,
+      and lies 0.55 s before it can fly to him; things land 38 from where it fell, not 22
+    - tests: nothing is picked up before it has lain; then it flies as before
+
+22. `[x] Built 2026-11-20` `[ ] Checked` · GD · **The hero sheet: one window for the hero and his bag** (Robin,
+    2026-11-20: "a proper inventory system like my other games, look at zite for example")
+    - `[x]` after Zite's hero sheet: the hero wearing his gear, four slots beside him, his numbers, the bag as a
+      grid of 7 by 3, a card for the tapped piece with how it stands against what he wears, and only the buttons
+      that apply (Wear, Take off, Drop, and Sell at the stall). The bag button and the hero button both open it
+    - `[x]` a piece he finds for a bare part of him is put on at once (Zite's rule)
+    - not taken from Zite, because this game has none yet: stacks of flasks and cards, sets, ranks, tabs
+
+23. `[ ]` · AD then GD · **The town on the starter island** (Robin, 2026-11-20: "Make the starter island a pirate
+    town, and the other part of the island beginner friendly with low level mobs")
+    - `[ ]` AD: the big island with the town at its landing, asked 2026-11-20
+    - `[ ]` GD: a safe part inside a place (built once for the house: commit `0ee2db9`, `home`), waking there
+      after a fall, the harbour off the chart; the bot plays it through
+
 ## Waits for Robin
 
 - Play it: `http://192.168.0.43:5178/` on the home Wi-Fi. The first minute: tap the stall to see what it sells,

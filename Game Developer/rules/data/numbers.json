@@ -69,12 +69,13 @@
     "start": 3
   },
   "drops": {
-    "_about": "Loot lies where the monster fell (Robin, 2026-11-19 and 2026-11-20) and flies to him when he walks close. magnetRange is how close; a full bag leaves gear on the ground. What is left behind when he sails or falls is gone.",
+    "_about": "Loot pops out of the monster (Robin, 2026-11-20: 'items should pop out of monsters when dropped'): each thing lands scatter from where it fell, and lies there for settleSeconds before it can fly to him, so he sees what fell even when he stands on it. Then it flies to him when he is close (Robin, 2026-11-19 and 2026-11-20). magnetRange is how close; a full bag leaves gear on the ground. What is left behind when he sails or falls is gone.",
     "magnetRange": 72,
     "magnetSpeed": 480,
     "pickRange": 18,
     "lifeSeconds": 120,
-    "scatter": 22
+    "scatter": 38,
+    "settleSeconds": 0.55
   },
   "world": {
     "_about": "A place can be big: a monster further than awake from him that is only strolling does not move (it sleeps), so a step costs the same however big an island grows. About three and a half screens' height.",

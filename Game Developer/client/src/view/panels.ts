@@ -1,4 +1,4 @@
-// The windows that open over the game: the bag, the hero, the sea chart, the stall, and the settings. One at a
+// The windows that open over the game: the hero sheet (the hero and his bag), the sea chart, the stall, and the settings. One at a
 // time, each rebuilt whole from the state whenever something in it changes, so a window can never show a stale
 // number. A window's buttons act when the finger lifts on them (saving a file and choosing one need that); a tap
 // beside the window closes it. The world goes on behind an open window: this is not a pause.
@@ -30,7 +30,7 @@ import { COLORS, DEPTH, DESIGN_HEIGHT, DESIGN_WIDTH, FONT, RES, hex } from '../l
 import type { Intent } from '../local-game.ts';
 import { settings } from '../settings.ts';
 import { sounds } from '../sound.ts';
-import { picture } from './figures.ts';
+import { HeroFigure, picture, type AtlasData, type GearData } from './figures.ts';
 import { INK, hasGlass, inkFor, piece, stretch } from './glass.ts';
 
 export type PanelKind = 'menu' | 'bag' | 'hero' | 'chart' | 'shop';
@@ -105,6 +105,10 @@ export class Panels {
   private armed: Zone | 'outside' | null = null;
   /** The piece of the bag that is being looked at, and whether the bag was opened from the stall to sell. */
   private selected: number | null = null;
+  /** The part of him whose worn piece is being looked at. */
+  private selectedSlot: Slot | null = null;
+  /** The hero drawn in his window, wearing his gear. */
+  private sheetHero: HeroFigure | null = null;
   private selling = false;
   /** The open window fills the whole screen (the drawn sea chart): there is no "beside it" to tap. */
   private whole = false;
@@ -120,6 +124,7 @@ export class Panels {
     this.kind = kind;
     this.selling = selling;
     this.selected = null;
+    this.selectedSlot = null;
     this.rebuild();
   }
 
@@ -160,6 +165,8 @@ export class Panels {
   private clear(): void {
     for (const o of this.objects) o.destroy();
     this.objects = [];
+    this.sheetHero?.destroy();
+    this.sheetHero = null;
     this.zones = [];
     this.whole = false;
   }
@@ -279,10 +286,8 @@ export class Panels {
         this.buildMenu(state);
         break;
       case 'bag':
-        this.buildBag(state);
-        break;
       case 'hero':
-        this.buildHero(state);
+        this.buildSheet(state);
         break;
       case 'chart':
         this.buildChart(state);
@@ -334,131 +339,198 @@ export class Panels {
     this.text(CX, F.y + F.h - 36, 'Export it now and then to keep it safe.', 12, COLORS.dim);
   }
 
-  // ---- the bag -----------------------------------------------------------------------------------------------------
+  // ---- the hero sheet: the hero, what he wears, what he carries, and the piece being looked at -----------------------
 
-  private buildBag(state: GameState): void {
+  /**
+   * One window for the hero and his bag (Robin, 2026-11-20: "a proper inventory system like my other games, look
+   * at zite for example"). It is Zite's hero sheet, which he picked there on 2026-11-02 and asked more stats of:
+   * the hero wearing his gear in the middle, a slot for each part of him beside him, his numbers under him, the
+   * bag as a grid of cells edged in each piece's rarity, and one card at the bottom for the piece that was tapped:
+   * what it gives, how it stands against what he wears, and only the buttons that apply. No text under 13.
+   */
+  private buildSheet(state: GameState): void {
+    const s = this.scene;
     const h = state.hero;
     const atShop = this.actions.atShop();
-    this.frame(this.selling ? 'Sell from your bag' : 'Bag');
-    this.text(CX, F.y + 62, `${h.bag.length} of ${N.bagSize} pieces   ·   ${h.gold} gold   ·   ${h.potions} potions`, 13, COLORS.dim);
-    const cols = 5;
-    const size = 62;
-    const gap = 8;
-    const left = CX - (cols * size + (cols - 1) * gap) / 2 + size / 2;
-    const top = F.y + 88 + size / 2;
+    this.frame(this.selling ? 'Sell from your bag' : 'Hero');
+    const left = F.x + 22;
+    const right = F.x + F.w - 22;
+
+    // Who he is, how far to the next level, what he owns.
+    const need = xpToNext(h.level);
+    this.text(left, F.y + 46, `Level ${h.level} Warrior`, 16, COLORS.text, 0);
+    this.text(right, F.y + 46, `${h.gold} gold`, 15, COLORS.goldText, 1);
+    this.rect(CX, F.y + 66, F.w - 44, 10, COLORS.barBack);
+    const part = need > 0 ? Math.min(1, h.xp / need) : 1;
+    if (part > 0) this.keep(s.add.rectangle(left + 1, F.y + 66, (F.w - 46) * part, 8, COLORS.xp).setOrigin(0, 0.5).setDepth(DEPTH.panel + 2));
+    this.text(CX, F.y + 84, need > 0 ? `${h.xp} of ${need} experience to level ${h.level + 1}` : 'As far as this chapter goes', 13, COLORS.dim);
+
+    // The hero wearing his gear, and a slot for each part of him beside him.
+    const top = F.y + 100;
+    this.row(CX, top + 82, 136, 164);
+    const data = s.textures.exists('hero') ? (s.cache.json.get('hero:data') as AtlasData | undefined) : undefined;
+    if (ART.hero && data?.actions) {
+      const gear = ART.gear && s.textures.exists('gear') ? ((s.cache.json.get('gear:data') as GearData | undefined) ?? null) : null;
+      this.sheetHero = new HeroFigure(s, this.reg, data, gear);
+      this.sheetHero.sync({ x: CX, y: top + 146, depth: DEPTH.panel + 3, facing: Math.PI / 2, moving: false, charging: false, down: false, worn: h.worn, delta: 0, flash: false, size: 2.4 });
+    } else {
+      this.keep(s.add.circle(CX, top + 90, 34, COLORS.hero).setStrokeStyle(3, COLORS.heroDark).setDepth(DEPTH.panel + 2));
+      this.keep(s.add.circle(CX, top + 60, 16, COLORS.skin).setStrokeStyle(2, COLORS.heroDark).setDepth(DEPTH.panel + 2));
+    }
+    const places: [Slot, number, number][] = [
+      ['hat', CX - 112, top + 40],
+      ['coat', CX - 112, top + 122],
+      ['weapon', CX + 112, top + 40],
+      ['shield', CX + 112, top + 122],
+    ];
+    for (const [slot, x, y] of places) {
+      const item = h.worn[slot];
+      this.icon(x, y, item, slot, 56, this.selectedSlot === slot);
+      this.text(x, y + 38, SLOT_NAMES[slot], 13, COLORS.dim);
+      this.zone(x, y + 6, 76, 84, () => {
+        this.selectedSlot = item ? slot : null;
+        this.selected = null;
+        this.refresh();
+      });
+    }
+
+    // His numbers, under him.
+    const bonus = heroBonusDamage(h);
+    const numbers = [
+      `Health ${Math.ceil(h.hp)} of ${heroMaxHp(h)}`,
+      `A swing ${N.hero.damageMin + bonus} to ${N.hero.damageMax + bonus}`,
+      `Armour ${heroArmour(h)}`,
+      `Crit ${Math.round(N.hero.critChance * 100)}%`,
+    ];
+    numbers.forEach((line, i) => this.text(i % 2 === 0 ? left + 8 : CX + 22, top + 182 + Math.floor(i / 2) * 20, line, 14, COLORS.text, 0));
+
+    // The bag: a grid of cells, each edged in its piece's rarity; a better piece than the worn one has a mark.
+    const gy = F.y + 326;
+    this.text(left, gy, `Bag ${h.bag.length} of ${N.bagSize}`, 13, COLORS.dim, 0);
+    this.text(right, gy, `Potions ${h.potions} of ${N.potion.carry}`, 13, COLORS.dim, 1);
+    const cols = 7;
+    const size = 46;
+    const gap = 5;
+    const gx = CX - (cols * size + (cols - 1) * gap) / 2 + size / 2;
     for (let i = 0; i < N.bagSize; i++) {
-      const x = left + (i % cols) * (size + gap);
-      const y = top + Math.floor(i / cols) * (size + gap);
+      const x = gx + (i % cols) * (size + gap);
+      const y = gy + 20 + size / 2 + Math.floor(i / cols) * (size + gap);
       const item = h.bag[i];
       if (!item) {
-        const empty = hasGlass(this.scene) ? piece(this.scene, 'slot/empty') : null;
+        const empty = hasGlass(s) ? piece(s, 'slot/empty') : null;
         if (empty) this.keep(empty.setPosition(x, y).setScale(size / empty.width).setDepth(DEPTH.panel + 1).setAlpha(0.45));
         else this.rect(x, y, size, size, COLORS.panelLight, 0.4, COLORS.panelEdge, 1);
         continue;
       }
       this.icon(x, y, item, baseOf(item).slot, size, item.id === this.selected);
-      if (power(item) > power(h.worn[baseOf(item).slot])) this.text(x + 20, y - 20, '▲', 13, COLORS.good);
+      if (power(item) > power(h.worn[baseOf(item).slot])) this.text(x + 14, y - 14, '▲', 13, COLORS.good);
       this.zone(x, y, size + gap, size + gap, () => {
         this.selected = item.id;
+        this.selectedSlot = null;
         this.refresh();
       });
     }
 
-    const y0 = F.y + 396;
-    const item = h.bag.find((i) => i.id === this.selected);
+    // The card of the piece that was tapped.
+    const cy = gy + 20 + 3 * (size + gap) + 4;
+    const ch = 124;
+    this.row(CX, cy + ch / 2, F.w - 28, ch);
+    const carried = h.bag.find((i) => i.id === this.selected) ?? null;
+    const wornPiece = this.selectedSlot ? h.worn[this.selectedSlot] : null;
+    const item = carried ?? wornPiece;
+    const by = cy + ch + 28;
     if (!item) {
-      this.text(CX, y0 + 60, h.bag.length === 0 ? 'Nothing yet.' : 'Tap a piece to look at it.', 15, COLORS.dim);
-      if (h.bag.length === 0) this.text(CX, y0 + 84, 'Loot flies to you when you walk close.', 13, COLORS.dim);
-      if (this.selling) this.button(CX, F.y + F.h - 46, 200, 48, 'Back to the stall', () => this.open('shop'));
+      this.text(CX, cy + 46, h.bag.length === 0 ? 'The bag is empty.' : 'Tap a piece to look at it.', 15, COLORS.dim);
+      this.text(CX, cy + 70, h.bag.length === 0 ? 'Loot flies to you when you walk close.' : 'Tap what he wears to take it off.', 13, COLORS.dim);
+    } else {
+      const base = baseOf(item);
+      const rarity = RARITIES[item.rarity];
+      const worn = h.worn[base.slot];
+      this.icon(left + 36, cy + 36, item, base.slot, 52);
+      this.text(left + 76, cy + 18, itemName(item), 17, rarity.color, 0);
+      this.text(left + 76, cy + 38, `${carried ? 'In the bag' : 'Worn'} · ${rarity.name.toLowerCase()} ${SLOT_NAMES[base.slot]}`, 13, COLORS.dim, 0);
+      this.text(left + 76, cy + 58, statWords(item), 15, COLORS.text, 0);
+      if (carried) {
+        // Against what he wears, in words: green when it only gains, red when it only loses.
+        const a = itemStats(item);
+        const b = worn ? itemStats(worn) : { damage: 0, hp: 0, armour: 0 };
+        const diffs: [number, string][] = [
+          [a.damage - b.damage, 'damage'],
+          [a.hp - b.hp, 'health'],
+          [a.armour - b.armour, 'armour'],
+        ];
+        const words = diffs.filter(([d]) => d !== 0).map(([d, name]) => `${d > 0 ? '+' : '−'}${Math.abs(d)} ${name}`);
+        const gains = diffs.some(([d]) => d > 0);
+        const losses = diffs.some(([d]) => d < 0);
+        const line = !worn ? `He wears no ${SLOT_NAMES[base.slot]}: ${words.join(', ')}` : words.length === 0 ? `The same as his ${itemName(worn)}` : `Against his ${itemName(worn)}: ${words.join(', ')}`;
+        this.text(left + 8, cy + 84, line, 13, gains && !losses ? COLORS.good : losses && !gains ? COLORS.bad : COLORS.text, 0);
+      } else {
+        this.text(left + 8, cy + 84, 'He wears this now.', 13, COLORS.dim, 0);
+      }
+      this.text(left + 8, cy + 106, atShop ? `The stall gives ${sellPrice(item)} gold for it` : `Worth ${sellPrice(item)} gold at the stall`, 13, COLORS.dim, 0);
+
+      // Only the buttons that apply.
+      const buttons: [string, () => void, number][] = [];
+      if (carried) {
+        buttons.push([
+          'Wear',
+          () => {
+            if (this.actions.act({ type: 'equip', item: item.id })) {
+              // The selection follows the piece: it is worn now.
+              this.selected = null;
+              this.selectedSlot = base.slot;
+            }
+            this.refresh();
+          },
+          COLORS.buttonGo,
+        ]);
+        if (atShop) {
+          buttons.push([
+            `Sell ${sellPrice(item)}`,
+            () => {
+              if (this.actions.act({ type: 'sell', item: item.id })) this.selected = null;
+              this.refresh();
+            },
+            COLORS.button,
+          ]);
+        }
+        buttons.push([
+          'Drop',
+          () => {
+            if (this.actions.act({ type: 'discard', item: item.id })) this.selected = null;
+            this.refresh();
+          },
+          COLORS.button,
+        ]);
+      } else if (this.selectedSlot) {
+        const slot = this.selectedSlot;
+        buttons.push([
+          'Take off',
+          () => {
+            if (this.actions.act({ type: 'unequip', slot })) {
+              this.selectedSlot = null;
+              this.selected = item.id;
+            }
+            this.refresh();
+          },
+          COLORS.button,
+        ]);
+      }
+      const bw = 104;
+      const span = (buttons.length - 1) * (bw + 10);
+      buttons.forEach(([label, press, color], i) => this.button(CX - span / 2 + i * (bw + 10), by, bw, 44, label, press, true, color));
+    }
+
+    // What he has felled, or the way back to the stall.
+    if (item) return;
+    if (this.selling) {
+      this.button(CX, by, 200, 44, 'Back to the stall', () => this.open('shop'));
       return;
     }
-    const base = baseOf(item);
-    const rarity = RARITIES[item.rarity];
-    const worn = h.worn[base.slot];
-    this.text(CX, y0 + 14, itemName(item), 19, rarity.color);
-    this.text(CX, y0 + 40, `${rarity.name} ${SLOT_NAMES[base.slot]}`, 13, COLORS.dim);
-    this.text(CX, y0 + 70, statWords(item), 16);
-    const better = power(item) - power(worn);
-    this.text(CX, y0 + 98, worn ? `You wear: ${itemName(worn)}, ${statWords(worn)}` : `You wear no ${SLOT_NAMES[base.slot]}`, 13, better > 0 ? COLORS.good : better < 0 ? COLORS.bad : COLORS.dim);
-    this.text(CX, y0 + 122, `The stall gives ${sellPrice(item)} gold for it`, 13, COLORS.dim);
-
-    const by = F.y + F.h - 46;
-    this.button(CX - 120, by, 108, 48, 'Wear', () => {
-      if (this.actions.act({ type: 'equip', item: item.id })) this.selected = null;
-      this.refresh();
-    });
-    this.button(
-      CX,
-      by,
-      108,
-      48,
-      `Sell ${sellPrice(item)}`,
-      () => {
-        if (!this.actions.atShop()) {
-          this.actions.toast('Sell at the stall in the harbour');
-          return;
-        }
-        if (this.actions.act({ type: 'sell', item: item.id })) this.selected = null;
-        this.refresh();
-      },
-      atShop,
-      atShop ? COLORS.buttonGo : COLORS.button,
-    );
-    this.button(CX + 120, by, 108, 48, 'Drop', () => {
-      if (this.actions.act({ type: 'discard', item: item.id })) this.selected = null;
-      this.refresh();
-    });
-  }
-
-  // ---- the hero ----------------------------------------------------------------------------------------------------
-
-  private buildHero(state: GameState): void {
-    const h = state.hero;
-    this.frame('Hero');
-    const need = xpToNext(h.level);
-    const bonus = heroBonusDamage(h);
-    const x = F.x + 28;
-    let y = F.y + 76;
-    this.text(x, y, `Level ${h.level} Warrior`, 18, COLORS.text, 0);
-    y += 26;
-    this.rect(CX, y, F.w - 56, 10, COLORS.barBack);
-    const part = need > 0 ? Math.min(1, h.xp / need) : 1;
-    if (part > 0) this.keep(this.scene.add.rectangle(x, y, (F.w - 56) * part, 8, COLORS.xp).setOrigin(0, 0.5).setDepth(DEPTH.panel + 2));
-    y += 20;
-    this.text(x, y, need > 0 ? `${h.xp} of ${need} experience to level ${h.level + 1}` : 'As far as this chapter goes', 13, COLORS.dim, 0);
-    y += 30;
-    const lines = [
-      `Health  ${Math.ceil(h.hp)} of ${heroMaxHp(h)}`,
-      `A swing  ${N.hero.damageMin + bonus} to ${N.hero.damageMax + bonus}`,
-      `Armour  ${heroArmour(h)} off every bite`,
-      `Gold  ${h.gold}     Potions  ${h.potions} of ${N.potion.carry}`,
-    ];
-    for (const line of lines) {
-      this.text(x, y, line, 15, COLORS.text, 0);
-      y += 24;
-    }
-    y += 22;
-    for (const slot of SLOTS) {
-      const item = h.worn[slot];
-      this.icon(x + 26, y, item, slot, 52);
-      if (item) {
-        this.text(x + 62, y - 10, itemName(item), 15, RARITIES[item.rarity].color, 0);
-        this.text(x + 62, y + 11, statWords(item), 13, COLORS.dim, 0);
-        this.button(F.x + F.w - 62, y, 88, 40, 'Take off', () => {
-          this.actions.act({ type: 'unequip', slot });
-          this.refresh();
-        });
-      } else {
-        this.text(x + 62, y, `No ${SLOT_NAMES[slot]}`, 15, COLORS.dim, 0);
-      }
-      y += 62;
-    }
-    y += 4;
     const felled = Object.keys(MONSTERS)
       .filter((kind) => (state.book[kind] ?? 0) > 0)
       .map((kind) => `${MONSTERS[kind]!.name} ${state.book[kind]}`);
-    this.text(x, y, felled.length ? `Felled: ${felled.join('   ')}` : 'Nothing felled yet', 13, COLORS.dim, 0);
-    this.text(x, y + 22, `Falls: ${state.deaths}`, 13, COLORS.dim, 0);
+    this.text(CX, by, felled.length ? `Felled: ${felled.join(', ')}  ·  Falls: ${state.deaths}` : `Nothing felled yet  ·  Falls: ${state.deaths}`, 13, COLORS.dim);
   }
 
   // ---- the sea chart -----------------------------------------------------------------------------------------------

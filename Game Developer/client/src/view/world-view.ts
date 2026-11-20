@@ -84,7 +84,12 @@ interface DropView {
   glowSize: number;
   /** What catches the eye on a rare piece: a beam (stand-in) or sparks (drawn), which blink. */
   sparks: (Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle)[];
+  /** 1 when it has just dropped, falling to 0 as it flies out and lands. */
   pop: number;
+  /** Where it popped out of (the fallen monster, the chest): it flies from there to where it lies. */
+  from: Vec | null;
+  /** Which way it leans as it flies, so three things from one monster do not fly alike. */
+  lean: number;
 }
 
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
@@ -404,8 +409,20 @@ export class WorldView {
       const before = samePlace ? prev.drops.find((p) => p.id === d.id) : undefined;
       const x = before ? lerp(before.x, d.x, alpha) : d.x;
       const y = before ? lerp(before.y, d.y, alpha) : d.y;
-      v.pop = Math.max(0, v.pop - fade * 0.5);
-      v.body.setPosition(x, y - 14 * Math.sin(v.pop * Math.PI)).setDepth(DEPTH.bodies + y - 4);
+      // It pops out of what it fell from: up and out in an arc, down with a small bounce, growing as it comes
+      // (Robin, 2026-11-20). About 0.45 s; the rules let it lie a moment longer before it can fly to him.
+      v.pop = Math.max(0, v.pop - delta / 450);
+      const t = 1 - v.pop;
+      if (v.pop > 0 && v.from) {
+        const out = Math.min(1, t / 0.72);
+        const along = 1 - (1 - out) * (1 - out);
+        const high = t < 0.72 ? 52 * Math.sin(out * Math.PI) : 10 * Math.sin(((t - 0.72) / 0.28) * Math.PI);
+        v.body.setPosition(lerp(v.from.x, x, along), lerp(v.from.y, y, along) - high).setDepth(DEPTH.bodies + y + 30);
+        v.body.setScale(0.45 + 0.55 * Math.min(1, t / 0.4)).setRotation(v.lean * (1 - out));
+      } else {
+        v.body.setPosition(x, y - 14 * Math.sin(v.pop * Math.PI)).setDepth(DEPTH.bodies + y - 4);
+        v.body.setScale(1).setRotation(0);
+      }
       // The last seconds before it is gone, it blinks.
       v.body.setAlpha(d.age > N.drops.lifeSeconds - 8 && Math.sin(time * 0.02) > 0 ? 0.35 : 1);
       if (v.glow) v.glow.setScale(v.glowSize * (1 + 0.12 * Math.sin(time * 0.006 + d.id)));
@@ -499,8 +516,20 @@ export class WorldView {
 
   /** The one-shots: numbers, puffs, the sword's arc. */
   show(events: GameEvent[], state: GameState): void {
+    /** What the next drops popped out of: the monster that just fell, the chest that just opened. */
+    let source: Vec | null = null;
     for (const e of events) {
       switch (e.type) {
+        case 'dropped': {
+          const v = this.drops.get(e.drop.id);
+          if (v && source && !settings.get().fewerEffects) {
+            v.from = { x: source.x, y: source.y - 10 };
+            v.pop = 1;
+            v.lean = ((e.drop.id % 5) - 2) * 0.5;
+            v.body.setPosition(v.from.x, v.from.y).setScale(0.45);
+          }
+          break;
+        }
         case 'swing':
           this.swingSword();
           this.heroFigure?.play('attack1');
@@ -513,6 +542,7 @@ export class WorldView {
           break;
         }
         case 'monsterDied':
+          source = { x: e.x, y: e.y };
           this.puff(e.x, e.y, 0xffffff, MONSTERS[e.kind]?.radius ?? 15);
           break;
         case 'heroHit':
@@ -552,6 +582,7 @@ export class WorldView {
           this.puff(this.heroAt.x, this.heroAt.y, COLORS.mark, 18);
           break;
         case 'chestOpened':
+          source = { x: e.x, y: e.y };
           this.puff(e.x, e.y, COLORS.gold, 26);
           this.chestOpening = this.now + 160;
           break;
@@ -907,7 +938,7 @@ export class WorldView {
         const thing = picture(s, 'loot', d.kind === 'gold' ? 'coins' : 'potion');
         if (thing) drawn.push(thing);
       }
-      if (drawn.length > 0) return { body: this.reg(s.add.container(d.x, d.y, drawn)), glow: ring, glowSize: ring ? ring.scaleX : 1, sparks, pop };
+      if (drawn.length > 0) return { body: this.reg(s.add.container(d.x, d.y, drawn)), glow: ring, glowSize: ring ? ring.scaleX : 1, sparks, pop, from: null, lean: 0 };
     }
     const parts: Phaser.GameObjects.GameObject[] = [s.add.ellipse(1, 7, 20, 8, COLORS.shadow, 0.22)];
     let glow: Phaser.GameObjects.Arc | null = null;
@@ -932,7 +963,7 @@ export class WorldView {
       parts.push(s.add.rectangle(0, 0, 15, 13, COLORS.wood).setStrokeStyle(2.5, color));
       parts.push(s.add.rectangle(0, 0, 15, 3, color));
     }
-    return { body: this.reg(s.add.container(d.x, d.y, parts)), glow, glowSize: 1, sparks: beam ? [beam] : [], pop };
+    return { body: this.reg(s.add.container(d.x, d.y, parts)), glow, glowSize: 1, sparks: beam ? [beam] : [], pop, from: null, lean: 0 };
   }
 
   // ---- the one-shots ---------------------------------------------------------------------------------------------

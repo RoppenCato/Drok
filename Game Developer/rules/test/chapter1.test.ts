@@ -453,11 +453,18 @@ describe('loot on the ground', () => {
         { id: 904, x: h.x, y: h.y - 50, kind: 'potion', amount: 1, item: null, age: 0 },
       ],
     };
+    // What has just popped out lies a moment first, so he sees it; then it flies.
+    sim.run(N.drops.settleSeconds - 0.1);
+    expect(sim.count('picked')).toBe(0);
+    expect(sim.state.drops.find((d) => d.id === 900)).toMatchObject({ x: h.x + N.drops.magnetRange - 5 });
     const took = sim.runUntil((s) => s.count('picked') === 3, 3);
-    expect(took).toBeLessThan(0.3);
+    expect(took).toBeLessThan(0.45);
     expect(sim.state.hero.gold).toBe(7);
     expect(sim.state.hero.potions).toBe(N.potion.start + 1);
-    expect(sim.state.hero.bag).toEqual([{ id: 903, base: 'tricorn', rarity: 'rare' }]);
+    // He wore no hat: the hat he found is on his head, not in his bag (as in Zite).
+    expect(sim.state.hero.bag).toEqual([]);
+    expect(sim.state.hero.worn.hat).toEqual({ id: 903, base: 'tricorn', rarity: 'rare' });
+    expect(sim.of('equipped')).toEqual([{ type: 'equipped', item: { id: 903, base: 'tricorn', rarity: 'rare' } }]);
     expect(sim.state.drops.map((d) => d.id)).toEqual([901]);
     sim.run(N.drops.lifeSeconds);
     expect(sim.state.drops).toHaveLength(0);
@@ -467,10 +474,11 @@ describe('loot on the ground', () => {
     const sim = Sim.empty();
     for (let i = 0; i < N.bagSize; i++) sim.give('bandana');
     const h = sim.state.hero;
+    // A cutlass: he wears one already, so it needs room in the bag. (A piece for a bare part of him is put on.)
     sim.state = {
       ...sim.state,
       drops: [
-        { id: 900, x: h.x + 10, y: h.y, kind: 'item', amount: 1, item: { id: 901, base: 'tricorn', rarity: 'epic' }, age: 0 },
+        { id: 900, x: h.x + 10, y: h.y, kind: 'item', amount: 1, item: { id: 901, base: 'sailors-cutlass', rarity: 'epic' }, age: 0 },
         { id: 902, x: h.x - 10, y: h.y, kind: 'gold', amount: 5, item: null, age: 0 },
       ],
     };
