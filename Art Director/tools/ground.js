@@ -31,7 +31,8 @@ const PLACES = {
     grass: [[450, 330], [640, 300], [790, 230], [740, 140], [560, 110], [380, 100], [210, 140], [120, 250], [180, 330], [320, 350]],
     square: [[450, 780], [640, 760], [720, 660], [730, 500], [660, 390], [470, 360], [280, 380], [200, 480], [180, 640], [260, 760]],
     paths: [[[450, 930], [450, 800]], [[450, 380], [440, 250]]],
-    dock: [450, 934], arrive: [450, 880], zones: {} }
+    dock: [450, 934], arrive: [450, 880], zones: {},
+    people: [{ who: 'shopkeeper', x: 300, y: 622, facing: 's', note: 'behind his stall: the shop' }, { who: 'master', x: 560, y: 690, facing: 'sw', note: 'the harbour master: tasks' }, { who: 'fisher', x: 640, y: 860, facing: 's', note: 'by the boats: tasks' }, { who: 'sailor', x: 330, y: 870, facing: 'se', note: 'by the barrels: tasks' }] }
 };
 
 function paint(name) {
@@ -85,7 +86,7 @@ function place(name) {
 async function main() {
   const name = process.argv[2] || 'island', out = path.join(P.ROOT, 'work', name), { cv, L } = paint(name), { props, solid } = place(name);
   P.save(cv, path.join(out, 'ground.png'));
-  const J = { name, size: { w: L.w, h: L.h }, ground: { file: 'ground.png', px: 1, note: 'one pixel a design unit: draw it at double size' }, land: L.land, grass: L.grass, rock: L.rock, inlet: L.inlet, square: L.square, paths: L.paths, dock: L.dock, arrive: L.arrive, chest: L.chest, zones: L.zones, props, solid };
+  const J = { name, size: { w: L.w, h: L.h }, ground: { file: 'ground.png', px: 1, note: 'one pixel a design unit: draw it at double size' }, land: L.land, grass: L.grass, rock: L.rock, inlet: L.inlet, square: L.square, paths: L.paths, dock: L.dock, arrive: L.arrive, chest: L.chest, zones: L.zones, people: L.people, props, solid };
   fs.writeFileSync(path.join(out, 'place.json'), JSON.stringify(J));
   // the studio's small look: the ground with the props on it at half size
   const metaF = path.join(out, 'render', 'meta.json');
@@ -93,6 +94,8 @@ async function main() {
     const meta = JSON.parse(fs.readFileSync(metaF, 'utf8')), ims = {}; for (const it of meta.items) ims[it.name] = { im: await P.loadImage(path.join(out, 'render', it.file)), o: it.origin };
     const pv = P.createCanvas(L.w, L.h), g = pv.getContext('2d'); g.drawImage(cv, 0, 0);
     for (const p of props) { const m = ims[p.name]; if (!m) continue; g.save(); g.globalAlpha = 0.25; g.fillStyle = '#5b4a82'; g.beginPath(); g.ellipse(p.x + 5, p.y + 1, m.im.width * 0.07, m.im.width * 0.025, 0, 0, 7); g.fill(); g.restore(); g.drawImage(m.im, p.x - m.o[0] / 2, p.y - m.o[1] / 2, m.im.width / 2, m.im.height / 2); }
+    const folkF = path.join(P.ROOT, 'out', name, 'folk.json');      // the people who stand there, from the packed atlas
+    if (L.people && fs.existsSync(folkF)) { const fj = JSON.parse(fs.readFileSync(folkF, 'utf8')), fim = await P.loadImage(path.join(P.ROOT, 'out', name, fj.meta.image)); for (const q of L.people) { const flip = q.facing === 'sw', f = fj.frames[`folk/${q.who}/${flip ? 'se' : q.facing}/0001`]; if (!f) continue; const { x, y, w, h } = f.frame; g.save(); g.translate(q.x, q.y); g.scale(flip ? -0.5 : 0.5, 0.5); g.drawImage(fim, x, y, w, h, -f.pivot.x * w, -f.pivot.y * h, w, h); g.restore(); } }
     const half = P.createCanvas(L.w / 2, L.h / 2); half.getContext('2d').drawImage(pv, 0, 0, L.w / 2, L.h / 2); P.save(half, path.join(out, 'preview.jpg')); P.save(pv, path.join(out, 'preview-full.png'));
   }
   console.log('painted', name, L.w + 'x' + L.h, props.length, 'props', solid.length, 'solid');

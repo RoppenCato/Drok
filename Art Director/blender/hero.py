@@ -39,7 +39,7 @@ def off_of(p):
     T, pel, head, HR = frame_of(p); LS = pel + (T @ Vector((0.19, 0, 0.275))); LE, LH = ik2(LS, p['lh'], UA, FA, (0.6, 0.5, -0.6)); return LH + (T @ Vector((0, -0.05, 0)))
 
 def build(st, p):
-    T, pel, head, HR = frame_of(p)
+    T, pel, head, HR = frame_of(p); L = p.get('look') or {}       # look: other colours for the same body (the harbour's people, blender/people.py)
     at = lambda v: pel + (T @ Vector(v))                                   # a place on the torso
     chest, neck = at((0, 0, 0.17)), at((0, 0, 0.30))
     Hm = Matrix.Translation(head) @ HR; hp = lambda v: Hm @ Vector(v)     # a place on the head
@@ -59,20 +59,20 @@ def build(st, p):
     cap(bm, RE, RH, 0.052, 0.048); sph(bm, RH, 0.064); cap(bm, LE, LH, 0.052, 0.048); sph(bm, LH, 0.064)
     cap(bm, RK, RA, 0.05, 0.045); cap(bm, LK, LA, 0.05, 0.045)
     for A in (RA, LA): sph(bm, (A.x, A.y - 0.045, A.z - 0.008), 0.05, (1, 1.75, 0.72))
-    mk(bm, 'skin', 'skin', remesh=0.006, soften=10)
+    mk(bm, 'skin', L.get('skin', 'skin'), remesh=0.006, soften=10)
     bm = bmesh.new(); sph(bm, chest, 0.17, (1, 0.76, 1.04), seg=28, rot=T); cap(bm, RS, RE, 0.07, 0.064); cap(bm, LS, LE, 0.07, 0.064)
-    mk(bm, 'shirt', 'linen', remesh=0.006, soften=14)
+    mk(bm, 'shirt', L.get('shirt', 'linen'), remesh=0.006, soften=14)
     bm = bmesh.new(); sph(bm, pel + Vector((0, 0, 0.015)), 0.155, (1, 0.8, 0.72)); cap(bm, RP, RK, 0.08, 0.068); cap(bm, LP, LK, 0.08, 0.068); cap(bm, RK, mix(RK, RA, 0.5), 0.068, 0.062); cap(bm, LK, mix(LK, LA, 0.5), 0.068, 0.062)
-    mk(bm, 'trousers', 'trou', remesh=0.006, soften=14)
+    mk(bm, 'trousers', L.get('trou', 'trou'), remesh=0.006, soften=14)
     bm = bmesh.new(); sph(bm, pel + (T @ Vector((0, 0, 0.09))), 0.166, (1.03, 0.82, 0.24), rot=T); sph(bm, pel + (T @ Vector((-0.15, -0.06, 0.03))), 0.035, (0.6, 0.6, 1.9))
-    mk(bm, 'rope', 'rope', remesh=0.008, soften=3)
+    mk(bm, 'rope', L.get('belt', 'rope'), remesh=0.008, soften=3)
     # hair close to the skull, so every hat covers it: the crown and the back, a short fringe, and the brows
     bm = bmesh.new(); sph(bm, (0, 0, 0), HEAD_R + 0.012, (1, 0.96, 0.95), seg=32)
     bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], dist=1e-5, plane_co=(0, -0.05, 0.075), plane_no=(0, 0.62, 1), clear_inner=True)
     sph(bm, (-0.07, -0.16, 0.13), 0.06, (1.2, 0.7, 0.6), seg=12); sph(bm, (0.06, -0.165, 0.125), 0.055, (1.3, 0.7, 0.6), seg=12)
     shut = p['eyes'] != 'open'
     for sx in (-1, 1): cap(bm, (sx * 0.04, -0.206, 0.075 if not shut else 0.095), (sx * 0.135, -0.165, 0.098), 0.016, 0.013, seg=8)
-    mk(bm, 'hair', 'hair', M=Hm)
+    mk(bm, 'hair', L.get('hair', 'hair'), M=Hm)
     # the face: big eyes, a glint, a mouth
     if not shut:
         bm = bmesh.new()
