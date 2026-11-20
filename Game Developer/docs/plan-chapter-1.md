@@ -148,7 +148,9 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
     - `[x]` the save is version 4, with the step up from version 3
     - tests: tap and thumb together; who the target is; the old save. In the pane: the tap on the lift, the drag,
       the dock through the glass, a fight
-    - `[ ]` AD: a bar for a monster's health and a ring and knob for the stick (asked 2026-11-20)
+    - `[x]` AD: a bar for a monster's health and a ring and knob for the stick, with round-ended fills, a heart
+      for his health and his own sizes for the pile (his drop of 2026-11-20, in the game the same day)
+    - `[x]` a page that is open is no longer restarted when a file is saved here (hot reload off)
 
 ## Waits for Robin
 

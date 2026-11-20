@@ -9,12 +9,12 @@ few small things in the last column below. Every look in it is Leonard, AD's own
 | --- | --- | --- | --- |
 | `ART.hero` | `hero` | the Warrior, 54 units tall, in eight facings: stand, move (a run: 8 frames at 45 ms, made to read as fast at 215 units a second), attack1, cleave, charge, hit1, die1 | his coats (icons only: no coat shows on the body yet) |
 | `ART.gear` | `gear` | the cutlass, buckler and hat he wears, on his hand, arm and head; the icons in the bag, the hero window and the stall | |
-| `ART.monsters` | `sand-crab`, `reef-gull`, `coconut-crab` | each kind: stand, move, attack1 started the step its wind-up starts, hit1 while stunned, die1 where it fell | the ground a slam will hit (a red disc drawn by the game); the stun's star; the health bar over a monster |
+| `ART.monsters` | `sand-crab`, `reef-gull`, `coconut-crab` | each kind: stand, move, attack1 started the step its wind-up starts, hit1 while stunned, die1 where it fell | the ground a slam will hit (a red disc drawn by the game); the stun's star |
 | `ART.loot` | `loot` | coins, a potion, a bundle of gear on the ring of its rarity; a spark on rare, two on epic; the potion in the stall's window | |
 | `ART.places` | `island` for `crab-cay` | the painted ground, 117 props sorted with the figures, a flat shadow under each, the dock, the boat, the chest closed, opening and open | the sea does not move |
 | `ART.places`, `ART.folk` | `harbour` for `harbour` | the painted town: three houses, the stall, the well, lamps, a sign, barrels, crates, a boat, palms, the dock; and four people who stand and breathe (the shopkeeper in his stall, the harbour master, a fisher, a sailor) | the people do nothing yet: no tasks, no words |
 | `ART.chart` | `chart` | the sea chart as one picture that fills the screen: a pin on each place, a ring round the one he is in, the dotted way between, the names, his yellow button "Sail to …" | the ring does not breathe |
-| `ART.glass` | `glass` | the menu, bag, chart and hero buttons; health, rage and experience as his bars; level, coin and money; the target's plate; the skill and potion discs; the button for the thing he stands by; the mark under the target and where a tap landed; the windows' panel, title, cross, rows, buttons and slots | the stick's ring; the cooldown's dark wedge; the banners and refusals (plain words with an outline) |
+| `ART.glass` | `glass` (40 pieces since his second drop of 2026-11-20) | the menu, bag, chart and hero buttons; health, rage and experience as his wells with round-ended fills, a heart on the end of his health, and pale what a blow just took; level, coin and money; the target's plate with the monster's dark bar on its foot; a monster's bar over its head, gold-rimmed with an arrow on the one he fights; the stick's ring and knob; the skill and potion discs; the button for the thing he stands by; the mark under the target and where a tap landed; the windows' panel, title, cross, rows, buttons and slots | the cooldown's dark wedge; the stun's star; the banners and refusals (plain words with an outline) |
 | (no switch) | `client\public\pwa-192x192.png`, `pwa-512x512.png` | the app's icon: the Warrior's face on a bright sea. His folder whole, with his notes, is kept in `assets\icon\` | |
 
 ## How a drop comes in
@@ -65,14 +65,22 @@ chest holds and where he wakes in town stay the game's. The rules then walk on t
   under his own names (`harbour`, `island-1`; `CHART_ART` in `art.ts` says which is which of the game's), the
   dots of the way, and where the title and the button sit.
 
+- **A bar of the glass** (`glass.ts`; his NOTES.md and his `tools\scene.js` are the reference): a fill is a pill
+  put together at the length of the bar's part (`Pill`), never a picture scaled, so its ends stay round; hidden at
+  nothing, never shorter than its two ends. His own bars (`Bar`): the fill 3 in from the well's left end, 10 tall,
+  its middle 1 above the well's; a bar may be drawn bigger or smaller than his own size (health 1.3, rage 0.8,
+  experience 0.72: his numbers). A monster's (`MobBar`): for a fill w long the well is w + 6, the fill 3 in; the
+  one he fights has `mob/well-mine`, w + 10 and 5 in, the whole bar a fifth bigger, `mark/mine` 16 above it. The
+  pale part (`fill/lost`, `mob/lost`) is as long as the health was, holds 200 ms and shrinks over 300 (`Trail`).
+
 What his atlases carry that the game does not use: `stride` (he agrees `move` is played by time: his commit
 4722188), `blow` and the wind-up `note` (the rules' own timing decides when a blow lands; the animation is started
 with it), `lt`, `rb`, `head` (where a task's mark would go over a person's head).
 
 ## What it costs
 
-On disk all of wave 1 is 1.5 MB; with the script the phone caches 3.0 MB in 39 files to play offline, and the first
-load is 1.9 MB over the wire. Decoded: the island with everything on it about 46 MB (his number, under the 48 MB
+On disk all of wave 1 is 1.5 MB; with the script the phone caches 3.05 MB in 39 files to play offline, and the first
+load is 1.9 MB over the wire (the glass grew from 67 to 100 KB with his second drop; decoded it is 2 MB as before). Decoded: the island with everything on it about 46 MB (his number, under the 48 MB
 set for a place), the harbour about 10 MB, the chart 6 MB. **The game loads all of it when it starts, about 62 MB
 together**, which breaks the game's own rule of loading by place (`docs\art-demands.md`). It has not been seen on
 Robin's phone; the frame log from his settings will say whether it shows. Loading by place is on the list.
@@ -88,3 +96,6 @@ Robin's phone; the frame log from his settings will say whether it shows. Loadin
 - **The keeper is drawn over his stall**, not sorted by where he stands, or the stall would hide him. It matches his
   own picture of the town; he may want the stall cut in two instead.
 - **Coats on the body**, a task's mark over a person, a sea that moves.
+- **From his second glass drop, not taken up**: a round, heavy text face (Fredoka or Baloo 2, free): a file to add
+  and Robin's to hear of first. The small hard shadow under each piece, which his packer cuts away: back with one
+  flag if Robin wants it. The potion's disc is green while the health it fills is red.

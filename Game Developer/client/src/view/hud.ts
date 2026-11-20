@@ -3,8 +3,10 @@
 // 2026-11-20, after playing: "the buttons should be in the middle at the bottom"; health "all the way at top" was
 // "hard to glance over. Maybe it should be at the bottom"): the skills and the potion in a row, his health and rage
 // over them, and over those who he fights and its health, with the button for the thing he stands by on top of
-// the pile and his experience along the very bottom. How the pile is stacked is mine. Then the stick's ring, and the
-// words that come and go. Placed in design units (412 by 915). It draws from the state and tells the scene what
+// the pile and his experience along the very bottom. Where the pile's things stand is mine; how big each is drawn
+// is Leonard, AD's (2026-11-20: his health the biggest thing in it, with a heart on its end; rage and experience
+// thinner; the monster's health dark, on the plate as over its head, so the two reds are never mixed up). Then
+// the stick's ring, and the words that come and go. Placed in design units (412 by 915). It draws from the state and tells the scene what
 // was pressed; it decides nothing about the game. The windows are in panels.ts.
 //
 // It is drawn with the Art Director's pieces when his `glass` drop is in the game (glass.ts), and with plain boxes
@@ -14,7 +16,7 @@ import Phaser from 'phaser';
 import { N, heroMaxHp, kindOf, xpToNext, type GameEvent, type GameState, type RejectReason, type SkillId, type Vec } from '../../../rules/src/index.ts';
 import { COLORS, DEPTH, DESIGN_HEIGHT, DESIGN_WIDTH, FONT, RES } from '../layout.ts';
 import { settings } from '../settings.ts';
-import { Bar, INK, hasGlass, piece, stretch } from './glass.ts';
+import { Bar, INK, MobBar, hasGlass, piece, stretch } from './glass.ts';
 import type { PanelKind } from './panels.ts';
 import type { Thing } from './world-view.ts';
 
@@ -112,7 +114,9 @@ export class Hud {
   private targetName!: Phaser.GameObjects.Text;
   private targetLevel!: Phaser.GameObjects.Text;
   private targetPlate: Phaser.GameObjects.NineSlice | null = null;
-  private targetBar!: Bar;
+  private targetBar!: MobBar;
+  /** Who the plate showed last frame: another one's bar starts afresh. */
+  private targetId: number | null = null;
   private toastText!: Phaser.GameObjects.Text;
   private toastFor = 0;
   private bannerTitle!: Phaser.GameObjects.Text;
@@ -120,8 +124,8 @@ export class Hud {
   private bannerFor = 0;
   private downText!: Phaser.GameObjects.Text;
   private lost = 0;
-  private stickBase!: Phaser.GameObjects.Arc;
-  private stickKnob!: Phaser.GameObjects.Arc;
+  private stickBase!: Phaser.GameObjects.Arc | Phaser.GameObjects.Image;
+  private stickKnob!: Phaser.GameObjects.Arc | Phaser.GameObjects.Image;
   private useBox!: Phaser.GameObjects.Rectangle | Phaser.GameObjects.NineSlice;
   private useText!: Phaser.GameObjects.Text;
   private useZone!: Zone;
@@ -152,11 +156,14 @@ export class Hud {
     if (coin) this.reg(coin.setPosition(122, 30).setDepth(top + 1));
     this.gold = this.words(coin ? 134 : 116, 30, '', 16, coin ? COLORS.text : COLORS.goldText, top + 1).setOrigin(0, 0.5).setStroke(INK.dark, 4);
 
-    // The bottom, in the middle: his health with its numbers, his rage under it, his experience along the floor.
-    this.hp = new Bar(s, this.reg, { x: BAR_X, y: HP_Y, w: BAR_W, kind: 'hp', depth: top, plain: 14 });
-    this.hpText = this.words(W / 2, HP_Y, '', 12, COLORS.text, top + 2).setStroke(INK.dark, 3);
-    this.rage = new Bar(s, this.reg, { x: BAR_X, y: RAGE_Y, w: BAR_W, kind: 'rage', depth: top, plain: 10 });
-    this.xp = new Bar(s, this.reg, { x: BAR_X, y: XP_Y, w: BAR_W, kind: 'xp', depth: top, plain: 6 });
+    // The bottom, in the middle: his health with its numbers and a heart on its left end, the biggest thing in the
+    // pile; his rage under it, thinner and a little shorter; his experience along the floor, thinner still.
+    this.hp = new Bar(s, this.reg, { x: BAR_X, y: HP_Y - 2, w: BAR_W, kind: 'hp', depth: top, plain: 14, size: 1.3, trail: true });
+    const heart = g ? piece(s, 'mark/heart') : null;
+    if (heart) this.reg(heart.setPosition(BAR_X + 3, HP_Y - 3).setDepth(top + 3));
+    this.hpText = this.words(W / 2 + (heart ? 6 : 0), HP_Y - 3.5, '', 14, COLORS.text, top + 4).setStroke(INK.dark, 4);
+    this.rage = new Bar(s, this.reg, { x: BAR_X + 16, y: RAGE_Y + 3, w: BAR_W - 16, kind: 'rage', depth: top, plain: 8, size: 0.8 });
+    this.xp = new Bar(s, this.reg, { x: BAR_X, y: XP_Y, w: BAR_W, kind: 'xp', depth: top, plain: 6, size: 0.72 });
 
     // Top right: bag, chart, hero (Robin, 2026-11-20).
     const tops: [number, string, PanelKind][] = [
@@ -178,21 +185,25 @@ export class Hud {
     }
     this.help = this.words(W / 2, 66, '', 13, COLORS.text, top).setWordWrapWidth(W - 40).setAlign('center').setOrigin(0.5, 0).setStroke(INK.dark, 4);
 
-    // Over his own health: who he fights. On the Art Director's glass, a plate with the name and the level, the
-    // health along its foot; the two healths sit one over the other, so one glance takes in the fight.
+    // Over his own health: who he fights. On the Art Director's glass, a plate with the name and the level, and on
+    // its foot the monster's own dark bar, the same as over its head; the two healths sit one over the other, so
+    // one glance takes in the fight.
     if (g) {
       this.targetPlate = stretch(s, 'plate', BAR_W, 34);
-      if (this.targetPlate) this.reg(this.targetPlate.setPosition(W / 2, PLATE_Y).setDepth(top));
+      if (this.targetPlate) this.reg(this.targetPlate.setPosition(W / 2, PLATE_Y - 6).setDepth(top));
     }
-    this.targetName = this.words(g ? W / 2 - 84 : W / 2, PLATE_Y - 5, '', 14, g ? INK.dark : COLORS.text, top + 1);
-    this.targetLevel = this.words(W / 2 + 84, PLATE_Y - 5, '', 12, INK.dim, top + 1).setOrigin(1, 0.5);
+    this.targetName = this.words(g ? W / 2 - 84 : W / 2, PLATE_Y - 11, '', 14, g ? INK.dark : COLORS.text, top + 1);
+    this.targetLevel = this.words(W / 2 + 84, PLATE_Y - 11, '', 12, INK.dim, top + 1).setOrigin(1, 0.5);
     if (g) this.targetName.setOrigin(0, 0.5);
     else this.targetName.setStroke(INK.dark, 4);
-    this.targetBar = new Bar(s, this.reg, { x: W / 2 - 88, y: PLATE_Y + 14, w: 176, kind: 'hp', depth: top + 2, plain: 8 });
+    this.targetBar = new MobBar(s, this.reg, { w: g ? 172 : 176, depth: top + 2, arrow: false });
 
-    // The stick's ring and knob: shown where the thumb came down, once it has slid.
-    this.stickBase = this.reg(s.add.circle(0, 0, 46).setStrokeStyle(3, COLORS.mark, 0.55).setDepth(top).setVisible(false));
-    this.stickKnob = this.reg(s.add.circle(0, 0, 22, COLORS.mark, 0.45).setDepth(top).setVisible(false));
+    // The stick's ring and knob: shown where the thumb came down, once it has slid. His pictures carry their own
+    // see-through, so they are drawn at full strength.
+    const ring = g ? piece(s, 'stick/ring') : null;
+    const knob = g ? piece(s, 'stick/knob') : null;
+    this.stickBase = this.reg((ring ?? s.add.circle(0, 0, 46).setStrokeStyle(3, COLORS.mark, 0.55)).setDepth(top).setVisible(false));
+    this.stickKnob = this.reg((knob ?? s.add.circle(0, 0, 22, COLORS.mark, 0.45)).setDepth(top + 1).setVisible(false));
 
     this.disc('cleave', 'Cleave', `${N.cleave.rageCost} rage`, 36, () => this.actions.skill('cleave'));
     this.disc('charge', 'Charge', 'dash', 36, () => this.actions.skill('charge'));
@@ -208,7 +219,7 @@ export class Hud {
     this.useZone.live = () => this.thing !== null;
     this.place();
 
-    // Over the windows too: a refusal inside a window must be read.
+    // Over the windows too: a refusal inside a window must be read. It stands just over the pile.
     this.toastText = this.words(W / 2, USE_Y - 44, '', 15, COLORS.warn, DEPTH.banner).setStroke(COLORS.textDark, 4);
     this.bannerTitle = this.words(W / 2, 210, '', 30, COLORS.text, DEPTH.banner).setStroke(COLORS.textDark, 6);
     this.bannerSub = this.words(W / 2, 246, '', 15, COLORS.text, DEPTH.banner).setStroke(COLORS.textDark, 4);
@@ -282,7 +293,7 @@ export class Hud {
     }
     // The button for the thing he stands by tops the pile, in the middle.
     const ux = W / 2;
-    const uy = USE_Y;
+    const uy = USE_Y - 6;
     this.useZone.x = ux;
     this.useZone.y = uy;
     this.useBox.setPosition(ux, uy);
@@ -309,7 +320,7 @@ export class Hud {
   sync(state: GameState, delta: number): void {
     const h = state.hero;
     const max = heroMaxHp(h);
-    this.hp.set(h.hp / max);
+    this.hp.set(h.hp / max, delta);
     this.hpText.setText(`${Math.ceil(h.hp)} / ${max}`);
     this.rage.set(h.rage / N.hero.maxRage);
     const need = xpToNext(h.level);
@@ -339,13 +350,16 @@ export class Hud {
     this.targetName.setVisible(has);
     this.targetLevel.setVisible(has && this.glass);
     this.targetPlate?.setVisible(has);
-    this.targetBar.setVisible(has);
     if (target) {
       const k = kindOf(target);
       this.targetName.setText(this.glass ? k.name : `${k.name}  ·  level ${k.level}`);
       this.targetLevel.setText(`Lv ${k.level}`);
-      this.targetBar.set(target.hp / k.maxHp);
+      if (target.id !== this.targetId) this.targetBar.reset();
+      this.targetBar.draw(W / 2, PLATE_Y + 9, target.hp / k.maxHp, true, delta);
+    } else {
+      this.targetBar.hide();
     }
+    this.targetId = target ? target.id : null;
 
     this.downText.setText(h.downFor > 0 ? `Down!\n${this.lost > 0 ? `Lost ${this.lost} gold\n` : ''}Waking in ${Math.ceil(h.downFor)}` : '');
 

@@ -109,7 +109,14 @@ Victor, GD's first guess of 2026-11-20 and is pending until Robin has played the
 15. With the glass at the bottom, he stood on the dock under his own health bar: the camera kept him in the middle
     and stopped at the place's foot. Rule: when the glass covers part of the screen, the camera's middle is the
     middle of what is left, and it may look past a place's edge on that side.
-16. A picture of the stopped page kept timing out in the pane: the page draws only when it is stepped, and the
+16. Robin's link was the dev server's page, and the dev server restarts every open page when a file is saved: the
+    rule "never reload a page he is playing on" was being broken by every edit. Rule: the page the player plays on
+    never has hot reload (`hmr: false`); he reloads it himself when told there is something new.
+17. The pile had two red bars of one length, one over the other: his health and the monster's. Leonard, AD saw
+    it on the real screen and made the monster's dark, his the biggest, with a heart. Rule: two bars that mean
+    different things never share a colour and a size; and the Art Director looks at a layout on the real screen
+    before it goes to Robin.
+18. A picture of the stopped page kept timing out in the pane: the page draws only when it is stepped, and the
     picture waits for a frame. Rule: start a timer that steps the page a few times a second, then take the picture.
 
 ## Harvested

@@ -76,13 +76,17 @@ Hero. Under them a line of help for seven seconds. In the middle at the bottom, 
 
 | What | Where (the middle of each, of 412 by 915) |
 | --- | --- |
-| experience | a bar 200 long at y 901 |
+| experience | a bar 200 long at y 901, drawn at 0.72 of the Art Director's size |
 | Charge, Cleave, the potion with its count | discs at x 122, 206, 284, y 851 (the potion 859); the "left hand" switch turns the row round; each shows its wait as a dark wedge and a number |
-| rage | a bar 200 long at y 797 |
-| health, with its numbers | a bar 200 long at y 777 |
-| who he fights: name, level, health | a plate 200 long at y 739, its bar at 753; only while he has a target |
-| the button for the thing he stands by | at y 689; only while he stands by one |
+| rage | a bar 184 long from x 122, at y 800, at 0.8 of his size |
+| health, with its numbers and a heart on its left end | a bar 200 long at y 775, at 1.3 of his size: the biggest thing in the pile; pale what a blow just took |
+| who he fights: name, level, health | a plate 200 long at y 733; on its foot, at y 748, the monster's own dark bar with the gold rim (its fill 172 long, a fifth bigger); only while he has a target |
+| the button for the thing he stands by | at y 683; only while he stands by one |
 | a refusal ("Not enough rage") | words at y 645 |
+
+Where things stand is mine; how big each is drawn is Leonard, AD's (2026-11-20): two red bars of one length, one
+over the other, were his health and the monster's, and could be taken for each other. Now the dark bar is always
+the monster's, on the plate as over its head.
 
 None of it but the discs and the button takes a press: a tap on a bar goes through to the field. Because the pile
 covers the bottom, **the camera looks 60 below him** (`LOOK_BELOW` in `PlayScene.ts`), so he is drawn at about y
@@ -90,8 +94,11 @@ covers the bottom, **the camera looks 60 below him** (`LOOK_BELOW` in `PlayScene
 where the ground picture's last row of sea is drawn out), so on a dock he stands above the pile, not under it.
 A banner for a new place or level and "Down! Lost N gold" are in the upper half as before.
 
-Over a monster's head: its health, 44 or more long and 7 thick, when it is hurt or is the one he fights; that one's
-is edged in gold. It is the game's own box until Leonard, AD draws one.
+Over a monster's head: its health, 44 or more long, when it is hurt or is the one he fights: Leonard, AD's dark
+well, the red inside, pale what a blow just took. The one he fights has the gold rim, a fifth bigger, and an arrow
+that bobs once a second (not with "fewer effects"). The bar hangs at one height for the kind, 12 above the top of
+its standing picture (14 for the one he fights), so it does not jump when a claw goes up. A blow's number rises
+beside the bar, not over it. The stick is his ring and knob, drawn at full strength.
 
 ## The windows (`panels.ts`)
 

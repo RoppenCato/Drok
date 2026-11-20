@@ -45,10 +45,10 @@ needs no decision of his:
 - Cleave or Whirlwind; which hand is the default; the share lost on death; the levels of the job advancements.
 - The look and the music picks; anything in Leonard, AD's or Hugh, SD's folder.
 - The deploy to Cloudflare Pages (his login) and starting Hugh, SD's chat (his word).
-- His save and his page: never reloaded, never overwritten. But know this: on the home link his page is the dev
-  server's, and it reloads itself every time a file of the game is saved here. So while he may be playing, do not
-  edit; and when a change is made on his word, tell him his page will have reloaded. The page that does not change
-  under him is the public one.
+- His save and his page: never reloaded, never overwritten. On the home link his page is the dev server's; hot
+  reload is off there (`hmr: false`, 2026-11-20), so a file saved here no longer restarts his game, and he gets a
+  change when he reloads the page. Never turn hot reload back on for that server; and a change to
+  `vite.config.ts` restarts the server, so make none while he may be playing.
 
 ## The last report
 

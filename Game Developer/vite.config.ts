@@ -14,7 +14,10 @@ export default defineConfig({
   },
   // host: true puts the server on the LAN too, so a phone on the same Wi-Fi can open the address Vite prints.
   // 5178 and 4178, not Vite's usual 5173 and 4173: Robin's other games hold those on this PC (Victor, GD, 2026-11-19).
-  server: { port: 5178, strictPort: true, host: true },
+  // hmr: false: a page that is open is never reloaded by a file being saved here. Robin plays on this server's
+  // home link, and his rule is "never reload a page he is playing on"; with hot reload on, every edit restarted
+  // the game under his thumb. A page gets the new code when it is opened or reloaded by hand (Victor, GD, 2026-11-20).
+  server: { port: 5178, strictPort: true, host: true, hmr: false },
   preview: { port: 4178, strictPort: true, host: true },
   plugins: [
     VitePWA({

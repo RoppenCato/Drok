@@ -10,7 +10,7 @@ import { COLORS, DEPTH, FONT, RES, hex } from '../layout.ts';
 import type { Ground } from '../scenes/BootScene.ts';
 import { settings } from '../settings.ts';
 import { Figure, HeroFigure, picture, repicture, type AtlasData, type GearData, type SetData } from './figures.ts';
-import { hasGlass, piece } from './glass.ts';
+import { MobBar, hasGlass, piece } from './glass.ts';
 
 /** A place as the Art Director laid it out: what stands where. The rules' own copy of the layout is in their data. */
 interface PlaceArt {
@@ -46,10 +46,12 @@ interface MonsterView {
   shell: Phaser.GameObjects.Shape | null;
   color: number;
   shadow: Phaser.GameObjects.Ellipse;
-  barBack: Phaser.GameObjects.Rectangle;
-  bar: Phaser.GameObjects.Rectangle;
+  /** Its health over its head: made the first time there is something to show. */
+  bar: MobBar | null;
   /** How long its health bar is when it is whole. */
   barW: number;
+  /** How far above its feet its standing picture reaches: the one height its bar and its star hang from. */
+  top: number;
   star: Phaser.GameObjects.Star;
   /** The ground a slam will hit, shown while it winds up. */
   slam: Phaser.GameObjects.Arc | null;
@@ -300,9 +302,11 @@ export class WorldView {
         v.shell.setFillStyle(v.punch > 0.45 ? 0xffffff : stunned ? COLORS.stunned : windup > 0 ? COLORS.windup : v.color);
         v.shadow.setPosition(v.x + 2, v.y + v.radius * 0.55);
       }
-      // What floats over it (the star, the health bar) sits above its picture, however tall that is.
-      const top = v.figure ? v.figure.height() - 6 : v.radius;
-      v.star.setVisible(stunned).setPosition(v.x, v.y - top - 30);
+      // What floats over it (the health bar, the star) hangs at one height for its kind, its standing picture's:
+      // hung from the picture now shown, it jumped whenever a claw went up (Leonard, AD saw it on the screen).
+      const top = v.top;
+      const mine = h.target === m.id;
+      v.star.setVisible(stunned).setPosition(v.x, v.y - top - (mine ? 50 : 32));
       if (stunned) v.star.rotation = time * 0.006;
       if (v.slam) {
         // The ground a slam will hit fills in as the blow comes: stand outside it.
@@ -311,14 +315,15 @@ export class WorldView {
       }
 
       // Its health, over its head where the eye already is (Robin, 2026-11-20: health must be easy to glance):
-      // shown on the one he fights and on any that is hurt, and the one he fights has it edged in gold.
-      const mine = h.target === m.id;
-      const showBar = m.hp < k.maxHp || mine;
-      const w = v.barW;
-      v.barBack.setVisible(showBar).setPosition(v.x - w / 2 - 2, v.y - top - 20);
-      v.barBack.setStrokeStyle(mine ? 2 : 1, mine ? COLORS.target : COLORS.foam, mine ? 1 : 0.8);
-      v.bar.setVisible(showBar).setPosition(v.x - w / 2, v.y - top - 18);
-      v.bar.scaleX = Math.max(0, m.hp / k.maxHp);
+      // shown on the one he fights and on any that is hurt. The one he fights has the gold rim, a fifth bigger,
+      // and an arrow that bobs once a second (all Leonard, AD's).
+      if (m.hp < k.maxHp || mine) {
+        v.bar ??= new MobBar(this.scene, this.reg, { w: v.barW, depth: DEPTH.effects, arrow: true });
+        const bob = settings.get().fewerEffects ? 0 : Math.sin((time / 1000) * Math.PI * 2) * 2;
+        v.bar.draw(v.x, v.y - top - (mine ? 14 : 12), m.hp / k.maxHp, mine, delta, bob);
+      } else {
+        v.bar?.hide();
+      }
     }
     for (const [id, v] of this.monsters) {
       if (seen.has(id)) continue;
@@ -397,7 +402,8 @@ export class WorldView {
         case 'hit': {
           const v = this.monsters.get(e.monster);
           if (v) v.punch = 1;
-          this.number(e.x, e.y - 30, e.crit ? `${e.amount}!` : `${e.amount}`, e.crit ? COLORS.crit : COLORS.hit, e.crit ? 22 : e.by === 'cleave' ? 18 : 16);
+          // The number rises beside its health bar, not over it: both stay readable (Leonard, AD, 2026-11-20).
+          this.number(e.x + 30, e.y - (v ? v.top : 20) - 34, e.crit ? `${e.amount}!` : `${e.amount}`, e.crit ? COLORS.crit : COLORS.hit, e.crit ? 22 : e.by === 'cleave' ? 18 : 16);
           break;
         }
         case 'monsterDied':
@@ -741,9 +747,9 @@ export class WorldView {
       shell,
       color,
       shadow: this.reg(s.add.ellipse(m.x, m.y, r * 2.3, r, COLORS.shadow, 0.25).setDepth(DEPTH.shadows)),
-      barBack: this.reg(s.add.rectangle(0, 0, w + 4, 11, COLORS.barBack, 0.9).setOrigin(0).setDepth(DEPTH.effects).setVisible(false)),
-      bar: this.reg(s.add.rectangle(0, 0, w, 7, COLORS.hp).setOrigin(0).setDepth(DEPTH.effects + 1).setVisible(false)),
+      bar: null,
       barW: w,
+      top: figure ? figure.standTop() : r,
       star: this.reg(s.add.star(m.x, m.y, 5, 3.5, 8, COLORS.target).setDepth(DEPTH.effects).setVisible(false)),
       slam: k.slamRadius > 0 ? this.reg(s.add.circle(m.x, m.y, k.slamRadius, COLORS.slam, 0.15).setStrokeStyle(2, COLORS.slam, 0.7).setDepth(DEPTH.marks).setVisible(false)) : null,
       radius: r,
@@ -758,8 +764,7 @@ export class WorldView {
     v.figure?.destroy();
     v.body?.destroy();
     v.shadow.destroy();
-    v.barBack.destroy();
-    v.bar.destroy();
+    v.bar?.destroy();
     v.star.destroy();
     v.slam?.destroy();
   }

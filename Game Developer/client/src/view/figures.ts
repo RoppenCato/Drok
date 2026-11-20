@@ -63,7 +63,7 @@ const NEAREST: Record<string, string[]> = { se: ['e', 's'], ne: ['e', 'n'], e: [
 /** A set of single pictures (gear, props, loot): each picture's size and the point it stands on, and its own data. */
 export interface SetData {
   meta: { filePx: number };
-  items: Record<string, { w: number; h: number; origin: Vec; colour?: string; light?: string; slice?: number[] }>;
+  items: Record<string, { w: number; h: number; origin: Vec; colour?: string; light?: string; slice?: number[]; inset?: number }>;
 }
 
 /** One picture from a set, standing on its own origin, at design size. Null when the set or the picture is not there. */
@@ -195,9 +195,18 @@ export class Figure {
     this.image.destroy();
   }
 
-  /** How far the picture now shown reaches above the point it stands on, in design units: where a bar goes. */
+  /** How far the picture now shown reaches above the point it stands on, in design units. */
   height(): number {
     return this.frame ? this.frame.origin.y / this.data.meta.filePx : 0;
+  }
+
+  /**
+   * How far its first standing picture reaches above its feet: one steady height for what floats over it. The
+   * picture now shown is trimmed, so its own top jumps as a claw goes up (Leonard, AD, 2026-11-20).
+   */
+  standTop(): number {
+    const f = this.sets.get('stand/s')?.[0] ?? this.frame;
+    return f ? f.origin.y / this.data.meta.filePx : 0;
   }
 
   /** The frames of the action for the facing; a figure drawn in fewer facings (the coconut crab) gives the nearest. */
