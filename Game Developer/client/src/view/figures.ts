@@ -267,12 +267,13 @@ export class HeroFigure {
   /** A one-shot action (a swing, a Cleave, a flinch) that plays over standing and walking until it ends. */
   private once: string | null = null;
 
-  constructor(scene: Phaser.Scene, add: <T extends Phaser.GameObjects.GameObject>(o: T) => T, data: AtlasData, gear: GearData | null) {
-    this.body = new Figure(scene, 'hero', data);
+  /** `keys` name the two atlases to draw from, when they are not the field's (the sharper pair for his window). */
+  constructor(scene: Phaser.Scene, add: <T extends Phaser.GameObjects.GameObject>(o: T) => T, data: AtlasData, gear: GearData | null, keys: { hero: string; gear: string } = { hero: 'hero', gear: 'gear' }) {
+    this.body = new Figure(scene, keys.hero, data);
     add(this.body.image);
     this.gear = gear;
     if (gear) {
-      for (const [slot] of GEAR_POINTS) this.pieces.set(slot, add(scene.add.image(0, 0, 'gear').setScale(1 / gear.meta.filePx).setVisible(false)));
+      for (const [slot] of GEAR_POINTS) this.pieces.set(slot, add(scene.add.image(0, 0, keys.gear).setScale(1 / gear.meta.filePx).setVisible(false)));
     }
   }
 

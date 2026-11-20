@@ -11,6 +11,8 @@ export const ART = {
   /** `art/gear`: cutlasses, bucklers and hats as small pictures for those points, and the bag's icons. */
   gear: true,
   /** `art/<kind>`: the kinds of monster that have their own atlas. */
+  /** `art/hero-sheet`: the hero and his gear drawn once at twice the field's sharpness, for his window. */
+  heroSheet: true,
   monsters: ['sand-crab', 'reef-gull', 'coconut-crab'] as string[],
   /** `art/loot`: coins, a potion, a bundle of gear, a ring for each rarity, a spark. */
   loot: true,

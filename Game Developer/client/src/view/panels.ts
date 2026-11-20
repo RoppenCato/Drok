@@ -389,10 +389,14 @@ export class Panels {
     const niche = hasGlass(s) ? stretch(s, 'niche', 164, 146) : null;
     if (niche) this.keep(niche.setPosition(CX, top + 73).setDepth(DEPTH.panel + 1));
     else this.row(CX, top + 73, 164, 146);
-    const data = s.textures.exists('hero') ? (s.cache.json.get('hero:data') as AtlasData | undefined) : undefined;
+    // Drawn from the pair Leonard, AD rendered for this window (twice the field's sharpness, so he is not his field
+    // picture blown up beside the sharp slots); from the field's own pair when that drop is not in.
+    const sharp = ART.heroSheet && s.textures.exists('hero-sheet') && s.textures.exists('gear-sheet');
+    const keys = sharp ? { hero: 'hero-sheet', gear: 'gear-sheet' } : { hero: 'hero', gear: 'gear' };
+    const data = s.textures.exists(keys.hero) ? (s.cache.json.get(`${keys.hero}:data`) as AtlasData | undefined) : undefined;
     if (ART.hero && data?.actions) {
-      const gear = ART.gear && s.textures.exists('gear') ? ((s.cache.json.get('gear:data') as GearData | undefined) ?? null) : null;
-      this.sheetHero = new HeroFigure(s, this.reg, data, gear);
+      const gear = ART.gear && s.textures.exists(keys.gear) ? ((s.cache.json.get(`${keys.gear}:data`) as GearData | undefined) ?? null) : null;
+      this.sheetHero = new HeroFigure(s, this.reg, data, gear, keys);
       this.sheetHero.sync({ x: CX + 8, y: top + 136, depth: DEPTH.panel + 3, facing: Math.PI / 2, moving: false, charging: false, down: false, worn: h.worn, delta: 0, flash: false, size: 2 });
     } else {
       this.keep(s.add.circle(CX, top + 90, 34, COLORS.hero).setStrokeStyle(3, COLORS.heroDark).setDepth(DEPTH.panel + 2));

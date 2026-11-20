@@ -38,6 +38,10 @@ export class BootScene extends Phaser.Scene {
       atlas('gear', 'gear');
       atlas('gear-icons', 'gear');
     }
+    if (ART.heroSheet) {
+      atlas('hero-sheet', 'hero-sheet', 'hero');
+      atlas('gear-sheet', 'hero-sheet', 'gear');
+    }
     for (const kind of ART.monsters) atlas(kind, kind);
     if (ART.loot) atlas('loot', 'loot');
     if (ART.glass) atlas('glass', 'glass');
