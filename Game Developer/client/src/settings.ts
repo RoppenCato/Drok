@@ -1,4 +1,4 @@
-// The player's settings: sound off (for the sound layer to come), fewer effects (the "fast and snappy" switch: no
+// The player's settings: sound off, fewer effects (the "fast and snappy" switch: no
 // tweens, things jump into place) and which hand holds the phone. Kept in localStorage; read where they matter.
 
 const KEY = 'drok.settings';

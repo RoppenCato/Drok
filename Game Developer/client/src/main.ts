@@ -6,6 +6,7 @@ import { LocalGame } from './local-game.ts';
 import { BootScene } from './scenes/BootScene.ts';
 import { PlayScene } from './scenes/PlayScene.ts';
 import { storageOrNull } from './settings.ts';
+import { sounds } from './sound.ts';
 
 const log = new GameLog(GAME_NAME);
 log.attach(window);
@@ -79,7 +80,7 @@ const ready = (): boolean => phaser.scene.isActive('play');
 
 declare global {
   interface Window {
-    dev: { holder: LocalGame; log: GameLog; phaser: Phaser.Game; rules: typeof rules; step: (n?: number) => void; ready: () => boolean; res: number };
+    dev: { holder: LocalGame; log: GameLog; phaser: Phaser.Game; rules: typeof rules; step: (n?: number) => void; ready: () => boolean; res: number; sounds: typeof sounds };
   }
 }
-window.dev = { holder, log, phaser, rules, step, ready, res: RES };
+window.dev = { holder, log, phaser, rules, step, ready, res: RES, sounds };

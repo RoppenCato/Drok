@@ -4,6 +4,7 @@ import { Controls } from '../controls.ts';
 import type { GameLog } from '../game-log.ts';
 import { DESIGN_HEIGHT, DESIGN_WIDTH, RES } from '../layout.ts';
 import type { Intent, LocalGame } from '../local-game.ts';
+import { sounds } from '../sound.ts';
 import { Hud } from '../view/hud.ts';
 import { Panels } from '../view/panels.ts';
 import { FOOT, WorldView, type Thing } from '../view/world-view.ts';
@@ -124,6 +125,7 @@ export class PlayScene extends Phaser.Scene {
     let stale = false;
     for (const e of events) {
       if (STALE.has(e.type)) stale = true;
+      sounds.event(e);
       if (e.type === 'sailed') this.log.note(`sailed to ${e.to}`);
       else if (e.type === 'levelUp') this.log.note(`level ${e.level} at ${(state.time / 60).toFixed(1)} min`);
       else if (e.type === 'heroDown') this.log.note(`down in ${state.place}; lost ${e.lost} gold; ${state.deaths} falls`);

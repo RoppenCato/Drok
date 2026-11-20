@@ -29,6 +29,7 @@ import { ART, CHART_ART, GEAR_ART } from '../art.ts';
 import { COLORS, DEPTH, DESIGN_HEIGHT, DESIGN_WIDTH, FONT, RES, hex } from '../layout.ts';
 import type { Intent } from '../local-game.ts';
 import { settings } from '../settings.ts';
+import { sounds } from '../sound.ts';
 import { picture } from './figures.ts';
 import { INK, hasGlass, inkFor, piece, stretch } from './glass.ts';
 
@@ -115,6 +116,7 @@ export class Panels {
   }
 
   open(kind: PanelKind, selling = false): void {
+    if (this.kind !== kind) sounds.play('open');
     this.kind = kind;
     this.selling = selling;
     this.selected = null;
@@ -122,6 +124,7 @@ export class Panels {
   }
 
   close(): void {
+    if (this.kind) sounds.play('close');
     this.kind = null;
     this.armed = null;
     this.clear();
@@ -146,7 +149,10 @@ export class Panels {
       if (!this.inside(x, y)) this.close();
       return;
     }
-    if (this.hit(x, y) === armed) armed.press();
+    if (this.hit(x, y) === armed) {
+      sounds.play('tap');
+      armed.press();
+    }
   }
 
   // ---- the frame and its parts -------------------------------------------------------------------------------------
@@ -295,6 +301,13 @@ export class Panels {
     this.frame('Settings');
     const s = settings.get();
     const rows: [string, () => void][] = [
+      [
+        `Sound: ${s.mute ? 'off' : 'on'}`,
+        () => {
+          settings.set({ mute: !settings.get().mute });
+          this.refresh();
+        },
+      ],
       [
         `Buttons: ${s.leftHand ? 'left' : 'right'} hand`,
         () => {

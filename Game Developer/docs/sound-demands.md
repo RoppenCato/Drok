@@ -5,6 +5,10 @@ Game Developer's to set and confirm (Robin, 2026-11-01 in Zite: "the GD needs to
 can be"). How the game plays them will be in `docs\state\sound.md` once the audio layer exists. The studio looks in
 the common library first (`..\..\Sound Director\library\INDEX.md`) and makes new only what it lacks.
 
+**Since 2026-11-20 the game plays a basic stand-in set**, copies from the library picked by Victor, GD on Robin's
+word ("set up some basic sounds ... Just things you can get from the storage"): `docs\state\sound.md` and
+`client\public\sfx\NOTES.md`. The names there are the names the game plays; a set from the studio replaces them.
+
 The control test (before chapter 1) is silent. Hugh, SD's chat starts when chapter 1 is planned (Robin, 2026-11-20).
 
 ## What Robin decided (2026-11-20; the brief has his words)

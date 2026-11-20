@@ -3,6 +3,7 @@ import { makeRng } from '../../../rules/src/index.ts';
 import { ART } from '../art.ts';
 import type { GameLog } from '../game-log.ts';
 import { COLORS, RES } from '../layout.ts';
+import { sounds } from '../sound.ts';
 
 /** A ground tile's size, in design units. Drawn once at RES times that, so it is sharp under the zoom. */
 export const GROUND_TILE = 256;
@@ -11,7 +12,7 @@ export const GROUND_TILE = 256;
 export const GROUNDS = ['sand', 'grass', 'rock', 'cobble'] as const;
 export type Ground = (typeof GROUNDS)[number];
 
-/** The first scene: where pictures and sounds load (none yet), and the grounds are painted once. Then play starts. */
+/** The first scene: where pictures and sounds load, and the grounds are painted once. Then play starts. */
 export class BootScene extends Phaser.Scene {
   private readonly log: GameLog;
 
@@ -26,11 +27,12 @@ export class BootScene extends Phaser.Scene {
    * A file that fails to load is logged; the view then draws the stand-in.
    */
   preload(): void {
-    this.load.on(Phaser.Loader.Events.FILE_LOAD_ERROR, (file: Phaser.Loader.File) => this.log.error(`art did not load: ${file.key} (${String(file.url)})`));
+    this.load.on(Phaser.Loader.Events.FILE_LOAD_ERROR, (file: Phaser.Loader.File) => this.log.error(`a file did not load:${file.key} (${String(file.url)})`));
     const atlas = (key: string, folder: string, name = key): void => {
       this.load.atlas(key, `art/${folder}/${name}.png`, `art/${folder}/${name}.json`);
       this.load.json(`${key}:data`, `art/${folder}/${name}.json`);
     };
+    sounds.preload(this);
     if (ART.hero) atlas('hero', 'hero');
     if (ART.gear) {
       atlas('gear', 'gear');

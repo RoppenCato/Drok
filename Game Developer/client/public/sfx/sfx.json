@@ -1,0 +1,167 @@
+{
+  "swing": {
+    "files": [
+      "swing_1.ogg"
+    ],
+    "volume": 0.273
+  },
+  "hit": {
+    "files": [
+      "hit_1.ogg",
+      "hit_2.ogg",
+      "hit_3.ogg",
+      "hit_4.ogg"
+    ],
+    "volume": 0.683
+  },
+  "cleave": {
+    "files": [
+      "cleave_1.ogg"
+    ],
+    "volume": 0.385
+  },
+  "hit_heavy": {
+    "files": [
+      "hit_heavy_1.ogg",
+      "hit_heavy_2.ogg",
+      "hit_heavy_3.ogg",
+      "hit_heavy_4.ogg"
+    ],
+    "volume": 0.803
+  },
+  "charge": {
+    "files": [
+      "charge_1.ogg",
+      "charge_2.ogg",
+      "charge_3.ogg"
+    ],
+    "volume": 0.424
+  },
+  "hero_hurt": {
+    "files": [
+      "hero_hurt_1.ogg",
+      "hero_hurt_2.ogg",
+      "hero_hurt_3.ogg"
+    ],
+    "volume": 0.488
+  },
+  "hero_down": {
+    "files": [
+      "hero_down_1.ogg",
+      "hero_down_2.ogg",
+      "hero_down_3.ogg"
+    ],
+    "volume": 0.484
+  },
+  "monster_die": {
+    "files": [
+      "monster_die_1.ogg",
+      "monster_die_2.ogg",
+      "monster_die_3.ogg"
+    ],
+    "volume": 0.49
+  },
+  "windup": {
+    "files": [
+      "windup_1.ogg",
+      "windup_2.ogg",
+      "windup_3.ogg"
+    ],
+    "volume": 0.193
+  },
+  "coin": {
+    "files": [
+      "coin_1.ogg",
+      "coin_2.ogg",
+      "coin_3.ogg"
+    ],
+    "volume": 0.367
+  },
+  "pickup": {
+    "files": [
+      "pickup_1.ogg",
+      "pickup_2.ogg",
+      "pickup_3.ogg"
+    ],
+    "volume": 0.242
+  },
+  "level_up": {
+    "files": [
+      "level_up_1.ogg",
+      "level_up_2.ogg",
+      "level_up_3.ogg"
+    ],
+    "volume": 0.043
+  },
+  "chest": {
+    "files": [
+      "chest_1.ogg",
+      "chest_2.ogg",
+      "chest_3.ogg",
+      "chest_4.ogg"
+    ],
+    "volume": 0.29
+  },
+  "potion": {
+    "files": [
+      "potion_1.ogg",
+      "potion_2.ogg",
+      "potion_3.ogg"
+    ],
+    "volume": 0.204
+  },
+  "equip": {
+    "files": [
+      "equip_1.ogg",
+      "equip_2.ogg",
+      "equip_3.ogg",
+      "equip_4.ogg",
+      "equip_5.ogg"
+    ],
+    "volume": 0.572
+  },
+  "sail": {
+    "files": [
+      "sail_1.ogg",
+      "sail_2.ogg",
+      "sail_3.ogg",
+      "sail_4.ogg"
+    ],
+    "volume": 0.788
+  },
+  "tap": {
+    "files": [
+      "tap_1.ogg",
+      "tap_2.ogg",
+      "tap_3.ogg",
+      "tap_4.ogg"
+    ],
+    "volume": 0.037
+  },
+  "open": {
+    "files": [
+      "open_1.ogg",
+      "open_2.ogg",
+      "open_3.ogg",
+      "open_4.ogg"
+    ],
+    "volume": 0.707
+  },
+  "close": {
+    "files": [
+      "close_1.ogg",
+      "close_2.ogg",
+      "close_3.ogg",
+      "close_4.ogg"
+    ],
+    "volume": 0.784
+  },
+  "refuse": {
+    "files": [
+      "refuse_1.ogg",
+      "refuse_2.ogg",
+      "refuse_3.ogg"
+    ],
+    "volume": 0.288
+  }
+}
