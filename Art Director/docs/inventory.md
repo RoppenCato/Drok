@@ -12,7 +12,7 @@ Victor, GD on 2026-11-20 to finish chapter 1 without asking, and "Let AD handle 
 ## Wave 1 (chapter 1), in the order the game needs it
 
 All of it is in the game since 2026-11-20 (Victor, GD's commits 22ab703, 5785c55, fa7b6dd; his table of what is drawn from
-which drop is the game's `docs\statert.md`). **None of it has been seen by Robin.**
+which drop is the game's `docs\state\art.md`). **None of it has been seen by Robin.**
 
 | No. | Piece | State on 2026-11-20 |
 | --- | --- | --- |
