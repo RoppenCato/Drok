@@ -97,6 +97,12 @@ const REFUSED: Partial<Record<RejectReason, string>> = {
 
 const USE: Record<Thing, string> = { chest: 'Open chest', shop: 'Trade', dock: 'Sea chart' };
 
+/**
+ * A place's name comes up just under the top buttons (Leonard, AD, 2026-11-20): he walks north into most places, so
+ * what a place shows him first comes in above his head, and a banner there covered the very thing it names.
+ */
+const BANNER_Y = 84;
+
 export class Hud {
   /** The skills he carries, as the last frame had them: what the two discs press. */
   private slots: SkillId[] = [];
@@ -217,8 +223,8 @@ export class Hud {
 
     // Over the windows too: a refusal inside a window must be read. It stands just over the pile.
     this.toastText = this.words(W / 2, USE_Y - 38, '', 15, COLORS.warn, DEPTH.banner).setStroke(COLORS.textDark, 4);
-    this.bannerTitle = this.words(W / 2, 210, '', 30, COLORS.text, DEPTH.banner).setStroke(COLORS.textDark, 6);
-    this.bannerSub = this.words(W / 2, 246, '', 15, COLORS.text, DEPTH.banner).setStroke(COLORS.textDark, 4);
+    this.bannerTitle = this.words(W / 2, BANNER_Y, '', 30, COLORS.text, DEPTH.banner).setStroke(COLORS.textDark, 6);
+    this.bannerSub = this.words(W / 2, BANNER_Y + 34, '', 15, COLORS.text, DEPTH.banner).setStroke(COLORS.textDark, 4);
     this.downText = this.words(W / 2, 360, '', 28, COLORS.text, DEPTH.banner).setStroke(COLORS.textDark, 6).setAlign('center');
     this.setHelp(HELP);
   }
@@ -340,6 +346,10 @@ export class Hud {
     const shown = Math.min(1, this.bannerFor / 500);
     this.bannerTitle.setAlpha(shown);
     this.bannerSub.setAlpha(shown);
+    // Under the help line while that is up.
+    const under = this.helpFor > 0 && this.help.text !== '' ? this.help.y + this.help.height - BANNER_Y + 22 : 0;
+    this.bannerTitle.setY(BANNER_Y + Math.max(0, under));
+    this.bannerSub.setY(BANNER_Y + 34 + Math.max(0, under));
 
     const target = h.target !== null ? state.monsters.find((m) => m.id === h.target) : undefined;
     const has = target !== undefined;
