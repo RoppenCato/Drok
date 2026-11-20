@@ -39,6 +39,13 @@ export const FOOT = 110;
 
 /** His own bar's middle is this far above the top of his standing picture (Leonard, AD, 2026-11-20). */
 const OWN_ABOVE = 13;
+/**
+ * A monster's bar never lies on his own bar or across the middle of his face (Leonard, AD's rule and numbers,
+ * 2026-11-20). It may come this far into his bar's box before it counts; his face is this wide on his middle and
+ * reaches from his bar's foot down to this far under the top of his standing picture; a bar that is lifted sits
+ * this far above what it is lifted over; and it slides there in about this many ms.
+ */
+const BARS = { letIn: 2, faceHalf: 4, faceFoot: 28, gap: 2, slideMs: 120 } as const;
 
 interface MonsterView {
   /** The Art Director's figure, when this kind has one; else the stand-in below. */
@@ -55,6 +62,8 @@ interface MonsterView {
   barW: number;
   /** How far above its feet its standing picture reaches: the one height its bar and its star hang from. */
   top: number;
+  /** How far its bar is lifted just now to keep it off the hero's own bar and face; it slides there and back. */
+  lift: number;
   star: Phaser.GameObjects.Star;
   /** The ground a slam will hit, shown while it winds up. */
   slam: Phaser.GameObjects.Arc | null;
@@ -137,6 +146,8 @@ export class WorldView {
    */
   private ownBar: OwnBar | null = null;
   private ownTop = 22;
+  /** How high the monsters' bars that were lifted over his bar are piled on it just now: a number about him starts above them. */
+  private piled = 0;
 
   constructor(scene: Phaser.Scene, reg: Register) {
     this.scene = scene;
@@ -276,11 +287,13 @@ export class WorldView {
 
     // His own bar: not in a town, where nothing can hurt him, and not while he is down (mine). It is put in its
     // place by `pin`, once the camera stands for this frame.
+    const ownShown = this.ownBar !== null && !placeOf(state).town && !down;
     if (this.ownBar) {
-      const show = !placeOf(state).town && !down;
-      this.ownBar.setVisible(show);
-      if (show) this.ownBar.set(h.hp / heroMaxHp(h), h.rage / N.hero.maxRage, delta);
+      this.ownBar.setVisible(ownShown);
+      if (ownShown) this.ownBar.set(h.hp / heroMaxHp(h), h.rage / N.hero.maxRage, delta);
     }
+    /** The monsters whose health is shown this frame: placed together below, so none lies on his bar or face. */
+    const bars: { v: MonsterView; id: number; mine: boolean; part: number }[] = [];
 
     this.destDot.setVisible(h.dest !== null);
     if (h.dest) this.destDot.setPosition(h.dest.x, h.dest.y);
@@ -327,7 +340,7 @@ export class WorldView {
       // hung from the picture now shown, it jumped whenever a claw went up (Leonard, AD saw it on the screen).
       const top = v.top;
       const mine = h.target === m.id;
-      v.star.setVisible(stunned).setPosition(v.x, v.y - top - (mine ? 38 : 32));
+      v.star.setVisible(stunned).setPosition(v.x, v.y - top - (mine ? 38 : 32) - v.lift);
       if (stunned) v.star.rotation = time * 0.006;
       if (v.slam) {
         // The ground a slam will hit fills in as the blow comes: stand outside it.
@@ -340,11 +353,13 @@ export class WorldView {
       // (Leonard, AD's).
       if (m.hp < k.maxHp || mine) {
         v.bar ??= new MobBar(this.scene, this.reg, { w: v.barW, depth: DEPTH.effects });
-        v.bar.draw(v.x, v.y - top - (mine ? 14 : 12), m.hp / k.maxHp, mine, delta);
+        bars.push({ v, id: m.id, mine, part: m.hp / k.maxHp });
       } else {
         v.bar?.hide();
+        v.lift = 0;
       }
     }
+    this.placeBars(bars, hx, hy, ownShown, delta);
     for (const [id, v] of this.monsters) {
       if (seen.has(id)) continue;
       // A drawn monster that is gone plays its fall where it stood; a stand-in simply goes.
@@ -412,6 +427,62 @@ export class WorldView {
   }
 
   /**
+   * The monsters' bars, each over its own head, but never on his own bar or across the middle of his face. Leonard,
+   * AD saw it in the game (2026-11-20): a crab that stood on him had its gold bar across his whole face, and one
+   * north of him had its bar half under his; Robin had asked for his bar "fixated well enough that it doesnt become
+   * messy when fighting mobs". A bar that would lie there is lifted to sit right above his bar, at its own x; two
+   * that would then lie on each other are piled upward, the one he fights nearest his bar. A bar that only grazes
+   * his head from the side is left where it is. The rule and its numbers are Leonard, AD's; the piling only where
+   * two would touch is mine.
+   */
+  private placeBars(bars: { v: MonsterView; id: number; mine: boolean; part: number }[], hx: number, hy: number, guard: boolean, delta: number): void {
+    const own = this.ownBar;
+    const half = (own?.long ?? 52) / 2;
+    const ownTop = hy - this.ownTop - OWN_ABOVE - (own?.tall ?? 15) / 2;
+    const ownFoot = ownTop + (own?.tall ?? 15);
+    const faceFoot = hy - this.ownTop + BARS.faceFoot;
+    // The one he fights first, then always in the same order, so two lifted bars never change places.
+    bars.sort((a, b) => Number(b.mine) - Number(a.mine) || a.id - b.id);
+    const lifted: { l: number; r: number; t: number; b: number }[] = [];
+    const slide = settings.get().fewerEffects ? 1 : 1 - Math.exp((-delta * 3) / BARS.slideMs);
+    let piled = 0;
+    for (const { v, mine, part } of bars) {
+      if (!v.bar) continue;
+      const size = v.bar.box(mine);
+      const y0 = v.y - v.top - (mine ? 14 : 12);
+      let want = 0;
+      if (guard) {
+        const l = v.x - size.long / 2;
+        const r = v.x + size.long / 2;
+        const t = y0 - size.tall / 2;
+        const b = y0 + size.tall / 2;
+        const onBar = r > hx - half + BARS.letIn && l < hx + half - BARS.letIn && b > ownTop + BARS.letIn && t < ownFoot - BARS.letIn;
+        const onFace = r > hx - BARS.faceHalf && l < hx + BARS.faceHalf && b > ownFoot && t < faceFoot;
+        if (onBar || onFace) {
+          // Right above his bar; and above any bar already lifted there that it would touch.
+          let foot = ownTop - BARS.gap;
+          for (let again = true; again; ) {
+            again = false;
+            for (const p of lifted) {
+              if (r > p.l && l < p.r && foot > p.t - BARS.gap && foot - size.tall < p.b + BARS.gap) {
+                foot = p.t - BARS.gap;
+                again = true;
+              }
+            }
+          }
+          lifted.push({ l, r, t: foot - size.tall, b: foot });
+          piled = Math.max(piled, ownTop - (foot - size.tall));
+          want = b - foot;
+        }
+      }
+      v.lift += (want - v.lift) * slide;
+      if (Math.abs(want - v.lift) < 0.25) v.lift = want;
+      v.bar.draw(v.x, y0 - v.lift, part, mine, delta);
+    }
+    this.piled = piled;
+  }
+
+  /**
    * His own bar over his head, put there once the camera stands for this frame: on whole pixels of the screen, not
    * of the field. The camera glides after him, so a bar on whole units of the field would tremble against him as he
    * walks; on whole pixels of the screen it is as still as he is, and its five pictures lie exactly on each other.
@@ -438,7 +509,7 @@ export class WorldView {
           const v = this.monsters.get(e.monster);
           if (v) v.punch = 1;
           // The number rises beside its health bar, not over it: both stay readable (Leonard, AD, 2026-11-20).
-          this.number(e.x + 30, e.y - (v ? v.top : 20) - 34, e.crit ? `${e.amount}!` : `${e.amount}`, e.crit ? COLORS.crit : COLORS.hit, e.crit ? 22 : e.by === 'cleave' ? 18 : 16);
+          this.number(e.x + 30, e.y - (v ? v.top + v.lift : 20) - 34, e.crit ? `${e.amount}!` : `${e.amount}`, e.crit ? COLORS.crit : COLORS.hit, e.crit ? 22 : e.by === 'cleave' ? 18 : 16);
           break;
         }
         case 'monsterDied':
@@ -787,6 +858,7 @@ export class WorldView {
       bar: null,
       barW: w,
       top: figure ? figure.standTop() : r,
+      lift: 0,
       star: this.reg(s.add.star(m.x, m.y, 5, 3.5, 8, COLORS.target).setDepth(DEPTH.effects).setVisible(false)),
       slam: k.slamRadius > 0 ? this.reg(s.add.circle(m.x, m.y, k.slamRadius, COLORS.slam, 0.15).setStrokeStyle(2, COLORS.slam, 0.7).setDepth(DEPTH.marks).setVisible(false)) : null,
       radius: r,
@@ -871,9 +943,9 @@ export class WorldView {
     this.scene.tweens.add({ targets: this.swordArm, rotation: 0.5, duration: Math.max(1, settings.ms(170)), ease: 'Cubic.easeOut' });
   }
 
-  /** How far above his feet a number about him starts: over his own bar, so it never hides it. */
+  /** How far above his feet a number about him starts: over his own bar and any monster's bar piled on it, so it hides neither. */
   private overHero(): number {
-    return this.ownTop + OWN_ABOVE + 22;
+    return this.ownTop + OWN_ABOVE + 22 + this.piled;
   }
 
   /** A number that rises and fades. With fewer effects it stands a moment and goes. */

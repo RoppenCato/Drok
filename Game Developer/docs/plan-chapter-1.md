@@ -170,7 +170,9 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
       out (kept in `archive\his-bars-four-ways\`); the arrow over the one he fights is out; the bar is put on
       whole screen pixels after the camera, so it does not tremble as he walks; the camera looks 45 below him,
       not 60 (the place's foot stays at 110)
-    - tests in the pane: `tests.md`, "his own bar over his head"
+    - `[x]` a monster's bar never lies on his bar or across his face: it is lifted to sit above his (Leonard,
+      AD's rule, after he looked at the bar in the game: `Art Director\concepts\own-bars\bars-apart.jpg`)
+    - tests in the pane: `tests.md`, "his own bar over his head" and "a monster's bar kept off his bar and face"
 
 ## Waits for Robin
 
@@ -182,6 +184,8 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
 - His own bar (item 19), on his phone: do the two reds read as two; is it still enough in a crowded fight; does he
   miss his health in numbers; should it show in the town. Whether the monster's name plate at the bottom stays.
   And Leonard, AD's note: Cleave's disc is health's red, so three reds meet on the screen now.
+- A rule of the game, his and mine: may a monster stand right on him? Nothing keeps one out of him now (the rules
+  push monsters apart from each other only). Its bar is kept off his face either way.
 - The look: Leonard, AD chose it himself, as told ("Let AD handle the art you need. I approve."), so the first
   judging of the Warrior, the monsters, the island, the town, the chart, the glass and the icon is this play. The
   look and the chart would each have been three to pick from. And the size: he finds the Warrior small and offers

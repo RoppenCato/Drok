@@ -367,9 +367,14 @@ export class MobBar {
   private readonly back: Phaser.GameObjects.Rectangle | null = null;
   private readonly fill: Phaser.GameObjects.Rectangle | null = null;
   private readonly trail = new Trail();
+  /** How tall his two wells are, in design units at their own size. */
+  private readonly tallWell: number;
+  private readonly tallMine: number;
 
   constructor(scene: Phaser.Scene, reg: <T extends Obj>(o: T) => T, o: { w: number; depth: number }) {
     this.w = o.w;
+    this.tallWell = tall(scene, 'mob/well') || 11;
+    this.tallMine = tall(scene, 'mob/well-mine') || 11;
     const well = Pill.make(scene, 'mob/well');
     const mine = Pill.make(scene, 'mob/well-mine', MINE);
     const lost = Pill.make(scene, 'mob/lost');
@@ -386,6 +391,14 @@ export class MobBar {
       this.fill = reg(scene.add.rectangle(0, 0, o.w, 7, COLORS.hp).setOrigin(0, 0.5).setDepth(o.depth + 1));
     }
     this.hide();
+  }
+
+  /** How long and how tall the whole bar is as drawn, well and all: bigger on the one he fights. */
+  box(fought: boolean): { long: number; tall: number } {
+    if (!this.pills) return { long: this.w + 4, tall: 11 };
+    const k = fought ? MINE : 1;
+    const inset = fought ? this.pills.insetMine : this.pills.inset;
+    return { long: (this.w + inset * 2) * k, tall: (fought ? this.tallMine : this.tallWell) * k };
   }
 
   /** Its middle at x, y; how full (0 to 1); whether it is the one he fights; the ms gone by. */

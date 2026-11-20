@@ -105,6 +105,14 @@ second. What keeps it still (mine):
   field trembled against him by a pixel as he walked. Measured in the pane over 90 walking frames: always on a
   whole pixel, never more than half a pixel off his middle, its height over him within a pixel.
 - It is drawn over every monster's bar. A number about him ("-7", "missed", "+12") starts above it.
+- **A monster's bar never lies on his bar or across the middle of his face** (`WorldView.placeBars`; Leonard, AD's
+  rule and numbers, 2026-11-20, after he saw a crab that stood on him with its gold bar across his face). His
+  bar's box is 52 by 15; a monster's bar may come 2 into it. His face's box is 8 wide on his middle, from his
+  bar's foot down to 28 under the top of his standing picture: narrow, so a bar that only grazes his head from the
+  side stays where it is. A bar that would lie in either is lifted to sit 2 above his bar, at its own x, and
+  slides there in about 120 ms (at once with "fewer effects"); its star and the number of a blow go up with it.
+  Two lifted bars that would touch are piled upward, the one he fights nearest his bar, always in the same order
+  (piling only where two would touch is mine). A number about him then starts above the pile.
 - Not shown in a town, where nothing can hurt him, and not while he is down. His health in numbers is in the Hero
   window.
 

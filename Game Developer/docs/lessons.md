@@ -142,6 +142,10 @@ Victor, GD's first guess of 2026-11-20 and is pending until Robin has played the
 22. Three stand-in ways went to Robin as the choice, and he picked a fourth that the Art Director drew beside
     them. Rule: when the choice is about how a thing looks, the Art Director's drawing is one of the choices from
     the start; the Game Developer's stand-ins show where a thing goes, not what it is.
+23. His bar went to Robin as done, and the Art Director then found a monster's bar lying across his face: the crab
+    he fought stood right on him. My test scene had the crabs beside him, where they usually stand. Rule: a thing
+    hung on a figure is looked at with another figure on it, north of it and beside it, before it is called done;
+    and the Art Director looks at it in the game before the message to Robin, not after.
 
 ## Harvested
 

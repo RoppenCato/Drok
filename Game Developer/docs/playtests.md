@@ -67,8 +67,14 @@ be distinctive different red colors".
 | Rage is red, and another red than health | Rage was orange everywhere | Health stays the light red of every health bar, rage is a deep crimson (Leonard, AD's pair, of seven he tried) | Two reds are told apart at this size only when one is clearly darker |
 | (mine) Steady | The test's bars sat on whole units of the field while the camera glides after him: they would have trembled against him by a pixel as he walked. Stills never showed it | The bar is placed after the camera, on whole pixels of the screen. The arrow over the one he fights is out (Leonard, AD: it touched his bar) | A thing that goes with a figure is checked walking, frame by frame, not in a still |
 
+Found by Leonard, AD when he looked at the bar in the game, not Robin's note: **a monster's bar could lie across
+his face** (the crab he fought stood on him) or half under his bar (a crab north of him). That is the "messy" Robin
+asked not to have. Done: such a bar is lifted to sit right above his, at its own x, and two are piled; a bar that
+only grazes his head from the side is left. Rule: when a bar is hung on one figure, look at it with another figure
+standing on, north of and beside the first.
+
 Waiting for his eye on his phone: the two reds, a crowded fight, whether he misses the numbers, whether the name
-plate at the bottom stays.
+plate at the bottom stays; and whether a monster may stand right on him at all.
 
 ## Round 3, _date_: _…_
 
