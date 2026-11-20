@@ -51,6 +51,8 @@ rare drops, in a top-down world."
   for trinkets also. Two trinkets. I think we can skip rings. Do: Head, chest, legs, boots, necklace, two
   trinkets." So the places to wear gear on are: head, chest, legs, boots, necklace, two trinkets, and the cutlass
   and buckler he picked before (that those two stay is the Game Developer's reading).
+- **Comparing gear** (Robin, 2026-11-20): "It also need to be easy and obvious to compare items. Like when you
+  look at a sword you should see your equipped one next to it."
 - **The look of menus and panels** (Robin, 2026-11-20): "You need to have some nice pirate design to menus and
   panels. Like some wooden feeling. Right now it looks bland. Also update icons so they look fitting." Leonard, AD
   draws three wooden pirate looks; Robin picks.

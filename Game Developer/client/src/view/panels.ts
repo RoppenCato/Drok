@@ -458,28 +458,46 @@ export class Panels {
       const rarity = RARITIES[item.rarity];
       const place = wearSlot(h, item);
       const worn = h.worn[place];
-      this.icon(left + 36, cy + 36, item, base.slot, 52);
-      this.text(left + 76, cy + 18, itemName(item), 17, rarity.color, 0);
-      this.text(left + 76, cy + 38, `${carried ? 'In the bag' : 'Worn'} · ${rarity.name.toLowerCase()} ${SLOT_NAMES[base.slot]}`, 13, COLORS.dim, 0);
-      this.text(left + 76, cy + 58, statWords(item), 15, COLORS.text, 0);
       if (carried) {
-        // Against what he wears, in words: green when it only gains, red when it only loses.
+        // Side by side (Robin, 2026-11-20: "when you look at a sword you should see your equipped one next to
+        // it"): the piece from the bag on the left, the one he wears in that place on the right, the same numbers
+        // on the same rows, and beside each of the new piece's numbers how much more or less it is.
         const a = itemStats(item);
         const b = worn ? itemStats(worn) : { damage: 0, hp: 0, armour: 0 };
-        const diffs: [number, string][] = [
-          [a.damage - b.damage, 'damage'],
-          [a.hp - b.hp, 'health'],
-          [a.armour - b.armour, 'armour'],
-        ];
-        const words = diffs.filter(([d]) => d !== 0).map(([d, name]) => `${d > 0 ? '+' : '−'}${Math.abs(d)} ${name}`);
-        const gains = diffs.some(([d]) => d > 0);
-        const losses = diffs.some(([d]) => d < 0);
-        const line = !worn ? `He wears no ${SLOT_NAMES[base.slot]}: ${words.join(', ')}` : words.length === 0 ? `The same as his ${itemName(worn)}` : `Against his ${itemName(worn)}: ${words.join(', ')}`;
-        this.text(left + 8, cy + 84, line, 13, gains && !losses ? COLORS.good : losses && !gains ? COLORS.bad : COLORS.text, 0);
+        const rows = (
+          [
+            ['damage', a.damage, b.damage],
+            ['health', a.hp, b.hp],
+            ['armour', a.armour, b.armour],
+          ] as [string, number, number][]
+        ).filter(([, mine, his]) => mine !== 0 || his !== 0);
+        const half = (F.w - 28) / 2;
+        const x1 = CX - half;
+        const x2 = CX;
+        this.keep(s.add.rectangle(CX, cy + ch / 2, 2, ch - 16, hex(INK.dark), 0.25).setDepth(DEPTH.panel + 2));
+        const head = (x0: number, title: string, piece: Item | null, kind: Slot): void => {
+          this.text(x0 + 10, cy + 13, title, 13, COLORS.dim, 0);
+          this.icon(x0 + 28, cy + 46, piece, kind, 40);
+          if (piece) this.text(x0 + 54, cy + 46, itemName(piece), 14, RARITIES[piece.rarity].color, 0).setWordWrapWidth(half - 60).setLineSpacing(-3);
+          else this.text(x0 + 54, cy + 46, 'nothing', 14, COLORS.dim, 0);
+        };
+        head(x1, 'In the bag', item, base.slot);
+        head(x2, place === 'trinket2' ? 'He wears (2nd)' : 'He wears', worn, base.slot);
+        rows.forEach(([word, mine, his], i) => {
+          const y = cy + 78 + i * 17;
+          this.text(x1 + 10, y, `${mine} ${word}`, 14, mine === 0 ? COLORS.dim : COLORS.text, 0);
+          const d = mine - his;
+          this.text(x2 - 10, y, d > 0 ? `▲ ${d}` : d < 0 ? `▼ ${-d}` : '=', 14, d > 0 ? COLORS.good : d < 0 ? COLORS.bad : COLORS.dim, 1);
+          this.text(x2 + 10, y, `${his} ${word}`, 14, his === 0 ? COLORS.dim : COLORS.text, 0);
+        });
       } else {
+        this.icon(left + 36, cy + 36, item, base.slot, 52);
+        this.text(left + 76, cy + 18, itemName(item), 17, rarity.color, 0);
+        this.text(left + 76, cy + 38, `Worn · ${rarity.name.toLowerCase()} ${SLOT_NAMES[base.slot]}`, 13, COLORS.dim, 0);
+        this.text(left + 76, cy + 58, statWords(item), 15, COLORS.text, 0);
         this.text(left + 8, cy + 84, 'He wears this now.', 13, COLORS.dim, 0);
+        this.text(left + 8, cy + 106, `Worth ${sellPrice(item)} gold at the stall`, 13, COLORS.dim, 0);
       }
-      this.text(left + 8, cy + 106, atShop ? `The stall gives ${sellPrice(item)} gold for it` : `Worth ${sellPrice(item)} gold at the stall`, 13, COLORS.dim, 0);
 
       // Only the buttons that apply.
       const buttons: [string, () => void, number][] = [];

@@ -221,6 +221,10 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
       a trinket goes in a bare trinket place, and with two on it takes the place of the one worth less. Gloves
       became breeches, rings trinkets, charms necklaces, in every save (version 6): nothing he had is lost
 
+    - `[x]` **the worn piece beside the one looked at** (Robin, 2026-11-20: "when you look at a sword you should
+      see your equipped one next to it"): the card is two halves, the bag's piece left and the worn one right,
+      the same numbers on the same rows, and a green or red arrow with how much more or less
+
 25. `[ ]` · AD · **A wooden pirate look for menus, panels and icons** (Robin, 2026-11-20: "some nice pirate design
     to menus and panels. Like some wooden feeling. Right now it looks bland. Also update icons so they look
     fitting"): three stills for Robin to pick from, asked 2026-11-20; then the kit, and GD puts it in
