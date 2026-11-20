@@ -1,9 +1,31 @@
 # glass  (Leonard, AD, 2026-11-20)
 
 **What it is:** the glass over the game, as pieces: bars and discs with the figures' dark line, strong flat colour only
-where a thumb goes, and windows that are the inside of a treasure chest. 56 pieces in one atlas.
+where a thumb goes, and windows that are the inside of a treasure chest. 61 pieces in one atlas.
 
 **What changed and why:**
+
+*This drop: four more skill discs and the Skills button.* Asked by Victor, GD on 2026-11-20, on Robin's word in his chat:
+"implement a simple UI for skills (take inspiration from zite) so you can choose between different skills to equip."
+Five new pieces, in the form of `skill/cleave` (a disc of 68 in 76 by 78) and of `button/hero` (44 by 46):
+
+| Piece | The skill | Its colour (mine) | Its sign |
+| --- | --- | --- | --- |
+| `skill/heavy` | Heavy blow | orange `#f28c28` | a blade driven straight down, and the ground it strikes |
+| `skill/whirlwind` | Whirlwind | violet `#9a63e0` | three blades turning about a middle |
+| `skill/brace` | Brace | steel `#7d8ca8` | a shield |
+| `skill/wind` | Second wind | teal `#27b3a9` | a heart, and a spark of new breath by it |
+| `button/skills` | the top button for the Skills window | the top buttons' own | a burst: what he can do |
+
+Each skill has a colour no other disc has, so a thumb finds it: Cleave red, Charge blue, the potion green, and these
+four. No third red joins health's and Cleave's. The names and the skills are Victor, GD's placeholders; if Robin
+renames one, the sign may want to change with it. Seen in `look-skills.jpg`. Nothing else in the atlas changed, but
+every piece has a new place in it: copy both files.
+
+The Skills window, looked at in the game's test copy on 2026-11-20 at two thirds of its size (the pane is that
+small): nothing lies on anything. Two things are close: the words "On the middle button" fill their button to
+about 4 units from each end (shorter words, or one button under the other, would cure it), and the name beside a
+disc on the first row ends about 30 units before the next disc, so a long name there would reach it.
 
 *This drop: the windows are a treasure chest.* Robin, 2026-11-20, in Victor, GD's chat: "You need to have some nice
 pirate design to menus and panels. Like some wooden feeling. Right now it looks bland. Also update icons so they look
@@ -50,8 +72,8 @@ head and for the stick. All of the look is mine.
   (`bar/hp`, `bar/rage`, `bar/xp`) stay in the atlas so nothing breaks.
 - **A heart** (`mark/heart`) for the left end of his health bar in the pile. Not used over his head.
 
-**The numbers:** `glass.png` is 1024 by 790 now (it was 1024 by 512; not a power of two tall, to save a megabyte), 125 KB,
-3.1 MB decoded, two pixels a unit. The
+**The numbers:** `glass.png` is 1024 by 906 now (it was 1024 by 790 before the skills; not a power of two tall), 151 KB,
+3.5 MB decoded, two pixels a unit. The
 window is the reason: it is one piece as wide as a window. Sizes in design units; in `glass.json` each piece's `w` and
 `h` are file pixels, and its origin is its middle.
 

@@ -6,7 +6,9 @@
 const P = require('./paint.js'); const fs = require('fs'); const path = require('path');
 const INK = '#33203a', CREAM = '#fffaec', CREAM2 = '#f3e8cc', WELL = '#cdbfae', PLUM = '#5a4062', SH = 'rgba(51,32,58,0.30)';
 const RARITY = { common: '#b9b2a6', uncommon: '#4cc463', rare: '#3d9cff', epic: '#b666f2' };
-const COL = { hp: '#f0503c', hpHi: '#ff7a62', rage: '#b8122f', rageHi: '#d2324a', xp: '#6fd060', xpHi: '#9be88a', cleave: '#f0503c', charge: '#3f9fe8', potion: '#4cbf68', gold: '#f6c23a' };
+const COL = { hp: '#f0503c', hpHi: '#ff7a62', rage: '#b8122f', rageHi: '#d2324a', xp: '#6fd060', xpHi: '#9be88a', cleave: '#f0503c', charge: '#3f9fe8', potion: '#4cbf68', gold: '#f6c23a', heavy: '#f28c28', whirlwind: '#9a63e0', brace: '#7d8ca8', wind: '#27b3a9' };
+// Four more skills (Victor, GD, 2026-11-20, on Robin's word for a skills window): each its own colour, so a thumb finds it and
+// no third red joins health's and Cleave's: Heavy blow orange, Whirlwind violet, Brace steel, Second wind teal (mine).
 // Rage is red (Robin, 2026-11-20: "rage is traditionally red. So they need to be distinctive different red colors"): health
 // keeps the light red of every health bar, rage is a deep crimson. The two differ most in how light they are (mine).
 const S = 2, OUT = path.join(P.ROOT, 'work/glass/render'), items = [];
@@ -36,6 +38,15 @@ const ICON = {
   close: (g, x, y, s) => { g.beginPath(); g.moveTo(x - 5 * s, y - 5 * s); g.lineTo(x + 5 * s, y + 5 * s); g.moveTo(x + 5 * s, y - 5 * s); g.lineTo(x - 5 * s, y + 5 * s); g.stroke(); },
   charge: (g, x, y, s) => { for (const dx of [-7, 0, 7]) { g.beginPath(); g.moveTo(x + (dx - 4) * s, y - 8 * s); g.lineTo(x + (dx + 4) * s, y); g.lineTo(x + (dx - 4) * s, y + 8 * s); g.stroke(); } },
   cleave: (g, x, y, s) => { g.beginPath(); g.arc(x - 2 * s, y + 3 * s, 13 * s, -2.5, 0.35); g.arc(x - 5 * s, y + 7 * s, 11 * s, 0.1, -2.2, true); g.closePath(); g.fill(); g.stroke(); },
+  heavy: (g, x, y, s) => { g.beginPath(); g.moveTo(x - 3.4 * s, y - 12 * s); g.lineTo(x + 3.4 * s, y - 12 * s); g.lineTo(x + 3.4 * s, y - 8.6 * s); g.lineTo(x + 8 * s, y - 8.6 * s); g.lineTo(x + 8 * s, y - 5.4 * s); g.lineTo(x + 3.8 * s, y - 5.4 * s); g.lineTo(x + 3.8 * s, y + 2 * s); g.lineTo(x, y + 7.5 * s); g.lineTo(x - 3.8 * s, y + 2 * s); g.lineTo(x - 3.8 * s, y - 5.4 * s); g.lineTo(x - 8 * s, y - 5.4 * s); g.lineTo(x - 8 * s, y - 8.6 * s); g.lineTo(x - 3.4 * s, y - 8.6 * s); g.closePath(); g.fill(); g.stroke();      // a blade driven straight down, and the ground it strikes
+    for (const d of [-1, 1]) { g.beginPath(); g.moveTo(x + d * 5.5 * s, y + 7.5 * s); g.lineTo(x + d * 11 * s, y + 5.5 * s); g.lineTo(x + d * 8 * s, y + 10 * s); g.lineTo(x + d * 12 * s, y + 12 * s); g.lineTo(x + d * 4 * s, y + 11.5 * s); g.closePath(); g.fill(); g.stroke(); } },
+  whirlwind: (g, x, y, s) => { const pt = (a, r) => [x + Math.cos(a) * r * s, y + Math.sin(a) * r * s];      // three blades turning about a middle
+    for (let i = 0; i < 3; i++) { const a = i * Math.PI * 2 / 3 - 0.5; g.beginPath(); g.moveTo(...pt(a + 0.9, 2.2)); g.quadraticCurveTo(...pt(a - 0.75, 7.5), ...pt(a + 0.1, 12.2)); g.arc(x, y, 12.2 * s, a + 0.1, a + 1.25); g.quadraticCurveTo(...pt(a + 1.2, 6.5), ...pt(a + 0.9, 2.2)); g.closePath(); g.fill(); g.stroke(); } },
+  brace: (g, x, y, s, col) => { g.beginPath(); g.moveTo(x - 9.5 * s, y - 9.5 * s); g.quadraticCurveTo(x, y - 12.5 * s, x + 9.5 * s, y - 9.5 * s); g.lineTo(x + 9.5 * s, y); g.quadraticCurveTo(x + 8.5 * s, y + 8 * s, x, y + 12.5 * s); g.quadraticCurveTo(x - 8.5 * s, y + 8 * s, x - 9.5 * s, y); g.closePath(); g.fill(); g.stroke();      // a shield, its cross in the disc's colour
+    g.save(); g.fillStyle = col; g.fillRect(x - 1.6 * s, y - 8 * s, 3.2 * s, 16.5 * s); g.fillRect(x - 6.5 * s, y - 3.6 * s, 13 * s, 3.2 * s); g.restore(); },
+  wind: (g, x, y, s) => { g.beginPath(); g.moveTo(x, y + 10.5 * s); g.bezierCurveTo(x - 14 * s, y + 1 * s, x - 11 * s, y - 10.5 * s, x - 4.6 * s, y - 9 * s); g.bezierCurveTo(x - 1.8 * s, y - 8.4 * s, x, y - 6 * s, x, y - 4.4 * s); g.bezierCurveTo(x, y - 6 * s, x + 1.8 * s, y - 8.4 * s, x + 4.6 * s, y - 9 * s); g.bezierCurveTo(x + 11 * s, y - 10.5 * s, x + 14 * s, y + 1 * s, x, y + 10.5 * s); g.closePath(); g.fill(); g.stroke();      // a heart, and a spark of new breath by it
+    g.beginPath(); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, r = (i % 2 ? 1.5 : 5) * s; g.lineTo(x + 10.5 * s + Math.cos(a) * r, y - 9.5 * s + Math.sin(a) * r); } g.closePath(); g.fill(); g.stroke(); },
+  skills: (g, x, y, s) => { g.beginPath(); for (let i = 0; i < 16; i++) { const a = i * Math.PI / 8 - Math.PI / 2, r = (i % 2 ? 4.6 : i % 4 ? 7.4 : 10.4) * s; g.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } g.closePath(); g.fill(); g.stroke(); },      // a burst: what he can do
   potion: (g, x, y, s) => { g.beginPath(); g.moveTo(x - 3 * s, y - 10 * s); g.lineTo(x + 3 * s, y - 10 * s); g.lineTo(x + 3 * s, y - 4 * s); g.quadraticCurveTo(x + 10 * s, y, x + 8 * s, y + 7 * s); g.quadraticCurveTo(x, y + 13 * s, x - 8 * s, y + 7 * s); g.quadraticCurveTo(x - 10 * s, y, x - 3 * s, y - 4 * s); g.closePath(); g.fill(); g.stroke(); g.beginPath(); g.moveTo(x - 4.5 * s, y - 11 * s); g.lineTo(x + 4.5 * s, y - 11 * s); g.stroke(); },
 };
 function build() {
@@ -44,9 +55,10 @@ function build() {
   piece('bar/well', 40, 18, (g) => { panel(g, rr(2, 2, 36, 12, 6), WELL); }, { slice: [16, 0, 16, 0], note: 'a fill/hp, fill/rage or fill/xp pill goes inside: see its own note' });
   for (const k of ['hp', 'rage', 'xp']) piece('bar/' + k, 8, 8, (g) => { g.fillStyle = COL[k]; g.fillRect(0, 0, 8, 8); g.fillStyle = COL[k + 'Hi']; g.fillRect(0, 1, 8, 2.2); }, { fill: true, note: 'the first, flat fill: its square corners show outside the round well; fill/* takes its place' });
   // the skill discs: 68 across (the game's size), each its own colour and sign
-  for (const [k, sc] of [['cleave', 1.1], ['charge', 1.0], ['potion', 0.95]]) piece('skill/' + k, 76, 78, (g) => {
+  for (const [k, sc] of [['cleave', 1.1], ['charge', 1.0], ['potion', 0.95], ['heavy', 1.0], ['whirlwind', 1.14], ['brace', 1.0], ['wind', 1.0]]) piece('skill/' + k, 76, 78, (g) => {
     panel(g, disc(38, 38, 34), COL[k], { lw: 2, shadow: 3, hi: gg => { gg.fillStyle = 'rgba(255,255,255,0.22)'; gg.beginPath(); gg.ellipse(38, 19, 38, 21, 0, 0, 7); gg.fill(); } });
-    g.fillStyle = '#ffffff'; g.strokeStyle = k === 'charge' ? '#ffffff' : INK; g.lineWidth = k === 'charge' ? 4 : 1.8; ICON[k](g, 38, 38, 34 / 24 * sc); });
+    const open = k === 'charge';      // a sign of lines only: white lines, no dark edge
+    g.fillStyle = '#ffffff'; g.strokeStyle = open ? '#ffffff' : INK; g.lineWidth = open ? 4 : 1.8; ICON[k](g, 38, 38, 34 / 24 * sc, COL[k]); });
   piece('skill/empty', 76, 78, (g) => { panel(g, disc(38, 38, 34), 'rgba(255,250,236,0.55)', { lw: 2, shadow: 3 }); }, { note: 'a place for a skill he has not learnt' });
   // ---------------------------------------------------------------- the windows: the inside of a treasure chest
   // Robin, 2026-11-20, of three wooden looks (concepts/wood): "I think 3 is good. Nice contrast. But mind the text needs to fit
@@ -60,7 +72,7 @@ function build() {
   const GOLD = [CH.gold, CH.goldHi, CH.goldLo], IRON = [CH.iron, CH.ironHi, CH.ironLo];
   const lined = (g, x, y, w, h, r, rim) => { g.save(); rr(x, y, w, h, r)(g); g.fillStyle = CH.velvet; g.fill(); g.clip(); g.fillStyle = CH.velvetLo; g.fillRect(x, y, w, 6); g.fillStyle = CH.velvetHi; g.fillRect(x, y + h - 4, w, 4); g.restore(); rr(x + 1.6, y + 1.6, w - 3.2, h - 3.2, r - 1)(g); line(g, 3, rim); rr(x, y, w, h, r)(g); line(g); rr(x + 3.4, y + 3.4, w - 6.8, h - 6.8, Math.max(1, r - 3))(g); line(g, 1); };
   // the top buttons and the close cross: a gold ring round dark wood, a pale sign; a red stone in a gold ring
-  for (const k of ['bag', 'chart', 'hero', 'menu']) piece('button/' + k, 44, 46, (g) => { under(g, disc(22, 22, 19), 2); disc(22, 22, 19)(g); g.fillStyle = CH.gold; g.fill(); line(g); g.save(); disc(22, 22, 15.5)(g); g.clip(); g.fillStyle = CH.wood; g.fillRect(0, 0, 44, 44); g.fillStyle = CH.goldHi; g.restore(); disc(22, 22, 15.5)(g); line(g, 1.3); g.fillStyle = CH.cream; g.strokeStyle = INK; g.lineWidth = k === 'menu' ? 2.4 : 1.5; if (k === 'menu') g.strokeStyle = CH.cream; ICON[k](g, 22, 22.5, 1); });
+  for (const k of ['bag', 'chart', 'hero', 'menu', 'skills']) piece('button/' + k, 44, 46, (g) => { under(g, disc(22, 22, 19), 2); disc(22, 22, 19)(g); g.fillStyle = CH.gold; g.fill(); line(g); g.save(); disc(22, 22, 15.5)(g); g.clip(); g.fillStyle = CH.wood; g.fillRect(0, 0, 44, 44); g.fillStyle = CH.goldHi; g.restore(); disc(22, 22, 15.5)(g); line(g, 1.3); g.fillStyle = CH.cream; g.strokeStyle = INK; g.lineWidth = k === 'menu' ? 2.4 : 1.5; if (k === 'menu') g.strokeStyle = CH.cream; ICON[k](g, 22, 22.5, 1); });
   piece('button/close', 36, 38, (g) => { under(g, disc(18, 18, 16), 2); disc(18, 18, 16)(g); g.fillStyle = CH.gold; g.fill(); line(g); g.save(); disc(18, 18, 12)(g); g.fillStyle = '#e0352f'; g.fill(); g.clip(); g.fillStyle = '#f26a5c'; g.beginPath(); g.moveTo(6, 6); g.lineTo(22, 6); g.lineTo(6, 22); g.closePath(); g.fill(); g.restore(); disc(18, 18, 12)(g); line(g, 1.3); g.strokeStyle = '#ffffff'; g.lineWidth = 2.8; ICON.close(g, 18, 18, 0.82); });
   // buttons: a gold plate for the one that does the thing ("Wear", "Open", "Sail"), an iron plate for the rest
   piece('button/context', 64, 48, (g) => { under(g, rr(2, 2, 60, 40, 8)); plated(g, rr(2, 2, 60, 40, 8), 2, 2, 60, 40, GOLD); }, { slice: [44, 0, 44, 0], note: 'the button that does the thing: dark words on it (#3a2414), 15 to 18 bold' });

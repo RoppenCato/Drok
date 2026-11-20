@@ -17,7 +17,7 @@
 
 **How the game uses it:** copy the folder. It is in the monsters' form of today: frames `bristle-piglet/<action>/<facing>/<nnnn>`; the `actions` block has each frame's origin, delay, box and head, and each action's `blow`, `stride` and `note`. No gear points. Lay its shadow at the origin, about 17 units wide each way. Its body is about 14 units from its middle to its edge. The wind-up changes its outline, so it reads without a colour; tint it as well if you like.
 
-**What suits its body (mine; the rule is Victor, GD's):** A charge: after the wind-up it runs straight through where he stood, skids, turns and comes again; a step aside dodges it. `charge` is the gallop for that run. With today's rule it works too: it darts in and butts.
+**What suits its body (mine; the rule is Victor, GD's):** A charge: after the wind-up it runs straight through where he stood, skids, turns and comes again; a step aside dodges it. `charge` is the gallop for that run: it is drawn for about 128 units a second (one turn of it, 280 ms, carries the feet 36 units). With today's rule it works too: it darts in and butts.
 
 **Where I would put it (mine; Victor, GD's and Robin's to say):** Crab Cay's grove, level 3.
 

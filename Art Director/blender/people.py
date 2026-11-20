@@ -13,12 +13,14 @@ from mathutils import Vector, Matrix
 import drok as D, hero, gear
 from drok import sph, cap, box, cyl
 
-D.HEX.update({'apron': '#fffaf0', 'green': '#4fae6a', 'grey': '#c9ccd6', 'dress': '#e9507a', 'scarf': '#ffd640', 'tan': '#e2a878', 'dark': '#b9785a', 'cap': '#3d86b8', 'ginger': '#c9652a', 'whisker': '#f1efe8'})
+D.HEX.update({'apron': '#fffaf0', 'green': '#4fae6a', 'grey': '#c9ccd6', 'dress': '#e9507a', 'scarf': '#ffd640', 'tan': '#e2a878', 'dark': '#b9785a', 'cap': '#3d86b8', 'ginger': '#c9652a', 'whisker': '#f1efe8', 'straw': '#e8cc78', 'swampCoat': '#4f8a66'})
 WHO = {
     'shopkeeper': dict(look=dict(shirt='green', trou='woodDark', hair='hair', belt='apron', skin='tan'), rh=(-0.2, -0.2, 0.42), lh=(0.2, -0.2, 0.42)),
     'master': dict(look=dict(shirt='navy', trou='white', hair='grey', belt='gold'), rh=(-0.24, -0.03, 0.34), lh=(0.16, -0.16, 0.44)),
     'fisher': dict(look=dict(shirt='dress', trou='dress', hair='ginger', belt='scarf'), rh=(-0.22, -0.1, 0.4), lh=(0.22, -0.1, 0.4)),
     'sailor': dict(look=dict(shirt='linen', trou='navy', hair='whisker', belt='red', skin='dark'), rh=(-0.24, -0.02, 0.33), lh=(0.24, -0.02, 0.33)),
+    # the swamp's trader (Victor, GD, 2026-11-20: the camp on the second island has a stall): a wide straw hat, a long moss-green coat, a pack
+    'trader': dict(look=dict(shirt='swampCoat', trou='woodDark', hair='whisker', belt='rope', skin='tan'), rh=(-0.22, -0.14, 0.42), lh=(0.22, -0.14, 0.42)),
 }
 def builder(who):
     W = WHO[who]
@@ -46,6 +48,10 @@ def builder(who):
             bm = bmesh.new(); sph(bm, (0, 0, 0), R + 0.02, (1, 0.96, 0.95), seg=28)
             bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], dist=1e-5, plane_co=(0, 0, 0.06), plane_no=(0, 0.25, 1), clear_inner=True); sph(bm, (0, 0.2, 0.03), 0.06, seg=10); mk(bm, 'scarf', 'scarf', M=Hm)
             bm = bmesh.new(); cap(bm, (0.05, 0.19, -0.03), (0.09, 0.2, -0.32), 0.05, 0.03, seg=10); mk(bm, 'plait', 'ginger', M=Hm)
+        elif who == 'trader':         # a wide straw hat, a long coat, a pack on his back
+            bm = bmesh.new(); cyl(bm, (0, 0, 0.19), 0.36, 0.2, r2=0.03, seg=20); mk(bm, 'hat', 'straw', M=Hm)
+            bm = bmesh.new(); cyl(bm, pel + Vector((0, 0, -0.1)), 0.23, 0.32, r2=0.16, seg=20); mk(bm, 'coat', 'swampCoat', remesh=0.012, soften=3)
+            bm = bmesh.new(); sph(bm, pel + (T @ Vector((0, 0.17, 0.2))), 0.14, (1.1, 0.8, 1.2), seg=14); mk(bm, 'pack', 'rope')
         else:                         # a blue cap, white whiskers, a red neckerchief
             bm = bmesh.new(); sph(bm, (0, 0, 0), R + 0.02, (1, 0.96, 0.95), seg=28)
             bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], dist=1e-5, plane_co=(0, 0, 0.11), plane_no=(0, 0.1, 1), clear_inner=True); cyl(bm, (0, -0.19, 0.115), 0.1, 0.025, seg=14); mk(bm, 'cap', 'cap', M=Hm)
@@ -61,5 +67,6 @@ def stand(who, i, n=4):
 if __name__ == '__main__':
     a = D.args(); out = os.path.abspath(a[0]) if a else os.path.join(HERE, '..', 'work', 'folk', 'render'); st = D.Stage(); facings = tuple(f for f in D.FACINGS if f[0] in ('s', 'se', 'e'))
     import json
-    for who in WHO:
+    names = a[1].split(',') if len(a) > 1 else [w for w in WHO if w != 'trader']      # the harbour's four unless names are given (the swamp's trader is rendered on his own)
+    for who in names:
         D.render_clips(st, 'folk', builder(who), {who: {'frames': [stand(who, i) for i in range(4)], 'delay': 180, 'loop': True}}, out, hero.FRAME, facings=facings, only=[who] if os.path.exists(os.path.join(out, 'meta.json')) else None)

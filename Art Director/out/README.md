@@ -44,20 +44,20 @@ house), with their notes. The first world made for it is in `concepts\house\kitc
 | `coconut-crab` | 1024 by 2048 | 8 MB | 202 KB |
 | `palm-monkey` | 1024 by 1090 | 4.3 MB | 139 KB |
 | `bristle-piglet` | 1024 by 866 | 3.4 MB | 129 KB |
-| `wharf-rat` | 1024 by 926 | 3.6 MB | 114 KB |
+| `wharf-rat` | 1024 by 552, three facings | 2.2 MB | 64 KB |
 | `frill-lizard` | 1024 by 1048 | 4.1 MB | 136 KB |
 | `hop-toad` | 1024 by 924 | 3.6 MB | 126 KB |
 | `plum-viper` | 1024 by 950 | 3.7 MB | 113 KB |
 | `island` | ground 1400 by 2400, props 1024 by 1024 | 13.4 + 4 MB | 67 + 52 KB |
 | `loot` | 256 by 256 | 0.3 MB | 18 KB |
-| `chest-burst` | 512 by 470, soft, not a palette PNG | 0.9 MB | 46 KB |
-| `glass` | 1024 by 790 | 3.1 MB | 125 KB |
+| `chest-burst` | the light 512 by 470, soft, not a palette PNG; the big chest 512 by 568 at SIX pixels a unit | 0.9 + 1.1 MB | 46 + 17 KB |
+| `glass` | 1024 by 906 | 3.5 MB | 151 KB |
 | `harbour` | ground 900 by 1100, props 1024 by 1024, people 1024 by 512 | 4 + 4 + 2 MB | 41 + 32 + 72 KB |
 | `chart` | the chart 824 by 1830, pins 256 by 256 | 6 + 0.3 MB | about 100 + 20 KB |
 | `icon` | 512 and 192 | | about 150 KB |
 | `font` | Nunito, one file | | 277 KB |
 | `hero-sheet` | the hero and his gear for his window, 512 by 512 and 512 by 294, at FOUR pixels a unit | 1 + 0.6 MB | about 35 KB |
-| `mire-cay` | ground 1200 by 1600 for 2400 by 3200 units, props 1024 by 610 (25) | 7.3 + 2.4 MB | 96 + 58 KB |
+| `mire-cay` | ground 1200 by 1600 for 2400 by 3200 units, props 1024 by 682 (28), the trader 512 by 242 | 7.3 + 2.7 + 0.5 MB | 96 + 67 + 16 KB |
 | `crab-cay` | ground 1400 by 2100 for 2800 by 4200 units, props 2048 by 896 (the island's and the stilt town's, 33), people 1024 by 512 | 11.8 + 7 + 2 MB | 85 + 127 + 72 KB |
 
 The island with everything on it: about 46 MB decoded, under the 48 MB set for a place. The harbour with the hero and the glass: about 22 MB. All of it on disk: about 1.6 MB, of the 6 MB set for chapter 1.

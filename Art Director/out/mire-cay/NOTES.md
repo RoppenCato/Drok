@@ -1,8 +1,9 @@
 # mire-cay  (Leonard, AD, 2026-11-20)
 
-**What it is:** the second island, a swamp, as a first drop: its ground, its props, its layout. 2400 by 3200 design
+**What it is:** the second island, a swamp: its ground, its props, its layout, and since the second drop of 2026-11-20
+the camp at its landing with a trader's stall. 2400 by 3200 design
 units, one place, walked without a break. A drowned island: mud and moss between nine pools of green water, crossed on
-four plank bridges, under mangroves hung with moss. He lands in the south. Three grounds, south to north: the reed
+four plank bridges, under mangroves hung with moss. He lands in the south, at the camp. Three grounds, south to north: the reed
 banks, the mangrove wood, the old stones (a ruin's mossy floor), with the chest at the stones' far east end.
 
 **Why.** Robin, 2026-11-20, in my chat: "Build all of them, and have the GD make a second island to go to with some of
@@ -13,22 +14,24 @@ water. Its bright points are small: pink lotus on the lily pads, red and glowing
 way. The three monsters that live here (the yellow toad, the violet viper, the blue lizard with its orange frill) are
 each a colour the ground is not.
 
-**What is mine until someone says otherwise:** the size, the three grounds, the levels 6 to 8, where he lands, the name
-and the id. I asked Victor, GD for his numbers on 2026-11-20 and went on with these. A change of size or of levels is a
-change of numbers in `tools\mire.js` and a new run.
+**Agreed with Victor, GD on 2026-11-20:** 2400 by 3200, three grounds, levels 6 to 8, a jetty in the south, the id
+`mire-cay` and "Mire Cay" as a placeholder name. His one change: "the camp at the landing has a stall (a trader in a
+boat or a hut, yours), and it is the safe part, as the town is". So the second drop has the camp: the trader's boat
+drawn up on the bank under a patched red awning (the `stall`), the trader beside it, a reed hut on stilts, a fire.
 
 ## The numbers
 
 | File | What | Size | Decoded | On disk |
 | --- | --- | --- | --- | --- |
 | `ground.png` | the whole ground as one picture, **half a pixel a design unit: draw it at four times its size** | 1200 by 1600 | 7.3 MB | 96 KB |
-| `island.png`, `island.json` | 25 props: 17 of the swamp's own (`mangrove-a` to `c`, `deadtree`, `reeds-a` to `c`, `log`, `stump`, `shroom-red`, `shroom-glow`, `fern-a`, `fern-b`, `mossrock-a` to `c`, `lantern`) and Crab Cay's `barrel`, `crate`, `dock`, `boat`, `post` and the three `chest/` pictures | 1024 by 610 | 2.4 MB | 58 + 6 KB |
-| `place.json` | the layout | | | 27 KB |
+| `island.png`, `island.json` | 28 props: 20 of the swamp's own (`mangrove-a` to `c`, `deadtree`, `reeds-a` to `c`, `log`, `stump`, `shroom-red`, `shroom-glow`, `fern-a`, `fern-b`, `mossrock-a` to `c`, `lantern`, and the camp's `stall`, `hut`, `fire`) and Crab Cay's `barrel`, `crate`, `dock`, `boat`, `post` and the three `chest/` pictures | 1024 by 682 | 2.7 MB | 67 + 7 KB |
+| `folk.png`, `folk.json` | the trader: `folk/trader/<facing>/<nnnn>`, four frames of standing in `s`, `se`, `e`, the form of Crab Cay's people | 512 by 242 | 0.5 MB | 16 + 5 KB |
+| `place.json` | the layout | | | 28 KB |
 
-- **With everything on it:** the ground 7.3, the props 2.4, the three monsters 11.4 (toad 3.6, viper 3.7, lizard 4.1),
-  his body 8, gear 2, the glass 3.1, loot 0.3, the chest's burst 0.9: **35.4 MB decoded.**
-- **432 props** from 22 names, sorted by `y`; **185 things in the way** in `solid`, all circles.
-- **He can walk** on 3.4 million square units. `node tools/mire.js` walks a grid from where he lands, the bridges
+- **With everything on it:** the ground 7.3, the props 2.7, the trader 0.5, the three monsters 11.4 (toad 3.6, viper
+  3.7, lizard 4.1), his body 8, gear 2, the glass 3.5, loot 0.3, the chest's burst and big chest 2: **38.4 MB decoded.**
+- **435 props** from 25 names, sorted by `y`; **188 things in the way** in `solid`: 187 circles and one box (the stall).
+- **He can walk** on 3.3 million square units. `node tools/mire.js` walks a grid from where he lands, the bridges
   counted as ground: where he wakes, the chest and every zone are reached; 0.09% of the free ground is cut off.
 
 ## How the game uses it
@@ -40,7 +43,9 @@ Copy the folder. It is Crab Cay's form (`out\crab-cay\NOTES.md`), with **one new
    inside `walk` and in no pool, or inside a deck. There is no `inlet`, `grass`, `rock` or `flats` on this island.
 2. **`decks`**: the four bridges, each with `pts` and `sea: true`. A bridge crosses a pool, so the deck must win over
    the pool. The pools are painted into the ground, lily pads and all; the bridges too.
-3. **`home`**: the landing. `outline`, `box`, `wake` (1200, 2830). No stall and no people here yet; no monster inside.
+3. **`home`**: the camp at the landing, the island's safe part. `outline`, `box`, `wake` (1200, 2830) and `stall`
+   (1076, 2806: the trader's boat, with the whole bank before it). No monster inside. **`people`**: the `trader` beside
+   his boat (1152, 2818), with a `note`. His pictures are `folk.json` here, in the form of Crab Cay's people.
 4. `dock` 1200, 2990 and `arrive` 1200, 2930; two dock pieces in `props`. `chest` 1900, 610.
 5. **`zones`**: `hop-toad` twice at level 6 on the banks, `plum-viper` twice at 7 in the wood, `frill-lizard` twice at
    8 on the stones. The banks' and the wood's boxes are half water: a monster must be kept off the pools as he is.
@@ -51,8 +56,9 @@ Copy the folder. It is Crab Cay's form (`out\crab-cay\NOTES.md`), with **one new
 ## Open
 
 - **The look is not judged.** Robin said "A swamp maybe"; the three screens went to him on 2026-11-20.
-- **A landmark and a camp.** The old stones want broken pillars and one great thing (I would make a mossy stone toad);
-  the landing wants a hut on stilts, a fire, a few people. None is made yet.
+- **A landmark.** The old stones want broken pillars and one great thing (I would make a mossy stone toad). Not made.
+- The camp has one person. More of them, and a second hut, when tasks come here.
+- The stall, the hut and the fire take the round shadow; the fire does not flicker.
 - The lanterns do not glow and the water does not move. Fireflies would be the chest's `mote`, tinted yellow.
 - The viper's and the toad's zones are half water, so they hold fewer monsters than their boxes say.
 - A boss, a second chest, keyed vaults: whatever the rules want on this island is not placed.
@@ -63,11 +69,12 @@ figure. The mangroves' roots are wide: a circle of 15 to 20 may feel small or la
 **Origin and licence:** all made here: the ground and the layout by `tools\mire.js`, the swamp's props by
 `blender\swamp.py`, the rest Crab Cay's. Nothing from outside.
 
-**Where to see it:** `look-screens.jpg` (three screens with the glass on: the reed banks with toads, the mangrove wood
-with vipers, the old stones with lizards), `look.jpg` (the whole island at a quarter size), `look-map.jpg` (the same
+**Where to see it:** `look-screens.jpg` (four screens with the glass on: the camp with the trader's boat, the reed
+banks with toads, the mangrove wood with vipers, the old stones with lizards), `look.jpg` (the whole island at a quarter size), `look-map.jpg` (the same
 with the grounds, the zones, the landing and the chest drawn on it).
 
 **Making it again:** `node tools/blender.js blender/swamp.py -- work/mire/render`;
+`node tools/blender.js blender/people.py -- work/mire-folk/render trader`, `node tools/pack.js folk work/mire-folk/render work/mire-cay --tight`;
 `node tools/merge-props.js work/mire-cay/render work/mire/render work/island/render work/crab-cay/town --not palm-a,palm-b,palm-c,bush-a,bush-b,bush-c,bush-d,bigleaf-a,bigleaf-b,rock-a,rock-b,rock-c,rock-d,rock-e,tuft-a,tuft-b,cabin-a,cabin-b,cabin-c,tower-thatch,rack,bunting`;
 `node tools/packset.js island work/mire-cay/render work/mire-cay --tight`; `node tools/mire.js`; copy `ground.png`,
-`place.json` and the atlas here; `python tools/shrink.py out/mire-cay`.
+`place.json` and the two atlases here; `python tools/shrink.py out/mire-cay`.

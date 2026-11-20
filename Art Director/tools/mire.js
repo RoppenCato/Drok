@@ -6,6 +6,7 @@
 // deep moss and teal water, with pink lotus, red and glowing toadstools and lantern light for its bright points.
 // Three grounds, south to north: the reed banks (mud and reeds), the mangrove wood (moss), the old stones (a ruin's floor).
 // The form is Crab Cay's (tools/isle.js), with one new thing: `pools`, the water inside the land, where he cannot stand.
+// The camp at the landing is its safe part, `home`, with the trader's boat as its stall and the trader in `people`.
 // Writes into work/mire-cay/: ground.png, place.json, look.jpg and map.jpg.
 //   node tools/mire.js
 const P = require('./paint.js'); const fs = require('fs'); const path = require('path'); const I = require('./isle.js');
@@ -29,6 +30,9 @@ const L = { w: 2400, h: 3200, px: 0.5, seed: 23,
   paths: [[[1200, 2900], [1190, 2650], [1215, 2380], [1200, 2100], [1215, 1800], [1200, 1500], [1185, 1240], [1190, 1010]], [[1200, 2170], [920, 2180], [648, 2130]], [[648, 1790], [840, 1770], [1205, 1760]], [[1210, 2190], [1480, 2200], [1732, 2130]], [[1732, 1840], [1500, 1790], [1215, 1790]],
     [[1195, 1360], [960, 1380], [732, 1370]], [[732, 1100], [900, 1040], [1188, 1020]], [[1200, 1370], [1480, 1390], [1712, 1370]], [[1712, 1110], [1500, 1050], [1195, 1030]], [[1190, 1010], [1500, 760], [1840, 640]]],
   dock: [1200, 2990], dockN: 2, arrive: [1200, 2930], chest: [1900, 610], camp: [1200, 2790, 230],
+  // the camp at the landing, the island's safe part (Victor, GD, 2026-11-20: "the camp at the landing has a stall (a trader in a boat or a hut,
+  // yours), and it is the safe part, as the town is"): the trader's boat under its awning is the stall, a reed hut on stilts, a fire
+  stall: [1076, 2806], campProps: [['stall', 1076, 2806, [130, 44]], ['hut', 1345, 2776, 36], ['fire', 1282, 2868, 11], ['lantern', 1150, 2760, 5]], people: [['trader', 1152, 2818, 'se', 'beside his boat: the shop']],
   zones: { 'hop-toad': [[330, 2180, 780, 580, 6], [1400, 2180, 700, 560, 6]], 'plum-viper': [[300, 1340, 820, 470, 7], [1300, 1340, 820, 500, 7]], 'frill-lizard': [[350, 420, 700, 660, 8], [1400, 420, 700, 680, 8]] },
 };
 const plank = (g, d) => {      // a bridge of planks over water: boards lying east to west, a side, a shadow on the water
@@ -97,10 +101,11 @@ function place() {
   // reeds round every pool, in runs with gaps, never before a bridge
   pools.forEach(ip => { const c = box(ip), cx = c[0] + c[2] / 2, cy = c[1] + c[3] / 2; for (let i = 0; i < ip.length; i += 2) { if (r() < 0.42) continue; const [x, y] = ip[i], d = Math.hypot(x - cx, y - cy) || 1, o = 14 + r() * 12, px = x + (x - cx) / d * o, py = y + (y - cy) / d * o; if (!inside(landP, px, py) || onDeck(px, py, 26) || way(px, py) < 34 || near(px, py, 22) || pools.some(q => inside(q, px, py))) continue; put(['reeds-a', 'reeds-b', 'reeds-c', 'reeds-b'][Math.floor(r() * 4)], px, py, 0); } });
   // lanterns along the way north, on one side then the other
-  { const p = L.paths[0]; let k = 0; for (let i = 1; i < p.length; i++) for (const t of [0.25, 0.75]) { const x = p[i - 1][0] + (p[i][0] - p[i - 1][0]) * t + (k++ % 2 ? 40 : -40), y = p[i - 1][1] + (p[i][1] - p[i - 1][1]) * t; if (!wet(x, y, 20) && !onDeck(x, y, 20)) put('lantern', x, y, 5); } }
+  { const p = L.paths[0]; let k = 0; for (let i = 1; i < p.length; i++) for (const t of [0.25, 0.75]) { const x = p[i - 1][0] + (p[i][0] - p[i - 1][0]) * t + (k++ % 2 ? 40 : -40), y = p[i - 1][1] + (p[i][1] - p[i - 1][1]) * t; if (!wet(x, y, 20) && !onDeck(x, y, 20) && !L.people.some(q => Math.hypot(q[1] - x, q[2] - y) < 70)) put('lantern', x, y, 5); } }      // never one before a person
   // the landing: the dock into the sea, a boat, crates and barrels; lanterns at the bridges' ends
   put('barrel', L.dock[0] - 62, L.dock[1] - 70, 10); put('crate', L.dock[0] - 92, L.dock[1] - 54, 10); put('crate', L.dock[0] + 78, L.dock[1] - 66, 10); put('boat', L.dock[0] + 200, L.dock[1] - 30, 22);
   for (const d of L.decks) { const b = box(d.pts); put('lantern', b[0] - 14, b[1] + b[3] + 6, 5); put('lantern', b[0] + b[2] + 14, b[1] - 4, 5); }
+  for (const [n, x, y, f] of L.campProps) { props.push({ name: n, x, y }); if (Array.isArray(f)) solid.push({ x: x - f[0] / 2, y: y - f[1] + 8, w: f[0], h: f[1] }); else solid.push({ x, y: y - 3, r: f }); }
   for (let i = 0; i < L.dockN; i++) put('dock', L.dock[0], L.dock[1] + i * 56 + 56, 0);
   put('chest/closed', L.chest[0], L.chest[1], 12);
   props.sort((a, b) => a.y - b.y || a.x - b.x);
@@ -112,13 +117,15 @@ async function make() {
   const grounds = gr.map(([id, name, levels, o]) => ({ id, name, levels, box: box(id === 'banks' ? o : curve(o)), outline: o }));
   const J = { name: NAME, size: { w: L.w, h: L.h }, ground: { file: 'ground.png', px: L.px, note: 'HALF a pixel a design unit: draw it at four times its size' }, land: L.land, walk: inset(curve(L.land, 0.6, 4), 24),
     pools: L.pools.map(q => curve(q, 0.6, 4).map(([x, y]) => [Math.round(x), Math.round(y)])), paths: L.paths, dock: L.dock, arrive: L.arrive, chest: L.chest, zones: L.zones, grounds, props, solid, decks: L.decks.map(d => ({ pts: d.pts, sea: true })),
-    home: { box: [L.camp[0] - L.camp[2], L.camp[1] - L.camp[2], L.camp[2] * 2, L.camp[2] * 2], outline: Array.from({ length: 10 }, (_, i) => [Math.round(L.camp[0] + Math.cos(i / 10 * 6.283) * L.camp[2]), Math.round(L.camp[1] + Math.sin(i / 10 * 6.283) * L.camp[2] * 0.8)]), wake: [L.camp[0], L.camp[1] + 40], note: 'the landing: no monster comes in; he wakes at wake; no stall here' } };
+    home: { box: [L.camp[0] - L.camp[2], L.camp[1] - L.camp[2], L.camp[2] * 2, L.camp[2] * 2], outline: Array.from({ length: 10 }, (_, i) => [Math.round(L.camp[0] + Math.cos(i / 10 * 6.283) * L.camp[2]), Math.round(L.camp[1] + Math.sin(i / 10 * 6.283) * L.camp[2] * 0.8)]), wake: [L.camp[0], L.camp[1] + 40], stall: L.stall, note: 'the camp at the landing: no monster comes in; he wakes at wake; the stall (the trader\'s boat) stands at stall' },
+    people: L.people.map(([who, x, y, facing, note]) => ({ who, x, y, facing, note })) };
   fs.writeFileSync(path.join(out, 'place.json'), JSON.stringify(J)); walkCheck(J);
   // the studio's looks: the island with its props at a quarter size; the same with the names drawn on it
   const adir = [out, path.join(P.ROOT, 'out', NAME)].find(d => fs.existsSync(path.join(d, 'island.json')));
   if (!adir) { console.log('painted', NAME, 'but there is no props atlas yet for the looks'); return; }
   const isl = await D.atlas(adir, 'island'), k = 0.25, pv = P.createCanvas(L.w * k, L.h * k), g = pv.getContext('2d'); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.scale(k, k); g.drawImage(cv, 0, 0, L.w, L.h);
   for (const p of props) { const f = isl.j.frames[p.name]; if (!f) { console.log('!! no picture for', p.name); continue; } if (!(isl.j.items[p.name] || {}).shade) { g.save(); g.globalAlpha = 0.24; g.fillStyle = '#5b4a82'; g.beginPath(); g.ellipse(p.x + 5, p.y + 1, f.frame.w * 0.16, f.frame.w * 0.055, 0, 0, 7); g.fill(); g.restore(); } g.save(); g.translate(p.x, p.y); g.scale(0.5, 0.5); D.pic(g, isl, p.name); g.restore(); }
+  if (fs.existsSync(path.join(adir, 'folk.json'))) { const folk = await D.atlas(adir, 'folk'); for (const q of J.people) { g.save(); g.globalAlpha = 0.24; g.fillStyle = '#5b4a82'; g.beginPath(); g.ellipse(q.x + 3, q.y + 1, 13, 5, 0, 0, 7); g.fill(); g.restore(); D.figure(g, folk, { action: q.who, facing: q.facing, i: 0 }, q.x, q.y, 0.5); } }
   P.save(pv, path.join(out, 'look.jpg'));
   const tag = (t, x, y, s = 64, col = '#ffffff') => P.label(g, t, x, y, s, col, { align: 'center', stroke: '#33203a', strokeW: s / 5, font: 'Trebuchet MS' });
   g.lineWidth = 8; g.setLineDash([36, 24]); for (const [kind, list] of Object.entries(L.zones)) for (const z of list) { g.strokeStyle = { 'hop-toad': '#ffd640', 'plum-viper': '#b98cff', 'frill-lizard': '#ff9a3a' }[kind]; g.strokeRect(z[0], z[1], z[2], z[3]); tag(`${kind}, level ${z[4]}`, z[0] + z[2] / 2, z[1] + 60, 52); }

@@ -4,7 +4,7 @@
 
 **Why.** Robin, 2026-11-20, in Victor, GD's chat: "I think the birds are weird starting mobs." Six candidates went to him for the gull's place (`concepts\grove-mob\`); he said, in my chat: "Build all of them, and have the GD make a second island to go to with some of the new mobs." The design is mine; the id is mine to propose.
 
-**The numbers:** 95 frames, five facings (`s`, `se`, `e`, `ne`, `n`). `wharf-rat.png` 1024 by 926 (not a power of two tall), 114 KB, 3.6 MB decoded.
+**The numbers:** 57 frames, three facings (`s`, `e`, `n`): three, not five, as the coconut crab is (Victor, GD, 2026-11-20, to keep Crab Cay under its 56 MB); the game flips `e` to `w` and takes the nearest for the rest. `wharf-rat.png` 1024 by 552 (not a power of two tall), 64 KB, 2.2 MB decoded.
 
 | Action | Frames a facing | Delays (ms) | Note |
 | --- | --- | --- | --- |
@@ -18,7 +18,7 @@
 
 **What suits its body (mine; the rule is Victor, GD's):** The gull's rule as it stands: it scurries in, nips and scurries off.
 
-**Where I would put it (mine; Victor, GD's and Robin's to say):** the beach by Crab Cay's town, level 2, if a second beginner's monster is wanted.
+**Where I would put it (mine; Victor, GD's and Robin's to say):** Crab Cay's tide flats, level 2 (Victor, GD, 2026-11-20).
 
 **Open:** the design and the motion are for Robin to judge on the moving page.
 
@@ -28,4 +28,4 @@
 
 **Where to see it:** `look.jpg` (the attack in every facing); in its place, work\grove-mob\crab-cay-screens.jpg in the studio (the beach); moving: https://claude.ai/artifact/BGaj7BQj44y6dNL6v91Zv5 .
 
-**Making it again:** `node tools/blender.js blender/beasts.py -- wharf-rat work/wharf-rat/render`, `node tools/pack.js wharf-rat work/wharf-rat/render out/wharf-rat --tight`, `python tools/shrink.py out/wharf-rat`.
+**Making it again:** `node tools/blender.js blender/beasts.py -- wharf-rat work/wharf-rat/render3 all three`, `node tools/pack.js wharf-rat work/wharf-rat/render3 out/wharf-rat --tight`, `python tools/shrink.py out/wharf-rat`.

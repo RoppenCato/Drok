@@ -1,7 +1,8 @@
 """swamp.py: the things that stand on the second island, a swamp (Leonard, AD, 2026-11-20; the designs are mine).
 Robin, 2026-11-20: "have the GD make a second island to go to with some of the new mobs. That island needs to look
 different and have its own theme. A swamp maybe." Mangroves on arched roots with moss hanging from them, a bare dead
-tree, reeds, a mossy log, a stump, toadstools red and glowing, ferns, mossy stones, a crooked lantern. Each is one
+tree, reeds, a mossy log, a stump, toadstools red and glowing, ferns, mossy stones, a crooked lantern; and for the camp
+at the landing the trader's boat under its awning (the stall), a reed hut on stilts and a fire. Each is one
 picture with its origin where it meets the ground, in the look of the figures (two flat tones, the dark line), as the
 first island's props are (props.py).
   node tools/blender.js blender/swamp.py -- work/mire/render [name,name...]"""
@@ -15,7 +16,7 @@ from drok import sph, cap, box, cyl, leaf, mix, plate
 import props as PR
 V = Vector
 D.HEX.update({'mangrove': '#7a5648', 'moss': '#2f8f6e', 'moss2': '#52ad6a', 'moss3': '#1f736a', 'hang': '#9fd0a0', 'reed': '#a6d24e', 'reed2': '#6fae4c', 'cattail': '#7a4a2a',
-              'log': '#8f6549', 'logIn': '#4f352c', 'dead': '#b6a8b8', 'capRed': '#ee4a4a', 'capGlow': '#63e6dc', 'stalk': '#f6ecd0', 'rockDark': '#8a90a6', 'lotus': '#ff8ab0'})
+              'log': '#8f6549', 'logIn': '#4f352c', 'dead': '#b6a8b8', 'capRed': '#ee4a4a', 'capGlow': '#63e6dc', 'stalk': '#f6ecd0', 'rockDark': '#8a90a6', 'lotus': '#ff8ab0', 'thatch': '#e2c060', 'wattle': '#c9a063'})
 
 def tube(bm, pts, r0, r1, seg=10):
     n = len(pts) - 1
@@ -125,10 +126,60 @@ def lantern():
         bm = bmesh.new(); cyl(bm, (0.34, 0, 1.22), 0.17, 0.08, r2=0.04, seg=8); cyl(bm, (0.34, 0, 0.94), 0.13, 0.03, seg=8); st.make(bm, 'cap', 'black'); return None
     return b
 
+def stallboat():
+    """the trader's stall: his boat drawn up on the bank, a patched red awning on two poles over it, his wares on board"""
+    def b(st):
+        bm = bmesh.new(); sph(bm, (0, 0, 0.17), 1.0, (0.66, 0.3, 0.2), seg=24)
+        bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], dist=1e-5, plane_co=(0, 0, 0.22), plane_no=(0, 0, 1), clear_outer=True); st.make(bm, 'hull', 'log')
+        bm = bmesh.new(); sph(bm, (0, 0, 0.215), 1.0, (0.6, 0.25, 0.012), seg=20); st.make(bm, 'deck', 'inside', line=False)
+        bm = bmesh.new(); box(bm, (-0.28, 0.02, 0.3), (0.2, 0.2, 0.18)); box(bm, (-0.3, 0.02, 0.45), (0.14, 0.14, 0.12)); st.make(bm, 'crates', 'wood', smooth=False)
+        bm = bmesh.new(); sph(bm, (0.0, -0.04, 0.3), 0.1, (1, 1, 0.95), seg=12); cyl(bm, (0.0, -0.04, 0.41), 0.04, 0.06, seg=8); st.make(bm, 'pot_a', 'capGlow', remesh=0.012, soften=2)
+        bm = bmesh.new(); sph(bm, (0.2, 0.03, 0.29), 0.085, seg=12); cyl(bm, (0.2, 0.03, 0.38), 0.035, 0.06, seg=8); st.make(bm, 'pot_b', 'capRed', remesh=0.012, soften=2)
+        bm = bmesh.new(); sph(bm, (0.38, 0.0, 0.3), 0.11, (1.1, 0.95, 0.9), seg=12); st.make(bm, 'sack', 'linen')
+        bm = bmesh.new()
+        for x in (-0.56, 0.56): cap(bm, (x, 0.05, 0.1), (x * 1.04, 0.05, 1.12), 0.035, 0.028, seg=8)
+        st.make(bm, 'poles', 'woodDark')
+        pts = [V((-0.66, 0.34, 1.08)), V((0.66, 0.34, 1.08)), V((0.7, -0.36, 0.88)), V((-0.7, -0.36, 0.88))]
+        bm = bmesh.new(); plate(bm, pts); st.make(bm, 'awning', 'red', solid=0.03, smooth=False)
+        bm = bmesh.new(); plate(bm, [V((-0.3, 0.2, 1.06)), V((0.02, 0.2, 1.06)), V((0.03, -0.08, 0.98)), V((-0.31, -0.08, 0.98))]); plate(bm, [V((0.3, -0.05, 0.99)), V((0.52, -0.05, 0.99)), V((0.53, -0.3, 0.915)), V((0.31, -0.3, 0.915))])
+        st.make(bm, 'patches', 'linen', solid=0.045, smooth=False, line=False)
+        bm = bmesh.new(); cap(bm, (0.6, -0.3, 0.9), (0.6, -0.3, 0.74), 0.01, 0.01, seg=6); st.make(bm, 'cord', 'black', line=False)
+        bm = bmesh.new(); box(bm, (0.6, -0.3, 0.66), (0.14, 0.14, 0.17)); st.make(bm, 'lamp', 'yellow', smooth=False); return None
+    return b
+def hut():
+    """a round reed hut on stilts, a pointed thatch in two tiers, a ladder up to its door"""
+    def b(st):
+        bm = bmesh.new()
+        for a in (0.4, 1.7, 2.9, 4.1, 5.4): cap(bm, (math.cos(a) * 0.46, math.sin(a) * 0.4, 0.4), (math.cos(a) * 0.52, math.sin(a) * 0.44, 0.0), 0.05, 0.04, seg=8)
+        st.make(bm, 'stilts', 'mangrove')
+        bm = bmesh.new(); cyl(bm, (0, 0, 0.42), 0.62, 0.08, seg=18); st.make(bm, 'floor', 'log')
+        bm = bmesh.new(); cyl(bm, (0, 0, 0.74), 0.48, 0.56, seg=18); st.make(bm, 'wall', 'wattle')
+        bm = bmesh.new(); box(bm, (0, -0.475, 0.68), (0.2, 0.03, 0.4)); st.make(bm, 'door', 'inside', smooth=False, line=False)
+        bm = bmesh.new()
+        for a in (-1.0, 1.0, 2.2, -2.2): box(bm, (math.sin(a) * 0.485, -math.cos(a) * 0.485, 0.74), (0.012, 0.012, 0.54), rot=D.rz(math.degrees(a)))
+        st.make(bm, 'ribs', 'woodDark', smooth=False, line=False)
+        bm = bmesh.new(); cyl(bm, (0, 0, 1.22), 0.76, 0.46, r2=0.26, seg=18); st.make(bm, 'thatch', 'thatch')
+        bm = bmesh.new(); cyl(bm, (0, 0, 1.6), 0.36, 0.4, r2=0.03, seg=16); st.make(bm, 'thatch_top', 'thatch')
+        bm = bmesh.new()
+        for x in (-0.11, 0.11): cap(bm, (x, -0.62, 0.46), (x, -0.86, 0.0), 0.022, 0.022, seg=6)
+        for k in range(3): z = 0.1 + k * 0.13; y = -0.86 + (z / 0.46) * 0.24; cap(bm, (-0.11, y, z), (0.11, y, z), 0.018, 0.018, seg=6)
+        st.make(bm, 'ladder', 'woodDark'); return None
+    return b
+def fire():
+    def b(st):
+        rnd = random.Random(3); bm = bmesh.new()
+        for i in range(7): a = i / 7 * math.tau; sph(bm, (math.cos(a) * 0.2, math.sin(a) * 0.16, 0.04), 0.07 + rnd.random() * 0.02, (1, 1, 0.7), seg=8)
+        st.make(bm, 'stones', 'rockDark', smooth=False)
+        bm = bmesh.new(); cap(bm, (-0.14, 0.02, 0.05), (0.14, -0.03, 0.09), 0.045, 0.04, seg=8); cap(bm, (0.03, -0.12, 0.05), (-0.04, 0.12, 0.1), 0.045, 0.04, seg=8); st.make(bm, 'logs', 'log')
+        bm = bmesh.new(); cyl(bm, (0, 0, 0.26), 0.11, 0.34, r2=0.01, seg=10); cyl(bm, (-0.07, 0.01, 0.2), 0.07, 0.22, r2=0.01, seg=8); cyl(bm, (0.08, -0.01, 0.19), 0.06, 0.2, r2=0.01, seg=8); st.make(bm, 'flame', 'frogToe', remesh=0.02, soften=2)
+        bm = bmesh.new(); cyl(bm, (0, -0.02, 0.2), 0.055, 0.2, r2=0.008, seg=8); st.make(bm, 'flame_in', 'yellow', line=False); return None
+    return b
+
 ITEMS = [('mangrove-a', mangrove(3, 2.5, 0.35, 1.05)), ('mangrove-b', mangrove(8, 2.05, -0.4, 0.9, roots=6)), ('mangrove-c', mangrove(12, 1.6, 0.15, 0.72, roots=5)), ('deadtree', deadtree(4, 1.9)),
          ('reeds-a', reeds(1, 6, 1.0, 3)), ('reeds-b', reeds(2, 5, 0.75, 2)), ('reeds-c', reeds(5, 4, 0.55, 0)), ('log', log(1)), ('stump', stump(2)),
          ('shroom-red', shrooms(3, 'capRed')), ('shroom-glow', shrooms(6, 'capGlow', n=4)), ('fern-a', fern(21, 0.42)), ('fern-b', fern(24, 0.55)),
-         ('mossrock-a', mossrock(2, 0.46)), ('mossrock-b', mossrock(7, 0.3)), ('mossrock-c', mossrock(9, 0.72)), ('lantern', lantern())]
+         ('mossrock-a', mossrock(2, 0.46)), ('mossrock-b', mossrock(7, 0.3)), ('mossrock-c', mossrock(9, 0.72)), ('lantern', lantern()),
+         ('stall', stallboat()), ('hut', hut()), ('fire', fire())]
 if __name__ == '__main__':
     a = D.args(); out = os.path.abspath(a[0]) if a else os.path.join(HERE, '..', 'work', 'mire', 'render'); only = a[1].split(',') if len(a) > 1 else None; st = D.Stage(); recs = []
     for name, fn in ITEMS:

@@ -8,8 +8,9 @@ shown for the grove in place of the reef gull ("I think the birds are weird star
   plum-viper      a fat violet snake: coiled, it pulls its head far back, then strikes across a gap
 Each is built facing -Y from one pose (a dict) for every frame, as the crabs are: its own outline, its own way of moving
 (docs/rules.md 5). The limbs reach from the body to feet that stay on the ground, so a body may bob, rear or lunge.
-  node tools/blender.js blender/beasts.py -- <kind> work/<kind>/render [clip,clip...|all] [quick]
-quick renders one facing only (se), for a look at the poses before the full set."""
+  node tools/blender.js blender/beasts.py -- <kind> work/<kind>/render [clip,clip...|all] [quick|three]
+quick renders one facing only (se), for a look at the poses before the full set; three renders s, e and n only
+(the wharf rat: Victor, GD, 2026-11-20, to keep Crab Cay under its 56 MB)."""
 import sys, os, math
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path: sys.path.insert(0, HERE)
@@ -395,4 +396,5 @@ if __name__ == '__main__':
     a = D.args(); kind = a[0] if a else 'palm-monkey'; out = os.path.abspath(a[1]) if len(a) > 1 else os.path.join(HERE, '..', 'work', kind, 'render')
     only = a[2].split(',') if len(a) > 2 and a[2] != 'all' else None; quick = 'quick' in a
     build, clips, frame = KINDS[kind]
-    D.render_clips(D.Stage(), kind, build, clips(), out, frame, facings=(('se', 45.0),) if quick else D.FACINGS, only=only)
+    three = tuple(f for f in D.FACINGS if f[0] in ('s', 'e', 'n'))      # three facings (the game flips e to w and takes the nearest for the rest): half the atlas, as the coconut crab
+    D.render_clips(D.Stage(), kind, build, clips(), out, frame, facings=(('se', 45.0),) if quick else three if 'three' in a else D.FACINGS, only=only)
