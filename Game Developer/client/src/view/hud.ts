@@ -196,7 +196,9 @@ export class Hud {
     this.targetLevel = this.words(W / 2 + 84, PLATE_Y - 11, '', 12, INK.dim, top + 1).setOrigin(1, 0.5);
     if (g) this.targetName.setOrigin(0, 0.5);
     else this.targetName.setStroke(INK.dark, 4);
-    this.targetBar = new MobBar(s, this.reg, { w: g ? 172 : 176, depth: top + 2, arrow: false });
+    // On the plate the bar is always "the one he fights", so it is drawn a fifth bigger: its fill is 172 long as
+    // drawn (Leonard, AD), which keeps the whole bar, 184 long, inside the plate's 200.
+    this.targetBar = new MobBar(s, this.reg, { w: g ? 172 / 1.2 : 176, depth: top + 2, arrow: false });
 
     // The stick's ring and knob: shown where the thumb came down, once it has slid. His pictures carry their own
     // see-through, so they are drawn at full strength.

@@ -80,7 +80,7 @@ Hero. Under them a line of help for seven seconds. In the middle at the bottom, 
 | Charge, Cleave, the potion with its count | discs at x 122, 206, 284, y 851 (the potion 859); the "left hand" switch turns the row round; each shows its wait as a dark wedge and a number |
 | rage | a bar 184 long from x 122, at y 800, at 0.8 of his size |
 | health, with its numbers and a heart on its left end | a bar 200 long at y 775, at 1.3 of his size: the biggest thing in the pile; pale what a blow just took |
-| who he fights: name, level, health | a plate 200 long at y 733; on its foot, at y 748, the monster's own dark bar with the gold rim (its fill 172 long, a fifth bigger); only while he has a target |
+| who he fights: name, level, health | a plate 200 long at y 733; on its foot, at y 748, the monster's own dark bar with the gold rim (its fill 172 long as drawn, the whole bar 184, inside the plate); only while he has a target |
 | the button for the thing he stands by | at y 683; only while he stands by one |
 | a refusal ("Not enough rage") | words at y 645 |
 

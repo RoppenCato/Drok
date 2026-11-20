@@ -72,7 +72,7 @@ units; in `glass.json` each piece's `w` and `h` are file pixels, and its origin 
    `look-bars.jpg` and `look-screen.jpg` (the middles, of 412 by 915): experience 200 long at y 901, drawn at 0.72 of
    its size; the discs as they are; rage 184 long from x 122, y 800, at 0.8 of its size; his health 200 long at y 775,
    at 1.3 of its size, the heart on its left end, the numbers 14 bold; the plate at y 733 with the monster's bar on its
-   foot as `mob/well-mine` (the fill 172 long, a fifth bigger, y 748): the dark bar is the monster's, on the plate as
+   foot as `mob/well-mine` (y 748; the fill 172 long as drawn, so 143 before the fifth, and the whole bar 184 long, inside the plate): the dark bar is the monster's, on the plate as
    over its head. The button for the thing he stands by at y 683.
 
 **The colours:** line `#33203a`, cream `#fffaec` and `#f3e8cc`, wells `#cdbfae`, the monster's well `#5a4062`; health
@@ -87,7 +87,7 @@ so I have not fetched one.
 the packer's hard edge, so the game has shown the glass without it since the first drop; it comes back with one flag
 (`--soft`) if it is wanted. The potion's disc is green while the health it fills is red.
 
-**Not tested:** the new pieces are not in the game. `look-bars.jpg` has the real screen on the left (a test copy of the
+**Not tested:** in the game since Victor, GD's 47c3209, and seen there once in a still at 412 by 915. `look-bars.jpg` has the real screen on the left (a test copy of the
 game on this PC, a fresh game, not Robin's save) and `tools\scene.js` on the right. Nothing pressed; the stick not felt
 under a thumb; the bars not seen moving.
 
