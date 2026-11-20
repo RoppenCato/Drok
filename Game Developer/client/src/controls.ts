@@ -1,16 +1,18 @@
-// The three ways to steer that Robin tries (Robin, 2026-11-19), each turning fingers into intents for the rules:
-//   1 Tap    a tap on the sand walks him there; a tap on a monster targets it and he walks up to it.
+// The three ways to steer (Robin, 2026-11-19; he has not picked one yet, so all three stay, on a switch in the
+// settings), each turning fingers into intents for the rules:
+//   1 Tap    a tap on the ground walks him there; a tap on a monster targets it and he walks up to it; a tap on
+//            the chest, the stall or the dock walks him there and uses it.
 //   2 Hold   while a finger is down he walks towards it; the rules pick the nearest monster.
 //   3 Stick  a stick appears where the thumb comes down; pushing it steers; the rules pick the nearest monster.
 // What Zite2's first playtest taught holds for all three: a held finger lets go only when that finger lifts, never
 // because it slid somewhere, and steering is sent the frame it changes.
 
 import type Phaser from 'phaser';
-import { N, dist, type Vec } from '../../rules/src/index.ts';
+import { dist, kindOf, placeOf, type Vec } from '../../rules/src/index.ts';
 import { RES } from './layout.ts';
 import type { LocalGame } from './local-game.ts';
 import type { Hud } from './view/hud.ts';
-import type { WorldView } from './view/world-view.ts';
+import type { Thing, WorldView } from './view/world-view.ts';
 
 /** How far outside a monster's body a tap still counts as on it: a thumb is wide. */
 const TAP_SLOP = 26;
@@ -23,6 +25,9 @@ const STICK_REACH = 46;
 const STICK_DEAD = 7;
 
 export class Controls {
+  /** A thing he was sent to by a tap, to be used when he gets there. Any other tap or push forgets it. */
+  pending: Thing | null = null;
+
   private readonly holder: LocalGame;
   private readonly camera: Phaser.Cameras.Scene2D.Camera;
   private readonly hud: Hud;
@@ -41,6 +46,7 @@ export class Controls {
 
   /** A finger came down on the field (the glass's buttons had their turn first). */
   down(p: Phaser.Input.Pointer): void {
+    this.pending = null;
     const scheme = this.holder.state.scheme;
     if (scheme === 1) {
       this.tap(p);
@@ -60,7 +66,7 @@ export class Controls {
     if (this.finger && p.id === this.finger.id) this.letGo();
   }
 
-  /** Let go of the steering: the finger lifted, the page lost the screen, or the way of steering changed. */
+  /** Let go of the steering: the finger lifted, the page lost the screen, a window opened, the scheme changed. */
   letGo(): void {
     this.finger = null;
     this.hud.stick(null, null);
@@ -80,24 +86,41 @@ export class Controls {
     else this.letGo();
   }
 
-  /** Scheme 1: a tap on a monster targets it; a tap on the sand walks him there. */
+  /** Scheme 1: a tap on a monster targets it; on a thing, walks to it to use it; on the ground, walks there. */
   private tap(p: Phaser.Input.Pointer): void {
+    const state = this.holder.state;
     const at = this.camera.getWorldPoint(p.x, p.y);
     let best: number | null = null;
-    let bestD = N.monster.radius + TAP_SLOP;
-    for (const m of this.holder.state.monsters) {
+    let bestD = Infinity;
+    for (const m of state.monsters) {
       const d = dist(at, m);
-      if (d <= bestD) {
+      if (d <= kindOf(m).radius + TAP_SLOP && d < bestD) {
         best = m.id;
         bestD = d;
       }
     }
     if (best !== null) {
       this.holder.act({ type: 'target', monster: best });
-    } else {
-      const events = this.holder.act({ type: 'moveTo', x: at.x, y: at.y });
-      if (!events.some((e) => e.type === 'rejected')) this.world.tapMark(this.holder.state.hero.dest ?? at);
+      return;
     }
+    const thing = this.world.thingAt(state, at);
+    const to = thing ? this.standBy(thing) : at;
+    const events = this.holder.act({ type: 'moveTo', x: to.x, y: to.y });
+    if (events.some((e) => e.type === 'rejected')) return;
+    this.pending = thing;
+    this.world.tapMark(this.holder.state.hero.dest ?? to);
+  }
+
+  /** Where he stands to use a thing: before the chest on his own side, before the stall's table, on the dock. */
+  private standBy(thing: Thing): Vec {
+    const state = this.holder.state;
+    const place = placeOf(state);
+    if (thing === 'chest' && place.chest) {
+      const d = Math.max(1, dist(state.hero, place.chest));
+      return { x: place.chest.x + ((state.hero.x - place.chest.x) / d) * 42, y: place.chest.y + ((state.hero.y - place.chest.y) / d) * 42 };
+    }
+    if (thing === 'shop' && place.shop) return { x: place.shop.x, y: place.shop.y + 62 };
+    return { x: place.dock.x, y: place.dock.y };
   }
 
   /** Scheme 2: he walks towards the finger, and stands when he is under it. */

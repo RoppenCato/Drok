@@ -3,10 +3,14 @@ import { makeRng } from '../../../rules/src/index.ts';
 import type { GameLog } from '../game-log.ts';
 import { COLORS, RES } from '../layout.ts';
 
-/** The ground's tile, in design units. Drawn once at RES times that, so it is sharp under the zoom. */
+/** A ground tile's size, in design units. Drawn once at RES times that, so it is sharp under the zoom. */
 export const GROUND_TILE = 256;
 
-/** The first scene: where pictures and sounds load (none yet), and the ground is painted once. Then play starts. */
+/** The grounds the places are laid with. Stand-ins: the Art Director's kits replace them. */
+export const GROUNDS = ['sand', 'grass', 'rock', 'cobble'] as const;
+export type Ground = (typeof GROUNDS)[number];
+
+/** The first scene: where pictures and sounds load (none yet), and the grounds are painted once. Then play starts. */
 export class BootScene extends Phaser.Scene {
   private readonly log: GameLog;
 
@@ -20,34 +24,55 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.paintGround();
+    for (const ground of GROUNDS) this.paintGround(ground);
     this.log.note('boot done');
     this.scene.start('play');
   }
 
   /**
-   * A stand-in for sand: one tile with specks, painted once into a texture and repeated over the field. Something on
-   * the ground has to pass under the hero, or walking cannot be felt. The specks wrap at the tile's edges.
+   * A stand-in ground: one tile with specks, painted once into a texture and repeated over a place. Something on
+   * the ground has to pass under the hero, or walking cannot be felt. The specks wrap at the tile's edges. Cobbles
+   * get rows of stones instead.
    */
-  private paintGround(): void {
+  private paintGround(ground: Ground): void {
     const size = Math.round(GROUND_TILE * RES);
-    const texture = this.textures.createCanvas('ground', size, size);
+    const texture = this.textures.createCanvas(`ground-${ground}`, size, size);
     if (!texture) return;
+    const [base, dark, light] = COLORS[ground];
     const ctx = texture.getContext();
-    ctx.fillStyle = COLORS.sand;
+    ctx.fillStyle = base;
     ctx.fillRect(0, 0, size, size);
-    // The decoration's own dice, apart from the game's: the same sand on every phone, and no rule depends on it.
-    const rng = makeRng('sand');
-    for (let i = 0; i < 90; i++) {
-      const x = rng.next() * size;
-      const y = rng.next() * size;
-      const r = (0.8 + rng.next() * 2.2) * RES;
-      ctx.fillStyle = rng.next() < 0.6 ? COLORS.sandSpeck : COLORS.sandLight;
-      for (const ox of [-size, 0, size]) {
-        for (const oy of [-size, 0, size]) {
-          ctx.beginPath();
-          ctx.ellipse(x + ox, y + oy, r * 1.6, r, 0, 0, Math.PI * 2);
-          ctx.fill();
+    // The decoration's own dice, apart from the game's: the same ground on every phone, and no rule depends on it.
+    const rng = makeRng(ground);
+    if (ground === 'cobble') {
+      const step = size / 8;
+      ctx.strokeStyle = dark;
+      ctx.lineWidth = 1.5 * RES;
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const x = col * step + (row % 2 ? step / 2 : 0);
+          ctx.fillStyle = rng.next() < 0.3 ? light : base;
+          for (const ox of [-size, 0]) {
+            ctx.beginPath();
+            ctx.rect(x + ox + 2 * RES, row * step + 2 * RES, step - 4 * RES, step - 4 * RES);
+            ctx.fill();
+            ctx.stroke();
+          }
+        }
+      }
+    } else {
+      const specks = ground === 'grass' ? 140 : 90;
+      for (let i = 0; i < specks; i++) {
+        const x = rng.next() * size;
+        const y = rng.next() * size;
+        const r = (0.8 + rng.next() * 2.2) * RES;
+        ctx.fillStyle = rng.next() < 0.6 ? dark : light;
+        for (const ox of [-size, 0, size]) {
+          for (const oy of [-size, 0, size]) {
+            ctx.beginPath();
+            ctx.ellipse(x + ox, y + oy, ground === 'grass' ? r * 0.7 : r * 1.6, ground === 'grass' ? r * 1.8 : r, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
       }
     }

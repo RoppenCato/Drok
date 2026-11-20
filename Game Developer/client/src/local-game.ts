@@ -1,8 +1,9 @@
 // The holder: the state and the random stream live here, in the browser, saved to localStorage. The one place in the
-// client that calls the rules. It turns the screen's uneven frames into the even steps the rules want, and keeps the
-// state from one step back so the screen can draw between two steps (smooth on a 90 or 120 Hz phone).
+// client that calls the rules. It turns the screen's uneven frames into the even steps the rules want, reads the
+// real clock for them, and keeps the state from one step back so the screen can draw between two steps (smooth on a
+// 90 or 120 Hz phone).
 
-import { apply, makeRng, migrate, newGame, resumeRng, type Action, type GameEvent, type GameState, type Rng } from '../../rules/src/index.ts';
+import { apply, makeRng, newGame, packSave, resumeRng, unpackSave, type Action, type GameEvent, type GameState, type Rng } from '../../rules/src/index.ts';
 
 export const SAVE_KEY = 'drok.save';
 
@@ -16,12 +17,6 @@ const SAVE_EVERY_MS = 5000;
 
 /** What a scene may ask for: everything but the step, which is the holder's own. */
 export type Intent = Exclude<Action, { type: 'tick' }>;
-
-/** What is written to localStorage: the state, which carries its version, and where the dice are. */
-interface Save {
-  state: GameState;
-  rng: number;
-}
 
 export class LocalGame {
   state: GameState;
@@ -47,15 +42,8 @@ export class LocalGame {
   static load(storage: Storage | null): LocalGame | null {
     try {
       const raw = storage?.getItem(SAVE_KEY);
-      if (raw) {
-        const save = JSON.parse(raw) as Partial<Save>;
-        const state = migrate(save.state);
-        if (state && typeof save.rng === 'number') {
-          // Nobody's thumb is on the screen when a page opens: let go of whatever was held when it was saved.
-          const rested: GameState = { ...state, hero: { ...state.hero, steer: { x: 0, y: 0 }, dest: null } };
-          return new LocalGame(rested, resumeRng(save.rng), storage);
-        }
-      }
+      const save = raw ? unpackSave(raw) : null;
+      if (save) return new LocalGame(rested(save.state), resumeRng(save.rng), storage);
     } catch {
       // A broken save: start fresh.
     }
@@ -106,11 +94,28 @@ export class LocalGame {
     return events;
   }
 
+  /** The save as text: what is written to the phone, and what "export save" hands the player as a file. */
+  pack(): string {
+    return packSave(this.state, this.rng.state);
+  }
+
+  /** Take a save read from a file in the place of this game. False, and nothing changed, when it is not a save. */
+  unpack(text: string): boolean {
+    const save = unpackSave(text);
+    if (!save) return false;
+    this.state = rested(save.state);
+    this.prev = this.state;
+    this.rng = resumeRng(save.rng);
+    this.queue = [];
+    this.pending = 0;
+    this.save();
+    return true;
+  }
+
   save(): void {
     this.sinceSave = 0;
     try {
-      const save: Save = { state: this.state, rng: this.rng.state };
-      this.storage?.setItem(SAVE_KEY, JSON.stringify(save));
+      this.storage?.setItem(SAVE_KEY, this.pack());
     } catch {
       // Storage full or blocked: the game goes on, unsaved.
     }
@@ -127,10 +132,16 @@ export class LocalGame {
 
   private stepOnce(): void {
     this.prev = this.state;
-    const result = apply(this.state, { type: 'tick', dt: STEP_SECONDS }, this.rng);
+    // The real clock is read here and handed to the rules, which never read one themselves.
+    const result = apply(this.state, { type: 'tick', dt: STEP_SECONDS, now: Date.now() }, this.rng);
     this.state = result.state;
     this.queue.push(...result.events);
   }
+}
+
+/** Nobody's thumb is on the screen when a save is opened: let go of whatever was held when it was written. */
+function rested(state: GameState): GameState {
+  return { ...state, hero: { ...state.hero, steer: { x: 0, y: 0 }, dest: null } };
 }
 
 /** A fresh seed: the browser's UUID, or a stamp and some noise where there is none (plain http on the LAN). */

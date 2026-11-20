@@ -1,31 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import { apply, dist, fieldCentre, heroReach, makeRng, migrate, N, newGame, resumeRng, STATE_VERSION, type Action } from '../src/index.ts';
-import { DT, Sim } from './sim.ts';
+import { apply, dist, heroMaxHp, heroReach, makeRng, MONSTERS, N, PLACES, resumeRng, STATE_VERSION, type Action } from '../src/index.ts';
+import { DT, ISLAND, MIDDLE, Sim } from './sim.ts';
 
+// Moving and fighting: what the control test proved, kept true as the game grows.
 // The numbers a person reads: every test that measures something prints it, so a green run can still be judged.
 const say = (text: string): void => console.log(`  [numbers] ${text}`);
 
-describe('a new game', () => {
-  it('starts the hero whole in the middle of an empty field; the monsters arrive on the first step, away from him', () => {
-    const sim = new Sim();
-    expect(sim.state.version).toBe(STATE_VERSION);
-    expect(sim.state.hero).toMatchObject({ ...fieldCentre(), hp: N.hero.maxHp, rage: 0, target: null });
-    expect(sim.state.monsters).toHaveLength(0);
-    sim.run(DT);
-    expect(sim.state.monsters).toHaveLength(N.field.monsters);
-    for (const m of sim.state.monsters) expect(dist(sim.state.hero, m)).toBeGreaterThanOrEqual(N.monster.spawnClearance);
-    say(`monsters at ${sim.state.monsters.map((m) => `${m.x.toFixed(0)},${m.y.toFixed(0)}`).join(' | ')}; hero at ${sim.state.hero.x},${sim.state.hero.y}`);
-  });
-});
+const CRAB = MONSTERS['sand-crab']!;
+const crabReach = heroReach({ kind: 'sand-crab' });
+const island = PLACES[ISLAND]!;
 
 describe('the same seed gives the same game', () => {
   const play = (seed: string): string => {
-    const sim = new Sim(seed);
+    const sim = Sim.landed(seed);
     sim.run(1);
     sim.act({ type: 'target', monster: sim.state.monsters[0]!.id });
-    sim.run(6);
+    sim.run(12);
     sim.act({ type: 'skill', skill: 'cleave' });
-    sim.act({ type: 'moveTo', x: 300, y: 300 });
+    sim.act({ type: 'moveTo', x: 300, y: 1900 });
     sim.run(4);
     return JSON.stringify(sim.state);
   };
@@ -36,18 +28,26 @@ describe('the same seed gives the same game', () => {
   });
 
   it('never changes the state it was given', () => {
-    const sim = new Sim();
+    const sim = Sim.landed();
     sim.run(1);
+    sim.give('tricorn');
     const before = sim.state;
     const frozen = JSON.stringify(before);
     const actions: Action[] = [
-      { type: 'tick', dt: DT },
+      { type: 'tick', dt: DT, now: 5 },
       { type: 'moveTo', x: 10, y: 10 },
       { type: 'steer', x: 1, y: 0 },
       { type: 'target', monster: before.monsters[0]!.id },
       { type: 'skill', skill: 'charge' },
       { type: 'scheme', scheme: 2 },
-      { type: 'monsters', count: 6 },
+      { type: 'potion' },
+      { type: 'openChest' },
+      { type: 'sail', to: 'harbour' },
+      { type: 'equip', item: before.hero.bag[0]!.id },
+      { type: 'unequip', slot: 'weapon' },
+      { type: 'discard', item: before.hero.bag[0]!.id },
+      { type: 'buy', what: 'potion' },
+      { type: 'sell', item: before.hero.bag[0]!.id },
     ];
     for (const a of actions) apply(before, a, makeRng('tide'));
     expect(JSON.stringify(before)).toBe(frozen);
@@ -67,6 +67,7 @@ describe('the same seed gives the same game', () => {
       expect(sim.act({ type: 'tick', dt })).toEqual([{ type: 'rejected', action: 'tick', reason: 'bad number' }]);
       expect(sim.state).toBe(before);
     }
+    expect(sim.state.version).toBe(STATE_VERSION);
   });
 });
 
@@ -85,7 +86,7 @@ describe('moving: smooth and snappy', () => {
     sim.run(0.5);
     expect(sim.state.hero.x).toBeCloseTo(start.x + 300, 6);
     expect(sim.state.hero.moving).toBe(false);
-    say(`300 units in ${took.toFixed(2)} s at ${N.hero.speed} units a second; the screen is 412 wide: ${(412 / N.hero.speed).toFixed(2)} s to cross`);
+    say(`300 units in ${took.toFixed(2)} s at ${N.hero.speed} units a second; the screen is 412 wide: ${(412 / N.hero.speed).toFixed(2)} s to cross; the island's length in ${(island.height / N.hero.speed).toFixed(1)} s`);
   });
 
   it('the thumb steers at once and he stops the step it lifts; a half push is half speed', () => {
@@ -115,18 +116,18 @@ describe('moving: smooth and snappy', () => {
     expect(sim.state.hero.dest).toBeNull();
   });
 
-  it('the field holds him: pushed against each edge for longer than the field is wide, he stands at the edge', () => {
+  it('the place holds him: pushed against each edge for longer than the place is long, he stands at the edge', () => {
     const sim = Sim.empty();
-    const far = (Math.max(N.field.width, N.field.height) / N.hero.speed) * 1.5;
+    const far = (Math.max(island.width, island.height) / N.hero.speed) * 1.5;
     sim.act({ type: 'steer', x: -1, y: 0 });
     sim.run(far);
-    expect(sim.state.hero.x).toBe(N.field.margin);
+    expect(sim.state.hero.x).toBe(N.margin);
     sim.act({ type: 'steer', x: 1, y: 1 });
     sim.run(far);
-    expect(sim.state.hero.x).toBe(N.field.width - N.field.margin);
-    expect(sim.state.hero.y).toBe(N.field.height - N.field.margin);
+    expect(sim.state.hero.x).toBe(island.width - N.margin);
+    expect(sim.state.hero.y).toBe(island.height - N.margin);
     sim.act({ type: 'moveTo', x: -500, y: -500 });
-    expect(sim.state.hero.dest).toEqual({ x: N.field.margin, y: N.field.margin });
+    expect(sim.state.hero.dest).toEqual({ x: N.margin, y: N.margin });
   });
 
   it('changing the way of steering lets go of what the thumb was doing', () => {
@@ -145,15 +146,15 @@ describe('fighting: a target and auto-attack', () => {
     const m = sim.monster(200, 0, { stunned: 999 });
     expect(sim.act({ type: 'target', monster: m.id })).toEqual([{ type: 'targeted', monster: m.id, why: 'tap' }]);
     const walk = sim.runUntil((s) => s.count('swing') > 0);
-    expect(dist(sim.state.hero, sim.find(m.id)!)).toBeLessThanOrEqual(heroReach());
+    expect(dist(sim.state.hero, sim.find(m.id)!)).toBeLessThanOrEqual(crabReach);
     const fight = sim.runUntil((s) => s.count('monsterDied') > 0);
     expect(sim.state.kills).toBe(1);
     expect(sim.state.hero.target).toBeNull();
     expect(sim.state.respawns).toHaveLength(1);
     const hits = sim.of('hit');
-    say(`walked up in ${walk.toFixed(2)} s; ${N.monster.name} (${N.monster.maxHp} hp) fell in ${fight.toFixed(2)} s to ${hits.length} hits of ${hits.map((h) => h.amount + (h.crit ? '!' : '')).join(' ')}; rage ${sim.state.hero.rage}`);
+    say(`walked up in ${walk.toFixed(2)} s; ${CRAB.name} (${CRAB.maxHp} hp) fell in ${fight.toFixed(2)} s to ${hits.length} hits of ${hits.map((h) => h.amount + (h.crit ? '!' : '')).join(' ')} with a rusty cutlass; rage ${sim.state.hero.rage}`);
     expect(hits.length).toBeGreaterThanOrEqual(3);
-    expect(hits.length).toBeLessThanOrEqual(7);
+    expect(hits.length).toBeLessThanOrEqual(6);
   });
 
   it('scheme 1 picks nothing by itself; schemes 2 and 3 pick the nearest', () => {
@@ -171,11 +172,11 @@ describe('fighting: a target and auto-attack', () => {
     const far = sim.monster(180, 0, { stunned: 999 });
     sim.run(DT);
     expect(sim.state.hero.target).toBe(far.id);
-    const close = sim.monster(0, heroReach() - 5, { stunned: 999 });
+    const close = sim.monster(0, crabReach - 5, { stunned: 999 });
     sim.run(DT);
     expect(sim.state.hero.target).toBe(close.id);
     // Something nearer still appears: he stays on the one he is hitting.
-    sim.monster(0, -(heroReach() - 20), { stunned: 999 });
+    sim.monster(0, -(crabReach - 20), { stunned: 999 });
     sim.run(0.5);
     expect(sim.state.hero.target).toBe(close.id);
   });
@@ -212,7 +213,7 @@ describe('fighting: a target and auto-attack', () => {
 
   it('he swings while walking past, and the swing lands if the target is still close', () => {
     const sim = Sim.empty('tide', { scheme: 2 });
-    sim.monster(heroReach() - 10, 0, { stunned: 999 });
+    sim.monster(crabReach - 10, 0, { stunned: 999 });
     sim.act({ type: 'steer', x: 0, y: 0.2 });
     sim.run(0.3);
     expect(sim.state.hero.moving).toBe(true);
@@ -225,7 +226,7 @@ describe('fighting: a target and auto-attack', () => {
     still.monster(40, 0, { mode: 'chase' });
     still.runUntil((s) => s.count('heroHit') + s.count('monsterMissed') > 0, 3);
     expect(still.count('heroHit')).toBe(1);
-    expect(still.state.hero.hp).toBeLessThan(N.hero.maxHp);
+    expect(still.state.hero.hp).toBeLessThan(heroMaxHp(still.state.hero));
 
     const away = Sim.empty();
     away.monster(40, 0, { mode: 'chase' });
@@ -234,7 +235,7 @@ describe('fighting: a target and auto-attack', () => {
     away.runUntil((s) => s.count('heroHit') + s.count('monsterMissed') > 0, 3);
     expect(away.count('heroHit')).toBe(0);
     expect(away.count('monsterMissed')).toBe(1);
-    say(`wind-up ${N.monster.windupSeconds} s; he covers ${(N.hero.speed * N.monster.windupSeconds).toFixed(0)} units in it and needs ${N.monster.reachGrace} to be missed`);
+    say(`a crab's wind-up is ${CRAB.windupSeconds} s; he covers ${(N.hero.speed * CRAB.windupSeconds).toFixed(0)} units in it and needs ${CRAB.reachGrace} to be missed`);
   });
 });
 
@@ -245,7 +246,7 @@ describe('Charge', () => {
     expect(sim.act({ type: 'skill', skill: 'charge' }).map((e) => e.type)).toEqual(['targeted', 'chargeStarted']);
     const took = sim.runUntil((s) => s.count('charged') > 0, 2);
     expect(took).toBeLessThan(0.4);
-    expect(dist(sim.state.hero, sim.find(m.id)!)).toBeLessThanOrEqual(heroReach());
+    expect(dist(sim.state.hero, sim.find(m.id)!)).toBeLessThanOrEqual(crabReach);
     expect(sim.find(m.id)!.stunned).toBeGreaterThan(N.charge.stunSeconds - 2 * DT);
     expect(sim.state.hero.rage).toBe(N.charge.rage);
     expect(sim.state.hero.target).toBe(m.id);
@@ -282,10 +283,10 @@ describe('Cleave', () => {
     expect(events[0]).toMatchObject({ type: 'cleaved', hits: 3 });
     const struck = sim.of('hit').map((h) => h.monster).sort();
     expect(struck).toEqual([front.id, left.id, right.id].sort());
-    expect(sim.find(behind.id)!.hp).toBe(N.monster.maxHp);
+    expect(sim.find(behind.id)!.hp).toBe(CRAB.maxHp);
     expect(sim.state.hero.rage).toBe(0);
     expect(sim.act({ type: 'skill', skill: 'cleave' })).toEqual([{ type: 'rejected', action: 'skill', reason: 'not enough rage' }]);
-    say(`Cleave hit ${struck.length} for ${sim.of('hit').map((h) => h.amount).join(' ')} (a swing is ${N.hero.damageMin} to ${N.hero.damageMax})`);
+    say(`Cleave hit ${struck.length} for ${sim.of('hit').map((h) => h.amount).join(' ')} (a swing with a rusty cutlass is ${N.hero.damageMin + 2} to ${N.hero.damageMax + 2})`);
   });
 
   it('is refused, and not paid for, with too little rage, with nothing near, or on cooldown', () => {
@@ -309,24 +310,8 @@ describe('Cleave', () => {
   });
 });
 
-describe('falling and standing up', () => {
-  it('at no health he goes down, lets go of everything, and stands up whole in the middle; the monster goes home and mends', () => {
-    const sim = Sim.empty();
-    sim.hero({ x: 200, y: 200, hp: 3 });
-    const m = sim.monster(40, 0, { mode: 'chase', hp: 20 });
-    sim.runUntil((s) => s.count('heroDown') > 0, 3);
-    expect(sim.state.deaths).toBe(1);
-    expect(sim.state.hero).toMatchObject({ hp: 0, target: null, dest: null });
-    expect(sim.act({ type: 'moveTo', x: 500, y: 500 })).toEqual([{ type: 'rejected', action: 'moveTo', reason: 'down' }]);
-    expect(sim.act({ type: 'skill', skill: 'charge' })).toEqual([{ type: 'rejected', action: 'skill', reason: 'down' }]);
-    const took = sim.runUntil((s) => s.count('heroUp') > 0, 5);
-    expect(took).toBeCloseTo(N.hero.reviveSeconds, 1);
-    expect(sim.state.hero).toMatchObject({ ...fieldCentre(), hp: N.hero.maxHp, rage: 0, downFor: 0 });
-    sim.run(3);
-    expect(sim.find(m.id)).toMatchObject({ hp: N.monster.maxHp });
-  });
-
-  it('his health comes back after a quiet while, and not before', () => {
+describe('his health', () => {
+  it('comes back after a quiet while in the wild, and not before', () => {
     const sim = Sim.empty();
     sim.hero({ hp: 50, sinceHit: 0 });
     sim.run(N.hero.regenAfterSeconds - 0.5);
@@ -334,44 +319,41 @@ describe('falling and standing up', () => {
     sim.run(3);
     expect(sim.state.hero.hp).toBeGreaterThan(55);
     sim.run(60);
-    expect(sim.state.hero.hp).toBe(N.hero.maxHp);
+    expect(sim.state.hero.hp).toBe(heroMaxHp(sim.state.hero));
   });
 });
 
-describe('the monsters on the field', () => {
-  it('a fallen one comes back after a while, away from him', () => {
+describe('the monsters of a place', () => {
+  it('a fallen one comes back after a while, in its own zone and away from him', () => {
     const sim = Sim.empty();
     const m = sim.monster(40, 0, { hp: 1, stunned: 999 });
     sim.act({ type: 'target', monster: m.id });
     sim.runUntil((s) => s.count('monsterDied') > 0, 3);
     expect(sim.state.monsters).toHaveLength(0);
-    const took = sim.runUntil((s) => s.state.monsters.length > 0, 10);
-    expect(took).toBeCloseTo(N.monster.respawnSeconds, 1);
-    expect(dist(sim.state.hero, sim.state.monsters[0]!)).toBeGreaterThanOrEqual(N.monster.spawnClearance);
+    const took = sim.runUntil((s) => s.state.monsters.length > 0, 30);
+    expect(took).toBeCloseTo(CRAB.respawnSeconds, 1);
+    const back = sim.state.monsters[0]!;
+    const zone = island.zones[0]!;
+    expect(back.kind).toBe(zone.kind);
+    expect(back.x).toBeGreaterThanOrEqual(zone.x);
+    expect(back.x).toBeLessThanOrEqual(zone.x + zone.w);
+    expect(back.y).toBeGreaterThanOrEqual(zone.y);
+    expect(back.y).toBeLessThanOrEqual(zone.y + zone.h);
+    expect(dist(sim.state.hero, back)).toBeGreaterThanOrEqual(N.spawn.clearance);
   });
 
-  it('the switch sets how many there are, from 1 to the most the field takes', () => {
-    const sim = new Sim();
-    sim.run(1);
-    sim.act({ type: 'monsters', count: 6 });
-    sim.run(1);
-    expect(sim.state.monsters).toHaveLength(6);
-    sim.act({ type: 'monsters', count: 1 });
-    expect(sim.state.monsters).toHaveLength(1);
-    for (const count of [0, N.field.maxMonsters + 1, 2.5, Number.NaN]) expect(sim.act({ type: 'monsters', count })).toEqual([{ type: 'rejected', action: 'monsters', reason: 'bad number' }]);
-  });
-
-  it('strolls near its home when left alone, comes for him when he is close, and never leaves the field', () => {
-    const sim = new Sim('reef', { monsters: 6 });
+  it('strolls near its home when left alone, comes for him when he is close, and never leaves the place', () => {
+    const sim = Sim.landed('reef');
     sim.run(40);
+    expect(sim.state.monsters.length).toBeGreaterThan(0);
     for (const m of sim.state.monsters) {
-      expect(m.x).toBeGreaterThanOrEqual(N.field.margin);
-      expect(m.x).toBeLessThanOrEqual(N.field.width - N.field.margin);
-      expect(m.y).toBeGreaterThanOrEqual(N.field.margin);
-      expect(m.y).toBeLessThanOrEqual(N.field.height - N.field.margin);
+      expect(m.x).toBeGreaterThanOrEqual(N.margin);
+      expect(m.x).toBeLessThanOrEqual(island.width - N.margin);
+      expect(m.y).toBeGreaterThanOrEqual(N.margin);
+      expect(m.y).toBeLessThanOrEqual(island.height - N.margin);
     }
     const quiet = Sim.empty();
-    const m = quiet.monster(N.monster.aggroRange - 10, 0);
+    const m = quiet.monster(CRAB.aggroRange - 10, 0);
     quiet.run(0.2);
     expect(quiet.find(m.id)!.mode).toBe('chase');
   });
@@ -379,23 +361,6 @@ describe('the monsters on the field', () => {
   it('a target that does not exist is refused', () => {
     const sim = Sim.empty();
     expect(sim.act({ type: 'target', monster: 77 })).toEqual([{ type: 'rejected', action: 'target', reason: 'no such monster' }]);
-  });
-});
-
-describe('a save', () => {
-  it("comes back as it was, at today's version", () => {
-    const sim = new Sim();
-    sim.run(3);
-    expect(migrate(JSON.parse(JSON.stringify(sim.state)))).toEqual(sim.state);
-  });
-
-  it('is null when broken or not ours, so the holder starts fresh instead of crashing', () => {
-    expect(migrate(null)).toBeNull();
-    expect(migrate('nonsense')).toBeNull();
-    expect(migrate({ version: 99 })).toBeNull();
-    expect(migrate({ ...newGame({ seed: 'x' }), version: 99 })).toBeNull();
-    expect(migrate({ version: STATE_VERSION, seed: 'x' })).toBeNull();
-    // The template starter's save (a board of squares) under the same key: not ours.
-    expect(migrate({ version: 2, seed: 'x', board: { start: 'a1', spaces: {} }, players: {}, turn: 'local', ticks: 0, time: 0 })).toBeNull();
+    expect(MIDDLE.x).toBe(sim.state.hero.x);
   });
 });

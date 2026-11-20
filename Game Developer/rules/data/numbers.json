@@ -1,20 +1,19 @@
 {
-  "_about": "Every number of the control test, in one place: balancing is editing this file. Lengths are in world units (one unit is one design pixel at 412 by 915), times in seconds, speeds in units a second. All of them are Victor, GD's first guesses (2026-11-20); the ones Robin has felt and approved move to docs/lessons.md with his words.",
-  "field": {
-    "_about": "One small field, bigger than the screen so the camera has somewhere to go. monsters is how many of the one kind stand on it; Robin's words were 'one monster', and three of the one kind is mine, so that 'nearest' and Cleave have something to choose between. The switch in the game goes from 1 to 6.",
-    "width": 1200,
-    "height": 1500,
-    "margin": 28,
-    "monsters": 3,
-    "maxMonsters": 8
+  "_about": "The hero's own numbers and the numbers every place shares. Balancing is editing these files: numbers.json (the hero, the skills, loot and the chest's rules), monsters.json, places.json, items.json. Lengths are in world units (one unit is one design pixel at 412 by 915), times in seconds, speeds in units a second. All of them are Victor, GD's guesses (2026-11-20) unless a note says Robin; the ones Robin has felt and approved move to docs/lessons.md with his words.",
+  "margin": 28,
+  "spawn": {
+    "_about": "A monster arrives somewhere in its zone, at least clearance from him and apart from the others.",
+    "clearance": 260,
+    "apart": 70
   },
   "hero": {
-    "_about": "speed is the number 'smooth and snappy' hangs on: he crosses the screen's width in about two seconds. No acceleration: he is at full speed on the first step and stops on the step the thumb lifts. reach is the gap between the two bodies inside which a swing lands; reachGrace is how much further the target may have stepped back while the swing was in the air.",
+    "_about": "speed is the number 'smooth and snappy' hangs on: he crosses the screen's width in about two seconds. No acceleration: he is at full speed on the first step and stops on the step the thumb lifts. reach is the gap between the two bodies inside which a swing lands; reachGrace is how much further the target may have stepped back while the swing was in the air. In a town his health comes back at once and fast.",
     "radius": 16,
     "speed": 215,
     "maxHp": 100,
     "regenPerSecond": 4,
     "regenAfterSeconds": 5,
+    "townRegenPerSecond": 25,
     "reviveSeconds": 2,
     "reach": 22,
     "reachGrace": 16,
@@ -27,6 +26,13 @@
     "maxRage": 100,
     "ragePerHit": 12,
     "ragePerHitTaken": 6
+  },
+  "levels": {
+    "_about": "Chapter 1 goes from level 1 to 5 (Robin, 2026-11-20). xpToNext[level] is what a level needs to become the next. Each level gives health and a little damage, and fills his health. The whole climb is meant to take about half an hour of hunting; the bot prints the real time.",
+    "max": 5,
+    "xpToNext": [0, 150, 420, 1000, 2200],
+    "hpPerLevel": 14,
+    "damagePerLevel": 1.5
   },
   "autoTarget": {
     "_about": "Schemes 2 and 3 pick the target themselves. pickRange: how near a monster must be to be picked. dropRange: how far the target may get before it is let go. switchMargin: another monster must be this much nearer before he changes his mind, and never while the target is in reach.",
@@ -52,27 +58,32 @@
     "rageCost": 30,
     "cooldownSeconds": 3
   },
-  "monster": {
-    "_about": "The one monster of the control test, a stand-in named for the vibrant pirate theme. It wanders near its home, comes for him inside aggroRange or when hit, winds up for windupSeconds (time to step out of the way), bites, rests, and goes home when he is down or leashRange from home.",
-    "kind": "sand-crab",
-    "name": "Sand crab",
-    "radius": 15,
-    "maxHp": 55,
-    "wanderSpeed": 38,
-    "wanderRange": 130,
-    "wanderPauseMin": 1.5,
-    "wanderPauseMax": 4,
-    "chaseSpeed": 120,
-    "aggroRange": 140,
-    "leashRange": 520,
-    "reach": 12,
-    "reachGrace": 12,
-    "windupSeconds": 0.5,
-    "restSeconds": 1.6,
-    "damageMin": 4,
-    "damageMax": 7,
-    "respawnSeconds": 4,
-    "spawnClearance": 260,
-    "spawnApart": 70
+  "potion": {
+    "_about": "A healing draught: bought in the harbour, sometimes dropped. It mends over a few seconds, so it is drunk before the bite, not after.",
+    "heal": 45,
+    "seconds": 3,
+    "cooldownSeconds": 8,
+    "price": 12,
+    "carry": 10,
+    "start": 3
+  },
+  "drops": {
+    "_about": "Loot lies where the monster fell (Robin, 2026-11-19 and 2026-11-20) and flies to him when he walks close. magnetRange is how close; a full bag leaves gear on the ground. What is left behind when he sails or falls is gone.",
+    "magnetRange": 72,
+    "magnetSpeed": 480,
+    "pickRange": 18,
+    "lifeSeconds": 120,
+    "scatter": 22
+  },
+  "bagSize": 20,
+  "death": {
+    "_about": "Robin, 2026-11-20: a share of the money he carries, 'say 10%', and he wakes in the harbour town. The number is his to feel.",
+    "goldShare": 0.1
+  },
+  "reach": {
+    "_about": "How near he must stand to open a chest, to sail from a dock, to trade with a shopkeeper.",
+    "chest": 70,
+    "dock": 90,
+    "shop": 110
   }
 }

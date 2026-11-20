@@ -1,0 +1,36 @@
+{
+  "_about": "The places on the sea chart (Robin, 2026-11-20: a sea chart of islands; each island a hunting ground with its own levels; he travels by tapping the chart, no ship to steer). A new hero starts in `start`, and wakes there after a fall. Only the place he is in is alive: sailing away empties it, arriving fills it from its zones. A zone keeps `count` monsters of one kind inside its box. `chart` is where the place sits on the chart, as shares of its width and height. Sailing is from a dock only (mine: it gives the walk back its weight). Names are Victor, GD's placeholders (docs/names.md).",
+  "start": "harbour",
+  "places": {
+    "harbour": {
+      "name": "Marlow's Landing",
+      "town": true,
+      "levels": "",
+      "width": 900,
+      "height": 1100,
+      "dock": { "x": 450, "y": 1000 },
+      "wake": { "x": 450, "y": 620 },
+      "shop": { "x": 290, "y": 430, "keeper": "Old Marlow" },
+      "chest": null,
+      "zones": [],
+      "chart": { "x": 0.3, "y": 0.66 }
+    },
+    "crab-cay": {
+      "name": "Crab Cay",
+      "town": false,
+      "levels": "1 to 5",
+      "width": 1400,
+      "height": 2400,
+      "dock": { "x": 700, "y": 2310 },
+      "wake": { "x": 700, "y": 2250 },
+      "shop": null,
+      "chest": { "x": 700, "y": 120, "refillMinutes": 20, "goldMin": 40, "goldMax": 80, "itemTier": 3, "potions": 2 },
+      "zones": [
+        { "kind": "sand-crab", "count": 6, "x": 120, "y": 1480, "w": 1160, "h": 600 },
+        { "kind": "reef-gull", "count": 5, "x": 120, "y": 780, "w": 1160, "h": 560 },
+        { "kind": "coconut-crab", "count": 3, "x": 220, "y": 220, "w": 960, "h": 420 }
+      ],
+      "chart": { "x": 0.68, "y": 0.34 }
+    }
+  }
+}

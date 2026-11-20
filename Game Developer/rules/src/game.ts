@@ -1,38 +1,54 @@
 // The game as a pure function: apply(state, action, rng) → { state, events }.
-// The state passed in is never changed; a new one comes back. Every die comes from `rng` and time only from a tick's
-// `dt`: the rules never touch the screen, a clock or a random number of their own (rules/test/purity.test.ts refuses
-// it). That is what lets the same code run in the browser and headless in the tests, where a bot plays it.
+// The state passed in is never changed; a new one comes back. Every die comes from `rng`, time only from a tick's
+// `dt`, the real clock only from a tick's `now`: the rules never touch the screen, a clock or a random number of
+// their own (rules/test/purity.test.ts refuses it). That is what lets the same code run in the browser and headless
+// in the tests, where a bot plays it.
 
+import { clampToPlace, clone, monsterById, nearestMonster, newItem, reject, roll, setTarget } from './core.ts';
+import { N, PLACES, SLOTS, START_GEAR, START_PLACE, heroBonusDamage, heroMaxHp, kindOf } from './data.ts';
 import { angleDiff, angleTo, dist } from './geometry.ts';
-import type { Rng } from './rng.ts';
+import { hurtMonster, openChest } from './loot.ts';
+import { makeRng, type Rng } from './rng.ts';
 import { STATE_VERSION } from './save.ts';
-import type { Action, ApplyResult, GameEvent, GameState, Scheme, SkillId } from './types.ts';
-import { N, clampToField, clone, fieldCentre, hurtMonster, monsterById, nearestMonster, reject, roll, setTarget, tick } from './world.ts';
+import { buy, discard, drinkPotion, enterPlace, equip, sail, sell, unequip } from './town.ts';
+import type { Action, ApplyResult, GameEvent, GameState, Item, Scheme, SkillId, Slot } from './types.ts';
+import { tick } from './world.ts';
 
 export interface NewGameOptions {
   seed: string;
   scheme?: Scheme;
-  /** How many monsters the field keeps. Left out, the number in the data. */
-  monsters?: number;
 }
 
-/** The hero in the middle of an empty field; the monsters arrive on the first step, placed by the dice. */
+/**
+ * A new hero: a nobody in the harbour town (Robin, 2026-11-20: "Make a name"), level 1, with a rusty cutlass, a
+ * plank buckler, a few potions and no money. The stall's first pieces come from the seed, so the same seed gives
+ * the same start.
+ */
 export function newGame(o: NewGameOptions): GameState {
-  const c = fieldCentre();
-  const wanted = validCount(o.monsters) ? o.monsters : N.field.monsters;
-  return {
+  const town = PLACES[START_PLACE]!;
+  const worn: Record<Slot, Item | null> = { weapon: null, shield: null, hat: null, coat: null };
+  const s: GameState = {
     version: STATE_VERSION,
     seed: o.seed,
     time: 0,
     ticks: 0,
+    now: 0,
     scheme: o.scheme ?? 1,
-    monstersWanted: wanted,
+    place: START_PLACE,
     hero: {
-      x: c.x,
-      y: c.y,
+      x: town.wake.x,
+      y: town.wake.y,
       facing: Math.PI / 2,
       hp: N.hero.maxHp,
       rage: 0,
+      level: 1,
+      xp: 0,
+      gold: 0,
+      potions: N.potion.start,
+      potionCd: 0,
+      mending: 0,
+      bag: [],
+      worn,
       dest: null,
       steer: { x: 0, y: 0 },
       target: null,
@@ -47,21 +63,30 @@ export function newGame(o: NewGameOptions): GameState {
       downFor: 0,
     },
     monsters: [],
-    respawns: Array.from({ length: wanted }, () => 0),
+    respawns: [],
+    drops: [],
+    chests: {},
+    shop: [],
+    book: {},
     nextId: 1,
     kills: 0,
     deaths: 0,
   };
+  for (const slot of SLOTS) {
+    const base = START_GEAR[slot];
+    if (base) worn[slot] = newItem(s, base, 'common');
+  }
+  enterPlace(s, START_PLACE, town.wake, makeRng(`${o.seed}:stall`), []);
+  s.hero.hp = heroMaxHp(s.hero);
+  return s;
 }
 
 export function apply(state: GameState, action: Action, rng: Rng): ApplyResult {
   switch (action.type) {
     case 'tick':
-      return tick(state, action.dt, rng);
+      return tick(state, action.dt, action.now, rng);
     case 'scheme':
       return setScheme(state, action.scheme);
-    case 'monsters':
-      return setMonsters(state, action.count);
     case 'moveTo':
       return moveTo(state, action.x, action.y);
     case 'steer':
@@ -70,11 +95,23 @@ export function apply(state: GameState, action: Action, rng: Rng): ApplyResult {
       return target(state, action.monster, action.approach !== false);
     case 'skill':
       return skill(state, action.skill, rng);
+    case 'potion':
+      return drinkPotion(state);
+    case 'openChest':
+      return openChest(state, rng);
+    case 'sail':
+      return sail(state, action.to, rng);
+    case 'equip':
+      return equip(state, action.item);
+    case 'unequip':
+      return unequip(state, action.slot);
+    case 'discard':
+      return discard(state, action.item);
+    case 'buy':
+      return buy(state, action.what);
+    case 'sell':
+      return sell(state, action.item);
   }
-}
-
-function validCount(n: unknown): n is number {
-  return typeof n === 'number' && Number.isInteger(n) && n >= 1 && n <= N.field.maxMonsters;
 }
 
 /** Another way of steering: whatever the thumb was doing in the old one is let go. The target stays. */
@@ -88,35 +125,13 @@ function setScheme(state: GameState, scheme: Scheme): ApplyResult {
   return { state: s, events: [] };
 }
 
-/** More or fewer monsters on the field: the missing ones arrive in a moment, the extra ones furthest away leave. */
-function setMonsters(state: GameState, count: number): ApplyResult {
-  if (!validCount(count)) return reject(state, 'monsters', 'bad number');
-  const s = clone(state);
-  const ev: GameEvent[] = [];
-  s.monstersWanted = count;
-  while (s.monsters.length + s.respawns.length < count) s.respawns.push(0.3);
-  while (s.monsters.length + s.respawns.length > count) {
-    if (s.respawns.length > 0) {
-      s.respawns.pop();
-      continue;
-    }
-    let far = s.monsters[0]!;
-    for (const m of s.monsters) if (dist(s.hero, m) > dist(s.hero, far)) far = m;
-    s.monsters = s.monsters.filter((m) => m.id !== far.id);
-    if (s.hero.target === far.id) setTarget(s, null, 'lost', ev);
-    if (s.hero.swing?.target === far.id) s.hero.swing = null;
-    if (s.hero.charging?.target === far.id) s.hero.charging = null;
-  }
-  return { state: s, events: ev };
-}
-
 /** A tap on the ground: he walks there in a straight line. The target stays; he swings again when it is in reach. */
 function moveTo(state: GameState, x: number, y: number): ApplyResult {
   if (!Number.isFinite(x) || !Number.isFinite(y)) return reject(state, 'moveTo', 'bad number');
   if (state.hero.downFor > 0) return reject(state, 'moveTo', 'down');
   const s = clone(state);
   const dest = { x, y };
-  clampToField(dest);
+  clampToPlace(s, dest);
   s.hero.dest = dest;
   s.hero.chase = false;
   return { state: s, events: [] };
@@ -187,7 +202,7 @@ function cleave(state: GameState, rng: Rng): ApplyResult {
   if (state.hero.cleaveCd > 0) return reject(state, 'skill', 'on cooldown');
   const s = clone(state);
   const h = s.hero;
-  const near = s.monsters.filter((m) => dist(h, m) <= N.cleave.radius + N.monster.radius);
+  const near = s.monsters.filter((m) => dist(h, m) <= N.cleave.radius + kindOf(m).radius);
   // Nothing near: refused and not paid for, so a slip of the thumb costs nothing.
   if (near.length === 0) return reject(state, 'skill', 'no target in range');
   const ev: GameEvent[] = [];
@@ -202,6 +217,7 @@ function cleave(state: GameState, rng: Rng): ApplyResult {
   h.cleaveCd = N.cleave.cooldownSeconds;
   if (h.target === null) setTarget(s, aim.id, 'skill', ev);
   ev.push({ type: 'cleaved', hits: struck.length, facing: h.facing });
-  for (const m of struck) hurtMonster(s, m, Math.round(roll(rng, N.hero.damageMin, N.hero.damageMax) * N.cleave.damageTimes), false, 'cleave', ev);
+  const bonus = heroBonusDamage(h);
+  for (const m of struck) hurtMonster(s, m, Math.round((roll(rng, N.hero.damageMin, N.hero.damageMax) + bonus) * N.cleave.damageTimes), false, 'cleave', rng, ev);
   return { state: s, events: ev };
 }

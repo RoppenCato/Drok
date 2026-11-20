@@ -1,31 +1,39 @@
 import Phaser from 'phaser';
-import { N } from '../../../rules/src/index.ts';
+import { N, chestFull, dist, placeOf, type GameEvent, type GameState } from '../../../rules/src/index.ts';
 import { Controls } from '../controls.ts';
 import type { GameLog } from '../game-log.ts';
 import { DESIGN_HEIGHT, DESIGN_WIDTH, RES } from '../layout.ts';
-import type { LocalGame } from '../local-game.ts';
-import { Hud } from '../view/hud.ts';
-import { WorldView } from '../view/world-view.ts';
+import type { Intent, LocalGame } from '../local-game.ts';
+import { HELP, Hud } from '../view/hud.ts';
+import { Panels } from '../view/panels.ts';
+import { WorldView, type Thing } from '../view/world-view.ts';
 
 /** How fast the camera closes on the hero: at 14 it is all but there in a fifth of a second, with no lag to feel. */
 const CAMERA_CATCH_UP = 14;
 
+/** The events after which an open window may be showing something that is no longer so. */
+const STALE = new Set<GameEvent['type']>(['picked', 'bought', 'sold', 'equipped', 'unequipped', 'discarded', 'levelUp', 'xp', 'sailed', 'heroUp', 'potionUsed', 'chestOpened']);
+
 /**
- * The control test's one screen: a small field, the hero, a few monsters of one kind, and three ways to steer
- * (Robin, 2026-11-19). The scene only wires things together: fingers go to the glass first and then to the controls,
- * the controls send intents to the holder, the holder steps the rules, and the two views draw the state and the events.
+ * The game's one screen: the place he is in, with the glass over it and a window over that when one is open. The
+ * scene only wires things together: fingers go to the open window, else to the glass, else to the controls; the
+ * controls send intents to the holder; the holder steps the rules; the views draw the state and the events.
  *
- * Two cameras draw it. The main one follows the hero over the field; the second one stands still and draws the
- * glass. Both zoom by RES, so everything is placed in design units and is sharp on a dense screen.
+ * Two cameras draw it. The main one follows the hero over the place; the second one stands still and draws the
+ * glass and the windows. Both zoom by RES, so everything is placed in design units and is sharp on a dense screen.
  */
 export class PlayScene extends Phaser.Scene {
   private readonly holder: LocalGame;
   private readonly log: GameLog;
   private world!: WorldView;
   private hud!: Hud;
+  private panels!: Panels;
   private controls!: Controls;
+  private place = '';
   private camX = 0;
   private camY = 0;
+  /** "Start over" must be pressed twice: until this time, a second press erases the hero. */
+  private eraseUntil = 0;
 
   constructor(o: { holder: LocalGame; log: GameLog }) {
     super({ key: 'play' });
@@ -37,63 +45,72 @@ export class PlayScene extends Phaser.Scene {
     const state = this.holder.state;
     const field = this.cameras.main;
     field.setZoom(RES);
-    field.setBounds(0, 0, N.field.width, N.field.height);
     const glass = this.cameras.add(0, 0, DESIGN_WIDTH * RES, DESIGN_HEIGHT * RES);
     glass.setZoom(RES);
     // A camera zooms about its middle: this scroll puts design 0, 0 in the canvas's top left corner.
     glass.setScroll((DESIGN_WIDTH * (1 - RES)) / 2, (DESIGN_HEIGHT * (1 - RES)) / 2);
+    const onGlass = <T extends Phaser.GameObjects.GameObject>(o: T): T => {
+      field.ignore(o);
+      return o;
+    };
 
     this.world = new WorldView(this, (o) => {
       glass.ignore(o);
       return o;
     });
-    this.hud = new Hud(
-      this,
-      (o) => {
-        field.ignore(o);
-        return o;
+    this.hud = new Hud(this, onGlass, {
+      skill: (skill) => {
+        const done = this.act({ type: 'skill', skill });
+        this.log.note(done ? skill : `${skill} refused`);
       },
-      {
-        scheme: (scheme) => {
-          this.controls.letGo();
-          this.holder.act({ type: 'scheme', scheme });
-          this.hud.setScheme(scheme);
-          this.log.note(`scheme ${scheme}`);
-        },
-        skill: (skill) => {
-          const events = this.holder.act({ type: 'skill', skill });
-          const refused = events.find((e) => e.type === 'rejected');
-          this.log.note(refused && refused.type === 'rejected' ? `${skill} refused: ${refused.reason}` : skill);
-        },
-        monsters: (change) => {
-          // Counted from the state, not from what the menu last drew: two quick presses are two.
-          const count = Math.min(N.field.maxMonsters, Math.max(1, this.holder.state.monstersWanted + change));
-          this.holder.act({ type: 'monsters', count });
-          this.log.note(`monsters ${count}`);
-        },
-        log: () => this.log.download(),
-        startOver: () => {
-          this.holder.reset();
-          location.reload();
-        },
+      potion: () => this.act({ type: 'potion' }),
+      use: (thing) => this.use(thing),
+      open: (panel) => {
+        this.controls.letGo();
+        this.panels.open(panel);
       },
-    );
+    });
+    this.panels = new Panels(this, onGlass, {
+      state: () => this.holder.state,
+      act: (intent) => this.act(intent),
+      atShop: () => this.near(this.holder.state) === 'shop',
+      atDock: () => this.near(this.holder.state, true) === 'dock',
+      setScheme: (scheme) => {
+        this.controls.letGo();
+        this.holder.act({ type: 'scheme', scheme });
+        this.hud.setHelp(HELP[scheme]);
+        this.log.note(`scheme ${scheme}`);
+      },
+      settingsChanged: () => this.hud.place(),
+      exportSave: () => this.exportSave(),
+      importSave: () => this.importSave(),
+      saveLog: () => this.log.download(),
+      startOver: () => this.startOver(),
+      toast: (text) => this.hud.toast(text),
+    });
     this.world.build(state);
     this.hud.build(state);
     this.controls = new Controls({ holder: this.holder, camera: field, hud: this.hud, world: this.world });
+    this.arrive(state, false);
 
-    this.camX = state.hero.x;
-    this.camY = state.hero.y;
-    field.centerOn(this.camX, this.camY);
-
-    // Fingers: the glass first, then the field. A held finger is let go only by its own lift, or when the page
-    // loses the screen (a call, a swipe to another app), so the hero never runs on with nobody steering.
+    // Fingers: an open window first, then the glass, then the field. A held finger is let go only by its own lift,
+    // or when the page loses the screen (a call, a swipe to another app), so the hero never runs on unsteered.
     this.input.on(Phaser.Input.Events.POINTER_DOWN, (p: Phaser.Input.Pointer) => {
-      if (this.hud.press(p.x / RES, p.y / RES)) return;
+      const x = p.x / RES;
+      const y = p.y / RES;
+      if (this.panels.kind) {
+        this.panels.down(x, y);
+        return;
+      }
+      if (this.hud.press(x, y)) return;
       this.controls.down(p);
     });
-    this.input.on(Phaser.Input.Events.POINTER_UP, (p: Phaser.Input.Pointer) => this.controls.up(p));
-    this.input.on(Phaser.Input.Events.POINTER_UP_OUTSIDE, (p: Phaser.Input.Pointer) => this.controls.up(p));
+    const lifted = (p: Phaser.Input.Pointer): void => {
+      this.panels.up(p.x / RES, p.y / RES);
+      this.controls.up(p);
+    };
+    this.input.on(Phaser.Input.Events.POINTER_UP, lifted);
+    this.input.on(Phaser.Input.Events.POINTER_UP_OUTSIDE, lifted);
     this.game.events.on(Phaser.Core.Events.BLUR, () => this.controls.letGo());
     this.game.events.on(Phaser.Core.Events.HIDDEN, () => this.controls.letGo());
   }
@@ -103,21 +120,127 @@ export class PlayScene extends Phaser.Scene {
     this.holder.advance(delta);
     const state = this.holder.state;
     const events = this.holder.takeEvents();
+
+    let stale = false;
     for (const e of events) {
-      if (e.type === 'monsterDied') this.log.note(`crab ${e.monster} fell; ${state.kills} so far`);
-      else if (e.type === 'heroDown') this.log.note(`down; ${state.deaths} falls`);
+      if (STALE.has(e.type)) stale = true;
+      if (e.type === 'sailed') this.log.note(`sailed to ${e.to}`);
+      else if (e.type === 'levelUp') this.log.note(`level ${e.level} at ${(state.time / 60).toFixed(1)} min`);
+      else if (e.type === 'heroDown') this.log.note(`down in ${state.place}; lost ${e.lost} gold; ${state.deaths} falls`);
+      else if (e.type === 'chestOpened') this.log.note('chest opened');
+      // A bite with a window open: the window gets out of the way.
+      else if (e.type === 'heroHit' && this.panels.kind) this.panels.close();
     }
+    if (state.place !== this.place) this.arrive(state, true);
 
     this.world.sync(state, this.holder.prev, this.holder.alpha, time, delta);
     this.world.show(events, state);
-    this.hud.show(events);
+    this.hud.show(events, state);
     this.hud.sync(state, delta);
+    if (stale) this.panels.refresh();
 
-    // The camera closes on where the hero is drawn. A jump (standing up after a fall) is followed at once.
+    // The thing he stands by gets its button; a thing he was sent to by a tap is used the moment he is there.
+    const near = this.near(state);
+    this.hud.setThing(this.panels.kind ? null : near);
+    if (this.controls.pending && !state.hero.dest) {
+      const thing = this.controls.pending;
+      this.controls.pending = null;
+      if (this.near(state, true) === thing) this.use(thing);
+    }
+
+    // The camera closes on where the hero is drawn. A jump is followed at once.
     const at = this.world.heroAt;
     const k = Math.hypot(at.x - this.camX, at.y - this.camY) > 200 ? 1 : 1 - Math.exp((-delta / 1000) * CAMERA_CATCH_UP);
     this.camX += (at.x - this.camX) * k;
     this.camY += (at.y - this.camY) * k;
     this.cameras.main.centerOn(this.camX, this.camY);
+  }
+
+  /** Ask the rules. True when it was done; a refusal is said on the glass by the next frame. */
+  private act(intent: Intent): boolean {
+    return !this.holder.act(intent).some((e) => e.type === 'rejected');
+  }
+
+  /**
+   * The thing of the place he stands by, if any. An empty chest is no thing to use, unless `evenEmpty` (a tap sent
+   * him there: he should be told it is empty).
+   */
+  private near(state: GameState, evenEmpty = false): Thing | null {
+    const h = state.hero;
+    if (h.downFor > 0) return null;
+    const place = placeOf(state);
+    if (place.chest && dist(h, place.chest) <= N.reach.chest && (evenEmpty || chestFull(state))) return 'chest';
+    if (place.shop && dist(h, place.shop) <= N.reach.shop) return 'shop';
+    if (dist(h, place.dock) <= N.reach.dock) return 'dock';
+    return null;
+  }
+
+  private use(thing: Thing): void {
+    this.controls.letGo();
+    if (thing === 'chest') this.act({ type: 'openChest' });
+    else this.panels.open(thing === 'shop' ? 'shop' : 'chart');
+  }
+
+  /** He is in a place: the camera gets its edges and jumps to him; when he has just come, the glass says where. */
+  private arrive(state: GameState, announce: boolean): void {
+    const place = placeOf(state);
+    this.place = state.place;
+    this.cameras.main.setBounds(0, 0, place.width, place.height);
+    this.camX = state.hero.x;
+    this.camY = state.hero.y;
+    this.cameras.main.centerOn(this.camX, this.camY);
+    this.panels.close();
+    if (announce) this.hud.banner(place.name, place.town ? 'The harbour town' : `Levels ${place.levels}`);
+  }
+
+  /** "Export save" (Robin, 2026-11-20: from day one): the save as a file the player keeps. */
+  private exportSave(): void {
+    this.holder.save();
+    const blob = new Blob([this.holder.pack()], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `drok-save-level-${this.holder.state.hero.level}-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    this.hud.toast('Save exported');
+    this.log.note('save exported');
+  }
+
+  /** "Import save": the player picks a file; if it is a save, it takes this game's place. */
+  private importSave(): void {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.addEventListener('change', () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      void file.text().then((text) => {
+        if (!this.holder.unpack(text)) {
+          this.hud.toast('That file is not a Drok save');
+          this.log.note('import refused: not a save');
+          return;
+        }
+        this.controls.letGo();
+        this.world.enter(this.holder.state);
+        this.arrive(this.holder.state, true);
+        this.hud.toast('Save loaded');
+        this.log.note(`save imported: level ${this.holder.state.hero.level}`);
+      });
+    });
+    input.click();
+  }
+
+  /** A new hero. This one is gone for good, so it takes two presses within a few seconds. */
+  private startOver(): void {
+    if (this.time.now > this.eraseUntil) {
+      this.eraseUntil = this.time.now + 4000;
+      this.hud.toast('Press again to erase this hero for good');
+      return;
+    }
+    this.holder.reset();
+    location.reload();
   }
 }
