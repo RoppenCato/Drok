@@ -4,8 +4,9 @@
 // grounds, and said the ground cannot be one painting at one pixel a unit (47 MB). At HALF a pixel a unit it is 11.8 MB,
 // less than the small island's ground, and on a phone it looks the same (work/world/ground-test.js): the ground is flat
 // colour with no line, so it has no small detail to lose. The game draws it at four times instead of two.
-// The hand is tools/ground.js's: sea in three steps with a white edge of foam, wet sand, sand, grass, rock. New: a reef
-// (wet sand flats with tide pools and coral), and several grounds on one island, each with its outline in place.json.
+// The hand is tools/ground.js's: sea in three steps with a white edge of foam, wet sand, sand, grass, rock. New: tide
+// flats (wet sand with pools and coral), several grounds on one island, each with its outline in place.json, and a town
+// moved onto the island from its own place (townOf): its square, its grass, its houses and people, and `home` round it.
 // Writes into work/<name>/: ground.png, place.json, look.jpg (the island with its props at a quarter size) and map.jpg
 // (the same with the grounds, the zones and the ways drawn on it).
 //   node tools/isle.js crab-cay
@@ -25,21 +26,31 @@ const ring = (g, shape, col, w) => { shape(g); g.strokeStyle = col; g.lineWidth 
 const blob = (x, y, rx, ry, n, k, r) => { const pts = []; for (let i = 0; i < n; i++) { const t = i / n * Math.PI * 2, w = 1 + (r() - 0.5) * k; pts.push([x + Math.cos(t) * rx * w, y + Math.sin(t) * ry * w]); } return poly(curve(pts, 0.5, 4)); };
 
 const ISLES = {
-  // Crab Cay grown big. He lands in the south. The beach lies round the whole island; the grove fills its middle; the cove
-  // is the rock in the north west, with its pool; the reef is the north east, over a sandbar, beyond a channel of the sea.
+  // Crab Cay grown big, the starter island (Robin, 2026-11-20: "Make the starter island a pirate town, and the other part
+  // of the island beginner friendly with low level mobs"). He lands in the south, IN the town: the harbour town of
+  // out/harbour moved here as it stands, its dock on the island's dock. The beach lies round the whole island, with tide
+  // flats on its east side; the grove fills the middle; the cove is the rock across the north, with its pool in the west
+  // and the chest at its far east end.
   'crab-cay': { w: 2800, h: 4200, px: 0.5, seed: 11,
-    land: [[1400, 4000], [1800, 3975], [2150, 3880], [2420, 3690], [2560, 3420], [2590, 3120], [2500, 2860], [2540, 2600], [2620, 2330], [2600, 2050], [2470, 1860], [2400, 1690], [2470, 1500], [2600, 1280], [2640, 1000], [2560, 740], [2380, 560], [2140, 470], [1930, 520],
-      [1830, 760], [1770, 1000], [1650, 1170], [1540, 1010], [1500, 780], [1430, 560], [1250, 400], [1000, 320], [740, 340], [520, 440], [350, 620], [250, 880], [210, 1180], [260, 1480], [200, 1780], [240, 2100], [180, 2420], [230, 2760], [190, 3080], [260, 3400], [420, 3680], [680, 3870], [1020, 3970]],
-    grass: [[1400, 3270], [1900, 3210], [2240, 3050], [2380, 2760], [2330, 2440], [2420, 2140], [2300, 1900], [1980, 1780], [1620, 1820], [1300, 1740], [960, 1810], [640, 1770], [430, 1930], [380, 2240], [440, 2560], [390, 2880], [520, 3120], [860, 3230]],
-    rock: [[900, 1700], [1250, 1640], [1470, 1470], [1540, 1240], [1440, 960], [1390, 700], [1200, 510], [940, 430], [680, 480], [470, 630], [350, 860], [320, 1160], [370, 1440], [540, 1630]],
-    reef: [[2200, 1640], [2440, 1500], [2540, 1250], [2570, 990], [2480, 770], [2300, 630], [2090, 570], [1940, 650], [1900, 860], [1850, 1080], [1800, 1300], [1900, 1530]],
+    land: [[1400, 4000], [1800, 3975], [2150, 3880], [2420, 3690], [2560, 3420], [2600, 3120], [2550, 2800], [2620, 2480], [2640, 2150], [2560, 1850], [2440, 1640], [2500, 1400], [2560, 1150], [2500, 880], [2340, 650], [2080, 500], [1780, 420], [1480, 390], [1250, 400],
+      [1000, 320], [740, 340], [520, 440], [350, 620], [250, 880], [210, 1180], [260, 1480], [200, 1780], [240, 2100], [180, 2420], [230, 2760], [190, 3080], [260, 3400], [420, 3680], [680, 3870], [1020, 3970]],
+    grass: [[1400, 3020], [1750, 2960], [1960, 2780], [2020, 2460], [1960, 2150], [2040, 1880], [1880, 1700], [1500, 1640], [1150, 1690], [800, 1660], [500, 1800], [400, 2120], [450, 2440], [400, 2740], [540, 2940], [900, 3040]],
+    rock: [[700, 1540], [1100, 1500], [1500, 1470], [1880, 1520], [2220, 1470], [2420, 1300], [2470, 1040], [2380, 800], [2180, 630], [1880, 540], [1540, 500], [1220, 510], [940, 430], [680, 480], [470, 630], [350, 860], [320, 1160], [400, 1390]],
+    flats: [[2260, 3080], [2470, 2900], [2520, 2560], [2550, 2220], [2480, 1940], [2300, 1800], [2140, 1900], [2100, 2200], [2120, 2560], [2080, 2860], [2120, 3040]],
     inlet: [[860, 300], [1040, 330], [1130, 500], [1080, 690], [900, 770], [730, 700], [690, 480]],                       // the cove's pool, cut into the rock from the north
-    paths: [[[1400, 3940], [1380, 3700], [1430, 3450], [1400, 3200], [1340, 2950], [1420, 2700], [1500, 2450], [1440, 2200], [1380, 1980], [1300, 1760], [1220, 1560], [1160, 1320], [1180, 1080]],
-      [[1440, 2200], [1700, 2040], [1960, 1830], [2100, 1640], [2160, 1440]], [[1180, 1080], [980, 960], [760, 940], [580, 860], [480, 740]]],
-    dock: [1400, 3972], arrive: [1400, 3900], chest: [470, 705],
-    zones: { 'sand-crab': [[760, 3430, 1280, 400, 1], [300, 3180, 520, 520, 2], [1960, 3180, 560, 520, 2]], 'reef-gull': [[520, 2600, 1760, 580, 3], [480, 1900, 1840, 620, 4]], 'coconut-crab': [[400, 820, 1060, 800, 5]] },
-    grounds: [{ id: 'beach', name: 'The beach', levels: '1 to 2', from: 'land' }, { id: 'grove', name: 'The grove', levels: '3 to 4', from: 'grass' }, { id: 'cove', name: 'The cove', levels: '5', from: 'rock' }, { id: 'reef', name: 'The reef', levels: '6 to 8', from: 'reef', later: true }] },
+    paths: [[[1390, 3288], [1380, 3120], [1420, 2900], [1360, 2650], [1440, 2400], [1380, 2150], [1320, 1900], [1280, 1660], [1220, 1420], [1180, 1180]],
+      [[1440, 2400], [1750, 2460], [2050, 2520], [2250, 2500]], [[1180, 1180], [1500, 1060], [1850, 940], [2120, 880], [2240, 880]]],
+    dock: [1400, 3972], arrive: [1400, 3918], chest: [2275, 850],
+    town: { from: 'harbour', home: [[1400, 3992], [1740, 3965], [1850, 3760], [1850, 3440], [1790, 3200], [1400, 3110], [1010, 3200], [960, 3440], [950, 3760], [1060, 3965]], wake: [1400, 3658] },
+    zones: { 'sand-crab': [[290, 3150, 640, 620, 1], [1890, 3150, 620, 600, 1], [2090, 1840, 470, 1240, 2]], 'reef-gull': [[480, 2420, 1500, 580, 3], [470, 1700, 1540, 640, 4]], 'coconut-crab': [[380, 560, 2040, 920, 5]] },
+    grounds: [{ id: 'beach', name: 'The beach', levels: '1 to 2', from: 'land' }, { id: 'grove', name: 'The grove', levels: '3 to 4', from: 'grass' }, { id: 'cove', name: 'The cove', levels: '5', from: 'rock' }] },
 };
+// a town moved onto an island: the layout of out/<from>/place.json, shifted so its dock lies on the island's dock
+function townOf(L) {
+  if (!L.town) return null; const H = JSON.parse(fs.readFileSync(path.join(P.ROOT, 'out', L.town.from, 'place.json'), 'utf8')), dx = L.dock[0] - H.dock[0], dy = L.dock[1] - H.dock[1], mv = pts => pts.map(([x, y]) => [x + dx, y + dy]);
+  return { square: mv(H.square), grass: mv(H.grass), paths: H.paths.map(mv), props: H.props.filter(q => q.name !== 'dock').map(q => ({ name: q.name, x: q.x + dx, y: q.y + dy })), solid: H.solid.map(q => Object.assign({}, q, { x: q.x + dx, y: q.y + dy })),
+    people: H.people.map(q => Object.assign({}, q, { x: q.x + dx, y: q.y + dy })), stall: (() => { const st = H.props.find(q => q.name === 'stall'); return [st.x + dx, st.y + dy]; })() };
+}
 
 function paint(L) {
   const r = P.rng(L.seed), px = L.px, cv = P.createCanvas(Math.round(L.w * px), Math.round(L.h * px)), g = cv.getContext('2d'); g.scale(px, px);
@@ -55,16 +66,21 @@ function paint(L) {
   fill(g, land, C.sand); g.save(); land(g); g.clip(); ring(g, land, C.wet, 52);
   for (let i = 0; i < L.w * L.h / 30000; i++) fill(g, blob(r() * L.w, r() * L.h, 34 + r() * 70, 12 + r() * 20, 9, 0.35, r), i % 3 ? C.sandHi : C.sandLo);
   ring(g, land, C.wet, 40);                                                                                       // the tones stop short of the water's edge
-  if (L.reef) { const rf = curve(L.reef), sh = poly(rf), b = box(rf); fill(g, sh, C.reefLo); g.save(); sh(g); g.clip(); g.translate(0, -4); fill(g, sh, C.reef); g.translate(0, 4);      // the reef: flats of wet sand, tide pools, coral at their edges
-    for (let i = 0; i < 26; i++) { const x = b[0] + r() * b[2], y = b[1] + r() * b[3], rx = 36 + r() * 70, ry = 16 + r() * 26; if (edge(rf, x, y) < 60 || !inside(rf, x, y)) continue; const seedR = P.rng(1000 + i);
+  const T = townOf(L);
+  if (L.flats) { const rf = curve(L.flats), sh = poly(rf), b = box(rf); fill(g, sh, C.reefLo); g.save(); sh(g); g.clip(); g.translate(0, -4); fill(g, sh, C.reef); g.translate(0, 4);      // the reef: flats of wet sand, tide pools, coral at their edges
+    for (let i = 0; i < 34; i++) { const x = b[0] + r() * b[2], y = b[1] + r() * b[3], rx = 34 + r() * 60, ry = 15 + r() * 24; if (edge(rf, x, y) < 60 || !inside(rf, x, y) || L.paths.some(p => p.some(q => Math.hypot(q[0] - x, q[1] - y) < 130))) continue; const seedR = P.rng(1000 + i);
       fill(g, blob(x, y, rx + 5, ry + 4, 10, 0.3, P.rng(1000 + i)), C.foam); fill(g, blob(x, y, rx, ry, 10, 0.3, P.rng(1000 + i)), C.pool); fill(g, blob(x + 4, y + 3, rx * 0.6, ry * 0.55, 9, 0.3, seedR), C.poolIn);
       for (let k = 0; k < 5; k++) { const t = r() * 6.283, cx = x + Math.cos(t) * (rx + 12), cy = y + Math.sin(t) * (ry + 9); fill(g, blob(cx, cy, 7 + r() * 6, 5 + r() * 4, 7, 0.4, r), [C.coralA, C.coralB, C.coralC][k % 3]); } }
     g.restore(); }
   if (L.grass) { const gp = curve(L.grass), sh = poly(gp), b = box(gp); fill(g, sh, C.grassLo); g.save(); sh(g); g.clip(); g.translate(0, -5); fill(g, sh, C.grass); g.translate(0, 5);
     for (let i = 0; i < b[2] * b[3] / 24000; i++) fill(g, blob(b[0] + r() * b[2], b[1] + r() * b[3], 28 + r() * 60, 12 + r() * 22, 9, 0.35, r), i % 2 ? C.grassHi : C.grassLo); g.restore(); }
+  if (T) { const gp = curve(T.grass), sh = poly(gp), b = box(gp); fill(g, sh, C.grassLo); g.save(); sh(g); g.clip(); g.translate(0, -5); fill(g, sh, C.grass); g.translate(0, 5); for (let i = 0; i < 12; i++) fill(g, blob(b[0] + r() * b[2], b[1] + r() * b[3], 26 + r() * 50, 11 + r() * 18, 9, 0.35, r), i % 2 ? C.grassHi : C.grassLo); g.restore(); }
   if (L.rock) { const rp = curve(L.rock, 0.55), sh = poly(rp), b = box(rp); fill(g, sh, C.rockLo); g.save(); sh(g); g.clip(); g.translate(0, -5); fill(g, sh, C.rock); g.translate(0, 5);
     for (let i = 0; i < b[2] * b[3] / 20000; i++) { const x = b[0] + r() * b[2], y = b[1] + r() * b[3], s = 28 + r() * 54, pts = []; for (let k = 0; k < 6; k++) { const t = k / 6 * 6.283 + r() * 0.4; pts.push([x + Math.cos(t) * s * (0.7 + r() * 0.5), y + Math.sin(t) * s * 0.6 * (0.7 + r() * 0.5)]); } fill(g, poly(pts), i % 2 ? C.rockHi : C.rockLo); } g.restore(); }
   if (L.inlet) { const ip = curve(L.inlet), il = poly(ip); ring(g, il, C.foam, 12); fill(g, il, C.shallow); g.save(); il(g); g.clip(); fill(g, poly(ip.map(([x, y]) => [x, y - 46])), C.sea); g.restore(); }
+  if (T) { const sp = curve(T.square, 0.5), sq = poly(sp), b = box(sp); fill(g, sq, C.cobbleLo); g.save(); sq(g); g.clip(); g.translate(0, -4); fill(g, sq, C.cobble); g.translate(0, 4);      // the town's square: cobbles, drawn a little heavier than at one pixel a unit so they hold
+    g.strokeStyle = C.cobbleLo; g.lineWidth = 2.6; for (let y = b[1] - 20; y < b[1] + b[3] + 20; y += 22) for (let x = b[0] - 20 + (Math.round(y / 22) % 2) * 17; x < b[0] + b[2] + 20; x += 34) { g.beginPath(); g.ellipse(x + (r() - 0.5) * 5, y + (r() - 0.5) * 4, 12 + r() * 3, 7 + r() * 2, 0, 0, 7); g.stroke(); } g.restore();
+    for (const p of T.paths) { g.beginPath(); p.forEach((v, k) => k ? g.lineTo(v[0], v[1]) : g.moveTo(v[0], v[1])); g.lineJoin = 'round'; g.lineCap = 'round'; g.strokeStyle = C.sandLo; g.lineWidth = 46; g.stroke(); g.strokeStyle = C.path; g.lineWidth = 38; g.stroke(); } }
   for (const p of L.paths || []) { const q = curve(p.concat(p.slice(1, -1).reverse()), 0.5, 6).slice(0, (p.length - 1) * 6 + 1); g.beginPath(); q.forEach((v, k) => k ? g.lineTo(v[0], v[1]) : g.moveTo(v[0], v[1])); g.lineJoin = 'round'; g.lineCap = 'round'; g.strokeStyle = C.sandLo; g.lineWidth = 46; g.stroke(); g.strokeStyle = C.path; g.lineWidth = 38; g.stroke(); }
   g.restore();
   return cv;
@@ -72,9 +88,9 @@ function paint(L) {
 
 // where the props stand: clumps, each thing with its own place; nothing on a way, at the landing, by the chest or in water
 function place(L) {
-  const r = P.rng(L.seed + 100), props = [], solid = [], landP = curve(L.land), grassP = curve(L.grass), rockP = curve(L.rock, 0.55), reefP = curve(L.reef), inletP = curve(L.inlet);
+  const r = P.rng(L.seed + 100), props = [], solid = [], landP = curve(L.land), grassP = curve(L.grass), rockP = curve(L.rock, 0.55), reefP = curve(L.flats), inletP = curve(L.inlet), T = townOf(L), homeP = T ? curve(L.town.home) : null;
   const way = (x, y) => Math.min(...L.paths.map(p => { let d = 1e9; for (let i = 1; i < p.length; i++) d = Math.min(d, seg(p[i - 1], p[i], x, y)); return d; }));
-  const free = (x, y, d = 50) => inside(landP, x, y) && edge(landP, x, y) > 44 && !(inside(inletP, x, y) || edge(inletP, x, y) < 30) && way(x, y) > d && Math.hypot(L.arrive[0] - x, L.arrive[1] - y) > 150 && Math.hypot(L.chest[0] - x, L.chest[1] - y) > 80;
+  const free = (x, y, d = 50) => inside(landP, x, y) && edge(landP, x, y) > 44 && !(inside(inletP, x, y) || edge(inletP, x, y) < 30) && way(x, y) > d && Math.hypot(L.arrive[0] - x, L.arrive[1] - y) > 150 && Math.hypot(L.chest[0] - x, L.chest[1] - y) > 80 && !(homeP && (inside(homeP, x, y) || edge(homeP, x, y) < 50));
   const put = (n, x, y, block) => { props.push({ name: n, x: Math.round(x), y: Math.round(y) }); if (block) solid.push({ x: Math.round(x), y: Math.round(y - block * 0.3), r: block }); };
   const near = (x, y, d) => props.some(p => Math.hypot(p.x - x, (p.y - y) * 1.5) < d);
   const clump = (cx, cy, n, spread, pick, ok = () => true) => { let tries = 0; for (let i = 0; i < n && tries < n * 12; tries++) { const a = r() * 6.283, d = Math.sqrt(r()) * spread, x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d * 0.7; if (!free(x, y) || !ok(x, y) || near(x, y, 30)) continue; const [nm, bl] = pick(); put(nm, x, y, bl); i++; } };
@@ -91,46 +107,51 @@ function place(L) {
   for (const [x, y] of spots(rockP, 5, 330, (x, y) => onRock(x, y) && free(x, y, 120) && edge(rockP, x, y) > 110)) put('rock-e', x, y, 46);
   // the beach all round: a few tufts and palms up by the grass, stones down by the water
   for (const [x, y] of spots(landP, 34, 260, (x, y) => onSand(x, y) && free(x, y, 90))) clump(x, y, 2 + Math.floor(r() * 3), 60, edge(landP, x, y) < 130 ? stones : strand, onSand);
-  // the reef: a few stones only; the wreck and what lives there come later
-  for (const [x, y] of spots(reefP, 7, 220, (x, y) => onReef(x, y) && free(x, y, 90))) clump(x, y, 2, 50, () => [['rock-b', 9], ['rock-c', 13]][Math.floor(r() * 2)], onReef);
+  // the tide flats: a few stones by the pools
+  for (const [x, y] of spots(reefP, 9, 200, (x, y) => onReef(x, y) && free(x, y, 90))) clump(x, y, 2, 50, () => [['rock-b', 9], ['rock-c', 13], ['tuft-a', 0]][Math.floor(r() * 3)], onReef);
   // the landing: the dock runs south into the sea, three pieces end to end; barrels, crates and a boat beside it
-  put('barrel', L.dock[0] - 60, L.dock[1] - 46, 10); put('crate', L.dock[0] - 88, L.dock[1] - 30, 10); put('barrel', L.dock[0] + 70, L.dock[1] - 36, 10); put('crate', L.dock[0] + 100, L.dock[1] - 60, 10); put('boat', L.dock[0] + 190, L.dock[1] - 40, 22);
+  if (T) { for (const q of T.props) props.push(q); for (const q of T.solid) solid.push(q); }                      // the town as it stood in the harbour: houses, stall, well, lamps, sign, barrels, crates, a boat, palms
+  else { put('barrel', L.dock[0] - 60, L.dock[1] - 46, 10); put('crate', L.dock[0] - 88, L.dock[1] - 30, 10); put('barrel', L.dock[0] + 70, L.dock[1] - 36, 10); put('crate', L.dock[0] + 100, L.dock[1] - 60, 10); put('boat', L.dock[0] + 190, L.dock[1] - 40, 22); }
   for (let i = 0; i < 3; i++) put('dock', L.dock[0], L.dock[1] + i * 56 + 56, 0);
   put('chest/closed', L.chest[0], L.chest[1], 12);
   props.sort((a, b) => a.y - b.y || a.x - b.x);
-  return { props, solid };
+  return { props, solid, town: T };
 }
 // the outline of the dry sand: the shore drawn in by d, so nobody stands in the water's edge
 const inset = (pts, d) => { const s = area(pts) > 0 ? 1 : -1, n = pts.length; return pts.map((p, i) => { const a = pts[(i - 1 + n) % n], b = pts[(i + 1) % n], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1; return [Math.round(p[0] - dy / l * d * s), Math.round(p[1] + dx / l * d * s)]; }); };
 
 function walkCheck(J) {
   const c = 14, rad = 12, nx = Math.ceil(J.size.w / c), ny = Math.ceil(J.size.h / c), free = new Uint8Array(nx * ny), seen = new Uint8Array(nx * ny), pool = curve(J.inlet);
-  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const x = (i + 0.5) * c, y = (j + 0.5) * c; free[j * nx + i] = inside(J.walk, x, y) && !inside(pool, x, y) && edge(pool, x, y) > 16 && !J.solid.some(q => Math.hypot(q.x - x, q.y - y) < q.r + rad) ? 1 : 0; }
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const x = (i + 0.5) * c, y = (j + 0.5) * c; free[j * nx + i] = inside(J.walk, x, y) && !inside(pool, x, y) && edge(pool, x, y) > 16 && !J.solid.some(q => q.r ? Math.hypot(q.x - x, q.y - y) < q.r + rad : x > q.x - rad && x < q.x + q.w + rad && y > q.y - rad && y < q.y + q.h + rad) ? 1 : 0; }
   const cell = (x, y) => Math.floor(y / c) * nx + Math.floor(x / c), q = [cell(...J.arrive)]; seen[q[0]] = 1; if (!free[q[0]]) console.log('!! where he lands is blocked');
   while (q.length) { const k = q.pop(), i = k % nx, j = (k - i) / nx; for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const a = i + di, b = j + dj; if (a < 0 || b < 0 || a >= nx || b >= ny) continue; const m = b * nx + a; if (free[m] && !seen[m]) { seen[m] = 1; q.push(m); } } }
-  const ask = (n, x, y) => console.log((seen[cell(x, y)] ? 'ok  ' : '!!  ') + n, x, y); ask('below the chest', J.chest[0], J.chest[1] + 30);
+  const ask = (n, x, y) => console.log((seen[cell(x, y)] ? 'ok  ' : '!!  ') + n, x, y); ask('below the chest', J.chest[0], J.chest[1] + 30); if (J.home) { ask('where he wakes', ...J.home.wake); ask('before the stall', J.home.stall[0], J.home.stall[1] + 40); }
   for (const [kind, list] of Object.entries(J.zones)) for (const z of list) { let got = 0, all = 0; for (let y = z[1]; y < z[1] + z[3]; y += c) for (let x = z[0]; x < z[0] + z[2]; x += c) { all++; if (seen[cell(x, y)]) got++; } console.log((got / all > 0.5 ? 'ok  ' : '!!  ') + `${kind} level ${z[4]}: he can stand on ${Math.round(got / all * 100)}% of its box`); }
   let cut = 0, all = 0; for (let k = 0; k < free.length; k++) if (free[k]) { all++; if (!seen[k]) cut++; } console.log(`${(cut / all * 100).toFixed(2)}% of the free ground cannot be reached; he can walk on ${(all * c * c / 1e6).toFixed(1)} million square units`);
 }
 
 async function main() {
-  const name = process.argv[2] || 'crab-cay', L = ISLES[name], out = path.join(P.ROOT, 'work', name), cv = paint(L), { props, solid } = place(L), D = require('./dress.js');
+  const name = process.argv[2] || 'crab-cay', L = ISLES[name], out = path.join(P.ROOT, 'work', name), cv = paint(L), { props, solid, town } = place(L), D = require('./dress.js');
   P.save(cv, path.join(out, 'ground.png'));
-  const shapes = { land: curve(L.land), grass: curve(L.grass), rock: curve(L.rock, 0.55), reef: curve(L.reef) };
+  const shapes = { land: curve(L.land), grass: curve(L.grass), rock: curve(L.rock, 0.55) };
   const grounds = L.grounds.map(q => Object.assign({ id: q.id, name: q.name, levels: q.levels }, q.later ? { later: true } : {}, { box: box(shapes[q.from]), outline: L[q.from] }));
-  const J = { name, size: { w: L.w, h: L.h }, ground: { file: 'ground.png', px: L.px, note: 'HALF a pixel a design unit: draw it at four times its size' }, land: L.land, walk: inset(curve(L.land, 0.6, 4), 24), grass: L.grass, rock: L.rock, reef: L.reef, inlet: L.inlet, paths: L.paths,
+  const J = { name, size: { w: L.w, h: L.h }, ground: { file: 'ground.png', px: L.px, note: 'HALF a pixel a design unit: draw it at four times its size' }, land: L.land, walk: inset(curve(L.land, 0.6, 4), 24), grass: L.grass, rock: L.rock, flats: L.flats, inlet: L.inlet, paths: L.paths.concat(town ? town.paths : []),
     dock: L.dock, arrive: L.arrive, chest: L.chest, zones: L.zones, grounds, props, solid };
+  if (town) { J.home = { box: box(curve(L.town.home)), outline: L.town.home, wake: L.town.wake, stall: town.stall, note: 'the town: no monster comes in; he wakes at wake; the stall stands at stall' }; J.square = town.square; J.people = town.people; }
   fs.writeFileSync(path.join(out, 'place.json'), JSON.stringify(J)); walkCheck(J);
   // the studio's looks: the island with its props at a quarter size; the same with the names drawn on it
   const adir = fs.existsSync(path.join(P.ROOT, 'out', name, 'island.json')) ? path.join(P.ROOT, 'out', name) : path.join(P.ROOT, 'out/island'), isl = await D.atlas(adir, 'island'), k = 0.25;
   const pv = P.createCanvas(L.w * k, L.h * k), g = pv.getContext('2d'); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.scale(k, k); g.drawImage(cv, 0, 0, L.w, L.h);
   for (const p of props) { const f = isl.j.frames[p.name]; if (!f) continue; g.save(); g.globalAlpha = 0.24; g.fillStyle = '#5b4a82'; g.beginPath(); g.ellipse(p.x + 5, p.y + 1, f.frame.w * 0.16, f.frame.w * 0.055, 0, 0, 7); g.fill(); g.restore(); g.save(); g.translate(p.x, p.y); g.scale(0.5, 0.5); D.pic(g, isl, p.name); g.restore(); }
+  const folkDir = [path.join(P.ROOT, 'out', name), path.join(P.ROOT, 'out/harbour')].find(d => fs.existsSync(path.join(d, 'folk.json')));
+  if (town && folkDir) { const folk = await D.atlas(folkDir, 'folk'); for (const q of town.people) { g.save(); g.globalAlpha = 0.24; g.fillStyle = '#5b4a82'; g.beginPath(); g.ellipse(q.x + 3, q.y + 1, 13, 5, 0, 0, 7); g.fill(); g.restore(); D.figure(g, folk, { action: q.who, facing: q.facing, i: 0 }, q.x, q.y, 0.5); } }
   P.save(pv, path.join(out, 'look.jpg'));
   const tag = (t, x, y, s = 64, col = '#ffffff') => P.label(g, t, x, y, s, col, { align: 'center', stroke: '#33203a', strokeW: s / 5, font: 'Trebuchet MS' });
   g.lineWidth = 8; g.setLineDash([36, 24]); for (const [kind, list] of Object.entries(L.zones)) for (const z of list) { g.strokeStyle = { 'sand-crab': '#f4603c', 'reef-gull': '#ffffff', 'coconut-crab': '#8a5a34' }[kind]; g.strokeRect(z[0], z[1], z[2], z[3]); tag(`${kind}, level ${z[4]}`, z[0] + z[2] / 2, z[1] + 60, 56); }
-  g.setLineDash([]); g.strokeStyle = '#33203a'; g.lineWidth = 8; for (const [n, p] of [['he lands', L.arrive], ['the chest', L.chest]]) { g.fillStyle = '#ffd640'; g.beginPath(); g.arc(p[0], p[1], 30, 0, 7); g.fill(); g.stroke(); tag(n, p[0], p[1] + 80, 60); }
-  for (const q of grounds) tag(q.name + (q.later ? ' (later)' : ''), q.id === 'beach' ? 1400 : q.box[0] + q.box[2] / 2, q.id === 'beach' ? 3640 : q.box[1] + q.box[3] / 2, 110);
-  g.strokeStyle = '#ffffff'; g.lineWidth = 8; g.strokeRect(2260, 3200, 412, 915); tag('one screen', 2466, 3660, 52);
+  g.setLineDash([]); g.strokeStyle = '#33203a'; g.lineWidth = 8; for (const [n, p] of [['the chest', L.chest]]) { g.fillStyle = '#ffd640'; g.beginPath(); g.arc(p[0], p[1], 30, 0, 7); g.fill(); g.stroke(); tag(n, p[0], p[1] + 80, 60); }
+  for (const q of grounds) tag(q.name, q.id === 'beach' ? 560 : q.box[0] + q.box[2] / 2, q.id === 'beach' ? 3560 : q.box[1] + q.box[3] / 2, 110);
+  if (J.home) { g.strokeStyle = '#ffd640'; g.lineWidth = 10; g.setLineDash([30, 18]); poly(curve(J.home.outline))(g); g.stroke(); g.setLineDash([]); tag('The town (home)', J.home.box[0] + J.home.box[2] / 2, J.home.box[1] + 60, 84, '#ffd640'); g.strokeStyle = '#33203a'; g.lineWidth = 8; g.fillStyle = '#ffd640'; g.beginPath(); g.arc(J.home.wake[0], J.home.wake[1], 26, 0, 7); g.fill(); g.stroke(); tag('he wakes', J.home.wake[0] + 150, J.home.wake[1], 52); }
+  g.strokeStyle = '#ffffff'; g.lineWidth = 8; g.strokeRect(300, 2240, 412, 915); tag('one screen', 506, 2700, 52);
   P.save(pv, path.join(out, 'map.jpg'));
   console.log('painted', name, `${L.w}x${L.h} units as ${cv.width}x${cv.height} px (${(cv.width * cv.height * 4 / 1048576).toFixed(1)} MB decoded),`, props.length, 'props,', solid.length, 'in the way');
 }

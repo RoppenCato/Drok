@@ -47,8 +47,20 @@ big, has several grounds with their own levels and monsters, and is walked witho
 - **Each ground has its outline in `place.json`** (`grounds`), and the shore drawn in by 24 units is there as `walk`.
 - **The beach lies all round an island;** the other grounds lie on it. He lands in the south and the levels rise to
   the north.
-- **The first one is Crab Cay** (`out\crab-cay\`): the beach, the grove, the cove, and a reef whose ground is painted
-  but empty. For the reef I propose a wreck, a hermit crab in a tankard and an octopus in a barrel; Robin decides.
+- **The first one is Crab Cay, the starter island** (`out\crab-cay\`). Robin, 2026-11-20: "Make the starter island a
+  pirate town, and the other part of the island beginner friendly with low level mobs." So the town stands at the
+  landing as its safe part (`home`), and round it lie the beach with its tide flats, the grove and the cove.
+- **A town on an island is its own layout moved there** (`tools\isle.js`, `townOf`): its dock on the island's dock.
+  Today it is the harbour as it stood. A real pirate town is big work: three stills for Robin first.
+- **Kept for the second island (mine, a proposal):** a wreck on a reef, a hermit crab in a tankard, an octopus in a
+  barrel.
+
+## The windows' look (open: Robin picks)
+
+Robin, 2026-11-20, in Victor, GD's chat: "You need to have some nice pirate design to menus and panels. Like some
+wooden feeling. Right now it looks bland. Also update icons so they look fitting." Three stills of the hero window went
+to him the same day (`concepts\wood\`): 1 lashed planks, 2 a chart table, 3 a treasure chest. My pick is 1. **He has
+not picked.** Until he has, the glass stays as it is; after it, this section says what the windows are made of.
 
 ## The look in use (mine, 2026-11-20; not judged by Robin)
 

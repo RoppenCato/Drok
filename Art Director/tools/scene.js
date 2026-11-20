@@ -49,6 +49,7 @@ async function main() {
   const has = new Set(crab.j.meta.facings || ['s', 'se', 'e', 'ne', 'n']), fit = f => has.has(D.FLIP[f] || f) ? f : ({ nw: 'w', ne: 'e', sw: 'w', se: 'e' }[f] || 's'); for (const c of [c1, c2, c3]) c.f.facing = fit(c.f.facing);
   const things = [];
   for (const p of place.props) { const f = isl.j.frames[p.name]; if (!f) continue; if (sx(p.x) < -160 || sx(p.x) > W + 160 || sy(p.y) < -60 || sy(p.y) > H + 300) continue; things.push({ y: p.y, shadow: () => shadow(p.x, p.y, f.frame.w * 0.16, f.frame.w * 0.055), draw: () => sprite(isl, p.name, p.x, p.y) }); }
+  if (place.people && fs.existsSync(path.join(pdir, 'folk.json'))) { const folk = await D.atlas(pdir, 'folk'); for (const q of place.people) things.push({ y: q.y, shadow: () => shadow(q.x, q.y, 13, 5), draw: () => D.figure(g, folk, { action: q.who, facing: q.facing, i: 0 }, sx(q.x), sy(q.y), 0.5) }); }      // the people of a town stand where the layout says
   things.push({ y: hero.y, shadow: () => shadow(hero.x, hero.y, 15, 6), draw: () => D.hero(g, A, { action: 'stand', facing: 'se', i: 0, cutlass: 'rusty', buckler: 'plank', hat: 'bandana' }, sx(hero.x), sy(hero.y), 0.5) });
   if (mobs) for (const c of [c1, c2, c3]) things.push({ y: c.y, shadow: () => shadow(c.x, c.y, 17, 7), draw: () => D.figure(g, crab, c.f, sx(c.x), sy(c.y), 0.5) });
   if (mobs) piece('mark/target', sx(c1.x), sy(c1.y) + 2);                                                  // the ring under the one he fights

@@ -22,8 +22,8 @@ a NOTES.md. Nothing here has been judged by Robin: **every look and design is mi
 - **A set of single pictures** (gear, props, loot, glass) is the same hash with an `items` block: each picture's `w`,
   `h`, `origin` and its own data.
 - **A big island** (`crab-cay`): the small island's form, with the ground at HALF a pixel a unit (`ground.px` 0.5: drawn
-  at four times), `walk` (the shore drawn in), `grounds` (each ground's name, levels, box and outline) and zones with a
-  level. Its NOTES.md lists the changes.
+  at four times), `walk` (the shore drawn in), `grounds` (each ground's name, levels, box and outline), zones with a
+  level, and the town on it as `home` with its `people`. Its NOTES.md lists the changes.
 - **The reference drawers**: `tools\dress.js` draws the Warrior with his gear from these files the way the game should;
   `tools\scene.js` draws a whole screen. If their pictures are right, the data is right. `out\scene\beach.png` is that.
 
@@ -45,7 +45,7 @@ house), with their notes. The first world made for it is in `concepts\house\kitc
 | `harbour` | ground 900 by 1100, props 1024 by 1024, people 1024 by 512 | 4 + 4 + 2 MB | 41 + 32 + 72 KB |
 | `chart` | the chart 824 by 1830, pins 256 by 256 | 6 + 0.3 MB | about 100 + 20 KB |
 | `icon` | 512 and 192 | | about 150 KB |
-| `crab-cay` | ground 1400 by 2100 for 2800 by 4200 units, props 1024 by 1024 (the island's) | 11.8 + 4 MB | 86 + 54 KB |
+| `crab-cay` | ground 1400 by 2100 for 2800 by 4200 units, props 1024 by 1024 (the island's and the town's, 30), people 1024 by 512 | 11.8 + 4 + 2 MB | 93 + 67 + 72 KB |
 
 The island with everything on it: about 46 MB decoded, under the 48 MB set for a place. The harbour with the hero and the glass: about 22 MB. All of it on disk: about 1.6 MB, of the 6 MB set for chapter 1.
 
