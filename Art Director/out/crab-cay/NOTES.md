@@ -53,8 +53,9 @@ Copy the folder. What is new for the game, beside what it already does with this
    shadow as before.
 3. **`home`**: `outline`, `box` (909, 3320, 983 by 767), `wake` (1400, 3900: the middle of the deck) and `stall`
    (1280, 3945: 87 units of deck before it, so a thumb has room). No monster inside the outline. The two level 1 crab zones lie west and east of it and are unchanged.
-4. **`people`**: the shopkeeper behind his stall (1280, 3927), the harbour master (1470, 3900), the fisher by the fish
-   rack (1456, 3978), the sailor at the way north (1400, 3775). Each has a `note`. Nobody stands on `arrive`.
+4. **`people`**: the shopkeeper beside his stall (1346, 3949: behind it the awning hid him), the harbour master
+   (1470, 3900), the fisher behind her fish rack (1452, 3976), the sailor at the way north (1400, 3775). Each has a
+   `note`. Nobody stands on `arrive`.
 5. `dock` is 1400, 4030 and `arrive` 1400, 3976: he steps onto the deck. The two dock pieces are in `props`.
 6. `walk` is the dry sand as before, now with the bay in it. `ground.px` is 0.5 as before.
 
@@ -70,6 +71,8 @@ Copy the folder. What is new for the game, beside what it already does with this
 - **The level 1 crabs are reached over the two jetties,** the grove over the walk north. So a new player leaves town by
   a plank way whichever way he goes: the town has an edge.
 - **The stall, the sign and the lamps are the old harbour's.** They fit; say if they should be redrawn for this town.
+  The two lamps stand either side of the walk north (1346 and 1454, 3600), not at the dock's foot: there one hid the
+  fisher.
 
 ## Open
 
@@ -80,7 +83,9 @@ Copy the folder. What is new for the game, beside what it already does with this
 - The wreck on a reef with its hermit crab and its octopus waits for the second island. The two towns not picked (a
   port, a town built of ships) are in `concepts\town\` if another island wants one.
 
-**Not tested:** not in the game and not on a phone. The half-size ground was judged on this PC at a phone's sharpness.
+**Not tested:** not on a phone. The town is in the game (Victor, GD's commit 55c9ca8) and I saw it in the test copy
+drawing as these pictures; the places changed after that (the stall, the people, the lamps) are seen in my own
+drawing of the screen only. The half-size ground was judged on this PC at a phone's sharpness.
 The `solid` shapes are from the pieces' sizes, as before. The zones' boxes reach over a little water and rock in
 places; your rules already keep a monster off ground it cannot stand on.
 
