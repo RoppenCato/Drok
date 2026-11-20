@@ -9,6 +9,7 @@ import { clear, inHome, onLand, walk } from './ground.ts';
 import { hurtMonster, stepDrops } from './loot.ts';
 import { reachable, route, sight } from './path.ts';
 import type { Rng } from './rng.ts';
+import { SKILLS } from './skillset.ts';
 import { enterPlace, restock } from './town.ts';
 import type { ApplyResult, GameEvent, GameState, Monster, Vec } from './types.ts';
 
@@ -27,6 +28,8 @@ export function tick(state: GameState, dt: number, now: number | undefined, rng:
   const h = s.hero;
   h.chargeCd = Math.max(0, h.chargeCd - dt);
   h.cleaveCd = Math.max(0, h.cleaveCd - dt);
+  for (const id of Object.keys(h.skillCd) as (keyof typeof h.skillCd)[]) h.skillCd[id] = Math.max(0, (h.skillCd[id] ?? 0) - dt);
+  h.braceFor = Math.max(0, h.braceFor - dt);
   h.potionCd = Math.max(0, h.potionCd - dt);
   h.swingIn = Math.max(0, h.swingIn - dt);
   h.sinceHit += dt;
@@ -58,6 +61,11 @@ function mend(s: GameState, dt: number): void {
   if (h.mending > 0) {
     h.hp += (N.potion.heal / N.potion.seconds) * Math.min(dt, h.mending);
     h.mending = Math.max(0, h.mending - dt);
+  }
+  // Second wind: a share of his health over its seconds.
+  if (h.windFor > 0) {
+    h.hp += ((SKILLS.wind.share! * max) / SKILLS.wind.seconds!) * Math.min(dt, h.windFor);
+    h.windFor = Math.max(0, h.windFor - dt);
   }
   if (inHome(placeOf(s), h)) h.hp += N.hero.townRegenPerSecond * dt;
   else if (h.sinceHit >= N.hero.regenAfterSeconds) h.hp += N.hero.regenPerSecond * dt;
@@ -327,7 +335,9 @@ function stepMonsters(s: GameState, dt: number, rng: Rng, ev: GameEvent[]): void
 function hurtHero(s: GameState, m: Monster, rng: Rng, ev: GameEvent[]): void {
   const h = s.hero;
   const k = kindOf(m);
-  const amount = Math.max(1, roll(rng, k.damageMin, k.damageMax) - heroArmour(h));
+  // Braced, a bite does a share less; never less than 1.
+  const braced = h.braceFor > 0 ? 1 - SKILLS.brace.share! : 1;
+  const amount = Math.max(1, Math.round((roll(rng, k.damageMin, k.damageMax) - heroArmour(h)) * braced));
   h.hp -= amount;
   h.sinceHit = 0;
   h.rage = Math.min(N.hero.maxRage, h.rage + N.hero.ragePerHitTaken);
@@ -345,6 +355,8 @@ function hurtHero(s: GameState, m: Monster, rng: Rng, ev: GameEvent[]): void {
     h.swing = null;
     h.charging = null;
     h.mending = 0;
+    h.windFor = 0;
+    h.braceFor = 0;
     h.moving = false;
     s.deaths += 1;
     setTarget(s, null, 'lost', ev);

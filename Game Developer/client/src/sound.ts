@@ -92,6 +92,10 @@ class Sounds {
         return;
       case 'levelUp':
         return this.play('level_up');
+      case 'skillUsed':
+        return this.play(e.skill === 'brace' ? 'equip' : e.skill === 'wind' ? 'potion' : 'cleave');
+      case 'skillEquipped':
+        return this.play('equip');
       case 'chestOpened':
         return this.play('chest');
       case 'potionUsed':

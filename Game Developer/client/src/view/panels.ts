@@ -11,6 +11,11 @@ import {
   RARITIES,
   SHOP,
   SLOTS,
+  SKILLS,
+  SKILL_ORDER,
+  knows,
+  skillCost,
+  skillText,
   wearSlot,
   baseOf,
   buyPrice,
@@ -24,6 +29,7 @@ import {
   xpToNext,
   type GameState,
   type Item,
+  type SkillId,
   type Slot,
 } from '../../../rules/src/index.ts';
 import { ART, CHART_ART, GEAR_ART } from '../art.ts';
@@ -34,7 +40,7 @@ import { sounds } from '../sound.ts';
 import { HeroFigure, picture, type AtlasData, type GearData } from './figures.ts';
 import { INK, WOOD, hasGlass, lighter, piece, stretch } from './glass.ts';
 
-export type PanelKind = 'menu' | 'bag' | 'hero' | 'chart' | 'shop';
+export type PanelKind = 'menu' | 'bag' | 'hero' | 'chart' | 'shop' | 'skills';
 
 /** The Art Director's chart: where each of his places is on it, the dots of the way between, where the title and the button sit. In design units. */
 interface ChartArt {
@@ -108,6 +114,8 @@ export class Panels {
   private selected: number | null = null;
   /** The part of him whose worn piece is being looked at. */
   private selectedSlot: Slot | null = null;
+  /** The skill being looked at in the skills window. */
+  private skill: SkillId | null = null;
   /** The hero drawn in his window, wearing his gear. */
   private sheetHero: HeroFigure | null = null;
   private selling = false;
@@ -126,6 +134,7 @@ export class Panels {
     this.selling = selling;
     this.selected = null;
     this.selectedSlot = null;
+    this.skill = null;
     this.rebuild();
   }
 
@@ -310,6 +319,9 @@ export class Panels {
         break;
       case 'chart':
         this.buildChart(state);
+        break;
+      case 'skills':
+        this.buildSkills(state);
         break;
       case 'shop':
         this.buildShop(state);
@@ -581,6 +593,114 @@ export class Panels {
       .map((kind) => `${MONSTERS[kind]!.name} ${state.book[kind]}`);
     this.text(CX, by - 9, felled.length ? `Felled: ${felled.join(', ')}` : 'Nothing felled yet', 13, COLORS.dim);
     this.text(CX, by + 8, `Falls: ${state.deaths}`, 13, COLORS.dim);
+  }
+
+  // ---- the skills ---------------------------------------------------------------------------------------------------
+
+  /** A skill's disc: the Art Director's picture when he has drawn one, else his empty disc with the name's letters. */
+  private skillDisc(x: number, y: number, id: SkillId, size: number, alpha = 1): void {
+    const s = this.scene;
+    const own = hasGlass(s) ? piece(s, `skill/${id}`) : null;
+    const art = own ?? (hasGlass(s) ? piece(s, 'skill/empty') : null);
+    if (art) this.keep(art.setPosition(x, y).setScale(size / art.width).setAlpha(alpha).setDepth(DEPTH.panel + 2));
+    else this.keep(s.add.circle(x, y, size / 2, COLORS.button, alpha).setStrokeStyle(3, COLORS.panelEdge).setDepth(DEPTH.panel + 2));
+    if (!own) {
+      const letters = SKILLS[id].name
+        .split(' ')
+        .map((w) => w[0]!.toUpperCase())
+        .join('');
+      this.text(x, y - 1, letters, Math.round(size * 0.32), COLORS.text, 0.5, true).setAlpha(alpha).setStroke(INK.dark, 4);
+    }
+  }
+
+  /**
+   * The skills (Robin, 2026-11-20: "a simple UI for skills (take inspiration from zite) so you can choose between
+   * different skills to equip. New skills aquired as you level up and go deeper down the skill tree"). After Zite's
+   * skills page, made small: the two he carries at the top; the tree read downwards, a row for each level, a gold
+   * branch as far as he has come; a card at the foot for the skill that was tapped, with its strength in percent
+   * and a button for each of the two places on the glass. No points and no talents: a skill is his at its level.
+   */
+  private buildSkills(state: GameState): void {
+    const s = this.scene;
+    const h = state.hero;
+    this.frame('Skills');
+    const left = F.x + 22;
+    const chosen = this.skill ?? h.slots[0] ?? SKILL_ORDER[0]!;
+    const places = ['middle button', 'side button'];
+
+    // What he carries: one skill for each of the two buttons on the glass.
+    this.text(CX, F.y + 44, 'You carry two. Tap a skill, then a button.', 13, COLORS.dim);
+    h.slots.forEach((id, i) => {
+      const x = CX - 84 + i * 168;
+      this.skillDisc(x - 46, F.y + 88, id, 48);
+      this.text(x - 16, F.y + 80, SKILLS[id].name, 14, COLORS.text, 0);
+      this.text(x - 16, F.y + 98, places[i] ?? '', 13, COLORS.dim, 0);
+      this.zone(x, F.y + 88, 160, 56, () => {
+        this.skill = id;
+        this.refresh();
+      });
+    });
+
+    // The tree: a row for each level, the branch gold as far as he has come.
+    const top = F.y + 168;
+    const gap = 64;
+    const levels = [...new Set(SKILL_ORDER.map((id) => SKILLS[id].level))];
+    const last = levels.length - 1;
+    const reached = levels.filter((level) => h.level >= level).length - 1;
+    this.keep(s.add.rectangle(CX, top + (last * gap) / 2, 4, last * gap, hex(WOOD.dim), 0.35).setDepth(DEPTH.panel + 1));
+    if (reached > 0) this.keep(s.add.rectangle(CX, top + (reached * gap) / 2, 4, reached * gap, hex(WOOD.gold)).setDepth(DEPTH.panel + 1));
+    levels.forEach((level, row) => {
+      const y = top + row * gap;
+      const ids = SKILL_ORDER.filter((id) => SKILLS[id].level === level);
+      const open = h.level >= level;
+      this.text(left + 4, y, `Lv ${level}`, 13, open ? COLORS.goldText : COLORS.dim, 0);
+      ids.forEach((id, j) => {
+        const x = CX + (j - (ids.length - 1) / 2) * 132;
+        const carried = h.slots.includes(id);
+        if (carried) this.keep(s.add.circle(x, y, 29).setStrokeStyle(4, hex(WOOD.gold)).setDepth(DEPTH.panel + 1));
+        if (id === chosen) this.keep(s.add.circle(x, y, 33).setStrokeStyle(2, 0xffffff, 0.9).setDepth(DEPTH.panel + 1));
+        this.skillDisc(x, y, id, 50, open ? 1 : 0.4);
+        this.text(x + 32, y, SKILLS[id].name, 13, open ? COLORS.text : COLORS.dim, 0).setWordWrapWidth(70).setLineSpacing(-3);
+        this.zone(x + 20, y, 128, 60, () => {
+          this.skill = id;
+          this.refresh();
+        });
+      });
+    });
+
+    // The card of the skill that was tapped: what it does, in percent, and where to put it.
+    const cy = top + last * gap + 44;
+    const ch = 132;
+    this.row(CX, cy + ch / 2, F.w - 28, ch);
+    const skill = SKILLS[chosen];
+    const cost = skillCost(chosen);
+    const learnt = knows(h, chosen);
+    this.skillDisc(left + 34, cy + 36, chosen, 48, learnt ? 1 : 0.5);
+    this.text(left + 68, cy + 22, skill.name, 17, COLORS.text, 0);
+    const price = [cost.rage > 0 ? `${cost.rage}% rage` : 'no rage', `rests ${cost.cooldown} s`].join(' · ');
+    this.text(left + 68, cy + 44, learnt ? price : `Learnt at level ${skill.level} · ${price}`, 13, learnt ? COLORS.dim : COLORS.goldText, 0);
+    this.text(left + 8, cy + 90, skillText(chosen), 14, COLORS.text, 0).setWordWrapWidth(F.w - 60).setLineSpacing(-2);
+    const by = cy + ch + 24;
+    if (!learnt) {
+      this.text(CX, by, `Reach level ${skill.level} and it is yours.`, 13, COLORS.dim);
+      return;
+    }
+    places.forEach((place, i) => {
+      const there = h.slots[i] === chosen;
+      this.button(
+        CX - 86 + i * 172,
+        by,
+        164,
+        40,
+        there ? `On the ${place}` : `To the ${place}`,
+        () => {
+          if (!there) this.actions.act({ type: 'equipSkill', slot: i, skill: chosen });
+          this.refresh();
+        },
+        !there,
+        there ? COLORS.button : COLORS.buttonGo,
+      );
+    });
   }
 
   // ---- the sea chart -----------------------------------------------------------------------------------------------

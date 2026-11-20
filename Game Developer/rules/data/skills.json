@@ -1,0 +1,13 @@
+{
+  "_about": "The Warrior's skills (Robin, 2026-11-20: 'implement a simple UI for skills ... so you can choose between different skills to equip. New skills aquired as you level up and go deeper down the skill tree. Skills should be %-based so that they are always usable'; and: 'in this game we dont do talents, we just do different skills and have trinkets/gear transform their uses'). There are no points and no talents: a skill is learnt the moment he reaches its `level`, and he carries `slots` of them at a time. Every strength is a share of his own numbers (`power` times a swing with his level and cutlass in it, `share` of his health or of a bite), so a skill learnt at level 1 is worth as much at level 30: that is what 'always usable' is read as here (Victor, GD). `rage` is what it costs (rage is 0 to 100, so it is a percent too), `cooldown` the seconds before it can be used again. Cleave's and Charge's own numbers are in numbers.json, where they have been since the control test. Which skills, their levels and every number are Victor, GD's first guesses for Robin to feel; the names are placeholders (docs/names.md). `text` is what the player reads; a word in braces is filled from the skill's numbers.",
+  "slots": 2,
+  "start": ["cleave", "charge"],
+  "skills": {
+    "cleave": { "name": "Cleave", "level": 1, "text": "A wide swing: {power}% of a swing on everything before you." },
+    "charge": { "name": "Charge", "level": 1, "text": "Dash to a monster and stun it for {stun} s. Gives {gain} rage." },
+    "heavy": { "name": "Heavy blow", "level": 2, "rage": 40, "cooldown": 4, "power": 2.6, "text": "One mighty blow: {power}% of a swing on the one you fight." },
+    "whirlwind": { "name": "Whirlwind", "level": 3, "rage": 35, "cooldown": 5, "power": 1.2, "radius": 70, "text": "A spin: {power}% of a swing on everything round you." },
+    "brace": { "name": "Brace", "level": 4, "rage": 0, "cooldown": 14, "seconds": 4, "share": 0.5, "text": "For {seconds} s every bite does {share}% less." },
+    "wind": { "name": "Second wind", "level": 5, "rage": 0, "cooldown": 25, "seconds": 3, "share": 0.3, "text": "Mends {share}% of your health over {seconds} s." }
+  }
+}

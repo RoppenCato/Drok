@@ -249,6 +249,12 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
 
 28. `[ ]` · AD · **A monster in the gull's place** (Robin, 2026-11-20: "I think the birds are weird starting mobs"): candidates with pictures for Robin, asked 2026-11-20
 
+29. `[x] Built 2026-11-20` `[ ] Checked` · GD · **Skills to choose between** (Robin, 2026-11-20: "a simple UI for skills (take inspiration from zite) so you can choose between different skills to equip. New skills aquired as you level up and go deeper down the skill tree. Skills should be %-based"; "we dont do talents, we just do different skills and have trinkets/gear transform their uses")
+    - `[x]` six skills in `rules\data\skills.json`, learnt by level with no points: Cleave and Charge (1), Heavy blow (2), Whirlwind (3), Brace (4), Second wind (5). Every strength a share of his own numbers. Which skills, their levels and numbers are mine
+    - `[x]` he carries two; the two discs on the glass show whichever they are; the Skills window (third top button) has the tree by level and a card with the percent and a button for each place
+    - `[ ]` AD: discs for the four new skills and for the top button (asked 2026-11-20); letters stand in
+    - not yet: gear and trinkets that change what a skill does (chapter 2: uniques); a third place for a skill on the glass
+
 ## Waits for Robin
 
 - Play it: `http://192.168.0.43:5178/` on the home Wi-Fi. The first minute: tap the stall to see what it sells,

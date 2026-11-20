@@ -583,6 +583,24 @@ export class WorldView {
           this.chargeFrom = null;
           this.puff(e.x, e.y, COLORS.mark, 12);
           break;
+        case 'skillUsed':
+          // Stand-in looks until the Art Director draws them: a ring in the skill's own colour, and his Cleave pose
+          // for the two that strike.
+          if (e.skill === 'heavy') {
+            this.puff(e.x, e.y, 0xffd23f, 26);
+            this.swingSword();
+            this.heroFigure?.play('cleave');
+          } else if (e.skill === 'whirlwind') {
+            this.sweep(state.hero, state.hero.facing);
+            this.sweep(state.hero, state.hero.facing + Math.PI);
+            this.swingSword();
+            this.heroFigure?.play('cleave');
+          } else if (e.skill === 'brace') {
+            this.puff(e.x, e.y, 0x7bd3ff, 30);
+          } else if (e.skill === 'wind') {
+            this.puff(e.x, e.y, 0x7be08a, 30);
+          }
+          break;
         case 'cleaved':
           this.sweep(state.hero, e.facing);
           this.swingSword();

@@ -5,6 +5,7 @@ import { clone, newItem, pick, putDrop, reject, roll, rollRarity, setTarget, nea
 import { BASES, CHEST_WEIGHTS, N, RARITIES, chestFull, heroMaxHp, kindOf, placeOf, wearSlot, xpToNext } from './data.ts';
 import { dist, stepToward } from './geometry.ts';
 import type { Rng } from './rng.ts';
+import { SKILLS, SKILL_ORDER } from './skillset.ts';
 import type { ApplyResult, GameEvent, GameState, Monster, Prize, Rarity, Vec } from './types.ts';
 
 const DROP_WEIGHTS: Record<Rarity, number> = { common: RARITIES.common.weight, uncommon: RARITIES.uncommon.weight, rare: RARITIES.rare.weight, epic: RARITIES.epic.weight };
@@ -51,6 +52,8 @@ export function gainXp(s: GameState, amount: number, ev: GameEvent[]): void {
     h.level += 1;
     h.hp = heroMaxHp(h);
     ev.push({ type: 'levelUp', level: h.level });
+    // A skill of this level is his now.
+    for (const id of SKILL_ORDER) if (SKILLS[id].level === h.level) ev.push({ type: 'skillLearnt', skill: id });
   }
   if (h.level >= N.levels.max) h.xp = 0;
 }

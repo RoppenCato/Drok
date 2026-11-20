@@ -12,9 +12,10 @@
 // and discs when it is not; the places and the sizes of what can be pressed are the same either way.
 
 import Phaser from 'phaser';
-import { N, kindOf, xpToNext, type GameEvent, type GameState, type RejectReason, type SkillId, type Vec } from '../../../rules/src/index.ts';
+import { N, SKILLS, cooldownLeft, kindOf, skillCost, xpToNext, type GameEvent, type GameState, type RejectReason, type SkillId, type Vec } from '../../../rules/src/index.ts';
 import { COLORS, DEPTH, DESIGN_HEIGHT, DESIGN_WIDTH, FONT, RES, WEIGHT } from '../layout.ts';
 import { settings } from '../settings.ts';
+import { repicture } from './figures.ts';
 import { Bar, INK, hasGlass, piece, stretch } from './glass.ts';
 import type { PanelKind } from './panels.ts';
 import type { Thing } from './world-view.ts';
@@ -43,7 +44,10 @@ interface Zone {
 }
 
 interface Disc {
-  id: SkillId | 'potion';
+  /** A place on the glass: the two skills he carries (the first in the middle), and the potion. */
+  id: 'slot0' | 'slot1' | 'potion';
+  /** The skill this disc shows just now. */
+  skill: SkillId | null;
   disc: Phaser.GameObjects.Arc | Phaser.GameObjects.Image;
   /** The disc's size at rest: a press makes it a little smaller for a moment. */
   size: number;
@@ -65,7 +69,7 @@ const H = DESIGN_HEIGHT;
  */
 const ROW_Y = H - 64;
 /** Along the row, from the middle: Cleave, pressed most, in the middle; the potion on the thumb's own side. */
-const ROW = { charge: -84, cleave: 0, potion: 78 } as const;
+const ROW = { slot1: -84, slot0: 0, potion: 78 } as const;
 const BAR_W = 200;
 const BAR_X = (W - BAR_W) / 2;
 const XP_Y = H - 14;
@@ -78,6 +82,8 @@ const REFUSED: Partial<Record<RejectReason, string>> = {
   'on cooldown': 'Not ready',
   'not enough rage': 'Not enough rage',
   'no target in range': 'Nothing in range',
+  'not learnt': 'Not learnt yet',
+  'not equipped': 'Not on a button',
   'no potions': 'No potions left',
   'full health': 'Health is full',
   'chest is empty': 'The chest is empty',
@@ -92,6 +98,8 @@ const REFUSED: Partial<Record<RejectReason, string>> = {
 const USE: Record<Thing, string> = { chest: 'Open chest', shop: 'Trade', dock: 'Sea chart' };
 
 export class Hud {
+  /** The skills he carries, as the last frame had them: what the two discs press. */
+  private slots: SkillId[] = [];
   private readonly scene: Phaser.Scene;
   private readonly reg: Register;
   private readonly actions: HudActions;
@@ -154,10 +162,11 @@ export class Hud {
     const tops: [number, string, PanelKind][] = [
       [286, 'Bag', 'bag'],
       [334, 'Chart', 'chart'],
-      [382, 'Hero', 'hero'],
+      [382, 'Skills', 'skills'],
     ];
     for (const [x, label, panel] of tops) {
-      const drawn = g ? piece(s, `button/${panel}`) : null;
+      // The skills button wears the hero's picture until the Art Director draws its own.
+      const drawn = g ? piece(s, `button/${panel === 'skills' ? 'hero' : panel}`) : null;
       if (drawn) {
         this.reg(drawn.setPosition(x, 30).setDepth(top));
         if (panel === 'bag') this.bag = drawn;
@@ -188,8 +197,13 @@ export class Hud {
     this.stickBase = this.reg((ring ?? s.add.circle(0, 0, 46).setStrokeStyle(3, COLORS.mark, 0.55)).setDepth(top).setVisible(false));
     this.stickKnob = this.reg((knob ?? s.add.circle(0, 0, 22, COLORS.mark, 0.45)).setDepth(top + 1).setVisible(false));
 
-    this.disc('cleave', 'Cleave', `${N.cleave.rageCost} rage`, 36, () => this.actions.skill('cleave'));
-    this.disc('charge', 'Charge', 'dash', 36, () => this.actions.skill('charge'));
+    // The two skills he carries: whichever they are (Robin, 2026-11-20: skills to choose between).
+    for (const i of [0, 1]) {
+      this.disc(i === 0 ? 'slot0' : 'slot1', '', '', 36, () => {
+        const id = this.slots[i];
+        if (id) this.actions.skill(id);
+      });
+    }
     this.disc('potion', 'Potion', '', 28, () => this.actions.potion());
 
     // The button for the thing he stands by: it is only there when there is something to use.
@@ -270,7 +284,8 @@ export class Hud {
       d.disc.setPosition(x, y);
       d.label?.setPosition(x, d.id === 'potion' ? y - 3 : y - 6);
       // On his discs the picture says what it is; only the potion's count is written, at its foot.
-      d.sub.setPosition(this.glass ? x + d.radius * 0.55 : x, this.glass ? y + d.radius * 0.6 : y + 11);
+      if (d.id === 'potion' || !this.glass) d.sub.setPosition(this.glass ? x + d.radius * 0.55 : x, this.glass ? y + d.radius * 0.6 : y + 11);
+      else d.sub.setPosition(x, y - 1);
       d.count.setPosition(x, y);
       d.drawn = -1;
     }
@@ -288,6 +303,9 @@ export class Hud {
       if (e.type === 'rejected') {
         const words = REFUSED[e.reason];
         if (words) this.toast(words);
+      } else if (e.type === 'skillLearnt') {
+        this.toast(`New skill: ${SKILLS[e.skill].name}`);
+        this.toastFor = 2600;
       } else if (e.type === 'levelUp') {
         this.banner(`Level ${e.level}`, e.level >= N.levels.max ? 'As far as this chapter goes' : 'Stronger, and whole again');
       } else if (e.type === 'heroDown') {
@@ -337,11 +355,15 @@ export class Hud {
 
     this.downText.setText(h.downFor > 0 ? `Down!\n${this.lost > 0 ? `Lost ${this.lost} gold\n` : ''}Waking in ${Math.ceil(h.downFor)}` : '');
 
+    this.slots = h.slots;
     for (const d of this.discs) {
-      const left = d.id === 'charge' ? h.chargeCd : d.id === 'cleave' ? h.cleaveCd : h.potionCd;
-      const whole = d.id === 'charge' ? N.charge.cooldownSeconds : d.id === 'cleave' ? N.cleave.cooldownSeconds : N.potion.cooldownSeconds;
+      const skill = d.id === 'slot0' ? (h.slots[0] ?? null) : d.id === 'slot1' ? (h.slots[1] ?? null) : null;
+      if (d.id !== 'potion' && skill !== d.skill) this.dress(d, skill);
+      const cost = skill ? skillCost(skill) : null;
+      const left = skill ? cooldownLeft(h, skill) : d.id === 'potion' ? h.potionCd : 0;
+      const whole = cost ? Math.max(0.1, cost.cooldown) : N.potion.cooldownSeconds;
       const part = Math.max(0, Math.min(1, left / whole));
-      const poor = (d.id === 'cleave' && h.rage < N.cleave.rageCost) || (d.id === 'potion' && h.potions <= 0);
+      const poor = (cost !== null && h.rage < cost.rage) || (d.id === 'potion' && h.potions <= 0);
       d.disc.setAlpha(poor ? 0.5 : this.glass ? 1 : 0.92);
       d.label?.setAlpha(poor ? 0.6 : 1);
       d.count.setText(left > 0 ? `${Math.ceil(left)}` : '');
@@ -376,7 +398,7 @@ export class Hud {
 
   private disc(id: Disc['id'], name: string, note: string, radius: number, press: () => void): void {
     const potion = id === 'potion';
-    const drawn = this.glass ? piece(this.scene, `skill/${id}`) : null;
+    const drawn = this.glass ? piece(this.scene, potion ? 'skill/potion' : 'skill/empty') : null;
     let disc: Disc['disc'];
     let label: Phaser.GameObjects.Text | null = null;
     let sub: Phaser.GameObjects.Text;
@@ -398,6 +420,29 @@ export class Hud {
       disc.setScale(size * 0.9);
       this.scene.tweens.add({ targets: disc, scale: size, duration: Math.max(1, settings.ms(120)), ease: 'Back.easeOut' });
     });
-    this.discs.push({ id, disc, size, label, sub, cover, count, zone, radius, drawn: -1 });
+    this.discs.push({ id, skill: null, disc, size, label, sub, cover, count, zone, radius, drawn: -1 });
+  }
+
+  /** A skill disc takes the picture of the skill it now holds: his picture of it, or his empty disc with its letters. */
+  private dress(d: Disc, skill: SkillId | null): void {
+    d.skill = skill;
+    const letters = skill
+      ? SKILLS[skill].name
+          .split(' ')
+          .map((w) => w[0]!.toUpperCase())
+          .join('')
+      : '';
+    if (d.disc instanceof Phaser.GameObjects.Image) {
+      const data = this.scene.cache.json.get('glass:data') as { items?: Record<string, unknown> } | undefined;
+      const own = skill !== null && data?.items?.[`skill/${skill}`] !== undefined;
+      repicture(this.scene, d.disc, 'glass', own ? `skill/${skill}` : 'skill/empty');
+      d.sub.setText(own ? '' : letters);
+      d.sub.setFontSize(own ? 13 : 20);
+      d.sub.setPosition(d.zone.x, d.zone.y - 1);
+    } else {
+      d.label?.setText(skill ? SKILLS[skill].name : '');
+      const cost = skill ? skillCost(skill) : null;
+      d.sub.setText(cost && cost.rage > 0 ? `${cost.rage} rage` : '');
+    }
   }
 }

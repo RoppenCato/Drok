@@ -19,8 +19,10 @@ import type { GameState, Item, Slot } from './types.ts';
  *    gone, breeches, necklaces and trinkets have come.
  * 7: the big Crab Cay with the town on it (Robin, 2026-11-20: "Make the starter island a pirate town"): the
  *    harbour is no place of its own, and nothing on the island stands where it stood.
+ * 8: skills to choose between (Robin, 2026-11-20): the two he carries, the newer skills' cooldowns, Brace and
+ *    Second wind while they last.
  */
-export const STATE_VERSION = 7;
+export const STATE_VERSION = 8;
 
 /**
  * Bring a stored state up to today's version, or null for anything that is not a state we know (a broken save, a
@@ -36,8 +38,15 @@ export function migrate(raw: unknown): GameState | null {
   if (r?.version === 4) r = fromVersion4(r);
   if (r?.version === 5) r = fromVersion5(r);
   if (r?.version === 6) r = fromVersion6(r);
+  if (r?.version === 7) r = fromVersion7(r);
   if (r?.version === STATE_VERSION) return checked(r);
   return null;
+}
+
+/** 7 → 8. He carries the two skills he always had; the newer ones are ready. */
+function fromVersion7(old: Record<string, unknown>): Record<string, unknown> | null {
+  if (typeof old.hero !== 'object' || old.hero === null) return null;
+  return { ...old, version: 8, hero: { ...(old.hero as Record<string, unknown>), skillCd: {}, slots: ['cleave', 'charge'], braceFor: 0, windFor: 0 } };
 }
 
 /**
@@ -163,6 +172,9 @@ function checked(raw: Record<string, unknown>): GameState | null {
     Array.isArray(h.bag) &&
     Array.isArray(h.route) &&
     typeof h.chosen === 'boolean' &&
+    Array.isArray(h.slots) &&
+    typeof h.skillCd === 'object' &&
+    h.skillCd !== null &&
     typeof h.worn === 'object' &&
     h.worn !== null &&
     Array.isArray(s.monsters) &&

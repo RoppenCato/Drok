@@ -21,7 +21,7 @@ const CAMERA_CATCH_UP = 14;
 const LOOK_BELOW = 45;
 
 /** The events after which an open window may be showing something that is no longer so. */
-const STALE = new Set<GameEvent['type']>(['picked', 'bought', 'sold', 'equipped', 'unequipped', 'discarded', 'levelUp', 'xp', 'sailed', 'heroUp', 'potionUsed', 'chestOpened']);
+const STALE = new Set<GameEvent['type']>(['picked', 'bought', 'sold', 'equipped', 'unequipped', 'discarded', 'levelUp', 'xp', 'sailed', 'skillLearnt', 'skillEquipped', 'heroUp', 'potionUsed', 'chestOpened']);
 
 /**
  * The game's one screen: the place he is in, with the glass over it and a window over that when one is open. The

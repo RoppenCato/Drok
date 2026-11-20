@@ -11,6 +11,7 @@ import { route } from './path.ts';
 import { hurtMonster, openChest } from './loot.ts';
 import { makeRng, type Rng } from './rng.ts';
 import { STATE_VERSION } from './save.ts';
+import { START_SKILLS, brace, carried, equipSkill, heavy, whirlwind, wind } from './skills.ts';
 import { buy, discard, drinkPotion, enterPlace, equip, sail, sell, unequip } from './town.ts';
 import type { Action, ApplyResult, GameEvent, GameState, Item, SkillId, Slot } from './types.ts';
 import { tick } from './world.ts';
@@ -60,6 +61,10 @@ export function newGame(o: NewGameOptions): GameState {
       charging: null,
       chargeCd: 0,
       cleaveCd: 0,
+      skillCd: {},
+      slots: [...START_SKILLS],
+      braceFor: 0,
+      windFor: 0,
       sinceHit: N.hero.regenAfterSeconds,
       downFor: 0,
     },
@@ -94,6 +99,8 @@ export function apply(state: GameState, action: Action, rng: Rng): ApplyResult {
       return target(state, action.monster, action.approach !== false);
     case 'skill':
       return skill(state, action.skill, rng);
+    case 'equipSkill':
+      return equipSkill(state, action.slot, action.skill);
     case 'potion':
       return drinkPotion(state);
     case 'openChest':
@@ -159,9 +166,17 @@ function skill(state: GameState, id: SkillId, rng: Rng): ApplyResult {
   if (state.hero.downFor > 0) return reject(state, 'skill', 'down');
   switch (id) {
     case 'charge':
-      return charge(state);
+      return carried(state, id) ?? charge(state);
     case 'cleave':
-      return cleave(state, rng);
+      return carried(state, id) ?? cleave(state, rng);
+    case 'heavy':
+      return heavy(state, rng);
+    case 'whirlwind':
+      return whirlwind(state, rng);
+    case 'brace':
+      return brace(state);
+    case 'wind':
+      return wind(state);
     default:
       return reject(state, 'skill', 'bad number');
   }

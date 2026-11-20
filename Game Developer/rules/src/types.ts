@@ -16,7 +16,8 @@ export interface Vec {
 // or at a monster (`moveTo`, `target`), and a thumb that drags pushes him about (`steer`). The push wins while it
 // lasts. The control test's three schemes and their switch are gone.
 
-export type SkillId = 'charge' | 'cleave';
+/** The Warrior's skills (rules/data/skills.json). He carries two at a time. */
+export type SkillId = 'cleave' | 'charge' | 'heavy' | 'whirlwind' | 'brace' | 'wind';
 
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic';
 
@@ -106,6 +107,14 @@ export interface Hero {
   charging: { target: number; left: number } | null;
   chargeCd: number;
   cleaveCd: number;
+  /** Seconds until each of the newer skills can be used again; a skill not listed is ready. */
+  skillCd: Partial<Record<SkillId, number>>;
+  /** The skills he carries, one to a slot on the glass. */
+  slots: SkillId[];
+  /** Seconds Brace still holds: every bite does a share less. */
+  braceFor: number;
+  /** Seconds Second wind still mends. */
+  windFor: number;
   /** Seconds since he was last hit; his health comes back after a quiet while. */
   sinceHit: number;
   /** Seconds until he stands up again; 0 while he stands. */
@@ -172,6 +181,8 @@ export type Action =
   /** A tap on a monster, or null to let the target go. `approach` false targets without walking up to it. */
   | { type: 'target'; monster: number | null; approach?: boolean }
   | { type: 'skill'; skill: SkillId }
+  /** Put a skill he has learnt into one of the slots he carries. */
+  | { type: 'equipSkill'; slot: number; skill: SkillId }
   | { type: 'potion' }
   | { type: 'openChest' }
   /** Sail to another place on the chart; only from a dock. */
@@ -188,6 +199,8 @@ export type RejectReason =
   | 'on cooldown'
   | 'not enough rage'
   | 'no target in range'
+  | 'not learnt'
+  | 'not equipped'
   | 'no such monster'
   | 'bad number'
   | 'no potions'
@@ -226,6 +239,11 @@ export type GameEvent =
   | { type: 'chargeStarted'; monster: number }
   | { type: 'charged'; monster: number; x: number; y: number }
   | { type: 'cleaved'; hits: number; facing: number }
+  /** One of the newer skills was used, at this spot. */
+  | { type: 'skillUsed'; skill: SkillId; x: number; y: number }
+  /** He reached the level of a skill: it is his. */
+  | { type: 'skillLearnt'; skill: SkillId }
+  | { type: 'skillEquipped'; slot: number; skill: SkillId }
   | { type: 'xp'; amount: number }
   | { type: 'levelUp'; level: number }
   | { type: 'dropped'; drop: Drop }

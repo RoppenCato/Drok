@@ -111,6 +111,13 @@ rare drops, in a top-down world."
   Levelling up, finding things, opening chests, chances of rare items, meaningful progression."
 - **The Warrior's kit** (Robin, 2026-11-20, his pick): rage built by hitting, Charge, Cleave or Whirlwind, and one
   defensive cooldown. Cleave or Whirlwind is not chosen yet; the control test has Cleave.
+- **Skills, and no talents** (Robin, 2026-11-20): "implement a simple UI for skills (take inspiration from zite) so
+  you can choose between different skills to equip. New skills aquired as you level up and go deeper down the
+  skill tree. Skills should be %-based so that they are 'always usable'." And: "im thinking in this game we dont do
+  talents, we just do different skills and have trinkets/gear transform their uses." So there are no points to
+  spend: a skill is his at its level, he carries a few at a time, and later gear and trinkets change what a skill
+  does. "%-based" is read by the Game Developer as: every strength is a share of his own numbers (150% of a
+  swing, 30% of his health), so no skill grows old; say so if it meant something else.
 - **The feel** (Robin, 2026-11-19): "The feel I want is the grind of WoW, MapleStory and Priston Tale."
 - **While he is away** (Robin, 2026-11-19): "The hero does not hunt while I am away."
 - **Hunting grounds** (Robin, 2026-11-20, his pick): hunting grounds by level, rare spawns, and bosses on timers, all

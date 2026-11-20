@@ -42,6 +42,8 @@ export function clone(s: GameState): GameState {
       steer: { ...h.steer },
       swing: h.swing ? { ...h.swing } : null,
       charging: h.charging ? { ...h.charging } : null,
+      skillCd: { ...h.skillCd },
+      slots: [...h.slots],
     },
     monsters: s.monsters.map((m) => ({ ...m, goal: m.goal ? { ...m.goal } : null })),
     respawns: s.respawns.map((r) => ({ ...r })),

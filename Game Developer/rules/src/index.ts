@@ -36,4 +36,5 @@ export {
 } from './data.ts';
 export { dist, angleTo, angleDiff } from './geometry.ts';
 export { onLand, clear, walk, inHome, biomeAt } from './ground.ts';
+export { SKILLS, SKILL_ORDER, SKILL_SLOTS, START_SKILLS, skillCost, skillText, knows, cooldownLeft, type Skill } from './skills.ts';
 export { STATE_VERSION, migrate, packSave, unpackSave, type SaveFile } from './save.ts';
