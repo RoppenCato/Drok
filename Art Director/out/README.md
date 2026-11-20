@@ -42,6 +42,7 @@ house), with their notes. The first world made for it is in `concepts\house\kitc
 | `coconut-crab` | 1024 by 2048 | 8 MB | 202 KB |
 | `island` | ground 1400 by 2400, props 1024 by 1024 | 13.4 + 4 MB | 67 + 52 KB |
 | `loot` | 256 by 256 | 0.3 MB | 18 KB |
+| `chest-burst` | 512 by 470, soft, not a palette PNG | 0.9 MB | 46 KB |
 | `glass` | 1024 by 790 | 3.1 MB | 125 KB |
 | `harbour` | ground 900 by 1100, props 1024 by 1024, people 1024 by 512 | 4 + 4 + 2 MB | 41 + 32 + 72 KB |
 | `chart` | the chart 824 by 1830, pins 256 by 256 | 6 + 0.3 MB | about 100 + 20 KB |
@@ -57,7 +58,7 @@ The island with everything on it: about 46 MB decoded, under the 48 MB set for a
 Everything is built by scripts; nothing is edited by hand. `blender\drok.py` is the look, the camera and the render
 loop. `node tools/blender.js blender/hero.py -- work/hero/render`, then `node tools/pack.js hero work/hero/render out/hero`,
 then `python tools/shrink.py out/hero`. The same for `crab.py` (sand-crab, coconut-crab), `gull.py`, `gear.py` and
-`props.py` (island, harbour, loot) with `tools/packset.js`; `tools/ground.js` paints a place and `tools/isle.js` a big island; `tools/glass.js` the glass.
+`props.py` (island, harbour, loot) with `tools/packset.js`; `tools/ground.js` paints a place and `tools/isle.js` a big island; `tools/glass.js` the glass; `tools/burst.js` the chest's burst.
 The Warrior's 195 frames render in about three minutes.
 The house's kitchen (a concept): `blender/house.py`, `tools/things.js`, `tools/world.js`; the commands are at the end of
 `concepts\house\kitchen\NOTES.md`.

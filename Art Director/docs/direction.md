@@ -109,6 +109,11 @@ a hero who turns and wears many pieces from one source.
 - **The glass**: cream panels with the same line and a small hard shadow; strong colour only where a thumb goes.
 - **Rarity colours**: common `#b9b2a6`, uncommon `#4cc463`, rare `#3d9cff`, epic `#b666f2`. On the ground and in
   the bag only (Robin's pick).
+- **A chest opens in its best prize's colour** (Robin, 2026-11-20, in Victor, GD's chat: "chests should have a cool
+  effect when you open them like in zite"): it shines and shakes, pops, and throws its loot out; a rarer prize shakes
+  longer and bursts bigger. The light is white pieces the game colours (`out\chest-burst\`). A coloured piece is
+  drawn the plain way and only white light is added on top, or the colour is lost on pale ground. How it plays is
+  mine until Robin has judged the page.
 - **A better piece of gear has a bigger, richer outline**, since nothing glows on the hero.
 - The numbers behind all of it are in `blender\drok.py`; the deliveries and their forms in `out\README.md`.
 
@@ -154,6 +159,8 @@ the choice's.
   trees. So: a colour for each rarity, sets that show as a look, chests and vault doors as art.
 - **The monster book** (Robin, 2026-11-20, his pick): each monster has one rare signature drop, and a book fills in as
   he hunts. So every monster needs a picture for its page, and its signature drop an icon.
+- **No birds to start with** (Robin, 2026-11-20, in Victor, GD's chat): "I think the birds are weird starting mobs."
+  The reef gull leaves the grove; six candidates for its place are in `concepts\grove-mob\`, waiting for his pick.
 - **Loot** (Robin, 2026-11-19): "Needs to have coloroed effects for rarity." (Robin, 2026-11-20, his pick): money and
   items drop on the ground and fly to him when he walks close.
 - **How the player is guided** (Robin, 2026-11-20, his pick): light quests. A few people in the harbour give hunting

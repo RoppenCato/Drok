@@ -1,6 +1,7 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "moving-test", "runtimeExecutable": "python", "runtimeArgs": ["-m", "http.server", "5199", "--bind", "127.0.0.1", "--directory", "work/moving-test"], "port": 5199 }
+    { "name": "moving-test", "runtimeExecutable": "python", "runtimeArgs": ["-m", "http.server", "5199", "--bind", "127.0.0.1", "--directory", "work/moving-test"], "port": 5199 },
+    { "name": "chest-opening", "runtimeExecutable": "python", "runtimeArgs": ["-m", "http.server", "5198", "--bind", "127.0.0.1", "--directory", "concepts/chest-burst"], "port": 5198 }
   ]
 }
