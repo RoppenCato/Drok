@@ -6,7 +6,11 @@ keep the UI as clean as possible." "Give me some suggestions."
 
 Victor, GD put three ways in the game to try (his commit 61fc904; "Bars" in the settings), all with stand-ins made from
 my glass. Nothing was asked of the studio yet. I looked at all three on the real screen (my test copy, 412 by 915, the
-same fight) and drew one sketch. **Robin has not picked.**
+same fight) and drew one sketch.
+
+**Robin picked** (in my chat, 2026-11-20): "I think 4, but the heart isnt needed. Also rage is traditionally red. So
+they need to be distinctive different red colors". The real piece is in `out\glass\` (`own/...`), with its notes and
+`look-own.jpg`. What follows is as it stood before his pick.
 
 `four.jpg`: 1, 2 and 3 are the real screen; 4 is my sketch on `tools\scene.js`.
 

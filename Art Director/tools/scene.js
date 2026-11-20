@@ -8,7 +8,9 @@
 // --pile bare is the pile when his own bars go with him over his head (Robin, 2026-11-20; the game's three ways to try):
 // the plate with the name only, the discs, experience. --over <file.js> calls that module's draw(g, c) after the
 // figures, for a sketch of a piece that is not in out/ yet (c: sx, sy, hero, heroTop, piece, pill, P, G, W, H).
-//   node tools/scene.js <out.png> [--at 640,2040] [--no-glass] [--pile mine|bare] [--no-arrow] [--over work/x.js] [--stick 300,560] [--use "Open chest"] [--crop x,y,w,h,zoom]
+// With --pile bare his own bar is drawn over his head from out/glass (Robin, 2026-11-20: "I think 4, but the heart isnt
+// needed"); --own 0.76,0.84 sets his health and rage, --own none leaves the bar out (for a sketch with --over).
+//   node tools/scene.js <out.png> [--at 640,2040] [--no-glass] [--pile mine|bare] [--own 0.76,0.84|none] [--no-arrow] [--over work/x.js] [--stick 300,560] [--use "Open chest"] [--crop x,y,w,h,zoom]
 const P = require('./paint.js'); const D = require('./dress.js'); const fs = require('fs'); const path = require('path');
 const G = require('./glass.js');
 const W = P.JUDGE.w, H = P.JUDGE.h, FONT = 'Trebuchet MS';
@@ -35,6 +37,9 @@ async function main() {
   const bar = (kind, x, y, w, part, k = 1, lost = 0) => { pill('bar/well', x, y, w, k); const full = w - 6 * k; if (lost > part) pill('fill/lost', x + 3 * k, y - k, full * lost, k); if (part > 0) pill('fill/' + kind, x + 3 * k, y - k, Math.max(10 * k, full * part), k); };
   // the bar over a monster: w is the fill's whole length; the one he fights a fifth bigger, with the gold rim and the arrow
   const mobBar = (x, y, w, part, lost, fought) => { const k = fought ? 1.2 : 1, key = fought ? 'mob/well-mine' : 'mob/well', inset = it(key).inset * k, full = w * k, x0 = x - full / 2; pill(key, x0 - inset, y, full + inset * 2, k); if (lost > part) pill('mob/lost', x0, y, full * lost, k); if (part > 0) pill('mob/hp', x0, y, Math.max(5 * k, full * part), k); if (fought && arrow) piece('mark/mine', x, y - 16); };
+  // his own bar: the back, the flat fills in its two rooms (the pale one is what a blow just took), the frame on top
+  const flat = (key, x, y, w, h) => { const f = fr(key); g.drawImage(glass.im, f.x + 1, f.y, f.w - 2, f.h, x, y, w, h); };
+  const ownBar = (x, y, w, hp, rage, lost = 0) => { const r = it('own/frame').rooms, x0 = x - w / 2, y0 = y - fr('own/frame').h / 4, full = w - 2 * r.hp.x; pill('own/back', x0, y, w); if (lost > hp) flat('own/lost', x0 + r.hp.x, y0 + r.hp.y, full * lost, r.hp.h); if (hp > 0) flat('own/hp', x0 + r.hp.x, y0 + r.hp.y, full * hp, r.hp.h); if (rage > 0) flat('own/rage', x0 + r.rage.x, y0 + r.rage.y, full * rage, r.rage.h); pill('own/frame', x0, y, w); };
   // who is where: the hero in the middle, a crab he fights winding up, a hurt one coming, a whole one idling
   const hero = { x: at[0], y: at[1] }, c1 = { x: at[0] + 62, y: at[1] + 20, f: { action: 'attack1', facing: 'nw', i: 2 } }, c2 = { x: at[0] - 96, y: at[1] + 70, f: { action: 'move', facing: 'e', i: 1 } }, c3 = { x: at[0] + 120, y: at[1] - 150, f: { action: 'stand', facing: 's', i: 0 } }, drop = { x: at[0] + 70, y: at[1] - 70 }, coins = { x: at[0] - 30, y: at[1] + 150 };
   const things = [];
@@ -48,6 +53,8 @@ async function main() {
   const o0 = D.frameOf(crab, 'stand', 's', 0).origin, top = (o0.y !== undefined ? o0.y : o0[1]) / 2;
   mobBar(sx(c1.x), sy(c1.y) - top - 14, 44, 0.45, 0.62, true); mobBar(sx(c2.x), sy(c2.y) - top - 12, 44, 0.7, 0, false);
   white('14', sx(c1.x) + 30, sy(c1.y) - top - 34, 20, { align: 'center' });
+  const h0 = D.frameOf(A.hero, 'stand', 's', 0).origin, heroTop = (h0.y !== undefined ? h0.y : h0[1]) / 2, own = opt('own') || '0.76,0.84';
+  if (bare && own !== 'none') { const [hp, rage, lost] = own.split(',').map(Number); ownBar(Math.round(sx(hero.x)), Math.round(sy(hero.y) - heroTop - 13), it('own/frame').length, hp, rage, lost || 0); }   // over the monsters' bars, at one height: his standing picture's
   const over = opt('over'); if (over) { const h0 = D.frameOf(A.hero, 'stand', 's', 0).origin; require(path.resolve(over)).draw(g, { sx, sy, hero, heroTop: (h0.y !== undefined ? h0.y : h0[1]) / 2, piece, pill, P, G, W, H }); }                       // a blow's number rises beside the bar, not over it
   if (!args.includes('--no-glass')) {
     // the top: the menu, his level and money; bag, chart and hero

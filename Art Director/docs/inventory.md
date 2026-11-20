@@ -24,7 +24,7 @@ which drop is the game's `docs\state\art.md`). Robin has played it once (2026-11
 | 5 | Loot on the ground and the rarity effect in four colours | in the game: `out\loot\` |
 | 6 | The chest: closed, opening, open | in the game: in `out\island\` as `chest/...` |
 | 7 | The harbour's kit: ground, houses, a stall, the shopkeeper, townsfolk | in the game: `out\harbour\` |
-| 8 | The glass | in the game: `out\glass\` (40 pieces: the first 28, and twelve since Robin's first play: a monster's bar, the stick, fills with round ends, a heart; Victor, GD's 47c3209) |
+| 8 | The glass | in the game: `out\glass\` as 40 pieces (the first 28, and twelve since Robin's first play: a monster's bar, the stick, fills with round ends, a heart; Victor, GD's 47c3209). Delivered and not yet in the game: 45 pieces, with his own bar for over his head (`own/...`) and rage turned red |
 | 9 | The sea chart | in the game: `out\chart\` (one chart, mine, where the rule is three) |
 | 10 | The icon, 192 and 512 | in the game: `out\icon\` |
 
@@ -41,7 +41,8 @@ which drop is the game's `docs\state\art.md`). Robin has played it once (2026-11
 | The pile at the bottom, my way | Leonard, AD | in the game (47c3209): his health the biggest thing with a heart on its end, the monster's bar dark on its plate. Robin's to judge |
 | The small shadow under each piece of glass | Leonard, AD | the tool draws it, the packer's hard edge cuts it away, so the game has never shown it; back with `--soft` if wanted. In Victor, GD's list for Robin |
 | The potion's colour | Leonard, AD | its disc is green, the health it fills is red. In Victor, GD's list for Robin, with the text face |
-| His own health and rage over his head | Robin (2026-11-20), through Victor, GD | three ways are in the game to try, with stand-ins; my view and a sketch in `concepts\own-bars\`. The real piece when Robin has picked and Victor, GD asks |
+| His own health and rage over his head | Robin (2026-11-20) | he picked: "I think 4, but the heart isnt needed. Also rage is traditionally red. So they need to be distinctive different red colors". The piece is in `out\glass\` (`own/back`, `own/hp`, `own/rage`, `own/lost`, `own/frame`), with `look-own.jpg`. Open: Victor, GD puts it in the game; Robin judges the two reds on his phone (which reds is mine) |
+| Three reds on the screen | Leonard, AD | health, rage and Cleave's disc are all red now; Cleave's disc is health's red. Nobody has asked |
 | The camera | Robin's to judge | it stays at 1; a quarter closer is one number in the game and a re-render at 2.5 pixels a unit here |
 
 ## Assets

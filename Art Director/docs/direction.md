@@ -81,8 +81,17 @@ the choice's.
   items drop on the ground and fly to him when he walks close.
 - **How the player is guided** (Robin, 2026-11-20, his pick): light quests. A few people in the harbour give hunting
   tasks ("30 crabs", "5 shells") with ! and ? marks. So: a few harbour people, and the two marks.
-- **The screen** (Robin, 2026-11-20, his pick): skills in an arc in the bottom corner under his thumb; bag, chart and
-  character as small buttons at the top.
+- **The screen** (Robin, 2026-11-20, after his first play): "I think the buttons should be in the middle at the
+  bottom." "There should be a moving stick so you can choose to move with the stick or click where to go (both
+  available at the same time)." "Health etc on your hero and on mobs needs to be easier to see." It replaces his pick
+  of the same morning, made before he had played: skills in an arc in the bottom corner. Bag, chart and character stay
+  small buttons at the top.
+- **His own health and rage** (Robin, 2026-11-20): "I think the heros health bar should show over his character, and
+  the rage bar below it. It needs to be fixated well enough that it doesnt become messy when fighting mobs." "Would be
+  nice if we can keep the UI as clean as possible." Of four ways shown he picked the one small bar with two rooms: "I
+  think 4, but the heart isnt needed. Also rage is traditionally red. So they need to be distinctive different red
+  colors". So: one bar over his head, health over rage, no heart; rage is red, and a red clearly unlike health's.
+  Which two reds is mine: health the light red `#f0503c`, rage a deep crimson `#b8122f`.
 - **Chapter 1** (Robin, 2026-11-20, his pick): "Harbour town plus island". One island with three monsters, levelling 1
   to 5, loot with rarities, one chest, a small harbour town with a shop, and the sea chart between the two. "Real art
   and sound for just that."

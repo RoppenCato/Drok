@@ -6,7 +6,9 @@
 const P = require('./paint.js'); const fs = require('fs'); const path = require('path');
 const INK = '#33203a', CREAM = '#fffaec', CREAM2 = '#f3e8cc', WELL = '#cdbfae', PLUM = '#5a4062', SH = 'rgba(51,32,58,0.30)';
 const RARITY = { common: '#b9b2a6', uncommon: '#4cc463', rare: '#3d9cff', epic: '#b666f2' };
-const COL = { hp: '#f0503c', hpHi: '#ff7a62', rage: '#ff9a2e', rageHi: '#ffc060', xp: '#6fd060', xpHi: '#9be88a', cleave: '#f0503c', charge: '#3f9fe8', potion: '#4cbf68', gold: '#f6c23a' };
+const COL = { hp: '#f0503c', hpHi: '#ff7a62', rage: '#b8122f', rageHi: '#d2324a', xp: '#6fd060', xpHi: '#9be88a', cleave: '#f0503c', charge: '#3f9fe8', potion: '#4cbf68', gold: '#f6c23a' };
+// Rage is red (Robin, 2026-11-20: "rage is traditionally red. So they need to be distinctive different red colors"): health
+// keeps the light red of every health bar, rage is a deep crimson. The two differ most in how light they are (mine).
 const S = 2, OUT = path.join(P.ROOT, 'work/glass/render'), items = [];
 const rr = (x, y, w, h, r) => g => { g.beginPath(); P.rr(g, x, y, w, h, r); };
 const disc = (x, y, r) => g => { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.closePath(); };
@@ -65,6 +67,17 @@ function build() {
   piece('mark/mine', 18, 16, (g) => { const tri = gg => { gg.beginPath(); gg.moveTo(4, 3.5); gg.lineTo(14, 3.5); gg.lineTo(9, 11); gg.closePath(); }; g.lineJoin = 'round'; g.save(); g.translate(0, 1.6); tri(g); g.lineWidth = 3.4; g.strokeStyle = SH; g.stroke(); g.restore(); tri(g); g.lineWidth = 4.6; g.strokeStyle = INK; g.stroke(); tri(g); g.lineWidth = 1.6; g.strokeStyle = COL.gold; g.stroke(); g.fillStyle = COL.gold; g.fill(); }, { note: 'an arrow over the bar of the one he fights; let it bob 2 units, once a second' });
   // A heart for the left end of his own health bar, so his bar is never taken for the monster's.
   piece('mark/heart', 30, 30, (g) => { const heart = gg => { gg.beginPath(); gg.moveTo(15, 25); gg.bezierCurveTo(-1, 14, 4, 2.5, 15, 9); gg.bezierCurveTo(26, 2.5, 31, 14, 15, 25); gg.closePath(); }; panel(g, heart, COL.hp, { lw: 1.8, shadow: 2, hi: gg => { gg.fillStyle = COL.hpHi; gg.beginPath(); gg.ellipse(10, 9.5, 4.2, 2.6, -0.6, 0, 7); gg.fill(); } }); });
+  // His own bar, over his head (Robin, 2026-11-20: "I think the heros health bar should show over his character, and the rage
+  // bar below it"; of the four shown: "I think 4, but the heart isnt needed"). One dark outline with two rooms: health over
+  // rage. Three layers, so no corner can poke out: own/back under, the flat fills in the rooms, own/frame on top. Health
+  // has its light stripe, rage is flat: a second thing that tells them apart at a glance.
+  const OWN = { w: 28, h: 15, r: 5, line: 1.5, hp: 7, bar: 1, rage: 4 }, OWN_NOTE = 'his own bar, 52 long over his head: own/back, then own/lost, own/hp and own/rage in the rooms, then own/frame on top';
+  piece('own/back', OWN.w, OWN.h, (g) => { rr(0.5, 0.5, OWN.w - 1, OWN.h - 1, OWN.r - 0.5)(g); g.fillStyle = WELL; g.fill(); }, { slice: [16, 0, 16, 0], note: OWN_NOTE + '; this is the empty rooms\' colour, as long as the frame' });
+  piece('own/frame', OWN.w, OWN.h, (g) => { const L = OWN.line; rr(0, 0, OWN.w, OWN.h, OWN.r)(g); g.fillStyle = INK; g.fill(); g.save(); rr(L, L, OWN.w - 2 * L, OWN.h - 2 * L, OWN.r - L)(g); g.clip(); g.globalCompositeOperation = 'destination-out'; g.fillStyle = '#000000'; g.fillRect(0, L, OWN.w, OWN.hp); g.fillRect(0, L + OWN.hp + OWN.bar, OWN.w, OWN.rage); g.restore(); },
+    { slice: [16, 0, 16, 0], length: 52, rooms: { hp: { x: OWN.line, y: OWN.line, h: OWN.hp }, rage: { x: OWN.line, y: OWN.line + OWN.hp + OWN.bar, h: OWN.rage } }, note: OWN_NOTE + '; rooms: where each fill starts from the frame\'s top left corner and how tall it is, in design units; a whole fill is the frame\'s length less 3' });
+  piece('own/hp', 8, OWN.hp, (g) => { g.fillStyle = COL.hp; g.fillRect(0, 0, 8, OWN.hp); g.fillStyle = COL.hpHi; g.fillRect(0, 1, 8, 2); }, { fill: true, note: OWN_NOTE + '; stretch it whole to the part\'s length' });
+  piece('own/rage', 8, OWN.rage, (g) => { g.fillStyle = COL.rage; g.fillRect(0, 0, 8, OWN.rage); }, { fill: true, note: OWN_NOTE + '; stretch it whole to the part\'s length' });
+  piece('own/lost', 8, OWN.hp, (g) => { g.fillStyle = '#fff1c9'; g.fillRect(0, 0, 8, OWN.hp); }, { fill: true, note: OWN_NOTE + '; what a blow just took, in the health room under own/hp: it lags and then shrinks' });
   // The stick (Robin, 2026-11-20: "a moving stick"): a ring where the thumb came down and a knob under the thumb. Cream with
   // the dark line, see-through: the ring's inside is all but clear, so a crab under it is still seen.
   piece('stick/ring', 100, 100, (g) => { const c = 50; g.beginPath(); g.arc(c, c, 44, 0, 7); g.fillStyle = 'rgba(51,32,58,0.07)'; g.fill(); g.beginPath(); g.arc(c, c, 43.5, 0, 7); g.lineWidth = 7; g.strokeStyle = 'rgba(51,32,58,0.5)'; g.stroke(); g.beginPath(); g.arc(c, c, 43.5, 0, 7); g.lineWidth = 4.2; g.strokeStyle = 'rgba(255,250,236,0.92)'; g.stroke();
