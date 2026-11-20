@@ -11,33 +11,48 @@ Victor, GD on 2026-11-20 to finish chapter 1 without asking, and "Let AD handle 
 
 ## Wave 1 (chapter 1), in the order the game needs it
 
+All of it is in the game since 2026-11-20 (Victor, GD's commits 22ab703, 5785c55, fa7b6dd; his table of what is drawn from
+which drop is the game's `docs\statert.md`). **None of it has been seen by Robin.**
+
 | No. | Piece | State on 2026-11-20 |
 | --- | --- | --- |
-| 0 | One scene all the way (the Warrior, a sand crab, the glass, 412 by 915) | built: `out\scene\` |
-| 1 | The Warrior's body | built: `out\hero\` |
-| 2 | Cutlasses, bucklers, hats, three of each, and the bag's icons with three coats | built: `out\gear\` |
-| 3 | Sand crab, reef gull, coconut crab | built: `out\sand-crab\`, `out\reef-gull\`, `out\coconut-crab\` |
-| 4 | The island's ground kit | built: `out\island\` |
-| 5 | Loot on the ground and the rarity effect in four colours | built: `out\loot\` |
-| 6 | The chest: closed, opening, open | built: in `out\island\` as `chest/...` |
-| 7 | The harbour's kit: ground, houses, a stall, the shopkeeper, townsfolk | to do |
-| 8 | The glass | built: `out\glass\` (a first set; more pieces as the game asks) |
-| 9 | The sea chart | to do |
-| 10 | The icon, 192 and 512 | to do |
+| 0 | One scene all the way (the Warrior, a sand crab, the glass, 412 by 915) | in the game: `out\scene\` |
+| 1 | The Warrior's body | in the game: `out\hero\` |
+| 2 | Cutlasses, bucklers, hats, three of each, and the bag's icons with three coats | in the game: `out\gear\` |
+| 3 | Sand crab, reef gull, coconut crab | in the game: `out\sand-crab\`, `out\reef-gull\`, `out\coconut-crab\` |
+| 4 | The island's ground kit | in the game: `out\island\` |
+| 5 | Loot on the ground and the rarity effect in four colours | in the game: `out\loot\` |
+| 6 | The chest: closed, opening, open | in the game: in `out\island\` as `chest/...` |
+| 7 | The harbour's kit: ground, houses, a stall, the shopkeeper, townsfolk | in the game: `out\harbour\` |
+| 8 | The glass | in the game: `out\glass\` (a first set; more pieces as the game asks) |
+| 9 | The sea chart | in the game: `out\chart\` (one chart, mine, where the rule is three) |
+| 10 | The icon, 192 and 512 | in the game: `out\icon\` |
+
+## Open after wave 1 (asked by nobody yet; noted so they are not lost)
+
+| What | Who raised it | Note |
+| --- | --- | --- |
+| A coat on the body | Leonard, AD and Victor, GD | the three coats are bag icons only |
+| A task's mark over a person | Victor, GD | `mark/quest` and `mark/done` are in `out\glass\`; each `folk` frame has its `head` point |
+| A sea that moves | both | frames for a foam line that breathes, or a shimmer |
+| The stall cut into a back and a front | Victor, GD | he draws the shopkeeper over the stall for now, as in `look.jpg` |
+| 60 more units south of the harbour's square | Victor, GD | the lower half of the dock lies under the skill buttons on a 412 by 915 screen; for when the town is redone. Then he runs `tools\place-from-art.mjs` again |
+| Plain shapes still in the game | Victor, GD | the slam's disc, the stun's star, a monster's health bar, the cooldown wedge, the stick's ring, the banners |
+| The camera | Robin's to judge | it stays at 1; a quarter closer is one number in the game and a re-render at 2.5 pixels a unit here |
 
 ## Assets
 
 | Asset | Where | What it is | State | What needs work |
 | --- | --- | --- | --- | --- |
 | The look, three concepts | `concepts\look\` | the same beach in three hands: 1 toy-box models, 2 sticker cartoon, 3 painted print; the page https://claude.ai/artifact/EgCpRP3TqmZ16wWzF75cMU | concept; sent to Robin 2026-11-20, not picked. Look 1 with 2's thicker line and bigger eyes is in use, as my choice | his pick, when he is back; if it is not 1, the models are re-finished or redone |
-| The Warrior's body | `out\hero\` | 54 tall, 195 frames, five facings; stand, move, attack1, cleave, charge, hit1, die1; gear points on every frame | built; design mine | the size (54 against the budget's 44); the motion judged from sheets and the moving page only; no coat on the body |
-| The gear | `out\gear\` | cutlass, buckler, hat, three tiers each; 12 bag icons | built; design mine | a cutlass does not shorten when it points at the camera |
-| Sand crab | `out\sand-crab\` | level 1, 90 frames, five facings | built; design mine | |
-| Reef gull | `out\reef-gull\` | level 3, flies, 95 frames, five facings | built; design mine | |
-| Coconut crab | `out\coconut-crab\` | level 5, 66 frames, three facings | built; design mine | three facings only, to save memory |
-| The island | `out\island\` | the ground as one picture (1 px a unit), 23 props, the chest, `place.json` | built; layout mine | the grass is plain between props; the sea does not move |
-| Loot | `out\loot\` | coins, a bundle, a potion; a ring for each of four rarities; a spark | built; colours mine | |
-| The glass | `out\glass\` | 28 pieces: bars, skill discs, top buttons, plates, panel, rows, slots, marks | built; design mine | no font chosen; more pieces as screens are built |
+| The Warrior's body | `out\hero\` | 54 tall, 195 frames, five facings; stand, move, attack1, cleave, charge, hit1, die1; gear points on every frame | in the game; design mine | the size (54 against the budget's 44); the motion judged from sheets and the moving page only; no coat on the body |
+| The gear | `out\gear\` | cutlass, buckler, hat, three tiers each; 12 bag icons | in the game; design mine | a cutlass does not shorten when it points at the camera |
+| Sand crab | `out\sand-crab\` | level 1, 90 frames, five facings | in the game; design mine | |
+| Reef gull | `out\reef-gull\` | level 3, flies, 95 frames, five facings | in the game; design mine | |
+| Coconut crab | `out\coconut-crab\` | level 5, 66 frames, three facings | in the game; design mine | three facings only, to save memory |
+| The island | `out\island\` | the ground as one picture (1 px a unit), 23 props, the chest, `place.json` | in the game; layout mine | the grass is plain between props; the sea does not move |
+| Loot | `out\loot\` | coins, a bundle, a potion; a ring for each of four rarities; a spark | in the game; colours mine | |
+| The glass | `out\glass\` | 28 pieces: bars, skill discs, top buttons, plates, panel, rows, slots, marks | in the game; design mine | no font chosen; more pieces as screens are built |
 
 ## Not assets, but kept
 
