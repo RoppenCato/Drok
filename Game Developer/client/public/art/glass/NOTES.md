@@ -118,12 +118,14 @@ so I have not fetched one.
   glass without it since the first drop; it comes back with one flag (`--soft`) if it is wanted.
 - The potion's disc is green while the health it fills is red.
 
-- A monster's bar can lie on him: across his face when the one he fights stands on him, half under his bar when it
-  stands north of him. Seen on the real screen. One rule would lift such a bar to sit right above his
-  (`concepts\own-bars\bars-apart.jpg`); sent to Victor, GD.
+- Whether a monster may stand in him is a rule of the game, on Victor, GD's list for Robin. Its bar no longer lies on
+  him either way: a monster's bar that would lie on his bar or across the middle of his face is lifted to sit right
+  above his (my rule, in the game since Victor, GD's 75af4e7; `concepts\own-bars\bars-apart.jpg` and
+  `bars-apart-in-game.jpg`).
 
-**Not tested:** his own bar is in the game since Victor, GD's 0f7c744 and seen there in two stills at 412 by 915 (a
-test copy on this PC): as drawn, no line of the back showing. Not seen on a phone and not moving. The earlier pieces
+**Not tested:** his own bar is in the game since Victor, GD's 0f7c744 and seen there in three stills at 412 by 915 (a
+test copy on this PC): as drawn, no line of the back showing; with three crabs held round him the bars pile up above
+his and his face is free. Not seen on a phone and not moving. The earlier pieces
 are in the game since 47c3209 and 9c937fb. Nothing pressed; the stick not felt under a thumb.
 
 **Origin and licence:** drawn here by `tools\glass.js`. Nothing from outside.
