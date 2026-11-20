@@ -33,9 +33,12 @@ rare drops, in a top-down world."
   more. Lets expand on pirate". Before that, of the public page: "Save the pirate for now". So the theme is vibrant
   pirate again, with what he picked for it: "Make a name", cutlass and buckler, a harbour town. The house lines
   below (the shrunk person, bean size, under a bed, get big again, pin and button, the doll's house, spiders) are
-  kept as a record of a road not taken; none of them is the game. **Open:** whether the pirate world stays islands
-  on a sea chart or becomes one open world of biomes (his words earlier the same day: "I think I like it more if
-  its an open world and not tied to islands. Instead it should be biomes."), and what "expand" is first.
+  kept as a record of a road not taken; none of them is the game.
+- **The pirate world** (Robin, 2026-11-20, his pick of three ways, "3"): "Both. Big islands with several biomes
+  each, and the chart to sail between them." So the sea chart of islands stays (his pick earlier the same day),
+  and his wish for an open world of biomes ("I think I like it more if its an open world and not tied to islands.
+  Instead it should be biomes.") is met inside each island: it is big, walked without a break, and has several
+  grounds with their own levels and monsters. What "expand" is first is the Game Developer's to propose.
 - **The house, tried and left** (Robin, 2026-11-20): a shrunk person in a house, and the enemies are insects. His words: "A shrunk
   person and enemies are insects"; "Lets do 1, but inside a house." It replaces vibrant pirate (his pick earlier
   the same day), which replaced "Dark fantasy" (Robin, 2026-11-19). The colours stay: "I really liked the color and
@@ -179,6 +182,8 @@ A line each, newest at the bottom: the date, the decision, Robin's words.
 - 2026-11-20: "Start building. But make the first space under a bed in a bedroom".
 - 2026-11-20: back to pirate, after seeing the house on stand-in shapes: "I think i like pirate more. Lets expand
   on pirate".
+- 2026-11-20: the pirate world is big islands with several biomes each and the chart between them (his pick,
+  "3", of: one big island, islands as they were, or both).
 - 2026-11-20: four picks for the house, by choice boxes: he wants to get big again; pin and button; the town is a
   doll's house; spiders are in, like any insect.
 

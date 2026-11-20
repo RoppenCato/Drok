@@ -6,27 +6,29 @@ import { apply, kindOf, makeRng, newGame, PLACES, placeOf, type Action, type Gam
 export const DT = 1 / 60;
 /** A real clock for the tests: it starts here and moves with the world. */
 export const NOON = 1_800_000_000_000;
-/** The world as the game has it, with its things in the way. */
-export const WORLD = 'bedroom';
+/** The island as the game has it, with its shore and its things in the way. */
+export const ISLAND = 'crab-cay';
 
 /**
  * A plain field for the tests of moving and fighting: an open box with nothing in the way, one zone for sand crabs
  * and a chest. The real island's shore and rocks would make "he walked 300 units in a straight line" depend on
- * where the Art Director put a marble. It exists only while the tests run.
+ * where the Art Director put a palm. It exists only while the tests run.
  */
 export const FIELD = 'test-field';
 export const MIDDLE = { x: 700, y: 1200 };
 const field: Place = {
   name: 'Test field',
+  town: false,
   levels: '',
   width: 1400,
   height: 2400,
+  dock: { x: 700, y: 2310 },
   arrive: { x: 700, y: 2250 },
   wake: { x: 700, y: 2250 },
   shop: null,
   chest: { x: 700, y: 120, refillMinutes: 20, goldMin: 40, goldMax: 80, itemTier: 3, potions: 2 },
-  zones: [{ kind: 'ant', count: 0, x: 120, y: 1480, w: 1160, h: 600 }],
-  home: null,
+  zones: [{ kind: 'sand-crab', count: 0, x: 120, y: 1480, w: 1160, h: 600 }],
+  chart: { x: 0.5, y: 0.5 },
   biomes: [],
   land: null,
   water: [],
@@ -40,7 +42,7 @@ export class Sim {
   readonly rng: Rng;
   events: GameEvent[] = [];
 
-  /** A new hero before the doll's house, as a player starts. */
+  /** A new hero in the harbour, as a player starts. */
   constructor(seed = 'tide', options: Omit<NewGameOptions, 'seed'> = {}) {
     this.state = { ...newGame({ seed, ...options }), now: NOON };
     this.rng = makeRng(seed);
@@ -53,10 +55,11 @@ export class Sim {
     return sim;
   }
 
-  /** A new hero before the doll's house in the real world, the world filled from its zones. */
-  static started(seed = 'tide', options: Omit<NewGameOptions, 'seed'> = {}): Sim {
+  /** The hero just stepped ashore on the real island, the island filling up as it does after a sail. */
+  static landed(seed = 'tide', options: Omit<NewGameOptions, 'seed'> = {}): Sim {
     const sim = new Sim(seed, options);
-    sim.step();
+    sim.walkTo('dock');
+    sim.act({ type: 'sail', to: ISLAND });
     return sim;
   }
 
@@ -85,18 +88,18 @@ export class Sim {
     return this.state.time - start;
   }
 
-  /** Put him on a spot of the place he is in, by hand: before the stall, before the chest. */
-  walkTo(where: 'shop' | 'chest'): void {
+  /** Put him on a spot of the place he is in, by hand: on the dock, before the stall, before the chest. */
+  walkTo(where: 'dock' | 'shop' | 'chest'): void {
     const place = placeOf(this.state);
-    const at = where === 'shop' ? place.shop : place.chest;
+    const at = where === 'dock' ? place.dock : where === 'shop' ? place.shop : place.chest;
     if (!at) throw new Error(`no ${where} in ${this.state.place}`);
-    this.hero({ x: at.x, y: at.y + 40, dest: null, route: [] });
+    this.hero({ x: at.x, y: at.y + (where === 'dock' ? 0 : 40), dest: null, route: [] });
   }
 
   /** Put a monster on the field. It stands still until something wakes it, unless the patch says otherwise. */
   monster(dx: number, dy: number, patch: Partial<Monster> = {}): Monster {
     const h = this.state.hero;
-    const kind = patch.kind ?? 'ant';
+    const kind = patch.kind ?? 'sand-crab';
     const m: Monster = {
       id: this.state.nextId,
       kind,

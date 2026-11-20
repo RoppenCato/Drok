@@ -1,4 +1,4 @@
-# The rules, as they stand (the house: one world, 2026-11-20)
+# The rules, as they stand (chapter 1 on Leonard, AD's island, 2026-11-20)
 
 `rules\` is the game as a pure function: `apply(state, action, rng) → { state, events }`. It never touches the
 screen, a clock or a random number of its own; every die comes from the seeded `rng`, time only from a tick's `dt`,
@@ -11,7 +11,7 @@ says Robin; every number is a first guess until Robin has felt it (`docs\lessons
 | --- | --- |
 | `rules\data\numbers.json` | the hero, levels, auto-targeting, Charge, Cleave, potions, drops, the bag's size, death, how near he must stand to things |
 | `rules\data\monsters.json` | every kind of monster: its body, its speeds, its strike, its trick, what it gives |
-| `rules\data\places.json` | the world (one place, `bedroom`): its size, where he starts and wakes, home, the stall, the chest, its floors (biomes), the zones of monsters, the round things and boxes in the way. A stand-in laid out by hand by Victor, GD until Leonard, AD's layout comes through a tool |
+| `rules\data\places.json` | the places on the chart: size, dock, where he steps ashore and wakes, the stall, the chest, the zones of monsters; and each place's shore, water, round things and boxes in the way, written by `tools\place-from-art.mjs` (never by hand) |
 | `rules\data\items.json` | gear: slots, rarities, the bases in three tiers, the stall's rules, what a new hero wears |
 | `rules\src\types.ts` | the state, the actions (intents), the events |
 | `rules\src\data.ts` | the data files with their shapes, and the sums made from them (what a piece gives and costs, his health, armour and damage) |
@@ -19,10 +19,10 @@ says Robin; every number is a first guess until Robin has felt it (`docs\lessons
 | `rules\src\game.ts` | `newGame`, `apply`, and steering, targeting, Charge and Cleave |
 | `rules\src\world.ts` | the step (`tick`): the hero walks, swings and mends, the monsters live, the fallen come back |
 | `rules\src\loot.ts` | a hurt and a fallen monster, experience and levels, drops and picking them up, the chest |
-| `rules\src\town.ts` | starting in a place, the stall, wearing and taking off gear, potions |
+| `rules\src\town.ts` | arriving in a place, sailing, the stall, wearing and taking off gear, potions |
 | `rules\src\ground.ts` | the ground of a place: what is land, what can be stood on, a step that slides along a shore, a wall or round a thing |
 | `rules\src\path.ts` | the way-finder for a tap: whether he can walk straight, and the way round when he cannot |
-| `rules\src\save.ts` | `STATE_VERSION` (5), `migrate`, and the save as a file (`packSave`, `unpackSave`) |
+| `rules\src\save.ts` | `STATE_VERSION` (4), `migrate`, and the save as a file (`packSave`, `unpackSave`) |
 | `rules\src\geometry.ts`, `rng.ts`, `index.ts` | distance and angle; the seeded stream; what the rules export |
 
 ## The state
@@ -46,7 +46,8 @@ the data, nothing else is stored.
 | `target { monster }` | a tap on a monster: it is his target (`hero.chosen`) and he walks up to it | down; no such monster |
 | `skill { skill }` | Charge or Cleave | down; on cooldown; not enough rage; no target in range |
 | `potion` | drinks one: 45 health over 3 s, then an 8 s wait | down; none; waiting; full health |
-| `openChest` | the chest spills its loot on his side | down; too far; empty |
+| `openChest` | the chest spills its loot on his side | down; no chest here; too far; empty |
+| `sail { to }` | to another place, from the dock | down; no such place; already there; not at the dock |
 | `equip { item }`, `unequip { slot }`, `discard { item }` | wearing from the bag (the old piece takes its place), taking off, throwing away | down; no such item; bag full |
 | `buy { what }`, `sell { item }` | at the stall: a piece by its place on it, or `'potion'`; a piece from the bag | no shop here; too far; sold out; not enough gold; bag full; potions full; no such item |
 
@@ -62,17 +63,13 @@ the data, nothing else is stored.
   than 300 behind him while he is not walking up to it. With nothing chosen the rules pick: the nearest within 210;
   then one in reach rather than one that is not, or one 40 nearer; never away from one he can hit. When his target
   falls, the next one that is after him takes its place.
-- **The world** (Robin, 2026-11-20: "an open world and not tied to islands. Instead it should be biomes"; "make the
-  first space under a bed in a bedroom"): one place of 4300 by 5800 units (36 units a centimetre: he is 1.5 cm),
-  walked from end to end with no loading. Three floors: the bedside (ants, levels 1 to 2), under the bed
-  (silverfish, 3 to 4), the far corner behind the stored boxes (cockroaches, 5; the chest). A new hero starts at
-  home. All 62 monsters are there from the first step; one further than 1500 from him that is only strolling does
-  not move (`numbers.json`, `world.awake`), so a step costs 0.03 ms however big the world is.
-- **Home** (Robin, 2026-11-20: the town is a doll's house): a round safe spot 560 across the half, before the
-  doll's house. Nothing comes for him there: a monster after him turns back, one beside him leaves him be; none is
-  born there. He can still hit one from his doorstep. His health comes back at 25 a second. The stall stands
-  there. Coming into it from outside puts new pieces on the stall (the event `cameHome`). `hero.home` says whether
-  he is in it.
+- **Places** (Robin, 2026-11-20: a sea chart of islands): a new hero starts in the harbour town. Only the place he
+  is in is alive. Sailing is from a dock (within 90) and lands him where one steps ashore (`arrive`); the place he left is emptied
+  with everything on its ground. Soft gates: nothing stops him sailing anywhere.
+- **Grounds** (Robin, 2026-11-20: big islands with several biomes each): a place may have `biomes`, each a box
+  with a name and its levels (`biomeAt`); the screen says the name when he walks into one. Crab Cay: the beach,
+  the grove, the cove. A monster further than 1500 from him (`numbers.json`, `world.awake`) that is only strolling
+  does not move, so an island can be big.
 - **Monsters** all stroll near home, come for him inside their range or when hit, wind up, strike, rest, and go home
   when he is down or they are far from home. Two numbers make a kind its own: `retreatSeconds` (the reef gull backs
   off about 200 units after a bite and comes again, so it must be caught or met) and `slamRadius` (the coconut
@@ -90,16 +87,12 @@ the data, nothing else is stored.
 - **The chest** (Robin: one chest; timers on the real clock): on Crab Cay, at the end of a side path among the
   gulls, where Leonard, AD put it. Money (40 to 80), two
   potions and a tier 3 piece that is never common. It fills again 20 minutes after it was opened, by `now`.
-- **Falling** (Robin: "On death you lose money"; "say 10%"; he wakes in the town): a tenth of his money, down for
-  2 s, then whole at home. His bag is kept. The world goes on as it was: what he felled stays felled, what lay on
-  the ground lies there (in the pirate game the island started over).
-- **The stall** (within 110 of it; it cannot be walked through) sells three pieces, each for another slot, of
-  the tier his level has earned (1 up to level 2, 2 at 3 and 4, 3 at 5), mostly common, at three times their
-  worth, and buys at half their worth. New pieces each time he comes home. A potion is 12.
-- **The three insects** are the pirate game's three in new clothes: the ant was the sand crab; the silverfish the
-  reef gull (bites and backs off; it walks now, so things stop it); the cockroach the coconut crab, bigger (32
-  across the half, its slam 90). Their numbers are otherwise unchanged. The gear's names are the house's (a pin, a
-  button, a thimble); its ids and numbers are unchanged.
+- **Falling** (Robin: "On death you lose money"; "say 10%"; he wakes in the harbour town): a tenth of his money,
+  down for 2 s, then whole in the harbour. His bag is kept.
+- **The town**: no monsters; his health comes back at 25 a second. The stall (within 110 of it; it stands where
+  Leonard, AD put it and cannot be walked through) sells three pieces, each
+  for another slot, of the tier his level has earned (1 up to level 2, 2 at 3 and 4, 3 at 5), mostly common, at
+  three times their worth, and buys at half their worth. New pieces each time he arrives in town. A potion is 12.
 
 ## The ground (`ground.ts`, `path.ts`; since Leonard, AD's island of 2026-11-20)
 
@@ -123,12 +116,15 @@ harbour town; a place without them (the tests' plain field) is its whole box.
 
 ## The save
 
-`STATE_VERSION` is 5. A save of the pirate game (versions 1 to 4) cannot be carried over: its places and its hero's
-spot are gone. `migrate` makes it a new hero at home who keeps his seed, his kills and his falls, and
-`unpackSave` says so (`fresh`), so the screen can tell the player once. Version 5 is looked over: anything it names
-that today's data does not know (a renamed piece, monster or place) is dropped rather than tripped on, and a hero
-standing right inside a thing (the layout changed under him) is put where one arrives, with the place started
-over. Everything else is null, and the holder starts a new game.
+`STATE_VERSION` is 4. `migrate` goes a step at a time: version 1 (the control test) becomes a new hero in the
+harbour who keeps his seed and his tallies; version 2 (chapter 1 before the island had a shore) gets an empty
+`route`; version 3 (three ways to steer on a switch) loses its `scheme` and gets `hero.chosen`; version 4 is
+looked over: anything it names that today's data does not know (a renamed piece, monster or
+place) is dropped rather than tripped on, and a hero standing where there is no ground any more (a place's layout
+changed under him: he is in the sea, or right inside a house or a rock) is put where one steps ashore, with the
+place started over. Standing beside a thing is not standing in it. Everything else is null, and the holder starts
+a new game. `packSave` and `unpackSave` are the same save as text, for the phone's storage and for
+the exported file.
 
 ## Its tests
 

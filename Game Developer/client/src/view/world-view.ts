@@ -1,4 +1,4 @@
-// The world he is in, as the player sees it: the floor, the things on it, the chest, the stall, the hero, the monsters,
+// The place he is in, as the player sees it: the ground, the dock, the chest, the stall, the hero, the monsters,
 // the loot and the small effects, all as stand-in shapes until the Art Director's pieces land. Everything that
 // lasts is drawn from the state each frame (where a thing is, whether it winds up, is stunned, is the target, what
 // he wears); only one-shots come from the events (a number, a puff, the sword's arc). Nothing here decides anything.
@@ -28,12 +28,12 @@ type Obj = Phaser.GameObjects.GameObject;
 export type Register = <T extends Obj>(object: T) => T;
 
 /** The things of a place that can be walked up to and used. */
-export type Thing = 'chest' | 'shop';
+export type Thing = 'chest' | 'shop' | 'dock';
 
 /**
  * How far below a place's foot the camera may look, in units. The glass covers the bottom of the screen (Robin,
- * 2026-11-20: the buttons in the middle at the bottom), and home lies near the world's foot: without this he
- * would stand before the doll's house under his own buttons. The number is mine.
+ * 2026-11-20: the buttons and the health in the middle at the bottom), and both docks lie near a place's foot:
+ * without this he would stand on a dock under his own health bar. The number is mine.
  */
 export const FOOT = 110;
 
@@ -98,24 +98,6 @@ const BLADES: Record<string, { color: number; length: number }> = {
 const BUCKLERS: Record<string, number> = { 'plank-buckler': 0x9a6a3a, 'iron-buckler': 0x8d99a6, 'brass-buckler': 0xe0a93b };
 const HATS: Record<string, number> = { bandana: 0xd9363e, tricorn: 0x3b2a2a, 'feathered-hat': 0x7a4fa3 };
 const COATS: Record<string, number> = { 'linen-shirt': 0xe9e2cf, 'sailors-coat': 0x2a5d9f, 'corsairs-coat': 0x8c2f39 };
-
-/** The stand-in look of each thing in the way, by the name the layout gives it: a colour and the word on it. */
-const THINGS: Record<string, { color: number; name: string }> = {
-  thing: { color: 0xb0a595, name: '' },
-  'dolls-house': { color: 0xf6ead2, name: "doll's house" },
-  'bed-leg': { color: 0x8a5a3c, name: 'bed leg' },
-  'stored-box': { color: 0xc9a56b, name: 'box' },
-  slipper: { color: 0xe07a9a, name: 'slipper' },
-  book: { color: 0x3f7fbf, name: 'book' },
-  'toy-brick': { color: 0xe5484d, name: 'toy brick' },
-  dice: { color: 0xfdfbf0, name: '' },
-  sock: { color: 0x9ad0c2, name: 'sock' },
-  pencil: { color: 0xf2c94c, name: '' },
-  battery: { color: 0x4a4a52, name: '' },
-  marble: { color: 0x3d9cff, name: '' },
-  coin: { color: 0xf2c94c, name: '' },
-  button: { color: 0x4f86c6, name: '' },
-};
 
 export class WorldView {
   /** Where the hero is drawn this frame: between the last two steps of the world. */
@@ -237,7 +219,8 @@ export class WorldView {
     const folder = ART.places[state.place];
     const layout = folder && this.scene.textures.exists(`${folder}:ground`) ? (this.scene.cache.json.get(`${folder}:place`) as PlaceArt | undefined) : undefined;
     if (folder && layout?.props) this.paintFromArt(place, folder, layout);
-    else this.paintHouse(place);
+    else if (place.town) this.paintTown(place);
+    else this.paintIsland(place);
     this.heroAt.x = state.hero.x;
     this.heroAt.y = state.hero.y;
     this.hero.setPosition(state.hero.x, state.hero.y);
@@ -268,6 +251,7 @@ export class WorldView {
     const place = placeOf(state);
     if (place.chest && Math.hypot(at.x - place.chest.x, at.y - place.chest.y) < 44) return 'chest';
     if (place.shop && Math.abs(at.x - place.shop.x) < 70 && at.y > place.shop.y - 70 && at.y < place.shop.y + 44) return 'shop';
+    if (Math.abs(at.x - place.dock.x) < 46 && at.y > place.dock.y - 70) return 'dock';
     return null;
   }
 
@@ -279,7 +263,7 @@ export class WorldView {
     const h = state.hero;
     const fade = Math.min(1, delta / 140);
 
-    // A jump (waking at home) is not walked through.
+    // A jump (landing from the boat, waking in town) is not walked through.
     const jumped = !samePlace || Math.hypot(h.x - prev.hero.x, h.y - prev.hero.y) > 60;
     const hx = jumped ? h.x : lerp(prev.hero.x, h.x, alpha);
     const hy = jumped ? h.y : lerp(prev.hero.y, h.y, alpha);
@@ -301,9 +285,9 @@ export class WorldView {
       this.heroBody.setFillStyle(this.heroFlash > 0.3 ? 0xffffff : this.coatColor);
     }
 
-    // His own bar: not at home, where nothing can hurt him, and not while he is down (mine). It is put in its
+    // His own bar: not in a town, where nothing can hurt him, and not while he is down (mine). It is put in its
     // place by `pin`, once the camera stands for this frame.
-    const ownShown = this.ownBar !== null && !h.home && !down;
+    const ownShown = this.ownBar !== null && !placeOf(state).town && !down;
     if (this.ownBar) {
       this.ownBar.setVisible(ownShown);
       if (ownShown) this.ownBar.set(h.hp / heroMaxHp(h), h.rage / N.hero.maxRage, delta);
@@ -603,6 +587,32 @@ export class WorldView {
     g.setTileScale(1 / RES);
   }
 
+  /** The sea round the place, deeper at the south where the boat lies, and the pier he lands on. */
+  private shore(place: Place): void {
+    const s = this.scene;
+    const edge = 10;
+    const south = 64;
+    for (const [x, y, w, h] of [
+      [0, 0, place.width, edge],
+      [0, 0, edge, place.height],
+      [place.width - edge, 0, edge, place.height],
+      [0, place.height - south, place.width, south],
+    ] as const) {
+      this.put(s.add.rectangle(x, y, w, h, COLORS.sea).setOrigin(0).setDepth(DEPTH.decor));
+    }
+    this.put(s.add.rectangle(0, place.height - south * 0.45, place.width, south * 0.45, COLORS.seaDeep).setOrigin(0).setDepth(DEPTH.decor));
+    this.put(s.add.rectangle(edge, place.height - south - 4, place.width - 2 * edge, 5, COLORS.foam, 0.9).setOrigin(0).setDepth(DEPTH.decor));
+    // The pier: planks out over the water, a post each side, and a flag to find it by.
+    const d = place.dock;
+    const top = d.y - 74;
+    this.put(s.add.rectangle(d.x - 34, top, 68, place.height - top - 6, COLORS.wood).setOrigin(0).setStrokeStyle(2, COLORS.woodDark).setDepth(DEPTH.decor + 1));
+    for (let y = top + 14; y < place.height - 10; y += 14) this.put(s.add.rectangle(d.x - 33, y, 66, 2, COLORS.woodDark, 0.6).setOrigin(0).setDepth(DEPTH.decor + 1));
+    this.put(s.add.circle(d.x - 34, top, 6, COLORS.woodDark).setDepth(DEPTH.decor + 1));
+    this.put(s.add.circle(d.x + 34, top, 6, COLORS.woodDark).setDepth(DEPTH.decor + 1));
+    this.put(s.add.rectangle(d.x + 44, d.y - 30, 4, 34, COLORS.woodDark).setDepth(DEPTH.bodies + d.y));
+    this.put(s.add.triangle(d.x + 58, d.y - 40, 0, 0, 22, 8, 0, 16, COLORS.bandana).setDepth(DEPTH.bodies + d.y));
+  }
+
   /**
    * A place as the Art Director made it: his ground as one picture under everything (it is painted at one pixel a
    * unit and drawn at the place's size), each prop standing on its own point and sorted with the figures by how far
@@ -661,81 +671,98 @@ export class WorldView {
     }
   }
 
-  /**
-   * The world as a stand-in (Victor, GD, 2026-11-20), until the Art Director's floors and things land: each floor
-   * a flat colour with boards across it, the bed's shadow over what lies under it, every thing in the way as a
-   * plain shape with its name on it, the doll's house and the stall at home, and the chest.
-   */
-  private paintHouse(place: Place): void {
+  /** The island: a beach in the south where he lands, grass in the middle, a rocky cove in the north. */
+  private paintIsland(place: Place): void {
     const s = this.scene;
-    const boards = this.put(s.add.graphics().setDepth(DEPTH.ground + 1));
-    for (const b of place.biomes) {
-      const deep = b.y + b.h >= place.height ? FOOT : 0;
-      this.put(s.add.rectangle(b.x, b.y, b.w, b.h + deep, Phaser.Display.Color.HexStringToColor(b.floor).color).setOrigin(0).setDepth(DEPTH.ground));
-    }
-    // Floorboards: a line every five centimetres, a butt joint here and there. One drawing for the whole floor.
-    boards.lineStyle(2, 0x3a2a22, 0.16);
-    for (let x = 180; x < place.width; x += 180) boards.lineBetween(x, 0, x, place.height + FOOT);
+    const rockTo = 720;
+    const grassTo = 1440;
+    this.ground('rock', 0, 0, place.width, rockTo);
+    this.ground('grass', 0, rockTo, place.width, grassTo - rockTo);
+    this.ground('sand', 0, grassTo, place.width, place.height - grassTo);
+    // Decoration's own dice: the same island on every phone, and no rule depends on it.
     const rng = makeRng(`decor:${this.place}`);
-    for (let x = 0; x < place.width; x += 180) {
-      for (let y = rng.next() * 900; y < place.height; y += 700 + rng.next() * 900) boards.lineBetween(x, y, x + 180, y);
+    // Where two grounds meet, the edge is broken up so it is not a ruled line.
+    for (const [y, color] of [
+      [rockTo, hex(COLORS.grass[0])],
+      [grassTo, hex(COLORS.sand[0])],
+    ] as const) {
+      for (let x = -20; x < place.width; x += 46) this.put(s.add.ellipse(x + rng.next() * 30, y + (rng.next() - 0.5) * 22, 60 + rng.next() * 70, 26 + rng.next() * 28, color).setDepth(DEPTH.ground + 1));
     }
-    // What lies under the bed lies in its shadow: everything north of the first floor's edge.
-    const lit = place.biomes[0];
-    if (lit) {
-      this.put(s.add.rectangle(0, 0, place.width, lit.y, 0x2a2140, 0.2).setOrigin(0).setDepth(DEPTH.ground + 2));
-      this.put(s.add.rectangle(0, lit.y, place.width, 70, 0x2a2140, 0.1).setOrigin(0).setDepth(DEPTH.ground + 2));
-    }
-    // Home: the round safe spot, pale on the floor.
-    if (place.home) this.put(s.add.circle(place.home.x, place.home.y, place.home.r, 0xfffbe8, 0.3).setStrokeStyle(4, 0xffffff, 0.7).setDepth(DEPTH.ground + 3));
-
-    const label = (x: number, y: number, text: string, size: number): void => {
-      this.put(
-        s.add
-          .text(x, y, text, { fontFamily: FONT, fontSize: `${size * RES}px`, color: '#2a2140' })
-          .setScale(1 / RES)
-          .setOrigin(0.5)
-          .setAlpha(0.55)
-          .setDepth(DEPTH.decor + 2),
-      );
-    };
-    for (const b of place.boxes as (Place['boxes'][number] & { what?: string })[]) {
-      const what = b.what ?? 'thing';
-      if (what === 'stall') continue;
-      const look = THINGS[what] ?? THINGS.thing!;
-      this.put(s.add.rectangle(b.x + 5, b.y + 8, b.w, b.h, COLORS.shadow, 0.2).setOrigin(0).setDepth(DEPTH.decor));
-      this.put(s.add.rectangle(b.x, b.y, b.w, b.h, look.color).setOrigin(0).setStrokeStyle(3, 0x2a2140).setDepth(DEPTH.decor + 1));
-      if (what === 'dolls-house') {
-        // A roof, a door towards him and two windows: it is a house.
-        this.put(s.add.rectangle(b.x, b.y, b.w, b.h * 0.42, 0xd9483b).setOrigin(0).setStrokeStyle(3, 0x2a2140).setDepth(DEPTH.decor + 1));
-        this.put(s.add.rectangle(b.x + b.w / 2 - 22, b.y + b.h - 70, 44, 70, 0x7a4a2a).setOrigin(0).setStrokeStyle(3, 0x2a2140).setDepth(DEPTH.decor + 1));
-        for (const dx of [0.2, 0.8]) this.put(s.add.rectangle(b.x + b.w * dx, b.y + b.h * 0.7, 50, 44, 0xbfe6f2).setStrokeStyle(3, 0x2a2140).setDepth(DEPTH.decor + 1));
-      } else if (Math.min(b.w, b.h) >= 28) {
-        label(b.x + b.w / 2, b.y + b.h / 2, look.name, Math.min(22, Math.max(10, Math.min(b.w, b.h) * 0.3)));
+    for (let i = 0; i < 150; i++) {
+      const x = N.margin + rng.next() * (place.width - 2 * N.margin);
+      const y = N.margin + rng.next() * (place.height - 2 * N.margin - 60);
+      const kind = rng.next();
+      if (y < rockTo) {
+        if (kind < 0.6) {
+          this.put(s.add.ellipse(x + 2, y + 4, 26 + kind * 20, 10, COLORS.shadow, 0.18).setDepth(DEPTH.decor));
+          this.put(s.add.ellipse(x, y, 22 + kind * 20, 14 + kind * 8, COLORS.stone).setDepth(DEPTH.decor));
+        }
+      } else if (y < grassTo) {
+        if (kind < 0.16) {
+          // A palm, seen from above: low enough to walk over, so nothing hides him.
+          this.put(s.add.ellipse(x + 4, y + 6, 54, 30, COLORS.shadow, 0.16).setDepth(DEPTH.decor));
+          this.put(s.add.star(x, y, 7, 9, 28, COLORS.palmDark).setDepth(DEPTH.decor));
+          this.put(s.add.star(x, y, 7, 6, 21, COLORS.palm).setRotation(0.4).setDepth(DEPTH.decor));
+        } else if (kind < 0.7) {
+          this.put(s.add.ellipse(x - 4, y, 11, 6, COLORS.tuftDark).setDepth(DEPTH.decor));
+          this.put(s.add.ellipse(x + 3, y - 2, 13, 7, COLORS.tuft).setDepth(DEPTH.decor));
+        }
+      } else if (kind < 0.35) {
+        this.put(s.add.circle(x, y, 3.5, COLORS.shell).setDepth(DEPTH.decor));
+      } else if (kind < 0.5) {
+        this.put(s.add.ellipse(x - 4, y, 11, 6, COLORS.tuftDark).setDepth(DEPTH.decor));
+        this.put(s.add.ellipse(x + 3, y - 2, 13, 7, COLORS.tuft).setDepth(DEPTH.decor));
       }
     }
-    for (const c of place.solids as (Place['solids'][number] & { what?: string })[]) {
-      const look = THINGS[c.what ?? 'thing'] ?? THINGS.thing!;
-      this.put(s.add.ellipse(c.x + 4, c.y + c.r * 0.6, c.r * 2.1, c.r * 1.1, COLORS.shadow, 0.22).setDepth(DEPTH.decor));
-      this.put(s.add.circle(c.x, c.y, c.r, look.color).setStrokeStyle(3, 0x2a2140).setDepth(DEPTH.decor + 1));
-      this.put(s.add.circle(c.x - c.r * 0.3, c.y - c.r * 0.35, c.r * 0.22, 0xffffff, 0.7).setDepth(DEPTH.decor + 1));
+    this.shore(place);
+    if (place.chest) this.paintChest(place.chest);
+  }
+
+  /** The harbour town: a cobbled quay with house fronts round it, the stall, and a few people who stand about. */
+  private paintTown(place: Place): void {
+    const s = this.scene;
+    this.ground('cobble', 0, 0, place.width, place.height);
+    // House fronts along the top and the sides: he walks up to them, not over them.
+    const fronts: [number, number, number, number][] = [];
+    for (let x = 0, i = 0; x < place.width; x += 150, i++) fronts.push([x, 0, 150, 58 + (i % 2) * 10]);
+    for (let y = 80, i = 0; y < place.height - 240; y += 170, i++) {
+      fronts.push([0, y, 40 + (i % 2) * 8, 170]);
+      fronts.push([place.width - 40 - ((i + 1) % 2) * 8, y, 48, 170]);
     }
+    fronts.forEach(([x, y, w, h], i) => {
+      this.put(s.add.rectangle(x, y, w, h, COLORS.roofs[i % COLORS.roofs.length]).setOrigin(0).setStrokeStyle(3, COLORS.woodDark).setDepth(DEPTH.decor));
+      const wide = w > h;
+      this.put(s.add.rectangle(wide ? x + w / 2 - 9 : x + (x === 0 ? w - 7 : 0), wide ? y + h - 7 : y + h / 2 - 9, wide ? 18 : 7, wide ? 7 : 18, COLORS.wall).setOrigin(0).setDepth(DEPTH.decor));
+    });
+    const rng = makeRng(`decor:${this.place}`);
+    for (let i = 0; i < 16; i++) {
+      // Crates and barrels on the quay.
+      const x = 80 + rng.next() * (place.width - 160);
+      const y = 120 + rng.next() * (place.height - 360);
+      if (place.shop && Math.hypot(x - place.shop.x, y - place.shop.y) < 130) continue;
+      if (Math.hypot(x - place.wake.x, y - place.wake.y) < 70) continue;
+      this.put(s.add.ellipse(x + 2, y + 6, 24, 9, COLORS.shadow, 0.18).setDepth(DEPTH.decor));
+      if (rng.next() < 0.5) this.put(s.add.rectangle(x, y, 20, 20, COLORS.wood).setStrokeStyle(2, COLORS.woodDark).setDepth(DEPTH.decor));
+      else this.put(s.add.circle(x, y, 10, COLORS.wood).setStrokeStyle(2, COLORS.woodDark).setDepth(DEPTH.decor));
+    }
+    this.shore(place);
     if (place.shop) {
       // The stall: a striped awning, the keeper under it, his table between him and the customer.
       const k = place.shop;
       this.put(s.add.rectangle(k.x, k.y - 36, 132, 40, COLORS.awning).setStrokeStyle(2, COLORS.woodDark).setDepth(DEPTH.decor + 1));
       for (let i = -2; i <= 2; i += 2) this.put(s.add.rectangle(k.x + i * 22, k.y - 36, 16, 38, COLORS.awningStripe).setDepth(DEPTH.decor + 1));
-      this.figure(k.x, k.y - 14, COLORS.keeper, Math.PI / 2);
-      this.put(s.add.rectangle(k.x, k.y, 120, 60, COLORS.wood).setStrokeStyle(2, COLORS.woodDark).setDepth(DEPTH.decor + 1));
+      this.figure(k.x, k.y, COLORS.keeper, Math.PI / 2);
+      this.put(s.add.rectangle(k.x, k.y + 26, 118, 16, COLORS.wood).setStrokeStyle(2, COLORS.woodDark).setDepth(DEPTH.bodies + k.y + 26));
       for (const [dx, color] of [
         [-38, COLORS.potion],
         [-8, COLORS.gold],
         [26, COLORS.blade],
       ] as const) {
-        this.put(s.add.circle(k.x + dx, k.y + 6, 6, color).setStrokeStyle(1, COLORS.woodDark).setDepth(DEPTH.decor + 2));
+        this.put(s.add.circle(k.x + dx, k.y + 25, 5, color).setStrokeStyle(1, COLORS.woodDark).setDepth(DEPTH.bodies + k.y + 27));
       }
     }
-    if (place.chest) this.paintChest(place.chest);
+    this.figure(place.width * 0.68, place.height * 0.4, COLORS.folk[0], 2.4);
+    this.figure(place.width * 0.6, place.height * 0.72, COLORS.folk[1], -0.6);
   }
 
   /** Someone who stands: a body, a head, a shadow. */
@@ -797,8 +824,7 @@ export class WorldView {
       this.reg(figure.image);
       figure.face(m.facing);
       figure.place(m.x, m.y, DEPTH.bodies + m.y);
-    } else if (m.kind === 'silverfish') {
-      // Long, low and silver, with feelers: it darts.
+    } else if (m.kind === 'reef-gull') {
       color = COLORS.gull;
       shell = s.add.ellipse(0, 0, r * 2.2, r * 1.5, color).setStrokeStyle(2, COLORS.gullDark);
       const wingLeft = s.add.ellipse(-3, -r * 0.95, r * 1.5, r * 0.75, COLORS.gullDark);
@@ -806,10 +832,9 @@ export class WorldView {
       const beak = s.add.triangle(r + 5, 0, 0, -4, 9, 0, 0, 4, COLORS.beak);
       parts = [wingLeft, wingRight, shell, beak, s.add.circle(r * 0.5, -3.5, 1.8, 0x16313f), s.add.circle(r * 0.5, 3.5, 1.8, 0x16313f)];
     } else {
-      // The ant violet blue, the cockroach amber (Leonard, AD's colours in his still of 2026-11-20).
-      const big = m.kind === 'cockroach';
-      color = big ? 0xd98a2b : 0x5a58c9;
-      const dark = big ? 0x7a4310 : 0x2d2b7a;
+      const big = m.kind === 'coconut-crab';
+      color = big ? COLORS.coconut : COLORS.crab;
+      const dark = big ? COLORS.coconutDark : COLORS.crabDark;
       shell = s.add.circle(0, 0, r, color).setStrokeStyle(2, dark);
       const claw = big ? r * 0.45 : r * 0.4;
       const clawLeft = s.add.circle(r * 0.87, -r * 0.73, claw, color).setStrokeStyle(2, dark);

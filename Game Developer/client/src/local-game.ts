@@ -27,8 +27,6 @@ export class LocalGame {
   drive = false;
   private rng: Rng;
   private readonly storage: Storage | null;
-  /** The save that was read was the pirate game's: this hero is a new one, and the screen says so once. */
-  fresh = false;
   private pending = 0;
   private sinceSave = 0;
   private queue: GameEvent[] = [];
@@ -45,13 +43,7 @@ export class LocalGame {
     try {
       const raw = storage?.getItem(SAVE_KEY);
       const save = raw ? unpackSave(raw) : null;
-      if (save) {
-        const game = new LocalGame(rested(save.state), resumeRng(save.rng), storage);
-        game.fresh = save.fresh;
-        // Written back at once, so he is told only this once.
-        if (save.fresh) game.save();
-        return game;
-      }
+      if (save) return new LocalGame(rested(save.state), resumeRng(save.rng), storage);
     } catch {
       // A broken save: start fresh.
     }
@@ -114,7 +106,6 @@ export class LocalGame {
     this.state = rested(save.state);
     this.prev = this.state;
     this.rng = resumeRng(save.rng);
-    this.fresh = save.fresh;
     this.queue = [];
     this.pending = 0;
     this.save();

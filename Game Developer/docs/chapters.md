@@ -25,10 +25,12 @@ brief, his notes into `playtests.md` as round 1, and chapter 1 is built on it.
 
 ## Chapter 1: Harbour town plus island. _The first real loop._ **Alpha 1**
 
-**The theme changed on 2026-11-20** (Robin: an open world of biomes, a shrunk person in a house, insects; bean
-size, "Go for 2"). The loop below is rebuilt as a home and the kitchen floor around it, in one world, with no sea
-chart: the plan is `plan-house.md`. What is written below is the pirate game as built, which stays on the public
-page until the house plays through. The headlines of the later chapters hold, with "islands" read as "rooms".
+**2026-11-20: a house was tried and left; pirate stays, and grows** (Robin: "I think i like pirate more. Lets
+expand on pirate"; then his pick: big islands with several biomes each, and the chart to sail between them). The
+house is in `archive\the-house\` and `plan-house.md`. From it the game kept grounds (biomes) in a place and
+monsters that sleep far away. Crab Cay has three grounds as it stands: the beach, the grove, the cove. **Next
+(mine):** Crab Cay grows to a big island with four grounds, asked of Leonard, AD; chapter 1's "done when" below
+holds on it.
 
 (Robin, 2026-11-20, his pick): one island with three monsters, levelling 1 to 5, loot on the ground with rarities, one
 chest, death that costs money, and the save; plus a small harbour town with a shop to walk back to, and the sea chart

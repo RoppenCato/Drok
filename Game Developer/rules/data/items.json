@@ -1,5 +1,5 @@
 {
-  "_about": "Gear for chapter 1: four slots (Robin, 2026-11-20, 'The big pieces': every cutlass, buckler and hat has its own shape; coats come in a handful of looks), three tiers, four rarities. A piece is a base and a rarity; its numbers are the base's times the rarity's `times`, and never less than the base plus one for each step of rarity. Affixes, uniques and sets are chapter 2. `value` is what a common one is worth; the shop sells at value times `buyTimes` and buys at value times `sellShare`. Names are Victor, GD's placeholders. Since the house (Robin, 2026-11-20: pin and button; better gear is other found things) the NAMES are the house's; the ids are still the pirate game's, because Leonard, AD's gear pictures are keyed by them. They change when his gear for the house lands.",
+  "_about": "Gear for chapter 1: four slots (Robin, 2026-11-20, 'The big pieces': every cutlass, buckler and hat has its own shape; coats come in a handful of looks), three tiers, four rarities. A piece is a base and a rarity; its numbers are the base's times the rarity's `times`, and never less than the base plus one for each step of rarity. Affixes, uniques and sets are chapter 2. `value` is what a common one is worth; the shop sells at value times `buyTimes` and buys at value times `sellShare`. Names are Victor, GD's placeholders.",
   "slots": ["weapon", "shield", "hat", "coat"],
   "rarities": {
     "_about": "weight is how often a drop is of that rarity. The colours are Leonard, AD's (his loot drop of 2026-11-20; Robin's to judge): the ring on the ground and the edge in the bag.",
@@ -19,17 +19,17 @@
   },
   "start": { "weapon": "rusty-cutlass", "shield": "plank-buckler" },
   "bases": {
-    "rusty-cutlass": { "slot": "weapon", "tier": 1, "name": "Bent pin", "damage": 2, "hp": 0, "armour": 0, "value": 6 },
-    "sailors-cutlass": { "slot": "weapon", "tier": 2, "name": "Ball-head pin", "damage": 4, "hp": 0, "armour": 0, "value": 16 },
-    "corsairs-cutlass": { "slot": "weapon", "tier": 3, "name": "Darning needle", "damage": 7, "hp": 0, "armour": 0, "value": 40 },
-    "plank-buckler": { "slot": "shield", "tier": 1, "name": "Shirt button", "damage": 0, "hp": 0, "armour": 1, "value": 6 },
-    "iron-buckler": { "slot": "shield", "tier": 2, "name": "Coat button", "damage": 0, "hp": 0, "armour": 2, "value": 16 },
-    "brass-buckler": { "slot": "shield", "tier": 3, "name": "Bottle cap", "damage": 0, "hp": 6, "armour": 3, "value": 40 },
-    "bandana": { "slot": "hat", "tier": 1, "name": "Thread cap", "damage": 0, "hp": 8, "armour": 0, "value": 5 },
-    "tricorn": { "slot": "hat", "tier": 2, "name": "Acorn cap", "damage": 0, "hp": 16, "armour": 0, "value": 14 },
-    "feathered-hat": { "slot": "hat", "tier": 3, "name": "Thimble", "damage": 0, "hp": 28, "armour": 0, "value": 36 },
-    "linen-shirt": { "slot": "coat", "tier": 1, "name": "Lint wrap", "damage": 0, "hp": 10, "armour": 0, "value": 6 },
-    "sailors-coat": { "slot": "coat", "tier": 2, "name": "Felt coat", "damage": 0, "hp": 20, "armour": 0, "value": 16 },
-    "corsairs-coat": { "slot": "coat", "tier": 3, "name": "Ribbon coat", "damage": 0, "hp": 30, "armour": 1, "value": 40 }
+    "rusty-cutlass": { "slot": "weapon", "tier": 1, "name": "Rusty cutlass", "damage": 2, "hp": 0, "armour": 0, "value": 6 },
+    "sailors-cutlass": { "slot": "weapon", "tier": 2, "name": "Sailor's cutlass", "damage": 4, "hp": 0, "armour": 0, "value": 16 },
+    "corsairs-cutlass": { "slot": "weapon", "tier": 3, "name": "Corsair's cutlass", "damage": 7, "hp": 0, "armour": 0, "value": 40 },
+    "plank-buckler": { "slot": "shield", "tier": 1, "name": "Plank buckler", "damage": 0, "hp": 0, "armour": 1, "value": 6 },
+    "iron-buckler": { "slot": "shield", "tier": 2, "name": "Iron buckler", "damage": 0, "hp": 0, "armour": 2, "value": 16 },
+    "brass-buckler": { "slot": "shield", "tier": 3, "name": "Brass buckler", "damage": 0, "hp": 6, "armour": 3, "value": 40 },
+    "bandana": { "slot": "hat", "tier": 1, "name": "Bandana", "damage": 0, "hp": 8, "armour": 0, "value": 5 },
+    "tricorn": { "slot": "hat", "tier": 2, "name": "Tricorn", "damage": 0, "hp": 16, "armour": 0, "value": 14 },
+    "feathered-hat": { "slot": "hat", "tier": 3, "name": "Feathered hat", "damage": 0, "hp": 28, "armour": 0, "value": 36 },
+    "linen-shirt": { "slot": "coat", "tier": 1, "name": "Linen shirt", "damage": 0, "hp": 10, "armour": 0, "value": 6 },
+    "sailors-coat": { "slot": "coat", "tier": 2, "name": "Sailor's coat", "damage": 0, "hp": 20, "armour": 0, "value": 16 },
+    "corsairs-coat": { "slot": "coat", "tier": 3, "name": "Corsair's coat", "damage": 0, "hp": 30, "armour": 1, "value": 40 }
   }
 }

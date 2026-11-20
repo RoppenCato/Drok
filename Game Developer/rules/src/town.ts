@@ -1,15 +1,15 @@
-// Home and what he does with what he found: starting in a place, the stall, wearing and taking off gear, drinking
-// a potion.
+// Coming and going, and what he does with what he found: arriving in a place, sailing from a dock, the harbour's
+// stall, wearing and taking off gear, drinking a potion.
 
 import { clampToPlace, clone, reject, rollRarity, newItem, pick, setTarget } from './core.ts';
-import { BASES, N, SHOP, SLOTS, baseOf, buyPrice, heroMaxHp, inHome, placeOf, sellPrice } from './data.ts';
+import { BASES, N, PLACES, SHOP, SLOTS, baseOf, buyPrice, heroMaxHp, placeOf, sellPrice } from './data.ts';
 import { dist } from './geometry.ts';
 import type { Rng } from './rng.ts';
 import type { ApplyResult, GameEvent, GameState, Rarity, Slot, Vec } from './types.ts';
 
 /**
- * He is now in `id`, standing at `at`, and the place starts over: nothing on its ground, and it fills from its
- * zones on the next step. The stall gets new pieces.
+ * He is now in `id`, standing at `at`. The place he left is gone with everything on its ground; the new one fills
+ * from its zones on the next step. A town puts new pieces on its stall.
  */
 export function enterPlace(s: GameState, id: string, at: Vec, rng: Rng, ev: GameEvent[]): void {
   const h = s.hero;
@@ -31,7 +31,6 @@ export function enterPlace(s: GameState, id: string, at: Vec, rng: Rng, ev: Game
   place.zones.forEach((zone, i) => {
     for (let n = 0; n < zone.count; n++) s.respawns.push({ zone: i, in: 0 });
   });
-  h.home = inHome(place, h);
   if (place.shop) restock(s, rng);
 }
 
@@ -46,6 +45,23 @@ export function restock(s: GameState, rng: Rng): void {
     const rarity: Rarity = rollRarity(rng, SHOP.weights);
     s.shop.push(newItem(s, pick(rng, ids), rarity));
   }
+}
+
+/** Sail to another place: only from the dock, and he lands on the other place's dock. */
+export function sail(state: GameState, to: string, rng: Rng): ApplyResult {
+  if (state.hero.downFor > 0) return reject(state, 'sail', 'down');
+  const there = PLACES[to];
+  if (!there) return reject(state, 'sail', 'no such place');
+  if (to === state.place) return reject(state, 'sail', 'already there');
+  if (dist(state.hero, placeOf(state).dock) > N.reach.dock) return reject(state, 'sail', 'not at the dock');
+  const s = clone(state);
+  const ev: GameEvent[] = [];
+  const from = s.place;
+  enterPlace(s, to, there.arrive, rng, ev);
+  // He steps off the boat facing inland.
+  s.hero.facing = -Math.PI / 2;
+  ev.push({ type: 'sailed', from, to });
+  return { state: s, events: ev };
 }
 
 function atShop(s: GameState): boolean {

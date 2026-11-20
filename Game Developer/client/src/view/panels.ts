@@ -1,4 +1,4 @@
-// The windows that open over the game: the bag, the hero, the map, the stall, and the settings. One at a
+// The windows that open over the game: the bag, the hero, the sea chart, the stall, and the settings. One at a
 // time, each rebuilt whole from the state whenever something in it changes, so a window can never show a stale
 // number. A window's buttons act when the finger lifts on them (saving a file and choosing one need that); a tap
 // beside the window closes it. The world goes on behind an open window: this is not a pause.
@@ -7,7 +7,7 @@ import Phaser from 'phaser';
 import {
   MONSTERS,
   N,
-  chestFull,
+  PLACES,
   RARITIES,
   SHOP,
   SLOTS,
@@ -25,7 +25,7 @@ import {
   type Item,
   type Slot,
 } from '../../../rules/src/index.ts';
-import { ART, GEAR_ART } from '../art.ts';
+import { ART, CHART_ART, GEAR_ART } from '../art.ts';
 import { COLORS, DEPTH, DESIGN_HEIGHT, DESIGN_WIDTH, FONT, RES, hex } from '../layout.ts';
 import type { Intent } from '../local-game.ts';
 import { settings } from '../settings.ts';
@@ -35,6 +35,14 @@ import { INK, hasGlass, inkFor, piece, stretch } from './glass.ts';
 
 export type PanelKind = 'menu' | 'bag' | 'hero' | 'chart' | 'shop';
 
+/** The Art Director's chart: where each of his places is on it, the dots of the way between, where the title and the button sit. In design units. */
+interface ChartArt {
+  places: Record<string, { x: number; y: number }>;
+  route: number[][];
+  title: { x: number; y: number };
+  sail: { x: number; y: number };
+}
+
 /** Marks an object as the glass's, so the camera that follows the hero leaves it out. */
 export type Register = <T extends Phaser.GameObjects.GameObject>(object: T) => T;
 
@@ -43,6 +51,7 @@ export interface PanelActions {
   /** Ask the rules for something; the scene says why if it is refused. True when it was done. */
   act(intent: Intent): boolean;
   atShop(): boolean;
+  atDock(): boolean;
   /** The hand or the effects switch changed: the glass must lay itself out again. */
   settingsChanged(): void;
   exportSave(): void;
@@ -276,7 +285,7 @@ export class Panels {
         this.buildHero(state);
         break;
       case 'chart':
-        this.buildMap(state);
+        this.buildChart(state);
         break;
       case 'shop':
         this.buildShop(state);
@@ -386,7 +395,7 @@ export class Panels {
       `Sell ${sellPrice(item)}`,
       () => {
         if (!this.actions.atShop()) {
-          this.actions.toast('Sell at the stall at home');
+          this.actions.toast('Sell at the stall in the harbour');
           return;
         }
         if (this.actions.act({ type: 'sell', item: item.id })) this.selected = null;
@@ -452,48 +461,108 @@ export class Panels {
     this.text(x, y + 22, `Falls: ${state.deaths}`, 13, COLORS.dim, 0);
   }
 
-  // ---- the map ---------------------------------------------------------------------------------------------------
+  // ---- the sea chart -----------------------------------------------------------------------------------------------
+
+  /** Sail to a place, if he stands on a dock; say so if he does not. */
+  private sail(id: string): void {
+    if (!this.actions.atDock()) {
+      this.actions.toast('Sail from the dock');
+      return;
+    }
+    if (this.actions.act({ type: 'sail', to: id })) this.close();
+  }
 
   /**
-   * The map of the world he is in (it was the sea chart): its floors with their names and levels, the big things,
-   * home, the chest, and a dot for him. A stand-in drawn from the rules' own layout (Victor, GD, 2026-11-20);
-   * there is nowhere to travel to by tapping, so it only shows.
+   * The Art Director's chart: one picture that fills the screen, with a pin on each place the game knows, a ring
+   * round the one he is in, the dotted way between them, the names under them, and his yellow button to sail.
    */
-  private buildMap(state: GameState): void {
+  private buildDrawnChart(state: GameState, chart: ChartArt): void {
     const s = this.scene;
-    const place = placeOf(state);
-    this.frame(place.name);
-    const room = { w: F.w - 40, h: F.h - 150 };
-    const k = Math.min(room.w / place.width, room.h / place.height);
-    const box = { x: CX - (place.width * k) / 2, y: F.y + 70, w: place.width * k, h: place.height * k };
-    const at = (x: number, y: number): { x: number; y: number } => ({ x: box.x + x * k, y: box.y + y * k });
-    for (const b of place.biomes) {
-      const p = at(b.x, b.y);
-      this.keep(s.add.rectangle(p.x, p.y, b.w * k, b.h * k, Phaser.Display.Color.HexStringToColor(b.floor).color).setOrigin(0).setDepth(DEPTH.panel + 1));
+    this.whole = true;
+    this.keep(s.add.image(CX, H / 2, 'chart').setDisplaySize(W, H).setDepth(DEPTH.panel + 1));
+    const plate = stretch(s, 'panel/title', 200, 44);
+    if (plate) this.keep(plate.setPosition(chart.title.x, chart.title.y).setDepth(DEPTH.panel + 2));
+    this.text(chart.title.x, chart.title.y - 1, 'Sea chart', 18, COLORS.text, 0.5, true);
+    const cross = piece(s, 'button/close');
+    if (cross) this.keep(cross.setPosition(W - 32, 35).setDepth(DEPTH.panel + 4));
+    this.zone(W - 32, 35, 60, 60, () => this.close());
+
+    const words = (x: number, y: number, text: string, size: number, color = '#ffffff'): void => {
+      this.text(x, y, text, size, color, 0.5, true).setStroke(INK.dark, 4);
+    };
+    const atDock = this.actions.atDock();
+    const ids = Object.keys(PLACES).filter((id) => chart.places[CHART_ART[id] ?? ''] !== undefined);
+    for (const [x = 0, y = 0] of chart.route.slice(1, -1)) {
+      const dot = picture(s, 'pins', 'mark/route');
+      if (dot) this.keep(dot.setPosition(x, y).setDepth(DEPTH.panel + 2));
     }
-    for (const b of place.boxes) {
-      const p = at(b.x, b.y);
-      this.keep(s.add.rectangle(p.x, p.y, Math.max(2, b.w * k), Math.max(2, b.h * k), 0x2a2140, 0.45).setOrigin(0).setDepth(DEPTH.panel + 2));
+    for (const id of ids) {
+      const place = PLACES[id]!;
+      const at = chart.places[CHART_ART[id]!]!;
+      const here = id === state.place;
+      if (here) {
+        const ring = picture(s, 'pins', 'mark/here');
+        if (ring) this.keep(ring.setPosition(at.x, at.y).setDepth(DEPTH.panel + 2));
+      }
+      const pin = picture(s, 'pins', place.town ? 'pin/harbour' : 'pin/island');
+      if (pin) this.keep(pin.setPosition(at.x, at.y - 8).setDepth(DEPTH.panel + 3));
+      // His islands are painted taller than his harbour: the name goes under the painting, not under the point.
+      words(at.x, at.y + (place.town ? 56 : 76), place.town ? place.name : `${place.name}  Lv ${place.levels.replace(' to ', '-')}`, 13);
+      if (here) words(at.x, at.y - 68, 'You are here', 11, '#ffe9a8');
+      else this.zone(at.x, at.y - 6, 130, 150, () => this.sail(id));
     }
-    this.keep(s.add.rectangle(box.x, box.y, box.w, box.h).setOrigin(0).setStrokeStyle(3, 0x2a2140).setDepth(DEPTH.panel + 2));
-    for (const b of place.biomes) {
-      const p = at(b.x + b.w / 2, b.y + b.h / 2);
-      this.text(p.x, p.y - 9, b.name, 14, COLORS.text, 0.5, true).setStroke(INK.dark, 4);
-      this.text(p.x, p.y + 10, `Lv ${b.levels.replace(' to ', '-')}`, 12, COLORS.text, 0.5, true).setStroke(INK.dark, 3);
+    const to = ids.find((id) => id !== state.place);
+    if (to) {
+      if (!atDock) words(chart.sail.x, chart.sail.y - 38, 'Walk down to the dock to sail.', 12);
+      this.button(chart.sail.x, chart.sail.y, 236, 46, `Sail to ${PLACES[to]!.name}`, () => this.sail(to), atDock, COLORS.buttonGo);
+      words(chart.sail.x, chart.sail.y + 35, 'What lies on the ground stays behind.', 11);
     }
-    if (place.home) {
-      const p = at(place.home.x, place.home.y);
-      this.keep(s.add.circle(p.x, p.y, place.home.r * k, 0xfff6d8, 0.35).setStrokeStyle(2, 0xfff6d8, 0.9).setDepth(DEPTH.panel + 2));
-      this.text(p.x, p.y + place.home.r * k + 9, 'Home', 12, COLORS.text, 0.5, true).setStroke(INK.dark, 3);
+  }
+
+  private buildChart(state: GameState): void {
+    const drawn = ART.chart && hasGlass(this.scene) && this.scene.textures.exists('chart') && this.scene.textures.exists('pins') ? (this.scene.cache.json.get('chart:places') as ChartArt | undefined) : undefined;
+    if (drawn?.places && drawn.route && drawn.title && drawn.sail) {
+      this.buildDrawnChart(state, drawn);
+      return;
     }
-    if (place.chest) {
-      const p = at(place.chest.x, place.chest.y);
-      this.keep(s.add.rectangle(p.x, p.y, 10, 8, chestFull(state) ? COLORS.gold : COLORS.chestDark).setStrokeStyle(2, 0x2a2140).setDepth(DEPTH.panel + 3));
+    this.frame('Sea chart');
+    const atDock = this.actions.atDock();
+    const box = { x: F.x + 16, y: F.y + 64, w: F.w - 32, h: 500 };
+    this.rect(box.x + box.w / 2, box.y + box.h / 2, box.w, box.h, COLORS.chartSea, 1, COLORS.chartLandEdge, 3);
+    // A few waves, so the sea is not a flat board.
+    for (let i = 0; i < 9; i++) {
+      const wx = box.x + 30 + ((i * 97) % (box.w - 80));
+      const wy = box.y + 40 + ((i * 151) % (box.h - 80));
+      this.keep(this.scene.add.rectangle(wx, wy, 26, 3, COLORS.foam, 0.45).setDepth(DEPTH.panel + 2));
     }
-    const h = at(state.hero.x, state.hero.y);
-    this.keep(s.add.circle(h.x, h.y, 6, COLORS.bandana).setStrokeStyle(2, 0xffffff).setDepth(DEPTH.panel + 4));
-    this.text(h.x, h.y - 16, 'You', 11, COLORS.goldText, 0.5, true).setStroke(INK.dark, 3);
-    this.text(CX, F.y + F.h - 56, 'One world: walk anywhere. No insect comes for you at home.', 12, COLORS.dim);
+    const spot = (id: string): { x: number; y: number } => ({ x: box.x + PLACES[id]!.chart.x * box.w, y: box.y + PLACES[id]!.chart.y * box.h });
+    const ids = Object.keys(PLACES);
+    // The way between the places, as a line of dots.
+    for (let i = 1; i < ids.length; i++) {
+      const a = spot(ids[i - 1]!);
+      const b = spot(ids[i]!);
+      for (let t = 0.14; t < 0.88; t += 0.09) this.keep(this.scene.add.circle(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, 2.5, COLORS.foam, 0.8).setDepth(DEPTH.panel + 2));
+    }
+    for (const id of ids) {
+      const place = PLACES[id]!;
+      const at = spot(id);
+      const here = id === state.place;
+      const big = place.town ? 0.8 : 1.1;
+      this.keep(this.scene.add.ellipse(at.x, at.y, 92 * big, 66 * big, COLORS.chartLand).setStrokeStyle(3, here ? COLORS.buttonOn : COLORS.chartLandEdge).setDepth(DEPTH.panel + 2));
+      this.keep(this.scene.add.ellipse(at.x - 6, at.y - 4, 50 * big, 30 * big, place.town ? COLORS.roofs[0] : COLORS.palm, 0.9).setDepth(DEPTH.panel + 2));
+      this.text(at.x, at.y + 46 * big + 6, place.name, 15, COLORS.text, 0.5, true).setStroke(COLORS.textDark, 4);
+      this.text(at.x, at.y + 46 * big + 26, place.town ? 'the harbour town' : `levels ${place.levels}`, 12, COLORS.text, 0.5, true).setStroke(COLORS.textDark, 3);
+      if (here) {
+        this.keep(this.scene.add.circle(at.x + 18, at.y - 10, 7, COLORS.bandana).setStrokeStyle(2, COLORS.foam).setDepth(DEPTH.panel + 3));
+        this.text(at.x, at.y - 46 * big - 4, 'You are here', 12, COLORS.goldText, 0.5, true).setStroke(COLORS.textDark, 3);
+      } else {
+        this.zone(at.x, at.y + 14, 150, 130, () => this.sail(id));
+        if (atDock) this.text(at.x, at.y - 46 * big - 4, 'Tap to sail', 13, COLORS.good, 0.5, true).setStroke(COLORS.textDark, 3);
+      }
+    }
+    const foot = F.y + F.h - 62;
+    this.text(CX, foot, atDock ? 'Tap a place to sail there.' : 'Walk to the dock to sail: the pier with the red flag.', 13, COLORS.dim);
+    this.text(CX, foot + 22, 'What lies on the ground stays behind.', 12, COLORS.dim);
   }
 
   // ---- the stall ---------------------------------------------------------------------------------------------------
@@ -565,7 +634,7 @@ export class Panels {
     );
     y += 96;
     this.button(CX, y, 260, 50, `Sell from your bag (${h.bag.length})`, () => this.open('bag', true));
-    this.text(CX, F.y + F.h - 54, 'New pieces come each time you come home.', 12, COLORS.dim);
+    this.text(CX, F.y + F.h - 54, 'New pieces come each time you sail in.', 12, COLORS.dim);
     this.text(CX, F.y + F.h - 36, `The stall pays about ${Math.round((SHOP.sellShare / SHOP.buyTimes) * 100)}% of what it asks.`, 12, COLORS.dim);
   }
 }

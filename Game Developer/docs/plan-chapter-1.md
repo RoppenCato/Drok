@@ -6,8 +6,8 @@ you are done. Let AD handle the art you need. I approve."). In the order it is b
 SD), what it needs, its sub-items, **Built** when it works with its tests, **Checked** when Robin has tried it on his
 phone and said so (with the date). A change to a checked item re-opens it. "What's next" reads this list top down.
 
-**Since 2026-11-20 the work goes by `plan-house.md`**: Robin changed the theme to a shrunk person in a house, in
-one open world. This list is the pirate game as built; its open items (Robin's play, the sound, alpha 1) move there.
+**2026-11-20:** a house theme was tried for an afternoon and left (Robin: "I think i like pirate more. Lets expand
+on pirate"); this list is the game again. New from it, built and tested: item 20 below.
 
 Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until a drop lands, so nothing here waits.
 
@@ -177,6 +177,16 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
     - `[x]` a monster's bar never lies on his bar or across his face: it is lifted to sit above his (Leonard,
       AD's rule, after he looked at the bar in the game: `Art Director\concepts\own-bars\bars-apart.jpg`)
     - tests in the pane: `tests.md`, "his own bar over his head" and "a monster's bar kept off his bar and face"
+
+20. `[x] Built 2026-11-20` `[ ] Checked` · GD and AD · **Big islands with several biomes** (Robin, 2026-11-20, his
+    pick: "Big islands with several biomes each, and the chart to sail between them")
+    - `[x]` a place has grounds (biomes), each a box with a name and its levels; the glass says the name when he
+      walks into one. Crab Cay as it stands: the beach (1 to 2), the grove (3 to 4), the cove (5); names mine
+    - `[x]` a monster far from him that is only strolling does not move, so an island can be big
+    - tests: every zone lies on a ground; far ones sleep, near ones stroll, one on its way home is never asleep
+    - `[ ]` AD: Crab Cay as a big island with four grounds (asked 2026-11-20). Its ground as patterns that repeat
+      and edge strips, not one painting: a painting of that size would not fit a phone's memory
+    - `[ ]` GD: draw a place from patterns and strips; lay his island into the rules; the bot plays it through
 
 ## Waits for Robin
 

@@ -41,19 +41,12 @@ earlier games made, so the pane and Robin's device are part of the check.
 | a monster's bar kept off his bar and face | the pane, the scene `drok.scene4`, three crabs held in place each step | on 2026-11-20, the three places Leonard, AD named: the crab he fights 8 east and 5 north of his feet has its bar's foot 2 above his bar's top; a hurt crab 38 north of him is piled 2 above that one; a crab 40 west of him keeps its bar over its own head. When the first steps away its bar slides back in 12 frames and the second comes down to sit 2 above his bar. A fight of 600 steps with nothing held: no bar lifted, none changed its mind, no error. Not checked: with "fewer effects", at the page's own speed, on a phone |
 | the basic sounds | the pane, `?mute=1&drive=1&seed=tide`, the scene `drok.scene4` | on 2026-11-20: the list and all 65 files load, no error; ten seconds of a fight with a Cleave and a potion started `swing` 7, `hit` 7, `cleave` 1, `hit_heavy` 1, `hero_hurt` 4, `monster_die` 3, `coin` 3, `potion` 1 (read from `dev.sounds.played`); with the engine silenced and the page's mute lifted, every one of the 20 names plays without an error; the settings show "Sound: on". Not checked: heard by anyone, the levels, on a phone, the first touch that unlocks sound there |
 
-**Since the house (2026-11-20)** the tests run on the one world: still 97, the save is version 5. The rows above
-that speak of the island, the harbour, sailing and the chart are the pirate game's and no longer run; what took
-their place: the ground of the world (7: the walls, boxes, a tap from home to the chest and back, a tap on a
-thing, sliding along a wall, the stall, the zones), home (4: health, nothing comes for him, a hit from the
-doorstep, new pieces on coming home), a big world (2: far monsters sleep, a step takes 0.03 ms), a pirate save
-becomes a new hero. The bot plays the world through on three seeds: level 5 at 14.0 minutes, the chest right
-after, no falls, 2 or 3 trips home on foot, 8 to 14 potions. In the pane (`?mute=1&drive=1&seed=tide`): home with
-the doll's house and the stall, a walk to the bed's edge and a fight with an ant, the map, a walk under the bed
-and a fight with a silverfish; no error. Not checked: the far corner and the chest on the screen, the floor's
-name shown when he crosses to another floor, the stall's window, a pirate save opened in the page, anything on a
-phone, and the long balance run (not run again).
+**99 tests since the grounds (2026-11-20, after the house was tried and left):** two more in `chapter1.test.ts`:
+far from him a strolling monster sleeps, near him it strolls, and one on its way home is never asleep; Crab Cay
+has three grounds and he lands on the beach. In the pane: sailed to Crab Cay, walked up the path, and the glass
+said "The grove, Levels 3 to 4" where the grass begins; no error.
 
-Since Robin's first play (2026-11-20) there were 97 tests (the save was version 4: one more step up). Since Leonard,
+Since Robin's first play (2026-11-20) there are 97 tests (the save is version 4: one more step up). Since Leonard,
 AD's places came in, moving and fighting are tested on a plain test
 field (`rules\test\sim.ts`), so they do not depend on where he put a palm; what must hold on the real island and
 in the real town is tested there. On the real places the bot still plays chapter 1 through on three seeds: level 5

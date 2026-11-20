@@ -2,7 +2,7 @@
 // carries its version from day one. When the shape changes, STATE_VERSION goes up by one and a step is added here
 // that brings the old shape to the new, so nobody loses a game to an update.
 
-import { BASES, MONSTERS, PLACES, START_PLACE, inHome } from './data.ts';
+import { BASES, MONSTERS, PLACES, START_PLACE } from './data.ts';
 import { newGame } from './game.ts';
 import { clear } from './ground.ts';
 import type { GameState, Item } from './types.ts';
@@ -14,36 +14,43 @@ import type { GameState, Item } from './types.ts';
  * 3: the hero carries the way he is walking (`route`), now that there are things to walk round.
  * 4: one way to steer (Robin, 2026-11-20): the state no longer says which of three; the hero carries whether he
  *    picked his target himself (`chosen`).
- * 5: the house (Robin, 2026-11-20): one world with a home in it instead of places on a sea chart; other monsters,
- *    other gear. The hero carries whether he stands at home (`home`).
  */
-export const STATE_VERSION = 5;
+export const STATE_VERSION = 4;
 
 /**
  * Bring a stored state up to today's version, or null for anything that is not a state we know (a broken save, a
- * version from the future, nonsense), so the holder starts fresh instead of crashing on it.
+ * version from the future, nonsense), so the holder starts fresh instead of crashing on it. A step at a time: a
+ * version 2 save goes to 3 and then to 4.
  */
 export function migrate(raw: unknown): GameState | null {
   if (typeof raw !== 'object' || raw === null) return null;
-  const r = raw as Record<string, unknown>;
-  if (fromBeforeTheHouse(r)) return fromThePirateGame(r);
-  if (r.version === STATE_VERSION) return checked(r);
+  let r: Record<string, unknown> | null = raw as Record<string, unknown>;
+  if (r.version === 1) return fromVersion1(r);
+  if (r.version === 2) r = fromVersion2(r);
+  if (r?.version === 3) r = fromVersion3(r);
+  if (r?.version === STATE_VERSION) return checked(r);
   return null;
 }
 
-/** Was this save made in the pirate game (versions 1 to 4)? The holder tells the player that his hero is new. */
-export function fromBeforeTheHouse(raw: unknown): boolean {
-  const v = typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>).version : undefined;
-  return typeof v === 'number' && v >= 1 && v <= 4;
+/** 3 → 4. The way of steering is no longer a choice; he did not pick his target himself, as far as we know. */
+function fromVersion3(old: Record<string, unknown>): Record<string, unknown> | null {
+  if (typeof old.hero !== 'object' || old.hero === null) return null;
+  const next: Record<string, unknown> = { ...old, version: 4, hero: { ...(old.hero as Record<string, unknown>), chosen: false } };
+  delete next.scheme;
+  return next;
+}
+
+/** 2 → 3. He was walking in straight lines; he now carries his way, and starts with none. */
+function fromVersion2(old: Record<string, unknown>): Record<string, unknown> | null {
+  if (typeof old.hero !== 'object' || old.hero === null) return null;
+  return { ...old, version: 3, hero: { ...(old.hero as Record<string, unknown>), route: [], dest: null } };
 }
 
 /**
- * 1 to 4 → 5. The pirate game's hero stood on an island or in a harbour that are gone, with a cutlass the house
- * does not have. Nothing of him fits, so he starts as a new hero before the doll's house, with his seed and with
- * what he had felled and how often he fell. (The steps 2 → 3 → 4 went out with the pirate game; the commit before
- * this one has them, and `archive\the-pirate-game\README.md` says which.)
+ * 1 → today. The control test had a hero on one field and nothing to keep but the seed, and what he had felled and
+ * how often he fell. He starts chapter 1 as a new hero in the harbour with those carried over.
  */
-function fromThePirateGame(old: Record<string, unknown>): GameState | null {
+function fromVersion1(old: Record<string, unknown>): GameState | null {
   if (typeof old.seed !== 'string' || typeof old.hero !== 'object' || old.hero === null || !Array.isArray(old.monsters)) return null;
   const fresh = newGame({ seed: old.seed });
   return { ...fresh, kills: count(old.kills), deaths: count(old.deaths) };
@@ -56,7 +63,7 @@ function count(v: unknown): number {
 /**
  * A state of today's version, looked over: the fields that must be there are there, and nothing in it names a place, a
  * monster or a piece of gear the data does not know (an older build's save after a rename), since the rules would
- * trip on those. Unknown gear and monsters are dropped; an unknown place sends him home.
+ * trip on those. Unknown gear and monsters are dropped; an unknown place sends him to the harbour.
  */
 function checked(raw: Record<string, unknown>): GameState | null {
   const s = raw as unknown as GameState;
@@ -75,7 +82,6 @@ function checked(raw: Record<string, unknown>): GameState | null {
     Array.isArray(h.bag) &&
     Array.isArray(h.route) &&
     typeof h.chosen === 'boolean' &&
-    typeof h.home === 'boolean' &&
     typeof h.worn === 'object' &&
     h.worn !== null &&
     Array.isArray(s.monsters) &&
@@ -96,8 +102,8 @@ function checked(raw: Record<string, unknown>): GameState | null {
     Object.values(h.worn).every((item) => item === null || known(item)) &&
     s.shop.every((item) => item === null || known(item)) &&
     s.drops.every((d) => d.kind !== 'item' || known(d.item));
-  // A place whose layout has changed since the save (the Art Director's layout took the stand-in's place) may have
-  // him standing inside a thing. Only a point right inside one counts: beside it he is where he slid.
+  // A place whose layout has changed since the save (the island got its shore, the town its houses) may have him
+  // standing in the sea or inside a wall. Only a point right inside a thing counts: beside one he is where he slid.
   const here = PLACES[s.place];
   const afoot = here !== undefined && clear(here, h.x, h.y, 0);
   if (clean && afoot) return s;
@@ -118,7 +124,6 @@ function checked(raw: Record<string, unknown>): GameState | null {
       ...h,
       x: moved ? spot.x : h.x,
       y: moved ? spot.y : h.y,
-      home: moved ? inHome(there, spot) : h.home,
       dest: null,
       route: [],
       chase: false,
@@ -150,11 +155,8 @@ export function packSave(state: GameState, rng: number): string {
   return JSON.stringify(file);
 }
 
-/**
- * A save read back: the state brought up to today's version and the dice, or null for anything that is not one.
- * `fresh` says the save was the pirate game's, so the hero that comes back is a new one.
- */
-export function unpackSave(text: string): { state: GameState; rng: number; fresh: boolean } | null {
+/** A save read back: the state brought up to today's version and the dice, or null for anything that is not one. */
+export function unpackSave(text: string): { state: GameState; rng: number } | null {
   let raw: unknown;
   try {
     raw = JSON.parse(text);
@@ -165,5 +167,5 @@ export function unpackSave(text: string): { state: GameState; rng: number; fresh
   const file = raw as Partial<SaveFile>;
   if (typeof file.rng !== 'number' || !Number.isFinite(file.rng)) return null;
   const state = migrate(file.state);
-  return state ? { state, rng: file.rng, fresh: fromBeforeTheHouse(file.state) } : null;
+  return state ? { state, rng: file.rng } : null;
 }

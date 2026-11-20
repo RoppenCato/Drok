@@ -2,19 +2,19 @@
   "_about": "The hero's own numbers and the numbers every place shares. Balancing is editing these files: numbers.json (the hero, the skills, loot and the chest's rules), monsters.json, places.json, items.json. Lengths are in world units (one unit is one design pixel at 412 by 915), times in seconds, speeds in units a second. All of them are Victor, GD's guesses (2026-11-20) unless a note says Robin; the ones Robin has felt and approved move to docs/lessons.md with his words.",
   "margin": 28,
   "spawn": {
-    "_about": "A monster arrives somewhere in its zone on ground it can stand on, at least clearance from him, apart from the others, and never at home or within landing of where he wakes, so waking is safe.",
+    "_about": "A monster arrives somewhere in its zone on ground it can stand on, at least clearance from him, apart from the others, and never within landing of where he steps ashore, so a landing is safe.",
     "clearance": 260,
     "apart": 70,
     "landing": 270
   },
   "hero": {
-    "_about": "speed is the number 'smooth and snappy' hangs on: he crosses the screen's width in about two seconds. No acceleration: he is at full speed on the first step and stops on the step the thumb lifts. reach is the gap between the two bodies inside which a swing lands; reachGrace is how much further the target may have stepped back while the swing was in the air. At home his health comes back at once and fast.",
+    "_about": "speed is the number 'smooth and snappy' hangs on: he crosses the screen's width in about two seconds. No acceleration: he is at full speed on the first step and stops on the step the thumb lifts. reach is the gap between the two bodies inside which a swing lands; reachGrace is how much further the target may have stepped back while the swing was in the air. In a town his health comes back at once and fast.",
     "radius": 16,
     "speed": 215,
     "maxHp": 100,
     "regenPerSecond": 4,
     "regenAfterSeconds": 5,
-    "homeRegenPerSecond": 25,
+    "townRegenPerSecond": 25,
     "reviveSeconds": 2,
     "reach": 22,
     "reachGrace": 16,
@@ -60,7 +60,7 @@
     "cooldownSeconds": 3
   },
   "potion": {
-    "_about": "A healing draught: bought at the stall, sometimes dropped. It mends over a few seconds, so it is drunk before the bite, not after.",
+    "_about": "A healing draught: bought in the harbour, sometimes dropped. It mends over a few seconds, so it is drunk before the bite, not after.",
     "heal": 45,
     "seconds": 3,
     "cooldownSeconds": 8,
@@ -69,7 +69,7 @@
     "start": 3
   },
   "drops": {
-    "_about": "Loot lies where the monster fell (Robin, 2026-11-19 and 2026-11-20) and flies to him when he walks close. magnetRange is how close; a full bag leaves gear on the ground. It lies there until its time is up.",
+    "_about": "Loot lies where the monster fell (Robin, 2026-11-19 and 2026-11-20) and flies to him when he walks close. magnetRange is how close; a full bag leaves gear on the ground. What is left behind when he sails or falls is gone.",
     "magnetRange": 72,
     "magnetSpeed": 480,
     "pickRange": 18,
@@ -77,17 +77,18 @@
     "scatter": 22
   },
   "world": {
-    "_about": "One big world: a monster further than awake from him that is only strolling does not move (it sleeps), so a step costs the same however big the world grows. About three and a half screens' height.",
+    "_about": "A place can be big: a monster further than awake from him that is only strolling does not move (it sleeps), so a step costs the same however big an island grows. About three and a half screens' height.",
     "awake": 1500
   },
   "bagSize": 20,
   "death": {
-    "_about": "Robin, 2026-11-20: a share of the money he carries, 'say 10%', and he wakes in the town (the doll's house now). The number is his to feel.",
+    "_about": "Robin, 2026-11-20: a share of the money he carries, 'say 10%', and he wakes in the harbour town. The number is his to feel.",
     "goldShare": 0.1
   },
   "reach": {
-    "_about": "How near he must stand to open a chest, to trade with the stall keeper.",
+    "_about": "How near he must stand to open a chest, to sail from a dock, to trade with a shopkeeper.",
     "chest": 70,
+    "dock": 90,
     "shop": 110
   }
 }
