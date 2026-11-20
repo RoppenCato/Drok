@@ -150,12 +150,15 @@ function moveHero(s: GameState, dt: number, ev: GameEvent[]): void {
   if (h.moving) h.facing = Math.atan2(h.y - fromY, h.x - fromX);
 }
 
-/** Schemes 2 and 3: he picks the target himself. Scheme 1: only a tap picks, so this only tidies up. */
+/**
+ * Who he fights when the player has not said. With no target he takes the nearest one near enough. A target far
+ * behind is let go. One the player picked himself (a tap, a skill) is never changed for another; one the rules
+ * picked is changed for a monster in reach, or for one clearly nearer, as he is steered about.
+ */
 function pickTarget(s: GameState, ev: GameEvent[]): void {
   const h = s.hero;
   const current = h.target !== null ? monsterById(s, h.target) : undefined;
   if (h.target !== null && !current) setTarget(s, null, 'lost', ev);
-  if (s.scheme === 1) return;
 
   const nearest = nearestMonster(s, N.autoTarget.pickRange);
   if (!current) {
@@ -163,10 +166,12 @@ function pickTarget(s: GameState, ev: GameEvent[]): void {
     return;
   }
   const d = dist(h, current);
-  if (d > N.autoTarget.dropRange) {
+  // One he is walking up to is never too far: a tap may land on a monster at the far end of the screen.
+  if (d > N.autoTarget.dropRange && !h.chase) {
     setTarget(s, nearest ? nearest.id : null, nearest ? 'nearest' : 'lost', ev);
     return;
   }
+  if (h.chosen) return;
   // He never leaves a target he can hit. Otherwise he turns to one in reach, or to one clearly nearer.
   if (!nearest || nearest.id === current.id || d <= heroReach(current)) return;
   const dn = dist(h, nearest);

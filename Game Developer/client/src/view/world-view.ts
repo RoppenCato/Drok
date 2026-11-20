@@ -30,6 +30,13 @@ export type Register = <T extends Obj>(object: T) => T;
 /** The things of a place that can be walked up to and used. */
 export type Thing = 'chest' | 'shop' | 'dock';
 
+/**
+ * How far below a place's foot the camera may look, in units. The glass covers the bottom of the screen (Robin,
+ * 2026-11-20: the buttons and the health in the middle at the bottom), and both docks lie near a place's foot:
+ * without this he would stand on a dock under his own health bar. The number is mine.
+ */
+export const FOOT = 110;
+
 interface MonsterView {
   /** The Art Director's figure, when this kind has one; else the stand-in below. */
   figure: Figure | null;
@@ -41,6 +48,8 @@ interface MonsterView {
   shadow: Phaser.GameObjects.Ellipse;
   barBack: Phaser.GameObjects.Rectangle;
   bar: Phaser.GameObjects.Rectangle;
+  /** How long its health bar is when it is whole. */
+  barW: number;
   star: Phaser.GameObjects.Star;
   /** The ground a slam will hit, shown while it winds up. */
   slam: Phaser.GameObjects.Arc | null;
@@ -293,7 +302,7 @@ export class WorldView {
       }
       // What floats over it (the star, the health bar) sits above its picture, however tall that is.
       const top = v.figure ? v.figure.height() - 6 : v.radius;
-      v.star.setVisible(stunned).setPosition(v.x, v.y - top - 12);
+      v.star.setVisible(stunned).setPosition(v.x, v.y - top - 30);
       if (stunned) v.star.rotation = time * 0.006;
       if (v.slam) {
         // The ground a slam will hit fills in as the blow comes: stand outside it.
@@ -301,10 +310,14 @@ export class WorldView {
         if (windup > 0) v.slam.setFillStyle(COLORS.slam, 0.12 + 0.3 * windup);
       }
 
-      const showBar = m.hp < k.maxHp || h.target === m.id;
-      const w = v.radius * 2 + 2;
-      v.barBack.setVisible(showBar).setPosition(v.x - w / 2 - 1, v.y - top - 13);
-      v.bar.setVisible(showBar).setPosition(v.x - w / 2, v.y - top - 12);
+      // Its health, over its head where the eye already is (Robin, 2026-11-20: health must be easy to glance):
+      // shown on the one he fights and on any that is hurt, and the one he fights has it edged in gold.
+      const mine = h.target === m.id;
+      const showBar = m.hp < k.maxHp || mine;
+      const w = v.barW;
+      v.barBack.setVisible(showBar).setPosition(v.x - w / 2 - 2, v.y - top - 20);
+      v.barBack.setStrokeStyle(mine ? 2 : 1, mine ? COLORS.target : COLORS.foam, mine ? 1 : 0.8);
+      v.bar.setVisible(showBar).setPosition(v.x - w / 2, v.y - top - 18);
       v.bar.scaleX = Math.max(0, m.hp / k.maxHp);
     }
     for (const [id, v] of this.monsters) {
@@ -496,6 +509,12 @@ export class WorldView {
   private paintFromArt(place: Place, folder: string, layout: PlaceArt): void {
     const s = this.scene;
     this.put(s.add.image(0, 0, `${folder}:ground`).setOrigin(0).setDisplaySize(place.width, place.height).setDepth(DEPTH.ground));
+    // The camera may look a little below the place's foot (FOOT): what it sees there is the picture's last row of
+    // sea, drawn out downwards, so no edge shows behind the buttons.
+    const ground = s.textures.get(`${folder}:ground`);
+    const source = ground.getSourceImage();
+    if (!ground.has('foot')) ground.add('foot', 0, 0, source.height - 2, source.width, 2);
+    this.put(s.add.image(0, place.height - 1, `${folder}:ground`, 'foot').setOrigin(0).setDisplaySize(place.width, FOOT + 1).setDepth(DEPTH.ground));
     const set = s.cache.json.get(`${folder}:data`) as SetData | undefined;
     const shadow = (x: number, y: number, name: string): void => {
       const wide = (set?.items[name]?.w ?? 60) / (set?.meta.filePx ?? 2);
@@ -713,7 +732,8 @@ export class WorldView {
       body = this.reg(s.add.container(m.x, m.y, parts));
       body.rotation = m.facing;
     }
-    const w = r * 2 + 2;
+    // Long enough to read at a glance on the smallest of them, and thick enough to see how much is left.
+    const w = Math.max(44, r * 2 + 14);
     return {
       figure,
       mode: m.mode,
@@ -721,8 +741,9 @@ export class WorldView {
       shell,
       color,
       shadow: this.reg(s.add.ellipse(m.x, m.y, r * 2.3, r, COLORS.shadow, 0.25).setDepth(DEPTH.shadows)),
-      barBack: this.reg(s.add.rectangle(0, 0, w + 2, 6, COLORS.barBack, 0.85).setOrigin(0).setDepth(DEPTH.effects).setVisible(false)),
-      bar: this.reg(s.add.rectangle(0, 0, w, 4, COLORS.hp).setOrigin(0).setDepth(DEPTH.effects + 1).setVisible(false)),
+      barBack: this.reg(s.add.rectangle(0, 0, w + 4, 11, COLORS.barBack, 0.9).setOrigin(0).setDepth(DEPTH.effects).setVisible(false)),
+      bar: this.reg(s.add.rectangle(0, 0, w, 7, COLORS.hp).setOrigin(0).setDepth(DEPTH.effects + 1).setVisible(false)),
+      barW: w,
       star: this.reg(s.add.star(m.x, m.y, 5, 3.5, 8, COLORS.target).setDepth(DEPTH.effects).setVisible(false)),
       slam: k.slamRadius > 0 ? this.reg(s.add.circle(m.x, m.y, k.slamRadius, COLORS.slam, 0.15).setStrokeStyle(2, COLORS.slam, 0.7).setDepth(DEPTH.marks).setVisible(false)) : null,
       radius: r,

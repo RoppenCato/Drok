@@ -36,7 +36,7 @@
     "damagePerLevel": 1.5
   },
   "autoTarget": {
-    "_about": "Schemes 2 and 3 pick the target themselves. pickRange: how near a monster must be to be picked. dropRange: how far the target may get before it is let go. switchMargin: another monster must be this much nearer before he changes his mind, and never while the target is in reach.",
+    "_about": "When the player has not picked a target, the rules pick one. pickRange: how near a monster must be to be picked. dropRange: how far the target may get before it is let go. switchMargin: another monster must be this much nearer before he changes his mind, and never while the target is in reach.",
     "pickRange": 210,
     "dropRange": 300,
     "switchMargin": 40

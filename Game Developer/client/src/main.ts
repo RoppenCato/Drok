@@ -19,7 +19,7 @@ const seed = query.get('seed');
 const saved = seed ? null : LocalGame.load(storage);
 const holder = saved ?? LocalGame.create(storage, seed ?? undefined);
 holder.drive = query.get('drive') === '1';
-log.note(`${saved ? 'loaded' : 'new game'}: seed ${holder.state.seed}, level ${holder.state.hero.level} in ${holder.state.place}, scheme ${holder.state.scheme}, canvas x${RES}`);
+log.note(`${saved ? 'loaded' : 'new game'}: seed ${holder.state.seed}, level ${holder.state.hero.level} in ${holder.state.place}, canvas x${RES}`);
 
 const phaser = new Phaser.Game({
   type: Phaser.AUTO,

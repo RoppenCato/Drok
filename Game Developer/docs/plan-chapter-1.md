@@ -10,10 +10,10 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
 
 ## Before chapter 1: the control test
 
-0. `[x] Built 2026-11-20` `[ ] Checked` · GD · **Three ways to steer, on Robin's phone**
+0. `[x] Built 2026-11-20` `[x] Checked 2026-11-20` · GD · **Three ways to steer, on Robin's phone**
    - `[x]` built, tested, checked in the pane (see `tests.md`)
-   - `[ ]` Robin plays all three and names one. Until he does, all three stay, on a switch in the settings
-     (≡, "Steering"); tap is the default, as his brief says ("Tap to move, with skill buttons").
+   - `[x]` Robin, 2026-11-20, after playing: "click to move is good, but there needs to be a simple wqy to also
+     move freely", "both available at the same time". So not one of the three: tap and stick together, item 18.
 
 ## Chapter 1: Harbour town plus island
 
@@ -137,16 +137,31 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
     - tests: a house stops him and he slides along its wall; a tap behind a house finds the way round; a tap on
       the stall takes him to its front, near enough to trade; the old save
 
+18. `[x] Built 2026-11-20` `[ ] Checked` · GD · **After Robin's first play: one way to steer, and the glass at the
+    bottom** (`playtests.md`, round 1)
+    - `[x]` a tap walks him there or picks a monster; a thumb that drags is a stick where it came down; both at
+      once, no switch in the settings; with nothing tapped he fights the nearest, and one he tapped stays his
+    - `[x]` Charge, Cleave and the potion in a row in the middle at the bottom; his health and rage over them; who
+      he fights and its health over those; experience along the floor
+    - `[x]` a longer, thicker health bar over a monster, edged in gold on the one he fights
+    - `[x]` he is drawn a little above the middle, and stands above the pile on a dock
+    - `[x]` the save is version 4, with the step up from version 3
+    - tests: tap and thumb together; who the target is; the old save. In the pane: the tap on the lift, the drag,
+      the dock through the glass, a fight
+    - `[ ]` AD: a bar for a monster's health and a ring and knob for the stick (asked 2026-11-20)
+
 ## Waits for Robin
 
 - Play it: `http://192.168.0.43:5178/` on the home Wi-Fi. The first minute: tap the stall to see what it sells,
-  tap the dock at the bottom of the town, tap "Sail to Crab Cay", tap a crab. The link answers only while the dev
-  server runs on this PC; if it is dead, say so in the chat and it is started again (`docs\state\pages.md`).
+  tap the dock at the bottom of the town, tap "Sail to Crab Cay", tap a crab; then put a thumb down anywhere and
+  slide it. The link answers only while the dev server runs on this PC; if it is dead, say so in the chat and it is
+  started again (`docs\state\pages.md`).
+- The new steering and glass (item 18): does the stick want a home on the screen (it only shows while a thumb
+  drags); is the pile at the bottom right, or too much; should his own health also show by his feet.
 - The look: Leonard, AD chose it himself, as told ("Let AD handle the art you need. I approve."), so the first
   judging of the Warrior, the monsters, the island, the town, the chart, the glass and the icon is this play. The
   look and the chart would each have been three to pick from. And the size: he finds the Warrior small and offers
   the camera a quarter closer; kept as it is until Robin has seen it (`docs\state\art.md`).
-- Which of the three ways to steer stays (≡, "Steering").
 - The deploy to Cloudflare Pages (item 11), so it installs and plays offline.
 - Starting Hugh, SD's chat (item 13).
 - The felt numbers: how long a level takes, how hard the monsters bite, what things cost (`lessons.md`). The long

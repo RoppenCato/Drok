@@ -77,6 +77,10 @@ export function nearestMonster(s: GameState, range: number, only?: (m: Monster) 
 }
 
 export function setTarget(s: GameState, id: number | null, why: TargetWhy, ev: GameEvent[]): void {
+  // One he picked himself (a tap, a skill) is his to keep; one the rules picked may be changed for a nearer one.
+  if (id === null) s.hero.chosen = false;
+  else if (why === 'tap' || why === 'skill') s.hero.chosen = true;
+  else if (s.hero.target !== id) s.hero.chosen = false;
   if (s.hero.target === id) return;
   s.hero.target = id;
   if (id === null) s.hero.chase = false;

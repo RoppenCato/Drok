@@ -41,7 +41,6 @@ describe('the same seed gives the same game', () => {
       { type: 'steer', x: 1, y: 0 },
       { type: 'target', monster: before.monsters[0]!.id },
       { type: 'skill', skill: 'charge' },
-      { type: 'scheme', scheme: 2 },
       { type: 'potion' },
       { type: 'openChest' },
       { type: 'sail', to: 'harbour' },
@@ -132,18 +131,32 @@ describe('moving: smooth and snappy', () => {
     expect(sim.state.hero.dest).toEqual({ x: N.margin, y: N.margin });
   });
 
-  it('changing the way of steering lets go of what the thumb was doing', () => {
+  it('a tap and the thumb work together: a tap while the thumb rests walks him; a push takes over; a tap after it walks him again', () => {
     const sim = Sim.empty();
-    sim.act({ type: 'steer', x: 1, y: 0 });
-    sim.act({ type: 'scheme', scheme: 3 });
-    expect(sim.state.scheme).toBe(3);
-    expect(sim.state.hero.steer).toEqual({ x: 0, y: 0 });
-    expect(sim.act({ type: 'scheme', scheme: 4 as 1 })).toEqual([{ type: 'rejected', action: 'scheme', reason: 'bad number' }]);
+    const start = { ...sim.state.hero };
+    sim.act({ type: 'moveTo', x: start.x + 200, y: start.y });
+    sim.run(0.2);
+    expect(sim.state.hero.x).toBeGreaterThan(start.x);
+    // The thumb comes down and pushes up the screen: he goes that way at once, and the tap is forgotten.
+    sim.act({ type: 'steer', x: 0, y: -1 });
+    const turned = { ...sim.state.hero };
+    sim.run(0.5);
+    expect(sim.state.hero.x).toBeCloseTo(turned.x, 6);
+    expect(sim.state.hero.y).toBeLessThan(turned.y - 100);
+    expect(sim.state.hero.dest).toBeNull();
+    // The thumb lifts: he stands. A new tap walks him again.
+    sim.act({ type: 'steer', x: 0, y: 0 });
+    sim.run(0.2);
+    expect(sim.state.hero.moving).toBe(false);
+    sim.act({ type: 'moveTo', x: start.x, y: start.y });
+    sim.runUntil((s) => s.state.hero.dest === null, 5);
+    expect(sim.state.hero.x).toBeCloseTo(start.x, 6);
+    expect(sim.state.hero.y).toBeCloseTo(start.y, 6);
   });
 });
 
 describe('fighting: a target and auto-attack', () => {
-  it('scheme 1: a tapped monster is the target; he walks up, swings by himself and it falls', () => {
+  it('a tapped monster is the target; he walks up, swings by himself and it falls', () => {
     const sim = Sim.empty();
     const m = sim.monster(200, 0, { stunned: 999 });
     expect(sim.act({ type: 'target', monster: m.id })).toEqual([{ type: 'targeted', monster: m.id, why: 'tap' }]);
@@ -159,18 +172,59 @@ describe('fighting: a target and auto-attack', () => {
     expect(hits.length).toBeLessThanOrEqual(6);
   });
 
-  it('scheme 1 picks nothing by itself; schemes 2 and 3 pick the nearest', () => {
-    for (const scheme of [1, 2, 3] as const) {
-      const sim = Sim.empty('tide', { scheme });
-      sim.monster(190, 0, { stunned: 999 });
-      const near = sim.monster(0, 160, { stunned: 999 });
-      sim.run(0.5);
-      expect(sim.state.hero.target).toBe(scheme === 1 ? null : near.id);
-    }
+  it('with nothing tapped he picks the nearest one near enough, and nobody that is far off', () => {
+    const sim = Sim.empty();
+    sim.monster(190, 0, { stunned: 999 });
+    const near = sim.monster(0, 160, { stunned: 999 });
+    sim.run(0.5);
+    expect(sim.state.hero.target).toBe(near.id);
+    expect(sim.state.hero.chosen).toBe(false);
+    expect(sim.of('targeted').at(-1)).toEqual({ type: 'targeted', monster: near.id, why: 'nearest' });
+    const alone = Sim.empty();
+    alone.monster(N.autoTarget.pickRange + 30, 0, { stunned: 999 });
+    alone.run(0.5);
+    expect(alone.state.hero.target).toBeNull();
   });
 
-  it('schemes 2 and 3: he turns to a monster in reach when his target is not, and never leaves one he can hit', () => {
-    const sim = Sim.empty('tide', { scheme: 2 });
+  it('one he tapped is his: a nearer one, even one in reach, does not take him off it; a tap on another does', () => {
+    const sim = Sim.empty();
+    const far = sim.monster(0, -400, { stunned: 999 });
+    const near = sim.monster(150, 0, { stunned: 999 });
+    sim.run(DT);
+    expect(sim.state.hero.target).toBe(near.id);
+    // A tap on the far one, further off than the rules would ever pick or keep by themselves.
+    sim.act({ type: 'target', monster: far.id });
+    expect(sim.state.hero.chosen).toBe(true);
+    const beside = sim.monster(0, -(crabReach - 5), { stunned: 999 });
+    sim.run(0.5);
+    expect(sim.state.hero.target).toBe(far.id);
+    sim.runUntil((s) => s.count('swing') > 0, 5);
+    expect(sim.of('swing').at(-1)!.monster).toBe(far.id);
+    sim.act({ type: 'target', monster: beside.id });
+    expect(sim.state.hero.target).toBe(beside.id);
+    // A tap on the one the rules had picked makes it his as well.
+    const again = Sim.empty();
+    const m = again.monster(150, 0, { stunned: 999 });
+    again.run(DT);
+    expect(again.state.hero.chosen).toBe(false);
+    again.act({ type: 'target', monster: m.id });
+    expect(again.state.hero.chosen).toBe(true);
+  });
+
+  it('one he tapped is let go when he is steered far from it, and the nearest takes its place', () => {
+    const sim = Sim.empty();
+    const tapped = sim.monster(150, 0, { stunned: 999 });
+    sim.act({ type: 'target', monster: tapped.id, approach: false });
+    const other = sim.monster(-(N.autoTarget.dropRange + 60), 0, { stunned: 999 });
+    sim.act({ type: 'steer', x: -1, y: 0 });
+    sim.runUntil((s) => s.state.hero.target !== tapped.id, 5);
+    expect(dist(sim.state.hero, sim.find(tapped.id)!)).toBeGreaterThan(N.autoTarget.dropRange);
+    expect(sim.state.hero.target).toBe(other.id);
+    expect(sim.state.hero.chosen).toBe(false);
+  });
+
+  it('one the rules picked: he turns to a monster in reach when his target is not, and never leaves one he can hit', () => {
+    const sim = Sim.empty();
     const far = sim.monster(180, 0, { stunned: 999 });
     sim.run(DT);
     expect(sim.state.hero.target).toBe(far.id);
@@ -183,8 +237,8 @@ describe('fighting: a target and auto-attack', () => {
     expect(sim.state.hero.target).toBe(close.id);
   });
 
-  it('a target that gets far away is let go (schemes 2 and 3)', () => {
-    const sim = Sim.empty('tide', { scheme: 3 });
+  it('a target that gets far away is let go', () => {
+    const sim = Sim.empty();
     const m = sim.monster(150, 0, { stunned: 999 });
     sim.run(DT);
     expect(sim.state.hero.target).toBe(m.id);
@@ -193,11 +247,11 @@ describe('fighting: a target and auto-attack', () => {
     expect(dist(sim.state.hero, sim.find(m.id)!)).toBeGreaterThan(N.autoTarget.dropRange);
   });
 
-  it('struck with nothing targeted, he turns on whoever struck him and swings back without being told', () => {
+  it('one that comes at him with nothing tapped is fought without being told', () => {
     const sim = Sim.empty();
     const m = sim.monster(40, 0, { mode: 'chase' });
     sim.runUntil((s) => s.count('heroHit') > 0, 3);
-    expect(sim.of('targeted').at(-1)).toEqual({ type: 'targeted', monster: m.id, why: 'struck' });
+    expect(sim.of('targeted').at(-1)).toEqual({ type: 'targeted', monster: m.id, why: 'nearest' });
     sim.run(1);
     expect(sim.count('swing')).toBeGreaterThan(0);
   });
@@ -214,7 +268,7 @@ describe('fighting: a target and auto-attack', () => {
   });
 
   it('he swings while walking past, and the swing lands if the target is still close', () => {
-    const sim = Sim.empty('tide', { scheme: 2 });
+    const sim = Sim.empty();
     sim.monster(crabReach - 10, 0, { stunned: 999 });
     sim.act({ type: 'steer', x: 0, y: 0.2 });
     sim.run(0.3);

@@ -70,7 +70,7 @@ piece of Leonard, AD's own, made to be judged and changed. The list as it was as
 | The island's ground | sand, grass, the water's edge, a few props, as a kit that repeats without showing | a place of about 1200 by 1500 | no |
 | Three monsters | the first island's three kinds, each: stand, walk, wind-up, bite, hit, fall | 30 to 50 | no (the sand crab first) |
 | Loot and rarity | money, an item on the ground, and the coloured effect per rarity (Robin: "Needs to have coloroed effects for rarity") | 16 to 24 | no |
-| The UI kit | bars, the skill buttons in their arc, the top buttons (bag, chart, character), a panel, the font | as the control test's glass | no |
+| The UI kit | bars, the skill buttons (in a row in the middle at the bottom since Robin's play of 2026-11-20; the places are in `state\client.md`), the top buttons (bag, chart, character), a panel, the font; and since that play: a bar for a monster's health over its head, a ring and a knob for the stick | as the control test's glass | no |
 | The harbour | the town's ground, a shop, a few houses and people who stand | a place of about 800 by 1000 | no |
 | The chest | closed, opening, open | about 30 | no |
 | The sea chart | the chart with two places on it and room for many more | full screen | yes: a world map |

@@ -19,10 +19,13 @@ Victor, GD's first guess of 2026-11-20 and is pending until Robin has played the
 | The crab's wind-up | 0.5 s to step away in; he needs to move 12 units | pending | |
 | Charge | up to 340 units at 950 a second (0.27 s for 300); stun 1.2 s; 8 s cooldown | pending | |
 | Cleave | 170 degrees, 62 units to a crab's edge; 30 rage; 3 s cooldown | pending | |
+| Steering | a tap walks him there, a thumb that drags is a stick, both at once | Robin: "click to move is good, but there needs to be a simple wqy to also move freely" | 2026-11-20 |
 | Tap on a crab | counts within 26 units of its body | pending | |
-| Hold | stands within 14 units of the finger; full speed from 54 | pending | |
-| The stick | reach 46 units, dead middle 7; the base follows the thumb | pending | |
-| The skill buttons | 68 across, pressed within 84; 108 from the corner, 24 above the bottom | pending | |
+| A tap or a drag | a touch is a drag once it has slid 10 units; a tap is acted on when the thumb lifts | pending | |
+| The stick | appears where the thumb came down; reach 46 units, dead middle 7; the base follows the thumb | pending | |
+| The skill buttons | in a row in the middle at the bottom; 72 across (the potion 56), pressed within 8 more; their middle 64 above the bottom | Robin: "the buttons should be in the middle at the bottom"; the sizes pending | 2026-11-20 |
+| Health | his over the buttons with its numbers, the target's over that; a bar 44 or more long and 7 thick over a monster | Robin: at the top it was "hard to glance over. Maybe it should be at the bottom"; the sizes pending | 2026-11-20 |
+| Where he is drawn | 60 above the screen's middle, since the glass covers the bottom | pending | |
 | The canvas | twice the design size (824 by 1830) | pending: the frame log | |
 | The climb to level 5 | 150, 420, 1000, 2200 experience; a bot does it in 16 minutes, a person perhaps in 30 | pending | |
 | The monsters' bite | sand crab 5 to 8, reef gull 9 to 13, coconut crab's slam 20 to 28, against 100 health at level 1 | pending | |
@@ -96,6 +99,18 @@ Victor, GD's first guess of 2026-11-20 and is pending until Robin has played the
     hours before, while the chat was quiet, and the report still gave the home link as if it would last. Rule: a
     link in a report is fetched from this PC in the same turn, and a home link is said to live only while the chat
     does; a game meant to be played when the developer is away needs its public page.
+13. Three ways to steer were built as a choice of one, on a switch. Robin's answer after playing was none of the
+    three: tap and a stick "both available at the same time" (2026-11-20). The rules already took both; only the
+    screen made him choose. Rule: before putting ways of doing a thing on a switch, ask whether they can simply all
+    work at once.
+14. The first screen put health at the top and the skills in a corner, both picked from words in a questionnaire.
+    One play moved both to the middle at the bottom. Rule: a screen layout is settled by a thumb on a phone, not by
+    a question; build the first one fast and expect it to move.
+15. With the glass at the bottom, he stood on the dock under his own health bar: the camera kept him in the middle
+    and stopped at the place's foot. Rule: when the glass covers part of the screen, the camera's middle is the
+    middle of what is left, and it may look past a place's edge on that side.
+16. A picture of the stopped page kept timing out in the pane: the page draws only when it is stepped, and the
+    picture waits for a frame. Rule: start a timer that steps the page a few times a second, then take the picture.
 
 ## Harvested
 

@@ -22,12 +22,12 @@ says Robin; every number is a first guess until Robin has felt it (`docs\lessons
 | `rules\src\town.ts` | arriving in a place, sailing, the stall, wearing and taking off gear, potions |
 | `rules\src\ground.ts` | the ground of a place: what is land, what can be stood on, a step that slides along a shore, a wall or round a thing |
 | `rules\src\path.ts` | the way-finder for a tap: whether he can walk straight, and the way round when he cannot |
-| `rules\src\save.ts` | `STATE_VERSION` (3), `migrate`, and the save as a file (`packSave`, `unpackSave`) |
+| `rules\src\save.ts` | `STATE_VERSION` (4), `migrate`, and the save as a file (`packSave`, `unpackSave`) |
 | `rules\src\geometry.ts`, `rng.ts`, `index.ts` | distance and angle; the seeded stream; what the rules export |
 
 ## The state
 
-`seed`, `time`, `ticks`, `now` (the real clock as the holder last told it), `scheme`, `place`, the `hero`, the
+`seed`, `time`, `ticks`, `now` (the real clock as the holder last told it), `place`, the `hero`, the
 `monsters`, the `respawns` (a countdown and a zone each), the `drops` on the ground, `chests` (when each place's
 chest was opened), the `shop`'s pieces, the `book` (how many of each kind he has felled), `nextId`, `kills`,
 `deaths`. Solo for good (Robin, 2026-11-19), so an action carries no player and no id.
@@ -41,7 +41,10 @@ the data, nothing else is stored.
 | Action | What it does | Refused when |
 | --- | --- | --- |
 | `tick { dt, now }` | the world moves on; the holder sends 1/60 s and its clock | `dt` not between 0 and 0.1 |
-| `scheme`, `moveTo`, `steer`, `target`, `skill` | as in the control test | as there |
+| `moveTo { x, y }` | a tap on the ground: he walks there, round what stands between | down; not a number |
+| `steer { x, y }` | the thumb's push, 0 to 1 long; it wins over a tap while it lasts; 0, 0 lets go | not a number |
+| `target { monster }` | a tap on a monster: it is his target (`hero.chosen`) and he walks up to it | down; no such monster |
+| `skill { skill }` | Charge or Cleave | down; on cooldown; not enough rage; no target in range |
 | `potion` | drinks one: 45 health over 3 s, then an 8 s wait | down; none; waiting; full health |
 | `openChest` | the chest spills its loot on his side | down; no chest here; too far; empty |
 | `sail { to }` | to another place, from the dock | down; no such place; already there; not at the dock |
@@ -50,8 +53,16 @@ the data, nothing else is stored.
 
 ## How it plays
 
-- **Moving and fighting** are the control test's, unchanged: 215 units a second with no acceleration; a target
-  with auto-attack every 0.8 s (Robin, 2026-11-20); rage; Charge; Cleave; schemes 2 and 3 pick the nearest.
+- **Moving**: 215 units a second with no acceleration. One way to steer, with two hands to it (Robin, 2026-11-20,
+  after playing: tap to move stays, and a way to move freely comes with it, "both available at the same time"): a
+  tap sends him somewhere (`moveTo`) or at a monster (`target`), the thumb's push (`steer`) takes him where it
+  points and wins while it lasts. The rules never knew which finger did what; the three schemes and their switch
+  are gone from the state.
+- **Fighting**: a target with auto-attack every 0.8 s (Robin, 2026-11-20); rage; Charge; Cleave. Who he fights
+  (mine): one he tapped or took with a skill is his (`hero.chosen`) until it falls, he taps another, or it is more
+  than 300 behind him while he is not walking up to it. With nothing chosen the rules pick: the nearest within 210;
+  then one in reach rather than one that is not, or one 40 nearer; never away from one he can hit. When his target
+  falls, the next one that is after him takes its place.
 - **Places** (Robin, 2026-11-20: a sea chart of islands): a new hero starts in the harbour town. Only the place he
   is in is alive. Sailing is from a dock (within 90) and lands him where one steps ashore (`arrive`); the place he left is emptied
   with everything on its ground. Soft gates: nothing stops him sailing anywhere.
@@ -97,13 +108,14 @@ harbour town; a place without them (the tests' plain field) is its whole box.
   way-finder, found afresh twice a second.
 - **Monsters** arrive only on ground they can stand on, at least 270 from where he steps ashore; a stroll only goes
   where it can stand; nothing drops into the sea.
-- The thumb (schemes 2 and 3) is not steered round things: it slides along them, as the thumb pushes.
+- The thumb's push is not steered round things: he slides along them, as the thumb pushes.
 
 ## The save
 
-`STATE_VERSION` is 3. `migrate`: version 1 (the control test) becomes a new hero in the harbour who keeps his
-seed, his way of steering and his tallies; version 2 (chapter 1 before the island had a shore) gets an empty
-`route`; version 3 is looked over: anything it names that today's data does not know (a renamed piece, monster or
+`STATE_VERSION` is 4. `migrate` goes a step at a time: version 1 (the control test) becomes a new hero in the
+harbour who keeps his seed and his tallies; version 2 (chapter 1 before the island had a shore) gets an empty
+`route`; version 3 (three ways to steer on a switch) loses its `scheme` and gets `hero.chosen`; version 4 is
+looked over: anything it names that today's data does not know (a renamed piece, monster or
 place) is dropped rather than tripped on, and a hero standing where there is no ground any more (a place's layout
 changed under him: he is in the sea, or right inside a house or a rock) is put where one steps ashore, with the
 place started over. Standing beside a thing is not standing in it. Everything else is null, and the holder starts

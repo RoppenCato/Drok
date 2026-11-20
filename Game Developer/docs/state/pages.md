@@ -27,12 +27,21 @@ The pane is usually hidden while the AI works: its own clock barely runs and a s
      a design point is a client point);
    - a hold: a `touchstart` with a `Touch` of its own identifier, `touchmove`, then `touchend` with empty `touches`;
    - `window.dev.step(n)` between them; then read `window.dev.holder.state` and compare with what the rules give.
-3. A field point's place on the glass: `point - camera.midPoint + (206, 457.5)`.
-4. For a picture: step once, then take the screenshot; if it times out, step again and retry. If it keeps timing
-   out (it did after another tab was closed), load the page afresh and take the picture in the same call as the
-   steps. A wait on `requestAnimationFrame` can hang for good in a hidden pane: never await one.
-5. A field point that lies under a skill button is the button's: in the harbour the dock's lower half is under
-   them, so tap the dock's top (its place on the glass at about y 700).
+3. A field point's place on the glass: `point - camera.midPoint + (206, 457.5)`; the camera's middle is 60 below
+   the hero, so he is at about y 397. A tap is acted on at `mouseup`; a `mousedown`, a `mousemove` 10 or more
+   away and steps in between make the stick.
+4. For a picture: the stopped page draws only when it is stepped, and the screenshot waits for a frame, so keep
+   it stepping while the picture is taken: `window.__iv = setInterval(() => dev.step(1), 150);
+   setTimeout(() => clearInterval(window.__iv), 9000);` as the last line of the call before the screenshot (it
+   worked every time on 2026-11-20, where a bare screenshot timed out four times in five). The world moves on a
+   step each time, so set the scene up first. To get a scene that takes long to reach: play up to it, call
+   `dev.holder.save()`, then open the drive address without `seed=` (it loads the pane's own save) and take the
+   picture. If the canvas comes out bigger than the screen, set the pane's size again, open the page again and
+   call `dev.phaser.scale.refresh()`. A wait on `requestAnimationFrame` can hang for good in a hidden pane: never
+   await one.
+5. A field point that lies under a skill button is the button's (the row is in the middle at the bottom, y 815 to
+   887); the bars and the plate over it take no press. From where a new hero wakes, the harbour's dock is on the
+   glass at 206, 700.
 6. The console keeps errors from half-saved files during editing; `window.dev.log.errorCount` is the page's own count.
 7. Set the pane back to its own size when done.
 

@@ -7,7 +7,8 @@ startup questions lands here too. Numbered, so Robin can say "do 4".
 ## Open questions (need Robin)
 
 All 24 startup questions are answered; he left none till later. These points are open (Victor, GD, 2026-11-20); the
-brief's "Open questions" lists them in short, with one more at its head: which of the three ways to steer stays.
+brief's "Open questions" lists them in short. Which way to steer he answered on 2026-11-20, after playing: tap to
+move, with a stick at the same time.
 
 1. Cleave or Whirlwind. The kit he picked says "Cleave or Whirlwind"; the control test has Cleave. Asked again once he
    has felt Cleave.
@@ -15,8 +16,13 @@ brief's "Open questions" lists them in short, with one more at its head: which o
    chat message, not in the questionnaire that replaced it. Leonard, AD and the first quest lines will want it.
 3. The share of money lost on death. His pick says "say 10%"; the number is his to feel in chapter 1.
 4. At which levels the job advancements come, and what the Warrior can become.
-5. Which hand. The skill arc sits in the bottom right corner; the control test has a "left hand" switch (mine). Which
-   is the default is his to say after playing.
+5. Which hand. The skill row is in the middle at the bottom now (Robin, 2026-11-20); the "left hand" switch (mine)
+   only turns the row round, so the potion is on the thumb's side. Whether the switch is still worth having is his
+   to say after playing.
+6. Should the stick have a home on the screen? It shows only while a thumb drags (mine); a ring that always stands
+   somewhere would say "you can steer here" without words, and would take room at the bottom.
+7. Should his own health also show by his feet, where the eye is in a fight? It is over the buttons now, as he
+   suggested.
 
 ## Ideas (anyone's; marked whose)
 

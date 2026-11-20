@@ -27,17 +27,19 @@ earlier games made, so the pane and Robin's device are part of the check.
 | --- | --- | --- |
 | the ground (in `chapter1.test.ts`, 4) and the save's steps (2 more) | `npm test` | on Leonard, AD's island: the shore stops him and he slides along it; a tap from the landing to the chest and back finds the way and never stands in a solid thing; a tap on the sea or a rock takes him to the nearest ground; a landing is safe and walking monsters keep to the land; a version 2 save gets its `route`; a hero saved where the sea now is, is put ashore |
 | the harbour's ground (in `chapter1.test.ts`, 4) and one more save test | `npm test` | on Leonard, AD's town: a house is a box that cannot be stood in; a tap behind a house finds the way round and he never stands in a wall, the well or a person; pushed slantwise at a wall he slides along it; a tap on the stall takes him to its front, near enough to buy; a hero saved where a house now stands is put on the quay, one beside it is left be |
-| `rules\test\game.test.ts` (25) | `npm test` | the same seed plays out the same; the state is never changed; a bad step refused; walking by tap and by thumb; the place's edges; who the target is in each scheme; a swing while walking; a wind-up dodged; Charge; Cleave; health coming back; a fallen monster coming back in its zone |
+| `rules\test\game.test.ts` (27) | `npm test` | the same seed plays out the same; the state is never changed; a bad step refused; walking by tap and by thumb, and the two together (a push takes over from a tap, a tap walks him again after it); the place's edges; who the target is: the nearest when nothing is tapped, the tapped one kept against a nearer one, let go when far behind; a swing while walking; a wind-up dodged; Charge; Cleave; health coming back; a fallen monster coming back in its zone |
 | `rules\test\chapter1.test.ts` (28) | `npm test` | the data is whole (places, zones clear of the dock, every wind-up can be walked out of, a piece for every slot in every tier); a rarer piece is better; a new hero; the town; sailing; the gull's retreat and the coconut crab's slam; experience, a level, the last level; armour; loot by its chances over 600 kills; picking up; a full bag; the chest and its refill by the clock; falling and its cost; potions; wearing, taking off, dropping; the stall's stock, buying, selling; the save out and back, broken files, the control test's save, data that is gone |
-| `rules\test\bot.test.ts` (4) | `npm test` | each scheme fighting crabs for 90 s on 3 seeds; chapter 1 played through on 3 seeds; the game stays whole; prints the numbers |
+| `rules\test\bot.test.ts` (3) | `npm test` | a bot fighting crabs for 90 s on 3 seeds by taps, and one by the thumb's push; chapter 1 played through on 3 seeds; the game stays whole; prints the numbers |
 | `rules\test\purity.test.ts` (23) | `npm test` | no `Math.random`, clock, timers, DOM or network in the rules; they import only their own files and `rules\data\` |
 | the long balance run (in `bot.test.ts`, 2, skipped by `npm test`) | `npm run balance` (40 s) | chapter 1 played through on ten seeds by a sensible player and by a clumsy one (stands in every slam, drinks only at a quarter health, never uses Charge); prints the middle, the least and the most of: the minute each level comes, the chest, falls, trips home, potions, money |
 | typecheck | `npm run typecheck` | the whole, strict |
 | build | `npm run build` | the installable page into `dist\` |
 | the stepped page | the pane, `?mute=1&drive=1&seed=tide` | on 2026-11-20: a tap on the pier walks him there and opens the chart; a tap on the island sails; a fight; loot of two rarities picked up; wearing it from the bag; the hero window; the "Sea chart", "Trade" and "Open chest" buttons; buying a potion and a piece; the settings (steering, hand, "start over" asks twice); the save out and back, and a file that is not one; hold steering on the island; the chest |
 | the built page, offline | the pane, `localhost:4178` | on 2026-11-20: the service worker is active and has cached the page; with the server stopped the page still opens and keeps its save |
+| steering and the glass at the bottom | the pane, `?mute=1&drive=1&seed=tide` | on 2026-11-20, after Robin's first play: a touch does nothing until it lifts, then he walks to it; a touch that slides is the stick (he is steered, the tap's place is dropped, he stops dead on the lift, and no tap comes of it); a tap on the dock through the glass walks him there and he stands above the pile (y 627), not under it; a tap on a crab makes it his and he fights it; the pile, the plate and the bar over the crab are drawn as in `state\client.md`. Not checked: two fingers at once (the pane has one mouse), and how any of it feels |
 
-Since Leonard, AD's places came in (2026-11-20) there are 95 tests: moving and fighting are tested on a plain test
+Since Robin's first play (2026-11-20) there are 97 tests (the save is version 4: one more step up). Since Leonard,
+AD's places came in, moving and fighting are tested on a plain test
 field (`rules\test\sim.ts`), so they do not depend on where he put a palm; what must hold on the real island and
 in the real town is tested there. On the real places the bot still plays chapter 1 through on three seeds: level 5
 at about 15.2 minutes, no falls, two to four trips home to his stall. A crab-fighting bot that never drinks now
@@ -86,7 +88,8 @@ which the later chapters' upgrading is meant to answer. All three are Robin's to
 
 ## Not checked by anything yet
 
-- How it feels: the walk, the three schemes, the buttons under a real thumb, the windows on a real phone.
+- How it feels: the walk, the tap and the stick, the buttons under a real thumb, the windows on a real phone.
+- Two fingers at once on the field (one steering, one tapping a monster): written, never pressed.
 - The page running on its own clock for minutes: the pane is hidden while the AI works and its clock barely runs,
   so the real loop was fed frames by a script, not watched.
 - Sixty frames a second on his phone: the frame log (settings, "Save the log") says.

@@ -63,13 +63,12 @@ townsfolk stand on the quay without names. Lines, when they come, are the Game D
 
 ## The screen's own words
 
-The glass: `Level N`, `N gold`, `Bag`, `Chart`, `Hero`; `Cleave` / `30 rage`; `Charge` / `dash`; `Potion`;
+The glass: `Lv N`, `N` after a coin (`N gold` without the Art Director's glass), `Bag`, `Chart`, `Hero`; `Cleave` / `30 rage`; `Charge` / `dash`; `Potion`;
 `Open chest`, `Trade`, `Sea chart`; `<monster>  ·  level N`; `Down!` / `Lost N gold` / `Waking in N`;
 `Level N` / `Stronger, and whole again` / `As far as this chapter goes`; the place's name / `Levels 1 to 5` /
 `The harbour town`.
 The refusals: `Not ready`, `Not enough rage`, `Nothing in range`, `No potions left`, `Health is full`, `The chest
 is empty`, `Too far away`, `Sail from the dock`, `The bag is full`, `Not enough gold`, `No room for more potions`,
 `Sold`, `Sell at the stall in the harbour`, `That file is not a Drok save`, `Press again to erase this hero for good`.
-The help lines: "Tap the ground to walk. Tap a monster to fight it." / "Hold a finger down: he walks towards it and
-fights the nearest monster." / "Put your thumb down anywhere and push. He fights the nearest monster."
+The help line: "Tap to walk or to fight. Drag anywhere to steer."
 The windows' words are in `client\src\view\panels.ts`.

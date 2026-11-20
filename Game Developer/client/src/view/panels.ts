@@ -23,7 +23,6 @@ import {
   xpToNext,
   type GameState,
   type Item,
-  type Scheme,
   type Slot,
 } from '../../../rules/src/index.ts';
 import { ART, CHART_ART, GEAR_ART } from '../art.ts';
@@ -52,7 +51,6 @@ export interface PanelActions {
   act(intent: Intent): boolean;
   atShop(): boolean;
   atDock(): boolean;
-  setScheme(scheme: Scheme): void;
   /** The hand or the effects switch changed: the glass must lay itself out again. */
   settingsChanged(): void;
   exportSave(): void;
@@ -76,7 +74,6 @@ const CX = W / 2;
 /** The window's frame. */
 const F = { x: 20, y: 118, w: 372, h: 690 };
 const SLOT_NAMES: Record<Slot, string> = { weapon: 'cutlass', shield: 'buckler', hat: 'hat', coat: 'coat' };
-const SCHEME_NAMES: Record<Scheme, string> = { 1: '1 Tap', 2: '2 Hold', 3: '3 Stick' };
 
 /** What a piece gives, in words: "+4 damage", "+16 health, 1 armour". */
 export function statWords(item: Item): string {
@@ -298,13 +295,6 @@ export class Panels {
     this.frame('Settings');
     const s = settings.get();
     const rows: [string, () => void][] = [
-      [
-        `Steering: ${SCHEME_NAMES[state.scheme]}`,
-        () => {
-          this.actions.setScheme(((state.scheme % 3) + 1) as Scheme);
-          this.refresh();
-        },
-      ],
       [
         `Buttons: ${s.leftHand ? 'left' : 'right'} hand`,
         () => {

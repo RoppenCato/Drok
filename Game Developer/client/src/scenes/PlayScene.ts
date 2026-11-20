@@ -4,12 +4,17 @@ import { Controls } from '../controls.ts';
 import type { GameLog } from '../game-log.ts';
 import { DESIGN_HEIGHT, DESIGN_WIDTH, RES } from '../layout.ts';
 import type { Intent, LocalGame } from '../local-game.ts';
-import { HELP, Hud } from '../view/hud.ts';
+import { Hud } from '../view/hud.ts';
 import { Panels } from '../view/panels.ts';
-import { WorldView, type Thing } from '../view/world-view.ts';
+import { FOOT, WorldView, type Thing } from '../view/world-view.ts';
 
 /** How fast the camera closes on the hero: at 14 it is all but there in a fifth of a second, with no lag to feel. */
 const CAMERA_CATCH_UP = 14;
+/**
+ * The camera looks this far below him, so he is drawn above the screen's middle: in the middle of what the glass
+ * at the bottom leaves to see (mine; it came with Robin's buttons and health at the bottom, 2026-11-20).
+ */
+const LOOK_BELOW = 60;
 
 /** The events after which an open window may be showing something that is no longer so. */
 const STALE = new Set<GameEvent['type']>(['picked', 'bought', 'sold', 'equipped', 'unequipped', 'discarded', 'levelUp', 'xp', 'sailed', 'heroUp', 'potionUsed', 'chestOpened']);
@@ -75,12 +80,6 @@ export class PlayScene extends Phaser.Scene {
       act: (intent) => this.act(intent),
       atShop: () => this.near(this.holder.state) === 'shop',
       atDock: () => this.near(this.holder.state, true) === 'dock',
-      setScheme: (scheme) => {
-        this.controls.letGo();
-        this.holder.act({ type: 'scheme', scheme });
-        this.hud.setHelp(HELP[scheme]);
-        this.log.note(`scheme ${scheme}`);
-      },
       settingsChanged: () => this.hud.place(),
       exportSave: () => this.exportSave(),
       importSave: () => this.importSave(),
@@ -150,9 +149,10 @@ export class PlayScene extends Phaser.Scene {
 
     // The camera closes on where the hero is drawn. A jump is followed at once.
     const at = this.world.heroAt;
-    const k = Math.hypot(at.x - this.camX, at.y - this.camY) > 200 ? 1 : 1 - Math.exp((-delta / 1000) * CAMERA_CATCH_UP);
+    const lookY = at.y + LOOK_BELOW;
+    const k = Math.hypot(at.x - this.camX, lookY - this.camY) > 200 ? 1 : 1 - Math.exp((-delta / 1000) * CAMERA_CATCH_UP);
     this.camX += (at.x - this.camX) * k;
-    this.camY += (at.y - this.camY) * k;
+    this.camY += (lookY - this.camY) * k;
     this.cameras.main.centerOn(this.camX, this.camY);
   }
 
@@ -185,9 +185,9 @@ export class PlayScene extends Phaser.Scene {
   private arrive(state: GameState, announce: boolean): void {
     const place = placeOf(state);
     this.place = state.place;
-    this.cameras.main.setBounds(0, 0, place.width, place.height);
+    this.cameras.main.setBounds(0, 0, place.width, place.height + FOOT);
     this.camX = state.hero.x;
-    this.camY = state.hero.y;
+    this.camY = state.hero.y + LOOK_BELOW;
     this.cameras.main.centerOn(this.camX, this.camY);
     this.panels.close();
     if (announce) this.hud.banner(place.name, place.town ? 'The harbour town' : `Levels ${place.levels}`);

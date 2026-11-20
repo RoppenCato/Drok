@@ -40,11 +40,15 @@ needs no decision of his:
 
 ## Never alone
 
-- Which of the three ways to steer stays, and its felt numbers (the walk's speed, the dead zones).
+- The felt numbers of steering (the walk's speed, the stick's reach and dead middle, how far a thumb slides before
+  a tap is a drag). The way itself is his: tap and a stick together (Robin, 2026-11-20).
 - Cleave or Whirlwind; which hand is the default; the share lost on death; the levels of the job advancements.
 - The look and the music picks; anything in Leonard, AD's or Hugh, SD's folder.
 - The deploy to Cloudflare Pages (his login) and starting Hugh, SD's chat (his word).
-- His save and his page: never reloaded, never overwritten.
+- His save and his page: never reloaded, never overwritten. But know this: on the home link his page is the dev
+  server's, and it reloads itself every time a file of the game is saved here. So while he may be playing, do not
+  edit; and when a change is made on his word, tell him his page will have reloaded. The page that does not change
+  under him is the public one.
 
 ## The last report
 
@@ -52,3 +56,8 @@ needs no decision of his:
 in (the Warrior, gear, monsters, island, loot, glass, the harbour town, the sea chart, the icon), 95 tests, pushed.
 The plan's "Waits for Robin" is the list: play it and judge the look; pick a way to steer; the deploy to
 Cloudflare Pages; start Hugh, SD's chat in the desktop app; the felt numbers; the smaller open points in the brief.
+
+2026-11-20, later (Robin's first play, `playtests.md` round 1): the home link was dead and is up again; on his
+word, one way to steer (tap and a stick together), the skills in the middle at the bottom, health down by them and
+bigger over the monsters; 97 tests, pushed. Waits for him: to play it again and say whether the stick wants a home
+on the screen and whether the pile at the bottom is right.

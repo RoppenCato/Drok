@@ -1,14 +1,17 @@
-// Everything that stays put on the glass while he plays: health, rage and experience, his level and money, the
-// three small buttons at the top (Robin, 2026-11-20: bag, chart and character), the target's name, the skills in an
-// arc in the bottom corner with the potion beside them, the button that uses the thing he stands by, the stick's
-// ring, and the words that come and go. Placed in design units (412 by 915). It draws from the state and tells the
-// scene what was pressed; it decides nothing about the game. The windows are in panels.ts.
+// Everything that stays put on the glass while he plays. At the top: the settings, his level and money, and the
+// three small buttons (Robin, 2026-11-20: bag, chart and character). At the bottom, in the middle (Robin,
+// 2026-11-20, after playing: "the buttons should be in the middle at the bottom"; health "all the way at top" was
+// "hard to glance over. Maybe it should be at the bottom"): the skills and the potion in a row, his health and rage
+// over them, and over those who he fights and its health, with the button for the thing he stands by on top of
+// the pile and his experience along the very bottom. How the pile is stacked is mine. Then the stick's ring, and the
+// words that come and go. Placed in design units (412 by 915). It draws from the state and tells the scene what
+// was pressed; it decides nothing about the game. The windows are in panels.ts.
 //
 // It is drawn with the Art Director's pieces when his `glass` drop is in the game (glass.ts), and with plain boxes
 // and discs when it is not; the places and the sizes of what can be pressed are the same either way.
 
 import Phaser from 'phaser';
-import { N, heroMaxHp, kindOf, xpToNext, type GameEvent, type GameState, type RejectReason, type Scheme, type SkillId, type Vec } from '../../../rules/src/index.ts';
+import { N, heroMaxHp, kindOf, xpToNext, type GameEvent, type GameState, type RejectReason, type SkillId, type Vec } from '../../../rules/src/index.ts';
 import { COLORS, DEPTH, DESIGN_HEIGHT, DESIGN_WIDTH, FONT, RES } from '../layout.ts';
 import { settings } from '../settings.ts';
 import { Bar, INK, hasGlass, piece, stretch } from './glass.ts';
@@ -55,16 +58,22 @@ interface Disc {
 
 const W = DESIGN_WIDTH;
 const H = DESIGN_HEIGHT;
-const BAR_X = 60;
-const BAR_W = 132;
-/** The arc's corner sits above the phone's gesture bar. Cleave, pressed most, is where the thumb rests. */
-const ARC = { cornerUp: 24, cleave: [108, 22], charge: [108, 66], potion: [176, 44] } as const;
+/**
+ * The pile in the middle at the bottom, from the floor up (all mine but that it is there). The row of discs stands
+ * clear of the phone's gesture bar; each thing above it leaves a gap a thumb's width does not need but an eye does.
+ */
+const ROW_Y = H - 64;
+/** Along the row, from the middle: Cleave, pressed most, in the middle; the potion on the thumb's own side. */
+const ROW = { charge: -84, cleave: 0, potion: 78 } as const;
+const BAR_W = 200;
+const BAR_X = (W - BAR_W) / 2;
+const XP_Y = H - 14;
+const RAGE_Y = ROW_Y - 54;
+const HP_Y = RAGE_Y - 20;
+const PLATE_Y = HP_Y - 38;
+const USE_Y = PLATE_Y - 50;
 
-export const HELP: Record<Scheme, string> = {
-  1: 'Tap the ground to walk. Tap a monster to fight it.',
-  2: 'Hold a finger down: he walks towards it and fights the nearest monster.',
-  3: 'Put your thumb down anywhere and push. He fights the nearest monster.',
-};
+export const HELP = 'Tap to walk or to fight. Drag anywhere to steer.';
 
 const REFUSED: Partial<Record<RejectReason, string>> = {
   'on cooldown': 'Not ready',
@@ -130,7 +139,7 @@ export class Hud {
     this.glass = g;
     const top = DEPTH.hud;
 
-    // Top left: the settings, then his health and rage; his level and his money under them.
+    // Top left: the settings, then his level and his money as words on the world, a coin before the money.
     const menu = g ? piece(s, 'button/menu') : null;
     if (menu) this.reg(menu.setPosition(30, 30).setDepth(top));
     else {
@@ -138,22 +147,16 @@ export class Hud {
       this.words(30, 29, '≡', 26, COLORS.text, top + 1);
     }
     this.zone(30, 30, 24, 24, false, () => this.actions.open('menu'));
-    this.hp = new Bar(s, this.reg, { x: BAR_X, y: g ? 18 : 18, w: BAR_W, kind: 'hp', depth: top, plain: 16 });
-    this.hpText = this.words(BAR_X + BAR_W / 2, 18, '', 11, COLORS.text, top + 2).setStroke(INK.dark, 3);
-    this.rage = new Bar(s, this.reg, { x: BAR_X, y: g ? 38 : 33, w: BAR_W, kind: 'rage', depth: top, plain: 8 });
-    if (g) {
-      // His way: experience along the bottom, level and money as words on the world, a coin before the money.
-      this.xp = new Bar(s, this.reg, { x: 14, y: H - 18, w: 150, kind: 'xp', depth: top, plain: 6 });
-      this.level = this.words(BAR_X + 2, 60, '', 15, COLORS.text, top + 1).setOrigin(0, 0.5).setStroke(INK.dark, 4);
-      const coin = piece(s, 'mark/coin');
-      if (coin) this.reg(coin.setPosition(BAR_X + 60, 60).setDepth(top + 1));
-      this.gold = this.words(BAR_X + 72, 60, '', 15, COLORS.text, top + 1).setOrigin(0, 0.5).setStroke(INK.dark, 4);
-    } else {
-      this.xp = new Bar(s, this.reg, { x: BAR_X, y: 43, w: BAR_W, kind: 'xp', depth: top, plain: 6 });
-      this.reg(s.add.rectangle(198, 8, 58, 40, COLORS.barBack, 0.9).setOrigin(0).setDepth(top));
-      this.level = this.words(227, 19, '', 13, COLORS.text, top + 1);
-      this.gold = this.words(227, 37, '', 13, COLORS.goldText, top + 1);
-    }
+    this.level = this.words(62, 30, '', 16, COLORS.text, top + 1).setOrigin(0, 0.5).setStroke(INK.dark, 4);
+    const coin = g ? piece(s, 'mark/coin') : null;
+    if (coin) this.reg(coin.setPosition(122, 30).setDepth(top + 1));
+    this.gold = this.words(coin ? 134 : 116, 30, '', 16, coin ? COLORS.text : COLORS.goldText, top + 1).setOrigin(0, 0.5).setStroke(INK.dark, 4);
+
+    // The bottom, in the middle: his health with its numbers, his rage under it, his experience along the floor.
+    this.hp = new Bar(s, this.reg, { x: BAR_X, y: HP_Y, w: BAR_W, kind: 'hp', depth: top, plain: 14 });
+    this.hpText = this.words(W / 2, HP_Y, '', 12, COLORS.text, top + 2).setStroke(INK.dark, 3);
+    this.rage = new Bar(s, this.reg, { x: BAR_X, y: RAGE_Y, w: BAR_W, kind: 'rage', depth: top, plain: 10 });
+    this.xp = new Bar(s, this.reg, { x: BAR_X, y: XP_Y, w: BAR_W, kind: 'xp', depth: top, plain: 6 });
 
     // Top right: bag, chart, hero (Robin, 2026-11-20).
     const tops: [number, string, PanelKind][] = [
@@ -173,21 +176,21 @@ export class Hud {
       }
       this.zone(x, 30, 23, 24, false, () => this.actions.open(panel));
     }
-    this.help = this.words(W / 2, g ? 76 : 60, '', 13, g ? COLORS.text : COLORS.textDark, top).setWordWrapWidth(W - 40).setAlign('center').setOrigin(0.5, 0);
-    if (g) this.help.setStroke(INK.dark, 4);
+    this.help = this.words(W / 2, 66, '', 13, COLORS.text, top).setWordWrapWidth(W - 40).setAlign('center').setOrigin(0.5, 0).setStroke(INK.dark, 4);
 
-    // Under them: who he fights. On his glass, a plate with the name and the level, the health along its foot.
-    const plateY = g ? 116 : 104;
+    // Over his own health: who he fights. On the Art Director's glass, a plate with the name and the level, the
+    // health along its foot; the two healths sit one over the other, so one glance takes in the fight.
     if (g) {
-      this.targetPlate = stretch(s, 'plate', 172, 34);
-      if (this.targetPlate) this.reg(this.targetPlate.setPosition(W / 2, plateY).setDepth(top));
+      this.targetPlate = stretch(s, 'plate', BAR_W, 34);
+      if (this.targetPlate) this.reg(this.targetPlate.setPosition(W / 2, PLATE_Y).setDepth(top));
     }
-    this.targetName = this.words(g ? W / 2 - 68 : W / 2, g ? plateY - 5 : 104, '', 13, g ? INK.dark : COLORS.textDark, top + 1);
-    this.targetLevel = this.words(W / 2 + 68, plateY - 5, '', 11, INK.dim, top + 1).setOrigin(1, 0.5);
+    this.targetName = this.words(g ? W / 2 - 84 : W / 2, PLATE_Y - 5, '', 14, g ? INK.dark : COLORS.text, top + 1);
+    this.targetLevel = this.words(W / 2 + 84, PLATE_Y - 5, '', 12, INK.dim, top + 1).setOrigin(1, 0.5);
     if (g) this.targetName.setOrigin(0, 0.5);
-    this.targetBar = new Bar(s, this.reg, { x: W / 2 - (g ? 66 : 60), y: g ? plateY + 14 : 118, w: g ? 132 : 120, kind: 'hp', depth: top + 2, plain: 7 });
+    else this.targetName.setStroke(INK.dark, 4);
+    this.targetBar = new Bar(s, this.reg, { x: W / 2 - 88, y: PLATE_Y + 14, w: 176, kind: 'hp', depth: top + 2, plain: 8 });
 
-    // The stick's ring and knob (scheme 3): shown where the thumb came down.
+    // The stick's ring and knob: shown where the thumb came down, once it has slid.
     this.stickBase = this.reg(s.add.circle(0, 0, 46).setStrokeStyle(3, COLORS.mark, 0.55).setDepth(top).setVisible(false));
     this.stickKnob = this.reg(s.add.circle(0, 0, 22, COLORS.mark, 0.45).setDepth(top).setVisible(false));
 
@@ -206,11 +209,11 @@ export class Hud {
     this.place();
 
     // Over the windows too: a refusal inside a window must be read.
-    this.toastText = this.words(W / 2, 690, '', 15, COLORS.warn, DEPTH.banner).setStroke(COLORS.textDark, 4);
+    this.toastText = this.words(W / 2, USE_Y - 44, '', 15, COLORS.warn, DEPTH.banner).setStroke(COLORS.textDark, 4);
     this.bannerTitle = this.words(W / 2, 210, '', 30, COLORS.text, DEPTH.banner).setStroke(COLORS.textDark, 6);
     this.bannerSub = this.words(W / 2, 246, '', 15, COLORS.text, DEPTH.banner).setStroke(COLORS.textDark, 4);
     this.downText = this.words(W / 2, 360, '', 28, COLORS.text, DEPTH.banner).setStroke(COLORS.textDark, 6).setAlign('center');
-    this.setHelp(HELP[state.scheme]);
+    this.setHelp(HELP);
   }
 
   /** A press at this point, in design units. True when the glass took it, so the field must not. */
@@ -261,15 +264,13 @@ export class Hud {
     if (knob) this.stickKnob.setPosition(knob.x, knob.y);
   }
 
-  /** The arc sits under the right thumb, or under the left with the hand switch; the use button on the other side. */
+  /** The row in the middle at the bottom; the hand switch turns it round, so the potion is on the thumb's side. */
   place(): void {
-    const left = settings.get().leftHand;
+    const side = settings.get().leftHand ? -1 : 1;
     for (const d of this.discs) {
-      const [radius, degrees] = ARC[d.id];
-      const a = (degrees * Math.PI) / 180;
-      const fromEdge = radius * Math.cos(a);
-      const x = left ? fromEdge : W - fromEdge;
-      const y = H - ARC.cornerUp - radius * Math.sin(a);
+      const x = W / 2 + ROW[d.id] * side;
+      // The smaller potion disc stands on the same floor as the two big ones.
+      const y = ROW_Y + (36 - d.radius);
       d.zone.x = x;
       d.zone.y = y;
       d.disc.setPosition(x, y);
@@ -279,9 +280,9 @@ export class Hud {
       d.count.setPosition(x, y);
       d.drawn = -1;
     }
-    // On his glass the experience bar lies along the bottom left, so the use button sits above it.
-    const ux = left ? W - 104 : 104;
-    const uy = this.glass ? 842 : 852;
+    // The button for the thing he stands by tops the pile, in the middle.
+    const ux = W / 2;
+    const uy = USE_Y;
     this.useZone.x = ux;
     this.useZone.y = uy;
     this.useBox.setPosition(ux, uy);
@@ -313,7 +314,7 @@ export class Hud {
     this.rage.set(h.rage / N.hero.maxRage);
     const need = xpToNext(h.level);
     this.xp.set(need > 0 ? h.xp / need : 1);
-    this.level.setText(this.glass ? `Lv ${h.level}` : `Level ${h.level}`);
+    this.level.setText(`Lv ${h.level}`);
     this.gold.setText(this.glass ? `${h.gold}` : `${h.gold} gold`);
     // A full bag shows on its button.
     const full = h.bag.length >= N.bagSize;

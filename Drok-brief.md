@@ -45,8 +45,11 @@ rare drops, in a top-down world."
 - **The view** (Robin, 2026-11-19): "Top-down 2.5D view, like Zelda. Movement must feel smooth and snappy."
 - **The pace** (Robin, 2026-11-19): "Real time, not turn-based. Not a card game."
 - **The input** (Robin, 2026-11-19): "Tap to move, with skill buttons. Buttons at the bottom or sides, covering as
-  little of the screen as possible." Which way of steering it becomes, he picks by feel after the control test (see
-  "The work").
+  little of the screen as possible." (Robin, 2026-11-20, after playing): "I think click to move is good, but there
+  needs to be a simple wqy to also move freely." "There should be a moving stick so you can choose to move with the
+  stick or click where to go (both available at the same time) or some other way to move." So there is one way to
+  steer: a tap walks him there, and a thumb that drags is a stick. How the stick works (it appears where the thumb
+  comes down and slides) is the Game Developer's, for him to judge.
 - **Fighting** (Robin, 2026-11-20, his pick): a target with auto-attack. He picks a target and the hero swings by
   himself while in reach; his thumb steers and presses skills. Not swings he aims himself.
 - **The hero** (Robin, 2026-11-19): "One class to start: Warrior." "A long-lived character with permanent unlocks.
@@ -72,8 +75,10 @@ rare drops, in a top-down world."
   carries (say 10%), and he wakes in the harbour town.
 - **How the player is guided** (Robin, 2026-11-20, his pick): light quests. A few people in the harbour give hunting
   tasks ("30 crabs", "5 shells") with ! and ? marks and one short list. They speak in short lines; no long story.
-- **The screen** (Robin, 2026-11-20, his pick): skills in an arc in the bottom corner under his thumb; bag, chart and
-  character as small buttons at the top.
+- **The screen** (Robin, 2026-11-20, his pick): bag, chart and character as small buttons at the top. (Robin,
+  2026-11-20, after playing; this takes the place of his pick of the same day, an arc in the bottom corner): "I think
+  the buttons should be in the middle at the bottom." "Health etc on your hero and on mobs needs to be easier to see.
+  Its all the way at top now making it hard to glance over. Maybe it should be at the bottom."
 - **The save**: on the phone only, since there is no server and no account. (Robin, 2026-11-20, his pick): an "export
   save" button in the settings from day one.
 
@@ -99,6 +104,7 @@ rare drops, in a top-down world."
   for me to try on my phone, so I can pick by feel: 1. Tap to move, tap a monster to target it. 2. Hold and drag to
   steer, auto-attack the nearest monster. 3. A floating stick with buttons." (Robin, 2026-11-20, his pick): it gets two
   skill buttons, Charge and Cleave, so he can feel buttons under his thumb; the rest of the kit comes in chapter 1.
+  It is over (Robin, 2026-11-20): tap to move stays, with a stick at the same time; see "The input".
 - **Chapter 1** (Robin, 2026-11-20, his pick): "Harbour town plus island". One island with three monsters, levelling 1
   to 5, loot on the ground with rarities, one chest, death that costs money, and the save; plus a small harbour town
   with a shop to walk back to, and the sea chart between the two. Real art and sound for just that. The chapters are
@@ -127,6 +133,9 @@ A line each, newest at the bottom: the date, the decision, Robin's words.
   the hero makes a name, with cutlass and buckler; and the picks above on hunting grounds, gear, the monster book,
   advancements and upgrading, loot, death, guidance, the screen, chapter 1, day and night, music, sound effects and
   working alone.
+- 2026-11-20: after his first play of chapter 1: tap to move stays and a stick comes with it, both at once ("click to
+  move is good, but there needs to be a simple wqy to also move freely"); the skill buttons go to the middle at the
+  bottom; health, his and the monsters', must be easy to glance at, "maybe at the bottom".
 
 ## Open questions
 
@@ -134,9 +143,10 @@ All 24 startup questions are answered (2026-11-20) and stand in their sections a
 Art Director's chat. What is open now, numbered so Robin can answer any of it whenever he likes; the full wording is
 in `Game Developer\docs\idea-bank.md`:
 
-1. Which of the three ways to steer stays (after he has played the control test).
+1. Answered 2026-11-20: tap to move, with a stick at the same time ("The input").
 2. Cleave or Whirlwind.
 3. Whether "Drok" means something in the world.
 4. The share of money lost on death (his pick said "say 10%").
 5. The levels of the job advancements, and what the Warrior can become.
-6. Which hand the skill buttons sit under by default.
+6. Which hand the skill buttons sit under by default. (They are in the middle now; the hand only says on which side
+   of the row the potion sits.)

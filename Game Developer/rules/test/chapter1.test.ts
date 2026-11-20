@@ -643,10 +643,10 @@ describe('the save', () => {
     expect(migrate({ version: 3, seed: 'x', board: { start: 'a1', spaces: {} }, players: {}, turn: 'local', ticks: 0, time: 0 })).toBeNull();
   });
 
-  it("is brought up from the control test's save: a new hero in the harbour who keeps his seed, his way of steering and his tallies", () => {
+  it("is brought up from the control test's save: a new hero in the harbour who keeps his seed and his tallies", () => {
     const old = { version: 1, seed: 'tide', time: 300, ticks: 18000, scheme: 3, monstersWanted: 3, hero: { x: 600, y: 750, hp: 80, rage: 40 }, monsters: [], respawns: [4], nextId: 30, kills: 41, deaths: 2 };
     const s = migrate(old)!;
-    expect(s).toEqual({ ...newGame({ seed: 'tide', scheme: 3 }), kills: 41, deaths: 2 });
+    expect(s).toEqual({ ...newGame({ seed: 'tide' }), kills: 41, deaths: 2 });
     expect(s.version).toBe(STATE_VERSION);
     expect(migrate({ version: 1, seed: 'tide' })).toBeNull();
   });
@@ -656,12 +656,30 @@ describe('the save', () => {
     sim.run(2);
     const old = JSON.parse(JSON.stringify(sim.state));
     old.version = 2;
+    old.scheme = 1;
     delete old.hero.route;
+    delete old.hero.chosen;
     const s = migrate(old)!;
     expect(s.version).toBe(STATE_VERSION);
     expect(s.hero.route).toEqual([]);
+    expect(s.hero.chosen).toBe(false);
     expect(s.hero.level).toBe(sim.state.hero.level);
     expect(s.monsters).toHaveLength(sim.state.monsters.length);
+  });
+
+  it('is brought up from the save with three ways to steer: the choice is gone, everything else is as he left it', () => {
+    const sim = Sim.landed();
+    sim.run(2);
+    sim.give('tricorn', 'rare');
+    const old = JSON.parse(JSON.stringify(sim.state));
+    old.version = 3;
+    old.scheme = 2;
+    delete old.hero.chosen;
+    const s = migrate(old)!;
+    expect(s).toEqual({ ...sim.state, hero: { ...sim.state.hero, chosen: false } });
+    expect('scheme' in s).toBe(false);
+    // What it was like before today is no state of today's.
+    expect(migrate({ ...old, version: STATE_VERSION })).toBeNull();
   });
 
   it('puts him ashore if the place has changed under him and he would stand in the sea', () => {

@@ -6,7 +6,7 @@ done when every line of its "done when" is true on Robin's device, not before; t
 done, except art and sound, which may run one chapter ahead. The checklist of the current chapter is
 `plan-chapter-N.md`; the art per chapter is `art-demands.md`, the sound `sound-demands.md`; what is open is `idea-bank.md`.
 
-## Before chapter 1: the control test. **Built 2026-11-20; waits for Robin's thumb**
+## Before chapter 1: the control test. **Built 2026-11-20; answered by Robin 2026-11-20: tap and a stick, both at once**
 
 (Robin, 2026-11-19): "one small field, one monster, and three control schemes for me to try on my phone, so I can pick
 by feel: 1. Tap to move, tap a monster to target it. 2. Hold and drag to steer, auto-attack the nearest monster. 3. A
@@ -41,7 +41,8 @@ public page and Robin's own play wait for Robin. The list is `plan-chapter-1.md`
   a bag; four things to wear; one chest that fills again by the clock; potions.
 - Death that costs a tenth of his money and wakes him in the harbour; a stall that sells and buys.
 - Bag, chart and hero at the top; export and import of the save in the settings; the built page works offline.
-- The three ways to steer, on a switch, until Robin picks one.
+- One way to steer (Robin, 2026-11-20, after playing): a tap walks him there, a thumb that drags is a stick. The
+  skills in the middle at the bottom, his health and the target's over them.
 - **Still to do**: the public page on Cloudflare Pages (Robin's login); the audio layer when the first sounds land.
 
 **Art** (wave 1): the look (three stills, Robin picks); the Warrior with cutlass and buckler; the island's ground kit;

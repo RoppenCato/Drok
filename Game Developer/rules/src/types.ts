@@ -11,12 +11,10 @@ export interface Vec {
   y: number;
 }
 
-/**
- * The three ways to steer (Robin, 2026-11-19; he has not picked one yet, so all three stay):
- * 1 tap to move, tap a monster to target it; 2 hold and drag to steer, auto-attack the nearest; 3 a floating stick.
- * The rules need to know because 2 and 3 pick the target by themselves.
- */
-export type Scheme = 1 | 2 | 3;
+// One way to steer, with two hands to it (Robin, 2026-11-20, after the control test: "click to move is good, but
+// there needs to be a simple way to also move freely", "both available at the same time"): a tap sends him somewhere
+// or at a monster (`moveTo`, `target`), and a thumb that drags pushes him about (`steer`). The push wins while it
+// lasts. The control test's three schemes and their switch are gone.
 
 export type SkillId = 'charge' | 'cleave';
 
@@ -74,7 +72,12 @@ export interface Hero {
   steer: Vec;
   /** The monster he fights, by id. */
   target: number | null;
-  /** Walk after the target until it is in reach (a tapped monster, a Charge in scheme 1). */
+  /**
+   * The player picked this target himself (a tap, a skill): it stays his until it falls or is far behind. One the
+   * rules picked for him (the nearest, the one that struck him) is changed for a nearer one as he moves about.
+   */
+  chosen: boolean;
+  /** Walk after the target until it is in reach (a tapped monster, a Charge). The thumb's push ends it. */
   chase: boolean;
   /** Did he move this step? For the screen. */
   moving: boolean;
@@ -123,7 +126,6 @@ export interface GameState {
   ticks: number;
   /** The real clock as the holder last told it, in milliseconds. The rules never read a clock themselves. */
   now: number;
-  scheme: Scheme;
   /** The place he is in. Only that place is alive. */
   place: string;
   hero: Hero;
@@ -146,7 +148,6 @@ export interface GameState {
 export type Action =
   /** The world moves on by `dt` seconds; `now` is the holder's real clock in ms. The holder sends it in even steps. */
   | { type: 'tick'; dt: number; now?: number }
-  | { type: 'scheme'; scheme: Scheme }
   /** A tap on the ground. */
   | { type: 'moveTo'; x: number; y: number }
   /** The thumb's push; 0, 0 lets go. */

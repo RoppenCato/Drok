@@ -12,12 +12,11 @@ import { hurtMonster, openChest } from './loot.ts';
 import { makeRng, type Rng } from './rng.ts';
 import { STATE_VERSION } from './save.ts';
 import { buy, discard, drinkPotion, enterPlace, equip, sail, sell, unequip } from './town.ts';
-import type { Action, ApplyResult, GameEvent, GameState, Item, Scheme, SkillId, Slot } from './types.ts';
+import type { Action, ApplyResult, GameEvent, GameState, Item, SkillId, Slot } from './types.ts';
 import { tick } from './world.ts';
 
 export interface NewGameOptions {
   seed: string;
-  scheme?: Scheme;
 }
 
 /**
@@ -34,7 +33,6 @@ export function newGame(o: NewGameOptions): GameState {
     time: 0,
     ticks: 0,
     now: 0,
-    scheme: o.scheme ?? 1,
     place: START_PLACE,
     hero: {
       x: town.wake.x,
@@ -54,6 +52,7 @@ export function newGame(o: NewGameOptions): GameState {
       route: [],
       steer: { x: 0, y: 0 },
       target: null,
+      chosen: false,
       chase: false,
       moving: false,
       swingIn: 0,
@@ -87,8 +86,6 @@ export function apply(state: GameState, action: Action, rng: Rng): ApplyResult {
   switch (action.type) {
     case 'tick':
       return tick(state, action.dt, action.now, rng);
-    case 'scheme':
-      return setScheme(state, action.scheme);
     case 'moveTo':
       return moveTo(state, action.x, action.y);
     case 'steer':
@@ -114,18 +111,6 @@ export function apply(state: GameState, action: Action, rng: Rng): ApplyResult {
     case 'sell':
       return sell(state, action.item);
   }
-}
-
-/** Another way of steering: whatever the thumb was doing in the old one is let go. The target stays. */
-function setScheme(state: GameState, scheme: Scheme): ApplyResult {
-  if (scheme !== 1 && scheme !== 2 && scheme !== 3) return reject(state, 'scheme', 'bad number');
-  const s = clone(state);
-  s.scheme = scheme;
-  s.hero.dest = null;
-  s.hero.route = [];
-  s.hero.steer = { x: 0, y: 0 };
-  s.hero.chase = false;
-  return { state: s, events: [] };
 }
 
 /**
@@ -197,8 +182,8 @@ function charge(state: GameState): ApplyResult {
   h.dest = null;
   h.route = [];
   h.swing = null;
-  // In scheme 1 he stays on it after landing, as after a tap; in 2 and 3 the thumb decides where he goes next.
-  h.chase = s.scheme === 1;
+  // He stays on it after landing, as after a tap; a thumb that is pushing takes him where it likes the step after.
+  h.chase = true;
   h.facing = angleTo(h, m);
   // It holds still for the dash, so he does not run after a moving thing.
   m.stunned = Math.max(m.stunned, N.charge.holdSeconds);

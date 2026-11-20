@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BASES, chestFull, dist, heroMaxHp, heroReach, itemStats, kindOf, MONSTERS, N, onLand, PLACES, RARITY_ORDER, START_PLACE, buyPrice, type Item, type Monster, type Scheme, type Vec } from '../src/index.ts';
+import { BASES, chestFull, dist, heroMaxHp, heroReach, itemStats, kindOf, MONSTERS, N, onLand, PLACES, RARITY_ORDER, START_PLACE, buyPrice, type Item, type Monster, type Vec } from '../src/index.ts';
 import { DT, ISLAND, Sim } from './sim.ts';
 
 // Bots that play the game and print what they got. The numbers are for a person to read: the tests themselves only
@@ -29,10 +29,12 @@ function whole(sim: Sim): void {
   expect(s.monsters.length + s.respawns.length).toBe(place.zones.reduce((n, z) => n + z.count, 0));
 }
 
-// ---- the three ways to steer, each fighting crabs for a while ---------------------------------------------------
+// ---- the two hands of steering (a tap, the thumb's push), each fighting crabs for a while ------------------------
 
-function fight(scheme: Scheme, seed: string, seconds: number): { kills: number; deaths: number; hpLost: number; refused: number } {
-  const sim = Sim.landed(seed, { scheme });
+type Hand = 'tap' | 'thumb';
+
+function fight(hand: Hand, seed: string, seconds: number): { kills: number; deaths: number; hpLost: number; refused: number } {
+  const sim = Sim.landed(seed);
   const steps = Math.round(seconds / DT);
   for (let i = 0; i < steps; i++) {
     const h = sim.state.hero;
@@ -42,8 +44,11 @@ function fight(scheme: Scheme, seed: string, seconds: number): { kills: number; 
       for (const m of crabs) if (nearest && dist(h, m) < dist(h, nearest)) nearest = m;
       if (nearest) {
         const d = dist(h, nearest);
-        if (scheme === 1) {
-          if (h.target === null) sim.act({ type: 'target', monster: nearest.id });
+        if (hand === 'tap') {
+          // A tap on the nearest one, unless he is on one he tapped or is already hitting one that came at him.
+          const now = h.target !== null ? sim.find(h.target) : undefined;
+          const busy = now !== undefined && (h.chosen || dist(h, now) <= heroReach(now));
+          if (!busy) sim.act({ type: 'target', monster: nearest.id });
         } else {
           // A thumb pushing towards the nearest one until it is in reach, then lifting.
           const push = d > heroReach(nearest) - 6 ? { x: (nearest.x - h.x) / d, y: (nearest.y - h.y) / d } : { x: 0, y: 0 };
@@ -59,15 +64,15 @@ function fight(scheme: Scheme, seed: string, seconds: number): { kills: number; 
   return { kills: sim.state.kills, deaths: sim.state.deaths, hpLost: sim.of('heroHit').reduce((sum, e) => sum + e.amount, 0), refused: sim.count('rejected') };
 }
 
-describe('a bot fights crabs with each way of steering', () => {
+describe('a bot fights crabs with each hand of the steering', () => {
   const seconds = 90;
   const seeds = ['tide', 'reef', 'gull'];
-  for (const scheme of [1, 2, 3] as const) {
-    it(`scheme ${scheme}: ${seconds} s on ${seeds.length} seeds`, () => {
-      const runs = seeds.map((seed) => fight(scheme, seed, seconds));
+  for (const hand of ['tap', 'thumb'] as const) {
+    it(`by ${hand}: ${seconds} s on ${seeds.length} seeds`, () => {
+      const runs = seeds.map((seed) => fight(hand, seed, seconds));
       const minutes = (seconds * seeds.length) / 60;
       const sum = (of: (t: (typeof runs)[number]) => number): number => runs.reduce((total, t) => total + of(t), 0);
-      console.log(`  [numbers] scheme ${scheme}: ${(sum((t) => t.kills) / minutes).toFixed(1)} crabs a minute, ${(sum((t) => t.hpLost) / minutes).toFixed(0)} health lost a minute, ${sum((t) => t.deaths)} falls, ${sum((t) => t.refused)} refused`);
+      console.log(`  [numbers] by ${hand}: ${(sum((t) => t.kills) / minutes).toFixed(1)} crabs a minute, ${(sum((t) => t.hpLost) / minutes).toFixed(0)} health lost a minute, ${sum((t) => t.deaths)} falls, ${sum((t) => t.refused)} refused`);
       expect(sum((t) => t.kills)).toBeGreaterThan(0);
       // The bot only presses a skill when it should work.
       expect(sum((t) => t.refused)).toBe(0);

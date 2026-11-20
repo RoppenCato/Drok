@@ -17,14 +17,14 @@ but for the sea chart, which with his art fills the whole screen.
 | `client\src\main.ts` | starts Phaser, loads or makes the game, the frame log, saves when the page is put away, `window.dev` |
 | `client\src\layout.ts` | the name, the design size (412 by 915), `RES`, the stand-in colours, what is drawn over what |
 | `client\src\local-game.ts` | the holder: the state and the dice, even steps from uneven frames, the real clock for the rules, the save in and out |
-| `client\src\controls.ts` | the three ways to steer: fingers into intents; a tap on a thing walks him there to use it |
+| `client\src\controls.ts` | steering: a tap and a dragged thumb into intents; a tap on a thing walks him there to use it |
 | `client\src\art.ts` | one switch for each of the Art Director's drops, and which picture belongs to which piece of gear |
 | `client\src\scenes\BootScene.ts` | paints the four stand-in grounds once (sand, grass, rock, cobble); loads the art that is switched on, each picture with its data; starts play |
 | `client\src\scenes\PlayScene.ts` | the one screen: wires fingers, the holder, the views and the windows; the camera; export and import |
 | `client\src\view\world-view.ts` | the place: ground, props, dock, chest, stall, the people who stand about, the hero, the monsters, the loot, the small effects |
 | `client\src\view\figures.ts` | a figure from an atlas: its action, its facing (eight, three of them mirrored), its frames by time; the hero with his gear on his hand, arm and head; a single picture from a set |
 | `client\src\view\glass.ts` | the Art Director's pieces for the glass: a piece, a piece stretched without bending its corners, a bar, the ink colours for words on his panels |
-| `client\src\view\hud.ts` | the glass: bars, level and money, the top buttons, the skills and the potion, the button for the thing he stands by |
+| `client\src\view\hud.ts` | the glass: level and money and the top buttons; at the bottom the skills and the potion, his health and rage, who he fights, the button for the thing he stands by |
 | `client\src\view\panels.ts` | the windows: bag, hero, sea chart, stall, settings |
 | `client\src\game-log.ts` | the frame log and error log Robin can save from the settings |
 | `client\src\settings.ts` | sound off, fewer effects, which hand; in localStorage under `drok.settings` |
@@ -53,19 +53,45 @@ answer at once); a window's buttons act when the finger lifts on them, because s
 from a phone's browser; a tap beside a window closes it. The steering finger lets go only when that finger lifts,
 or when the page loses the screen or a window opens. Three fingers are tracked.
 
-The three ways to steer are the control test's (Robin, 2026-11-19): 1 Tap, 2 Hold, 3 Stick, now on a switch in the
-settings because he has not picked one; tap is the default, as his brief says. In scheme 1 a tap on the chest, the
-stall or the pier walks him there and uses it on arrival. In every scheme a button appears while he stands by a
-thing: "Open chest", "Trade", "Sea chart".
+**Steering** (`controls.ts`; Robin, 2026-11-20, after playing: tap to move is good, and a simple way to move freely
+must be there at the same time). One way, no switch:
 
-## The glass (`hud.ts`; Robin, 2026-11-20: skills in an arc in the bottom corner; bag, chart and character at the top)
+- **A tap** on the ground walks him there; on a monster (within 26 of its body) makes it his target and he walks up
+  to it; on the chest, the stall or the dock walks him there and uses it on arrival.
+- **A drag** anywhere on the field is a stick: once the thumb has slid 10 units, a ring appears where it came down
+  and the push is how far the thumb is from it (reach 46, a dead middle of 7; past its reach the ring comes along).
+- A touch is a tap until it has slid, and **a tap is acted on when the thumb lifts** (mine): acted on the moment it
+  comes down, every drag would first send him a step towards the thumb. A second finger on the field is always a
+  tap, so one thumb can steer while the other picks who he fights.
+- A button appears while he stands by a thing: "Open chest", "Trade", "Sea chart".
 
-Top left: the settings button, then health (with numbers), rage and experience, his level and his money. Top right:
-Bag (turns orange when full), Chart, Hero. Under them: a line of help for seven seconds, then the target's name,
-level and health. Bottom corner: Cleave where the thumb rests, Charge above it, the potion (with its count) beside
-them; each shows its wait as a dark wedge and a number. The button for the thing he stands by sits on the other
-side. Words that come and go: a refusal ("Not enough rage", "The bag is full"), a banner for a new place or level,
-"Down! Lost N gold".
+## The glass (`hud.ts`)
+
+Robin, 2026-11-20: bag, chart and character as small buttons at the top; and after playing: "the buttons should be
+in the middle at the bottom", and health, his and the monsters', easier to glance at, "maybe at the bottom". How
+the bottom is stacked is mine.
+
+Top left: the settings button, his level, a coin and his money. Top right: Bag (turns orange when full), Chart,
+Hero. Under them a line of help for seven seconds. In the middle at the bottom, from the floor up:
+
+| What | Where (the middle of each, of 412 by 915) |
+| --- | --- |
+| experience | a bar 200 long at y 901 |
+| Charge, Cleave, the potion with its count | discs at x 122, 206, 284, y 851 (the potion 859); the "left hand" switch turns the row round; each shows its wait as a dark wedge and a number |
+| rage | a bar 200 long at y 797 |
+| health, with its numbers | a bar 200 long at y 777 |
+| who he fights: name, level, health | a plate 200 long at y 739, its bar at 753; only while he has a target |
+| the button for the thing he stands by | at y 689; only while he stands by one |
+| a refusal ("Not enough rage") | words at y 645 |
+
+None of it but the discs and the button takes a press: a tap on a bar goes through to the field. Because the pile
+covers the bottom, **the camera looks 60 below him** (`LOOK_BELOW` in `PlayScene.ts`), so he is drawn at about y
+397, in the middle of what is left to see; and it may look 110 below a place's foot (`FOOT` in `world-view.ts`,
+where the ground picture's last row of sea is drawn out), so on a dock he stands above the pile, not under it.
+A banner for a new place or level and "Down! Lost N gold" are in the upper half as before.
+
+Over a monster's head: its health, 44 or more long and 7 thick, when it is hurt or is the one he fights; that one's
+is edged in gold. It is the game's own box until Leonard, AD draws one.
 
 ## The windows (`panels.ts`)
 
