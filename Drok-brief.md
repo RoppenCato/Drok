@@ -29,6 +29,12 @@ rare drops, in a top-down world."
 
 ## The theme and the world
 
+- **A new direction, being drawn** (Robin, 2026-11-20): "I think I like it more if its an open world and not tied
+  to islands. Instead it should be biomes." "A shrunk person and enemies are insects"; then, of that idea: "Lets do
+  1, but inside a house." And: "I really liked the color and aestethic of what we have now tho." He asked "Does it
+  really work well im 2D tho? Scale can be tricky", so Leonard, AD draws three concepts first and Robin judges
+  them. **Until he has, the pirate lines below are what the game is built as**; when he picks, they are rewritten
+  (the theme, the hero's aim, his weapons, the world, the towns, the monsters, the names).
 - **The theme** (Robin, 2026-11-20, his pick): vibrant pirate. "Bright seas, green islands, colourful crews and
   beasts. Nothing of dark fantasy comes back." It replaces "Dark fantasy" (Robin, 2026-11-19); he first wrote "Maybe
   vibrant pirate is a better theme", then picked it.
