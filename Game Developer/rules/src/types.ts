@@ -45,7 +45,7 @@ export interface Drop {
   /** How much money, or how many potions. */
   amount: number;
   item: Item | null;
-  /** Seconds it has lain there. */
+  /** Seconds it has lain there. Below 0 it is still inside a chest that is charging: not to be seen or picked up. */
   age: number;
 }
 
@@ -220,7 +220,8 @@ export type GameEvent =
   | { type: 'dropped'; drop: Drop }
   | { type: 'picked'; drop: Drop }
   | { type: 'bagFull' }
-  | { type: 'chestOpened'; x: number; y: number }
+  /** The chest starts to open: it charges for `charge` seconds, then its loot pops out. `rarity` is the best piece inside. */
+  | { type: 'chestOpened'; x: number; y: number; rarity: Rarity; charge: number }
   | { type: 'sailed'; from: string; to: string }
   | { type: 'potionUsed' }
   | { type: 'equipped'; item: Item }

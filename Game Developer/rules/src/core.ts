@@ -116,10 +116,10 @@ export function newItem(s: GameState, base: string, rarity: Rarity): Item {
 }
 
 /** Put something on the ground near `at`, a little scattered so two things do not lie in one another. */
-export function putDrop(s: GameState, kind: Drop['kind'], amount: number, item: Item | null, at: Vec, spread: number, rng: Rng, ev: GameEvent[]): void {
+export function putDrop(s: GameState, kind: Drop['kind'], amount: number, item: Item | null, at: Vec, spread: number, rng: Rng, ev: GameEvent[], age = 0): void {
   const a = rng.next() * Math.PI * 2;
   const r = spread * (0.4 + 0.6 * rng.next());
-  const drop: Drop = { id: s.nextId, x: at.x + Math.cos(a) * r, y: at.y + Math.sin(a) * r, kind, amount, item, age: 0 };
+  const drop: Drop = { id: s.nextId, x: at.x + Math.cos(a) * r, y: at.y + Math.sin(a) * r, kind, amount, item, age };
   s.nextId += 1;
   // Nothing falls into the sea: what would, lies where the thing it came from stood.
   if (!onLand(placeOf(s), drop.x, drop.y)) {

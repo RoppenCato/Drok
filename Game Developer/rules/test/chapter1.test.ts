@@ -544,15 +544,23 @@ describe('the chest', () => {
     sim.walkTo('chest');
     expect(chestFull(sim.state)).toBe(true);
     const events = sim.act({ type: 'openChest' });
-    expect(events[0]).toEqual({ type: 'chestOpened', x: chest.x, y: chest.y });
     const dropped = sim.of('dropped').map((e) => e.drop);
     expect(dropped.map((d) => d.kind).sort()).toEqual(['gold', 'item', 'potion']);
     const gear = dropped.find((d) => d.kind === 'item')!.item!;
     expect(gear.rarity).not.toBe('common');
     expect(BASES[gear.base]!.tier).toBe(chest.itemTier);
+    // It charges before it pops, the longer the rarer its best piece; until then its loot is inside.
+    const charge = N.chest.chargeSeconds[gear.rarity];
+    expect(events[0]).toEqual({ type: 'chestOpened', x: chest.x, y: chest.y, rarity: gear.rarity, charge });
+    expect(N.chest.chargeSeconds.epic).toBeGreaterThan(N.chest.chargeSeconds.uncommon);
+    for (const d of sim.state.drops) expect(d.age).toBe(-charge);
+    sim.run(charge + N.drops.settleSeconds - 0.1);
+    expect(sim.count('picked')).toBe(0);
+    expect(sim.state.hero.gold).toBe(0);
     sim.run(1);
     expect(sim.state.hero.gold).toBeGreaterThanOrEqual(chest.goldMin);
-    expect(sim.state.hero.bag).toEqual([gear]);
+    // The piece is his: in his bag, or on him if that part of him was bare.
+    expect([...sim.state.hero.bag, ...Object.values(sim.state.hero.worn)]).toContainEqual(gear);
     expect(chestFull(sim.state)).toBe(false);
     expect(sim.act({ type: 'openChest' })).toEqual([{ type: 'rejected', action: 'openChest', reason: 'chest is empty' }]);
     // The real clock moves on while the game is closed: one step that carries a later time is enough.

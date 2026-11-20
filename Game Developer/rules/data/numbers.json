@@ -81,6 +81,10 @@
     "_about": "A place can be big: a monster further than awake from him that is only strolling does not move (it sleeps), so a step costs the same however big an island grows. About three and a half screens' height.",
     "awake": 1500
   },
+  "chest": {
+    "_about": "A chest charges before it pops (Robin, 2026-11-20: 'chests should have a cool effect when you open them like in zite'; in Zite, 2026-11-02: the highest rarity 'should really shake a lot and charge for a big pop 2-4 seconds later'). chargeSeconds is how long, by the rarity of the best piece inside: Zite's own numbers. Its loot is inside until then: it cannot be seen or picked up.",
+    "chargeSeconds": { "common": 0.7, "uncommon": 1, "rare": 1.5, "epic": 2.3 }
+  },
   "bagSize": 20,
   "death": {
     "_about": "Robin, 2026-11-20: a share of the money he carries, 'say 10%', and he wakes in the harbour town. The number is his to feel.",

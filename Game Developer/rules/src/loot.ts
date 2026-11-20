@@ -130,11 +130,15 @@ export function openChest(state: GameState, rng: Rng): ApplyResult {
   const s = clone(state);
   const ev: GameEvent[] = [];
   s.chests[s.place] = s.now;
-  ev.push({ type: 'chestOpened', x: chest.x, y: chest.y });
+  // What is inside is rolled now; it comes out when the chest has charged, the longer the rarer its best piece.
+  const gold = roll(rng, chest.goldMin, chest.goldMax);
+  const piece = rollGear(s, rng, chest.itemTier, CHEST_WEIGHTS);
+  const charge = N.chest.chargeSeconds[piece.rarity];
+  ev.push({ type: 'chestOpened', x: chest.x, y: chest.y, rarity: piece.rarity, charge });
   // The loot spills out on his side of the chest.
   const side: Vec = { x: chest.x + (s.hero.x - chest.x) * 0.5, y: chest.y + (s.hero.y - chest.y) * 0.5 };
-  putDrop(s, 'gold', roll(rng, chest.goldMin, chest.goldMax), null, side, 26, rng, ev);
-  if (chest.potions > 0) putDrop(s, 'potion', chest.potions, null, side, 26, rng, ev);
-  putDrop(s, 'item', 1, rollGear(s, rng, chest.itemTier, CHEST_WEIGHTS), side, 26, rng, ev);
+  putDrop(s, 'gold', gold, null, side, 30, rng, ev, -charge);
+  if (chest.potions > 0) putDrop(s, 'potion', chest.potions, null, side, 30, rng, ev, -charge);
+  putDrop(s, 'item', 1, piece, side, 30, rng, ev, -charge);
   return { state: s, events: ev };
 }

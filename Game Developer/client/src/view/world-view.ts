@@ -9,6 +9,7 @@ import { ART } from '../art.ts';
 import { COLORS, DEPTH, FONT, RES, hex, WEIGHT } from '../layout.ts';
 import type { Ground } from '../scenes/BootScene.ts';
 import { settings } from '../settings.ts';
+import { sounds } from '../sound.ts';
 import { Figure, HeroFigure, picture, repicture, type AtlasData, type GearData, type SetData } from './figures.ts';
 import { MobBar, OwnBar, hasGlass, piece } from './glass.ts';
 
@@ -90,6 +91,8 @@ interface DropView {
   from: Vec | null;
   /** Which way it leans as it flies, so three things from one monster do not fly alike. */
   lean: number;
+  /** It is still inside a chest that is charging: not shown yet. */
+  held: boolean;
 }
 
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
@@ -139,6 +142,8 @@ export class WorldView {
   private chestPicture: Phaser.GameObjects.Image | null = null;
   private chestSet = '';
   private chestOpening = 0;
+  /** A chest that is opening: charging, then popped and fading. */
+  private chestFx: { at: Vec; start: number; charge: number; color: number; tier: number; popped: boolean; glow: Phaser.GameObjects.Arc; rumble: number; scaleX: number; scaleY: number } | null = null;
   private now = 0;
   private coatColor: number = COLORS.hero;
   private dressed = '';
@@ -218,6 +223,8 @@ export class WorldView {
     this.chestLid = null;
     this.chestGlow = null;
     this.chestPicture = null;
+    this.chestFx?.glow.destroy();
+    this.chestFx = null;
     this.place = state.place;
     const place = placeOf(state);
     // The Art Director's place, when that drop is in the game; else the stand-in painting.
@@ -406,6 +413,22 @@ export class WorldView {
         v = this.makeDrop(d);
         this.drops.set(d.id, v);
       }
+      // Still inside a charging chest: nothing to see. The step it comes out, it flies from the chest's mouth.
+      if (d.age < 0) {
+        v.held = true;
+        v.body.setVisible(false);
+        continue;
+      }
+      if (v.held) {
+        v.held = false;
+        v.body.setVisible(true);
+        const chest = placeOf(state).chest;
+        if (chest && !settings.get().fewerEffects) {
+          v.from = { x: chest.x, y: chest.y - 12 };
+          v.pop = 1;
+          v.lean = ((d.id % 5) - 2) * 0.5;
+        }
+      }
       const before = samePlace ? prev.drops.find((p) => p.id === d.id) : undefined;
       const x = before ? lerp(before.x, d.x, alpha) : d.x;
       const y = before ? lerp(before.y, d.y, alpha) : d.y;
@@ -440,7 +463,10 @@ export class WorldView {
       this.chestGlow.setVisible(full).setScale(1 + 0.12 * Math.sin(time * 0.005));
     }
     // The drawn chest: closed while it is full, "opening" for a moment when he opens it, then open until it fills.
-    if (this.chestPicture) repicture(this.scene, this.chestPicture, this.chestSet, time < this.chestOpening ? 'chest/opening' : chestFull(state) ? 'chest/closed' : 'chest/open');
+    this.stepChest(time);
+    const charging = this.chestFx !== null && !this.chestFx.popped;
+    if (this.chestPicture) repicture(this.scene, this.chestPicture, this.chestSet, charging ? 'chest/closed' : time < this.chestOpening ? 'chest/opening' : chestFull(state) ? 'chest/closed' : 'chest/open');
+    if (charging && this.chestLid) this.chestLid.setVisible(true);
   }
 
   /**
@@ -514,6 +540,105 @@ export class WorldView {
     bar.at(left, top);
   }
 
+  // ---- the chest's opening (after Zite's: Robin there, 2026-11-01: "glowing in different rarity colors, and a nice
+  // animation when opening. The aim is dopamine hits"; 2026-11-02: the highest rarity "should really shake a lot and
+  // charge for a big pop") ---------------------------------------------------------------------------------------
+
+  /** The chest starts to charge: a glow in the colour of the best thing inside, and it begins to shake. */
+  private chargeChest(x: number, y: number, rarity: keyof typeof RARITIES, charge: number): void {
+    const s = this.scene;
+    this.chestFx?.glow.destroy();
+    const color = Phaser.Display.Color.HexStringToColor(RARITIES[rarity].color).color;
+    const glow = this.reg(s.add.circle(x, y - 6, 38, color, 0.2).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH.marks + 1));
+    const body = this.chestPicture ?? this.chestLid;
+    this.chestFx = { at: { x, y }, start: this.now, charge, color, tier: ['common', 'uncommon', 'rare', 'epic'].indexOf(rarity), popped: false, glow, rumble: 0, scaleX: body?.scaleX ?? 1, scaleY: body?.scaleY ?? 1 };
+  }
+
+  /** The charge, harder and harder, and at its end the pop. Then the glow fades and it is over. */
+  private stepChest(time: number): void {
+    const fx = this.chestFx;
+    if (!fx) return;
+    const body = this.chestPicture ?? this.chestLid;
+    const few = settings.get().fewerEffects;
+    if (fx.popped) {
+      const gone = (time - fx.start - fx.charge) / 900;
+      fx.glow.setAlpha(Math.max(0, 0.85 * (1 - gone)));
+      if (gone >= 1) {
+        fx.glow.destroy();
+        this.chestFx = null;
+      }
+      return;
+    }
+    const t = Math.min(1, (time - fx.start) / fx.charge);
+    const hard = t * t * [0.5, 0.75, 1, 1.4][fx.tier]!;
+    fx.glow.setAlpha(0.2 + 0.8 * t).setScale(0.5 + 0.8 * t);
+    if (body && !few) {
+      body.setRotation(Math.sin(time * 0.06) * 0.11 * hard);
+      body.setPosition(fx.at.x + Math.sin(time * 0.09) * 3.5 * hard, fx.at.y - Math.abs(Math.sin(time * 0.045)) * 5 * hard);
+    }
+    // The rarest rumble: the ground shakes in ticks that come faster and faster.
+    if (fx.tier >= 3 && !few && time >= fx.rumble) {
+      this.scene.cameras.main.shake(90, 0.0006 + t * t * 0.004);
+      fx.rumble = time + 520 - 360 * t;
+    }
+    if (t >= 1) this.popChest(fx, body, time, few);
+  }
+
+  private popChest(fx: NonNullable<WorldView['chestFx']>, body: Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle | null, time: number, few: boolean): void {
+    const s = this.scene;
+    const { x, y } = fx.at;
+    fx.popped = true;
+    this.chestOpening = time + 160;
+    sounds.play('level_up', 0.55 + 0.12 * fx.tier);
+    sounds.play('coin');
+    if (body) {
+      body.setRotation(0).setPosition(x, y);
+      if (!few) {
+        // It squashes as it bursts and springs back.
+        body.setScale(fx.scaleX * 1.22, fx.scaleY * 0.82);
+        s.tweens.add({ targets: body, scaleX: fx.scaleX, scaleY: fx.scaleY, duration: 300, ease: 'Back.easeOut' });
+      }
+    }
+    fx.glow.setAlpha(1).setScale(1.5);
+    if (few) {
+      this.puff(x, y, COLORS.gold, 26);
+      return;
+    }
+    const add = <T extends Phaser.GameObjects.GameObject & { setBlendMode(mode: number): unknown; setDepth(d: number): unknown }>(o: T): T => {
+      o.setBlendMode(Phaser.BlendModes.ADD);
+      o.setDepth(DEPTH.effects + 2);
+      return this.reg(o);
+    };
+    // A white flash that grows and is gone.
+    const flash = add(s.add.circle(x, y - 6, 40, 0xffffff, 0.9));
+    s.tweens.add({ targets: flash, scale: 3 + fx.tier, alpha: 0, duration: 200 + fx.tier * 40, ease: 'Quad.easeOut', onComplete: () => flash.destroy() });
+    // Rays of light in the rarity's colour, turning as they fade.
+    const light = Phaser.Display.Color.IntegerToColor(fx.color).lighten(35).color;
+    const rays = 6 + fx.tier * 2;
+    for (let i = 0; i < rays; i++) {
+      const ray = add(s.add.triangle(x, y - 6, 0, 0, -7, -(70 + fx.tier * 22), 7, -(70 + fx.tier * 22), light, 0.75).setOrigin(0, 0));
+      ray.setRotation((i / rays) * Math.PI * 2);
+      s.tweens.add({ targets: ray, rotation: ray.rotation + 0.9, alpha: 0, scale: 1.5, duration: 520 + fx.tier * 90, ease: 'Quad.easeOut', onComplete: () => ray.destroy() });
+    }
+    // Sparkles that rise, and petals in the colour that pop up and fall past the chest.
+    const sparkles = [6, 8, 10, 16][fx.tier]!;
+    for (let i = 0; i < sparkles; i++) {
+      const sx = x + ((i * 37) % 80) - 40;
+      const star = add(s.add.star(sx, y - 4, 4, 2, 6, light, 1));
+      s.tweens.add({ targets: star, y: y - 70 - ((i * 53) % 80), alpha: 0, angle: 180, duration: 460 + (i % 4) * 60, ease: 'Quad.easeOut', onComplete: () => star.destroy() });
+    }
+    const petals = [4, 5, 6, 10][fx.tier]!;
+    for (let i = 0; i < petals; i++) {
+      const px = x + ((i * 61) % 90) - 45;
+      const petal = this.reg(s.add.rectangle(x, y - 8, 6, 4, fx.color).setDepth(DEPTH.effects + 1).setRotation(i));
+      s.tweens.add({ targets: petal, x: px, y: y - 30 - ((i * 29) % 50), duration: 220, ease: 'Quad.easeOut' });
+      s.tweens.add({ targets: petal, y: y + 30 + ((i * 17) % 20), alpha: 0, angle: 300, delay: 220, duration: 520 + ((i * 71) % 300), ease: 'Quad.easeIn', onComplete: () => petal.destroy() });
+    }
+    // From rare up the ground jolts.
+    const jolt = [0, 0, 0.005, 0.009][fx.tier]!;
+    if (jolt > 0) s.cameras.main.shake(130, jolt);
+  }
+
   /** The one-shots: numbers, puffs, the sword's arc. */
   show(events: GameEvent[], state: GameState): void {
     /** What the next drops popped out of: the monster that just fell, the chest that just opened. */
@@ -522,7 +647,7 @@ export class WorldView {
       switch (e.type) {
         case 'dropped': {
           const v = this.drops.get(e.drop.id);
-          if (v && source && !settings.get().fewerEffects) {
+          if (v && source && e.drop.age >= 0 && !settings.get().fewerEffects) {
             v.from = { x: source.x, y: source.y - 10 };
             v.pop = 1;
             v.lean = ((e.drop.id % 5) - 2) * 0.5;
@@ -582,9 +707,7 @@ export class WorldView {
           this.puff(this.heroAt.x, this.heroAt.y, COLORS.mark, 18);
           break;
         case 'chestOpened':
-          source = { x: e.x, y: e.y };
-          this.puff(e.x, e.y, COLORS.gold, 26);
-          this.chestOpening = this.now + 160;
+          this.chargeChest(e.x, e.y, e.rarity, e.charge * 1000);
           break;
         default:
           break;
@@ -938,7 +1061,7 @@ export class WorldView {
         const thing = picture(s, 'loot', d.kind === 'gold' ? 'coins' : 'potion');
         if (thing) drawn.push(thing);
       }
-      if (drawn.length > 0) return { body: this.reg(s.add.container(d.x, d.y, drawn)), glow: ring, glowSize: ring ? ring.scaleX : 1, sparks, pop, from: null, lean: 0 };
+      if (drawn.length > 0) return { body: this.reg(s.add.container(d.x, d.y, drawn)), glow: ring, glowSize: ring ? ring.scaleX : 1, sparks, pop, from: null, lean: 0, held: false };
     }
     const parts: Phaser.GameObjects.GameObject[] = [s.add.ellipse(1, 7, 20, 8, COLORS.shadow, 0.22)];
     let glow: Phaser.GameObjects.Arc | null = null;
@@ -963,7 +1086,7 @@ export class WorldView {
       parts.push(s.add.rectangle(0, 0, 15, 13, COLORS.wood).setStrokeStyle(2.5, color));
       parts.push(s.add.rectangle(0, 0, 15, 3, color));
     }
-    return { body: this.reg(s.add.container(d.x, d.y, parts)), glow, glowSize: 1, sparks: beam ? [beam] : [], pop, from: null, lean: 0 };
+    return { body: this.reg(s.add.container(d.x, d.y, parts)), glow, glowSize: 1, sparks: beam ? [beam] : [], pop, from: null, lean: 0, held: false };
   }
 
   // ---- the one-shots ---------------------------------------------------------------------------------------------

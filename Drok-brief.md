@@ -49,6 +49,9 @@ rare drops, in a top-down world."
   kinda melts together." The town on stilts, over a little bay; Leonard, AD shows him a changed still first.
 - **The font** (Robin, 2026-11-20, in the Art Director's chat): "Choose a good font for the game thats clear and
   easy to read"; to Leonard, AD's choice of Nunito, extra bold: "Yes, download it".
+- **The starter monsters** (Robin, 2026-11-20): "I think the birds are weird starting mobs." The reef gull goes;
+  Leonard, AD shows candidates for the grove and Robin says which.
+- **Chests** (Robin, 2026-11-20): "chests should have a cool effect when you open them like in zite."
 - **Loot** (Robin, 2026-11-20): "items should pop out of monsters when dropped."
 - **The inventory** (Robin, 2026-11-20): "you need to make a proper inventory system like my other games, look at
   zite for example." Zite's is the hero sheet he picked there on 2026-11-02: the hero wearing his gear, a slot for

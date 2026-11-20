@@ -240,6 +240,14 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
     - `[ ]` AD: three stills of the town on Crab Cay (more houses, a tavern, a lookout), asked 2026-11-20; Robin picks
     - `[ ]` AD: the kit and the new layout; GD: lay it in, the zones either side moved if it grows
 
+27. `[x] Built 2026-11-20` `[ ] Checked` · GD · **The chest's opening, after Zite's** (Robin, 2026-11-20: "chests should have a cool effect when you open them like in zite")
+    - `[x]` it charges before it pops: it shakes harder and harder and glows in the colour of the best piece inside, the longer the rarer (0.7, 1, 1.5 and 2.3 s: Zite's numbers); the rarest makes the ground rumble
+    - `[x]` the pop: a squash, a white flash, rays, sparkles and petals in the colour, a jolt from rare up, a chime; then the loot flies out of it
+    - `[x]` its loot is inside until the pop (a drop's age below 0); no window over the game as in Zite, since this game does not stop: mine
+    - not there: Zite's cards one by one, its flying lid, its own sounds (the chime and coins are from the basic set)
+
+28. `[ ]` · AD · **A monster in the gull's place** (Robin, 2026-11-20: "I think the birds are weird starting mobs"): candidates with pictures for Robin, asked 2026-11-20
+
 ## Waits for Robin
 
 - Play it: `http://192.168.0.43:5178/` on the home Wi-Fi. The first minute: tap the stall to see what it sells,
