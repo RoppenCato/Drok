@@ -232,7 +232,7 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
       see your equipped one next to it"): the card is two halves, the bag's piece left and the worn one right,
       the same numbers on the same rows, and a green or red arrow with how much more or less
 
-25. `[ ]` · AD · **A wooden pirate look for menus, panels and icons** (Robin, 2026-11-20: "some nice pirate design
+25. `[x] Built 2026-11-20` `[ ]` Checked (Robin picked look 3, the treasure chest, in the Art Director's chat: "I think 3 is good. Nice contrast. But mind the text needs to fit and not overlap with stuff"; Leonard, AD's kit and icons are in, with his eleven changes to the hero window; the stall's window and the chart not yet looked at in it; his font, Nunito, waits for Robin's yes) · AD · **A wooden pirate look for menus, panels and icons** (Robin, 2026-11-20: "some nice pirate design
     to menus and panels. Like some wooden feeling. Right now it looks bland. Also update icons so they look
     fitting"): three stills for Robin to pick from, asked 2026-11-20; then the kit, and GD puts it in
 

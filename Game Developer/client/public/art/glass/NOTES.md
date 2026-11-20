@@ -1,9 +1,28 @@
 # glass  (Leonard, AD, 2026-11-20)
 
-**What it is:** the glass over the game, as pieces: cream panels with the figures' dark line, round buttons, strong flat
-colour only where a thumb goes. 45 pieces in one atlas.
+**What it is:** the glass over the game, as pieces: bars and discs with the figures' dark line, strong flat colour only
+where a thumb goes, and windows that are the inside of a treasure chest. 56 pieces in one atlas.
 
 **What changed and why:**
+
+*This drop: the windows are a treasure chest.* Robin, 2026-11-20, in Victor, GD's chat: "You need to have some nice
+pirate design to menus and panels. Like some wooden feeling. Right now it looks bland. Also update icons so they look
+fitting." Of the three wooden looks shown (`concepts\wood\`) he said in my chat, 2026-11-20: "I think 3 is good. Nice
+contrast. But mind the text needs to fit and not overlap with stuff".
+
+- **The window** (`panel`): dark wood in standing boards, an iron band all round with gold studs, a gold angle in each
+  corner. Its title is a gold plate (`panel/title`), its cross a red stone in a gold ring (`button/close`).
+- **What words lie on** (`row`): a dark, sunk board with a thin gold edge. **The hero's box** (`niche`, new): lined with
+  dark velvet, a gold edge.
+- **Slots:** a piece he owns lies on pale linen inside its rarity's colour (`slot/common` to `slot/epic`); an empty
+  slot is lined with velvet (`slot/empty`). The one being looked at gets a gold frame (`slot/chosen`, new).
+- **A mark for each empty place on him** (new, Robin's places of the same day: "Head, chest, legs, boots, necklace, two
+  trinkets"): `mark/slot-hat`, `-coat`, `-legs`, `-boots`, `-weapon`, `-shield`, `-necklace`, `-trinket`.
+- **Buttons:** a gold plate for the one that does the thing (`button/context`), an iron plate for the rest
+  (`button/plain`, new). The four top buttons are a gold ring round dark wood with a pale sign.
+- **So the text fits** (Robin): I drew the hero's window from these pieces with the game's own numbers, long names and
+  big numbers (`tools\window.js`, `look-window.jpg`). Six things met or ran out. The changes that cure them are under
+  "The window: what the game changes".
 
 *This drop: his own bar over his head, and rage is red.* Robin, 2026-11-20, in Victor, GD's chat: "I think the heros
 health bar should show over his character, and the rage bar below it. It needs to be fixated well enough that it doesnt
@@ -31,8 +50,9 @@ head and for the stick. All of the look is mine.
   (`bar/hp`, `bar/rage`, `bar/xp`) stay in the atlas so nothing breaks.
 - **A heart** (`mark/heart`) for the left end of his health bar in the pile. Not used over his head.
 
-**The numbers:** `glass.png` 1024 by 512 as before, 101 KB, 2 MB decoded, two pixels a unit. Sizes in design units; in
-`glass.json` each piece's `w` and `h` are file pixels, and its origin is its middle.
+**The numbers:** `glass.png` is 1024 by 1024 now (it was 1024 by 512), 126 KB, 4 MB decoded, two pixels a unit. The
+window is the reason: it is one piece as wide as a window. Sizes in design units; in `glass.json` each piece's `w` and
+`h` are file pixels, and its origin is its middle.
 
 | Piece | Size | How it stretches |
 | --- | --- | --- |
@@ -51,17 +71,46 @@ head and for the stick. All of the look is mine.
 | `skill/cleave`, `skill/charge`, `skill/potion`, `skill/empty` | a disc of 68 in 76 by 78 | none; draw the cooldown wedge and the number over it |
 | `button/bag`, `button/chart`, `button/hero`, `button/menu` | a disc of 38 in 44 by 46 | none |
 | `button/close` | 36 by 38 | none |
-| `button/context` | 64 by 48 | a pill: `slice` 44: "Open", "Shop", "Sail", dark words 18 bold |
-| `plate` | 48 by 34 | a pill: `slice` 32: the target's name, a quest line |
-| `row` | 48 by 44 | `slice` 24 all round |
-| `panel` | 96 by 100 | `slice` 44, 44, 44, 52 (left, top, right, bottom, file px) |
-| `panel/title` | 96 by 44 | a pill: `slice` 44; white words 18 bold; it sits on the panel's top edge |
-| `slot/common` ... `slot/epic`, `slot/empty` | 56 by 58 | none; an icon of 48 in its middle |
+| `button/context` | 64 by 48 | a gold plate: `slice` 44 left and right: "Wear", "Open", "Sail"; **dark** words `#3a2414`, 15 to 18 bold |
+| `button/plain` (new) | 64 by 48 | an iron plate: `slice` 44 left and right: every other button; pale words `#fff3d6`, 15 bold |
+| `plate` | 48 by 34 | a pill: `slice` 32: the target's name, a quest line (cream, as before: it lies on the field) |
+| `row` | 48 by 44 | `slice` 24 all round: the card, a row of a list; pale words |
+| `niche` (new) | 48 by 48 | `slice` 24 all round: the box the hero stands in |
+| `panel` | 372 by 164 | `slice` 128 all round (file px). It is as wide as every window, so it is stretched in height only: its top and bottom 64 units keep their size |
+| `panel/title` | 96 by 44 | `slice` 44 left and right; **dark** words `#3a2414`, 18 bold; it sits on the panel's top edge |
+| `slot/common` ... `slot/epic`, `slot/empty` | 56 by 58 | none; an icon of 48 in its middle. Draw `slot/empty` at full strength |
+| `slot/chosen` (new) | 64 by 64 | none; a gold frame over the slot being looked at, scaled as the slot is |
+| `mark/slot-hat`, `-coat`, `-legs`, `-boots`, `-weapon`, `-shield`, `-necklace`, `-trinket` (new) | 32 by 32 | none; in the middle of an empty slot of that place, scaled as the slot is |
 | `mark/coin`, `mark/quest` (!), `mark/done` (?) | 16, 28 | none |
 | `mark/target`, `mark/tap` | 76 by 36, 44 by 24 | none; under the picked target, and where a tap landed |
 | `bar/hp`, `bar/rage`, `bar/xp` | 8 by 8 | the first, flat fills; `fill/*` takes their place |
 
-**How the game uses it:** copy the folder. `tools\scene.js` draws all of this from the folder and is the reference.
+**How the game uses it:** copy the folder. `tools\scene.js` draws the field's glass from the folder and
+`tools\window.js` the hero's window; they are the reference.
+
+- **The window: what the game changes** (`panels.ts`; every number is in design units). The first five are needed for
+  the look, the other six are what keeps words and pieces off each other and off the frame:
+  1. **Words are pale on the dark wood:** `#fff3d6` for the plain ones, `#dab892` for the dim, `#93e283` good, `#ff9482`
+     bad, `#ffd95e` gold. A rarity's name in its colour made a fifth lighter. On a gold plate (the title, the gold
+     button) words are dark, `#3a2414`.
+  2. **Plain buttons** are `button/plain`, not `row`. The gold one stays `button/context`.
+  3. **The hero's box** is `niche`, not `row`.
+  4. **The chosen slot** gets `slot/chosen` over it in place of the dark line round it, which is lost on dark wood.
+  5. **An empty place on him** gets its `mark/slot-...` in its middle in place of the plain shape; `slot/empty` at full
+     strength, not at 0.6 and 0.45.
+  6. **The bag's cells 44, not 46** (the gap stays 5). At 46 the first and the last cell touch the iron bands.
+  7. **The buttons 5 higher** (`by = cy + ch + 21`), and **three in a row 100 wide, not 104**. At 104 the outer two
+     lie on the gold angles; at 26 down their feet lie on the bottom band.
+  8. **The card with a piece beside the worn one:** its head 5 higher (titles at `cy + 12`, the two small slots 38 at
+     `cy + 41`, the names on that line), the rows from `cy + 73` in steps of 16. Today a third row is cut by the
+     card's foot.
+  9. **"Felled ... · Falls" as two lines** (`by - 9` and `by + 8`). On one line it is wider than the window once he
+     has felled three kinds.
+  10. **The hero's box 164 wide, and he stands 8 to the right, 4 lower, at 2.0 times.** At 2.2 times in a box of 150
+      the corsair's cutlass reaches the coat's slot and the feathered hat's plume leaves the box.
+  11. **The experience bar** in the window: `#42241a` for its ground, the green as it is.
+  Keep words and pieces 14 units in from the window's sides and 14 up from its bottom; the gold angles fill 22 by 22
+  in each corner.
 
 - **His own bar, over his head.** Five pictures at one place, in this order:
   1. `own/back`, 52 long: the colour of the empty rooms.
@@ -106,9 +155,14 @@ the discs and experience, as in `look-screen.jpg`.
 `#6fd060`, what a blow took `#fff1c9`; Cleave `#f0503c`, Charge `#3f9fe8`, potion `#4cbf68`; gold `#f6c23a`. Words on
 the field (a hit's number, the level) are white with the dark line round them.
 
-**The font:** the pictures use Trebuchet MS bold as a stand-in. I would pick a round, heavy face to go with the look
-(Fredoka or Baloo 2, both free under the Open Font Licence). That is a file to add to the game and to tell Robin about,
-so I have not fetched one.
+The window's own colours: wood `#6b3f27` and `#5e3621`, its grain `#42241a`; iron `#4b4759`; gold `#f6c23a` with
+`#ffe27a` and `#c4871c`; velvet `#45294e`; linen `#ecdcb4`; the sunk board `#43261a`.
+
+**The font:** Robin, 2026-11-20, in my chat: "Choose a good font for the game thats clear and easy to read". My choice
+is **Nunito**, extra bold: round and friendly, very clear at 13, and no wider than what the phone shows now, so what
+fits today still fits. It is free under the SIL Open Font Licence 1.1 (read on Google's fonts repository, 2026-11-20).
+It is a file to add to the game. **Not fetched yet:** I asked Robin first. The pictures here use Segoe UI bold, close
+to the phone's own Roboto in width.
 
 **Open:**
 - The two reds are for Robin to judge on his phone. If they still read as one, the next steps are a taller rage room or
@@ -130,6 +184,10 @@ are in the game since 47c3209 and 9c937fb. Nothing pressed; the stick not felt u
 
 **Origin and licence:** drawn here by `tools\glass.js`. Nothing from outside.
 
-**Where to see it:** `look-own.jpg` (his own bar: as Robin saw it and as it is now, and four states on sand, grass and
+**The window's pieces are not in the game yet** and nothing of them was pressed. `look-window.jpg` is drawn by my own
+tool from the packed atlas, on this PC.
+
+**Where to see it:** `look-window.jpg` (the hero's window from these pieces: as the game lays it out today, with the
+changes above, with nothing tapped, with a worn piece tapped), `look-own.jpg` (his own bar: as Robin saw it and as it is now, and four states on sand, grass and
 rock), `look-screen.jpg` (the whole screen with it), `look-bars.jpg` (the monsters' bars, the pile and the stick, before
 and after), `look-grounds.jpg` (the monsters' bars and the stick on sand, grass, rock and sea), `look.jpg` (every piece).

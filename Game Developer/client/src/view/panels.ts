@@ -32,7 +32,7 @@ import type { Intent } from '../local-game.ts';
 import { settings } from '../settings.ts';
 import { sounds } from '../sound.ts';
 import { HeroFigure, picture, type AtlasData, type GearData } from './figures.ts';
-import { INK, hasGlass, inkFor, piece, stretch } from './glass.ts';
+import { INK, WOOD, hasGlass, lighter, piece, stretch } from './glass.ts';
 
 export type PanelKind = 'menu' | 'bag' | 'hero' | 'chart' | 'shop';
 
@@ -192,19 +192,20 @@ export class Panels {
     return this.keep(r);
   }
 
-  /** Words in a window. On the Art Director's cream panel the light colours become ink; `light` keeps them (on the sea chart, on the title). */
+  /** Words in a window. On the Art Director's dark wood the colours become his pale ones; `light` keeps the colour as given (on the sea chart, on a gold plate). */
   private text(x: number, y: number, words: string, size: number, color: string = COLORS.text, originX = 0.5, light = false): Phaser.GameObjects.Text {
     const ink = hasGlass(this.scene) && !light ? this.ink(color) : color;
     return this.keep(this.scene.add.text(x, y, words, { fontFamily: FONT, fontSize: `${size}px`, fontStyle: 'bold', color: ink, resolution: RES }).setOrigin(originX, 0.5).setDepth(DEPTH.panel + 3));
   }
 
   private ink(color: string): string {
-    if (color === COLORS.text) return INK.dark;
-    if (color === COLORS.dim) return INK.dim;
-    if (color === COLORS.good) return INK.good;
-    if (color === COLORS.bad) return INK.bad;
-    if (color === COLORS.goldText) return INK.gold;
-    return inkFor(color, true);
+    if (color === COLORS.text) return WOOD.text;
+    if (color === COLORS.dim) return WOOD.dim;
+    if (color === COLORS.good) return WOOD.good;
+    if (color === COLORS.bad) return WOOD.bad;
+    if (color === COLORS.goldText) return WOOD.gold;
+    // Anything else is a rarity's colour: a fifth lighter, so it reads on the dark wood.
+    return lighter(color);
   }
 
   /** The ground a row of a window lies on. */
@@ -220,10 +221,13 @@ export class Panels {
 
   /** A button: `on` false draws it dim, but it still answers, so it can say why it will not do. */
   private button(x: number, y: number, w: number, h: number, label: string, press: () => void, on = true, color: number = COLORS.button): void {
-    const drawn = hasGlass(this.scene) ? stretch(this.scene, color === COLORS.buttonGo ? 'button/context' : 'row', w, h) : null;
+    // His gold plate for the button that does the thing, his iron plate for the rest; dark words on gold.
+    const gold = color === COLORS.buttonGo;
+    const drawn = hasGlass(this.scene) ? (stretch(this.scene, gold ? 'button/context' : 'button/plain', w, h) ?? stretch(this.scene, 'row', w, h)) : null;
     if (drawn) this.keep(drawn.setPosition(x, y).setDepth(DEPTH.panel + 1).setAlpha(on ? 1 : 0.5));
     else this.rect(x, y, w, h, color, on ? 1 : 0.45);
-    this.text(x, y, label, 15).setAlpha(on ? 1 : 0.55);
+    if (drawn && gold) this.text(x, y - 1, label, 15, WOOD.onGold, 0.5, true).setAlpha(on ? 1 : 0.55);
+    else this.text(x, y - (drawn ? 1 : 0), label, 15).setAlpha(on ? 1 : 0.55);
     this.zone(x, y, w, h + 8, press);
   }
 
@@ -237,7 +241,7 @@ export class Panels {
       this.keep(panel.setPosition(F.x + F.w / 2, F.y + F.h / 2).setDepth(DEPTH.panel + 1));
       const plate = stretch(this.scene, 'panel/title', 236, 44);
       if (plate) this.keep(plate.setPosition(CX, F.y + 6).setDepth(DEPTH.panel + 2));
-      this.text(CX, F.y + 5, title, 18, COLORS.text, 0.5, true);
+      this.text(CX, F.y + 5, title, 18, WOOD.onGold, 0.5, true);
       this.keep(cross.setPosition(F.x + F.w - 12, F.y + 10).setDepth(DEPTH.panel + 4));
       this.zone(F.x + F.w - 16, F.y + 14, 52, 52, () => this.close());
       return;
@@ -255,8 +259,17 @@ export class Panels {
     const slotArt = hasGlass(this.scene) ? piece(this.scene, item ? `slot/${item.rarity}` : 'slot/empty') : null;
     if (slotArt) {
       // His slot, edged in the rarity's colour; the one being looked at gets a dark frame round it.
-      this.keep(slotArt.setPosition(x, y).setScale(size / slotArt.width).setDepth(DEPTH.panel + 1).setAlpha(item ? 1 : 0.6));
-      if (chosen) this.keep(this.scene.add.rectangle(x, y, size + 4, size + 4).setStrokeStyle(3, hex(INK.dark)).setDepth(DEPTH.panel + 2));
+      const k = size / slotArt.width;
+      this.keep(slotArt.setPosition(x, y).setScale(k).setDepth(DEPTH.panel + 1));
+      const frame = chosen ? piece(this.scene, 'slot/chosen') : null;
+      if (frame) this.keep(frame.setPosition(x, y).setScale(k).setDepth(DEPTH.panel + 3));
+      else if (chosen) this.keep(this.scene.add.rectangle(x, y, size + 4, size + 4).setStrokeStyle(3, hex(WOOD.gold)).setDepth(DEPTH.panel + 2));
+      // An empty place on him shows his mark for that place.
+      const mark = item ? null : piece(this.scene, `mark/slot-${slot === 'trinket2' ? 'trinket' : slot}`);
+      if (mark) {
+        this.keep(mark.setPosition(x, y).setScale(k).setDepth(DEPTH.panel + 2));
+        return;
+      }
     } else {
       this.rect(x, y, size, size, COLORS.panelLight, 1, chosen ? COLORS.mark : edge, chosen ? 4 : 3);
     }
@@ -367,18 +380,20 @@ export class Panels {
     this.text(left, F.y + 46, `Level ${h.level} Warrior`, 16, COLORS.text, 0);
     this.text(CX + 20, F.y + 46, need > 0 ? `${h.xp} of ${need} xp` : 'top level', 13, COLORS.dim);
     this.text(right, F.y + 46, `${h.gold} gold`, 15, COLORS.goldText, 1);
-    this.rect(CX, F.y + 66, F.w - 44, 10, COLORS.barBack);
+    this.rect(CX, F.y + 66, F.w - 44, 10, hasGlass(s) ? WOOD.barBack : COLORS.barBack);
     const part = need > 0 ? Math.min(1, h.xp / need) : 1;
     if (part > 0) this.keep(s.add.rectangle(left + 1, F.y + 66, (F.w - 46) * part, 8, COLORS.xp).setOrigin(0, 0.5).setDepth(DEPTH.panel + 2));
 
     // The hero wearing his gear, and a slot for each part of him beside him.
     const top = F.y + 82;
-    this.row(CX, top + 73, 150, 146);
+    const niche = hasGlass(s) ? stretch(s, 'niche', 164, 146) : null;
+    if (niche) this.keep(niche.setPosition(CX, top + 73).setDepth(DEPTH.panel + 1));
+    else this.row(CX, top + 73, 164, 146);
     const data = s.textures.exists('hero') ? (s.cache.json.get('hero:data') as AtlasData | undefined) : undefined;
     if (ART.hero && data?.actions) {
       const gear = ART.gear && s.textures.exists('gear') ? ((s.cache.json.get('gear:data') as GearData | undefined) ?? null) : null;
       this.sheetHero = new HeroFigure(s, this.reg, data, gear);
-      this.sheetHero.sync({ x: CX, y: top + 132, depth: DEPTH.panel + 3, facing: Math.PI / 2, moving: false, charging: false, down: false, worn: h.worn, delta: 0, flash: false, size: 2.2 });
+      this.sheetHero.sync({ x: CX + 8, y: top + 136, depth: DEPTH.panel + 3, facing: Math.PI / 2, moving: false, charging: false, down: false, worn: h.worn, delta: 0, flash: false, size: 2 });
     } else {
       this.keep(s.add.circle(CX, top + 90, 34, COLORS.hero).setStrokeStyle(3, COLORS.heroDark).setDepth(DEPTH.panel + 2));
       this.keep(s.add.circle(CX, top + 60, 16, COLORS.skin).setStrokeStyle(2, COLORS.heroDark).setDepth(DEPTH.panel + 2));
@@ -419,7 +434,7 @@ export class Panels {
     this.text(left, gy, `Bag ${h.bag.length} of ${N.bagSize}`, 13, COLORS.dim, 0);
     this.text(right, gy, `Potions ${h.potions} of ${N.potion.carry}`, 13, COLORS.dim, 1);
     const cols = 7;
-    const size = 46;
+    const size = 44;
     const gap = 5;
     const gx = CX - (cols * size + (cols - 1) * gap) / 2 + size / 2;
     for (let i = 0; i < N.bagSize; i++) {
@@ -428,7 +443,7 @@ export class Panels {
       const item = h.bag[i];
       if (!item) {
         const empty = hasGlass(s) ? piece(s, 'slot/empty') : null;
-        if (empty) this.keep(empty.setPosition(x, y).setScale(size / empty.width).setDepth(DEPTH.panel + 1).setAlpha(0.45));
+        if (empty) this.keep(empty.setPosition(x, y).setScale(size / empty.width).setDepth(DEPTH.panel + 1));
         else this.rect(x, y, size, size, COLORS.panelLight, 0.4, COLORS.panelEdge, 1);
         continue;
       }
@@ -448,7 +463,7 @@ export class Panels {
     const carried = h.bag.find((i) => i.id === this.selected) ?? null;
     const wornPiece = this.selectedSlot ? h.worn[this.selectedSlot] : null;
     const item = carried ?? wornPiece;
-    const by = cy + ch + 26;
+    const by = cy + ch + 21;
     if (!item) {
       this.text(CX, cy + 46, h.bag.length === 0 ? 'The bag is empty.' : 'Tap a piece to look at it.', 15, COLORS.dim);
       this.text(CX, cy + 70, h.bag.length === 0 ? 'Loot flies to you when you walk close.' : 'Tap what he wears to take it off.', 13, COLORS.dim);
@@ -474,17 +489,17 @@ export class Panels {
         const half = (F.w - 28) / 2;
         const x1 = CX - half;
         const x2 = CX;
-        this.keep(s.add.rectangle(CX, cy + ch / 2, 2, ch - 16, hex(INK.dark), 0.25).setDepth(DEPTH.panel + 2));
+        this.keep(s.add.rectangle(CX, cy + ch / 2, 2, ch - 16, hex(WOOD.dim), 0.3).setDepth(DEPTH.panel + 2));
         const head = (x0: number, title: string, piece: Item | null, kind: Slot): void => {
-          this.text(x0 + 10, cy + 13, title, 13, COLORS.dim, 0);
-          this.icon(x0 + 28, cy + 46, piece, kind, 40);
-          if (piece) this.text(x0 + 54, cy + 46, itemName(piece), 14, RARITIES[piece.rarity].color, 0).setWordWrapWidth(half - 60).setLineSpacing(-3);
-          else this.text(x0 + 54, cy + 46, 'nothing', 14, COLORS.dim, 0);
+          this.text(x0 + 10, cy + 12, title, 13, COLORS.dim, 0);
+          this.icon(x0 + 28, cy + 41, piece, kind, 38);
+          if (piece) this.text(x0 + 54, cy + 41, itemName(piece), 14, RARITIES[piece.rarity].color, 0).setWordWrapWidth(half - 60).setLineSpacing(-3);
+          else this.text(x0 + 54, cy + 41, 'nothing', 14, COLORS.dim, 0);
         };
         head(x1, 'In the bag', item, base.slot);
         head(x2, place === 'trinket2' ? 'He wears (2nd)' : 'He wears', worn, base.slot);
         rows.forEach(([word, mine, his], i) => {
-          const y = cy + 78 + i * 17;
+          const y = cy + 73 + i * 16;
           this.text(x1 + 10, y, `${mine} ${word}`, 14, mine === 0 ? COLORS.dim : COLORS.text, 0);
           const d = mine - his;
           this.text(x2 - 10, y, d > 0 ? `▲ ${d}` : d < 0 ? `▼ ${-d}` : '=', 14, d > 0 ? COLORS.good : d < 0 ? COLORS.bad : COLORS.dim, 1);
@@ -546,7 +561,7 @@ export class Panels {
           COLORS.button,
         ]);
       }
-      const bw = 104;
+      const bw = buttons.length >= 3 ? 100 : 104;
       const span = (buttons.length - 1) * (bw + 10);
       buttons.forEach(([label, press, color], i) => this.button(CX - span / 2 + i * (bw + 10), by, bw, 40, label, press, true, color));
     }
@@ -560,7 +575,8 @@ export class Panels {
     const felled = Object.keys(MONSTERS)
       .filter((kind) => (state.book[kind] ?? 0) > 0)
       .map((kind) => `${MONSTERS[kind]!.name} ${state.book[kind]}`);
-    this.text(CX, by, felled.length ? `Felled: ${felled.join(', ')}  ·  Falls: ${state.deaths}` : `Nothing felled yet  ·  Falls: ${state.deaths}`, 13, COLORS.dim);
+    this.text(CX, by - 9, felled.length ? `Felled: ${felled.join(', ')}` : 'Nothing felled yet', 13, COLORS.dim);
+    this.text(CX, by + 8, `Falls: ${state.deaths}`, 13, COLORS.dim);
   }
 
   // ---- the sea chart -----------------------------------------------------------------------------------------------
@@ -584,7 +600,7 @@ export class Panels {
     this.keep(s.add.image(CX, H / 2, 'chart').setDisplaySize(W, H).setDepth(DEPTH.panel + 1));
     const plate = stretch(s, 'panel/title', 200, 44);
     if (plate) this.keep(plate.setPosition(chart.title.x, chart.title.y).setDepth(DEPTH.panel + 2));
-    this.text(chart.title.x, chart.title.y - 1, 'Sea chart', 18, COLORS.text, 0.5, true);
+    this.text(chart.title.x, chart.title.y - 1, 'Sea chart', 18, WOOD.onGold, 0.5, true);
     const cross = piece(s, 'button/close');
     if (cross) this.keep(cross.setPosition(W - 32, 35).setDepth(DEPTH.panel + 4));
     this.zone(W - 32, 35, 60, 60, () => this.close());

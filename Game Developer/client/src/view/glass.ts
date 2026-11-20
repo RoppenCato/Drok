@@ -15,7 +15,29 @@ export function hasGlass(scene: Phaser.Scene): boolean {
   return ART.glass && scene.textures.exists('glass');
 }
 
-/** The words' colours on his glass, which is cream where the stand-in was dark. */
+/**
+ * The words' colours in his windows since they are a treasure chest (2026-11-20): pale on the dark wood, and dark
+ * on a gold plate (the title, the gold button). His numbers, from his notes.
+ */
+export const WOOD = {
+  text: '#fff3d6',
+  dim: '#dab892',
+  good: '#93e283',
+  bad: '#ff9482',
+  gold: '#ffd95e',
+  onGold: '#3a2414',
+  barBack: 0x42241a,
+} as const;
+
+/** A colour made a fifth lighter: a rarity's name on the dark wood. */
+export function lighter(color: string): string {
+  const n = hex(color);
+  const up = (v: number): number => Math.round(v + (255 - v) * 0.2);
+  const out = (up((n >> 16) & 255) << 16) | (up((n >> 8) & 255) << 8) | up(n & 255);
+  return `#${out.toString(16).padStart(6, '0')}`;
+}
+
+/** The words' colours on his glass over the field (the plate, the pile), which is cream where the stand-in was dark. */
 export const INK = {
   dark: '#33203a',
   dim: '#7a6a80',
