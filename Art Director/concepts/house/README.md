@@ -12,6 +12,9 @@ Sent into the chat on 2026-11-20. The page for his phone: https://claude.ai/arti
 **Robin picked** (in my chat, 2026-11-20): "Go for 2". Bean size. Nothing is built from it yet; it is written into
 `docs\direction.md`.
 
+**The house was left the same day** (Robin, 2026-11-20, in Victor, GD's chat): "I think i like pirate more. Lets expand
+on pirate". `kitchen\` holds the first world made for it before that: a corner of a kitchen as a kit, with its notes.
+
 ## The files
 
 - `1.png`, `2.png`, `3.png`: the stills, 412 by 915 at double size. `N-close.png`: the hero and the insect he fights

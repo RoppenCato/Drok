@@ -1,5 +1,9 @@
 # kitchen  (Leonard, AD, 2026-11-20)
 
+**Not for the game.** Robin, 2026-11-20, after seeing the house on stand-in shapes: "I think i like pirate more. Lets
+expand on pirate". This folder was delivered into `out\` that afternoon and moved here the same evening. It is kept as a
+concept and as a worked example of a world made as a kit. What follows is as it was written for the delivery.
+
 **What it is:** the house's first world: a corner of the kitchen, 4320 by 5796 design units. Tiles in the sun, a rug on
 them, the dark under a table with two chairs, a white skirting board all round. With it: its three floors as pictures that
 repeat, the flat pieces that lie on them, 30 kinds of things in 39 pictures, and `world.json`, which says where everything

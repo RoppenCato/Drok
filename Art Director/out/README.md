@@ -24,12 +24,8 @@ a NOTES.md. Nothing here has been judged by Robin: **every look and design is mi
 - **The reference drawers**: `tools\dress.js` draws the Warrior with his gear from these files the way the game should;
   `tools\scene.js` draws a whole screen. If their pictures are right, the data is right. `out\scene\beach.png` is that.
 
-- **A world** (`kitchen`): `world.json` places everything. Floors that repeat (`floors`, laid by `fills`), flat pieces of
-  `floor.json` laid on them by their top left corner (`flats`), things of `things.json` by their origin (`things`), what
-  is in the way (`solid`), the biomes, home, the chest, the zones. Every thing carries its own shadow. Its NOTES.md has
-  the order to draw in.
-
-`house-concepts` is not for the game: three stills of a new theme for Robin to pick from (2026-11-20), with their notes.
+`house-concepts` is not for the game: three stills of a theme Robin tried and left on 2026-11-20 (a shrunk person in a
+house), with their notes. The first world made for it is in `concepts\house\kitchen\`.
 
 ## What it costs (decoded memory, files on disk)
 
@@ -46,7 +42,6 @@ a NOTES.md. Nothing here has been judged by Robin: **every look and design is mi
 | `harbour` | ground 900 by 1100, props 1024 by 1024, people 1024 by 512 | 4 + 4 + 2 MB | 41 + 32 + 72 KB |
 | `chart` | the chart 824 by 1830, pins 256 by 256 | 6 + 0.3 MB | about 100 + 20 KB |
 | `icon` | 512 and 192 | | about 150 KB |
-| `kitchen` | floors 720 by 414 twice and 1080 by 624, flat pieces 2048 by 1024, things 2048 by 2048 | 1.2 + 1.2 + 2.7 + 8 + 16 MB | 330 KB |
 
 The island with everything on it: about 46 MB decoded, under the 48 MB set for a place. The harbour with the hero and the glass: about 22 MB. All of it on disk: about 1.6 MB, of the 6 MB set for chapter 1.
 
@@ -57,5 +52,5 @@ loop. `node tools/blender.js blender/hero.py -- work/hero/render`, then `node to
 then `python tools/shrink.py out/hero`. The same for `crab.py` (sand-crab, coconut-crab), `gull.py`, `gear.py` and
 `props.py` (island, harbour, loot) with `tools/packset.js`; `tools/ground.js` paints a place; `tools/glass.js` the glass.
 The Warrior's 195 frames render in about three minutes.
-The house: `blender/house.py` (the things), `tools/things.js` (their shadows), `tools/world.js` (the floors, the layout,
-the kit and the reference drawer); the commands are at the end of `kitchen\NOTES.md`.
+The house's kitchen (a concept): `blender/house.py`, `tools/things.js`, `tools/world.js`; the commands are at the end of
+`concepts\house\kitchen\NOTES.md`.

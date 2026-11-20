@@ -1,4 +1,6 @@
 // world.js: the house's first world, a corner of the kitchen (Leonard, AD, 2026-11-20; the layout and every look are mine).
+// A CONCEPT: Robin left the house the same day ("I think i like pirate more. Lets expand on pirate"). Kept as the worked
+// example of a world made as a kit; its files are in concepts/house/kitchen.
 // Robin, 2026-11-20: an open world of biomes, a shrunk person in a house, "Go for 2": he is bean size, 1.5 cm, so a
 // centimetre of floor is 36 design units across. The floor is drawn tilted as the models are seen, so a centimetre is
 // 20.7 units in depth and a 10 cm tile is 360 by 207.
@@ -10,13 +12,13 @@
 // The reference drawer at the bottom draws the world from those files alone, the way the game should: if its pictures are
 // right, the data is right.
 //   node tools/world.js kit              paint and cut: work/world/ (floor-*.png, pieces/, world.json)
-//   node tools/world.js deliver          the kit and the packed things into out/kitchen (then python tools/shrink.py out/kitchen)
+//   node tools/world.js deliver          the kit and the packed things into concepts/house/kitchen (then python tools/shrink.py concepts/house/kitchen)
 //   node tools/world.js check            the kit drawn from its pieces against the floor painted whole
 //   node tools/world.js walk             can he reach the chest, the stall and every zone from where he wakes?
 //   node tools/world.js map [out.jpg]    the whole world at a quarter size, with the names on it
 //   node tools/world.js screen x y [out.png] [--no-glass] [--bugs name,x,y,flip;...] [--gear pin,button,thimble] [--plain]
 const P = require('./paint.js'); const fs = require('fs'); const path = require('path');
-const R = P.ROOT, S = 2, SH = '#5b4a82', OUT = path.join(R, 'work/world'), DELIVERED = path.join(R, 'out/kitchen'), KITDIR = () => fs.existsSync(path.join(DELIVERED, 'world.json')) ? DELIVERED : OUT;
+const R = P.ROOT, S = 2, SH = '#5b4a82', OUT = path.join(R, 'work/world'), DELIVERED = path.join(R, 'concepts/house/kitchen'), KITDIR = () => fs.existsSync(path.join(DELIVERED, 'world.json')) ? DELIVERED : OUT;
 const TW = 360, TH = 207, MX = 3.6, MY = 2.07, CM = 36, CMY = 20.7;   // a tile; units a millimetre across and in depth; units a centimetre
 const W = 12 * TW, H = 28 * TH;                                        // 4320 by 5796: 1.2 m across, 2.8 m deep
 const FLOOR = [180, 290, 3960, 5386];                                  // where he can walk at all: inside the skirting boards
@@ -234,7 +236,7 @@ function deliver() {
   fs.mkdirSync(DELIVERED, { recursive: true });
   for (const f of ['world.json', 'floor-tiles.png', 'floor-dusk.png', 'floor-rug.png', 'floor.json', 'floor.png']) fs.copyFileSync(path.join(OUT, f), path.join(DELIVERED, f));
   for (const f of ['things.json', 'things.png']) fs.copyFileSync(path.join(R, 'work/things/out', f), path.join(DELIVERED, f));
-  console.log('copied the kit and the things into', DELIVERED, '(then: python tools/shrink.py out/kitchen)');
+  console.log('copied the kit and the things into', DELIVERED, '(then: python tools/shrink.py concepts/house/kitchen)');
 }
 // can he walk from where he wakes to the chest, the stall and the middle of every zone? A grid of 12 units, he is 14 wide to each side.
 function walk() {
