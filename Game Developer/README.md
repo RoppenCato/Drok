@@ -29,8 +29,8 @@ npm run balance    # the long balance run: the bot on ten seeds, careful and clu
 ## On Robin's phone
 
 On the home Wi-Fi: `http://192.168.0.43:5178/` while `npm run dev` runs on this PC. Installing ("Add to Home
-screen") and playing offline need a real web address: the public page on Cloudflare Pages, from chapter 1 (Robin,
-2026-11-20).
+screen") and playing offline need a real web address: the public page on Cloudflare Pages (Robin, 2026-11-20),
+`https://drok-game.pages.dev/`, anywhere and always up. `npm run deploy` puts the newest build there.
 
 ## What it does today
 

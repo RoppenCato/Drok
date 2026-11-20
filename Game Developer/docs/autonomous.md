@@ -44,7 +44,8 @@ needs no decision of his:
   a tap is a drag). The way itself is his: tap and a stick together (Robin, 2026-11-20).
 - Cleave or Whirlwind; which hand is the default; the share lost on death; the levels of the job advancements.
 - The look and the music picks; anything in Leonard, AD's or Hugh, SD's folder.
-- The deploy to Cloudflare Pages (his login) and starting Hugh, SD's chat (his word).
+- Starting Hugh, SD's chat (his word). A Cloudflare login, a new project there, or anything that costs.
+  (`npm run deploy` to the public page that exists is allowed, after a pushed and tested change: mine, 2026-11-20.)
 - His save and his page: never reloaded, never overwritten. On the home link his page is the dev server's; hot
   reload is off there (`hmr: false`, 2026-11-20), so a file saved here no longer restarts his game, and he gets a
   change when he reloads the page. Never turn hot reload back on for that server; and a change to

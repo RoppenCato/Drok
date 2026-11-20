@@ -54,7 +54,8 @@ two: close and reopen the page.
 
 ## How it is published
 
-Cloudflare Pages: `https://<project>.pages.dev`. Robin runs the deploy command above; the AI then checks the live
+Cloudflare Pages: `https://drok-game.pages.dev/`. `npm run deploy` puts a build there (the login on this PC is
+Robin's; a new login is his to do); the AI then checks the live
 `index-*.js` hash against `dist\index.html` and tests the live site in the pane (with `registration.update()` and a
 reload when the service worker lags). A Play Store listing later is a Trusted Web Activity round the same PWA
 (Bubblewrap), or Capacitor. iOS brings its own rules (no `BarcodeDetector`, storage dropped after 7 days unused, manual

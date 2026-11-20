@@ -74,8 +74,9 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
 11. `[x] Built 2026-11-20` `[ ] Checked` · GD · **Installed and offline**
     - `[x]` the built page caches itself; with its server stopped it still opens and keeps the save (checked in
       the pane on `localhost:4178`)
-    - `[ ]` **the public page: waits for Robin.** The deploy needs his Cloudflare login. From `Game Developer\`:
-      `npm run build` and then `npx wrangler@4 pages deploy dist --project-name drok --branch main --commit-dirty=true`
+    - `[x]` the public page: `https://drok-game.pages.dev/` (2026-11-20, on Robin's word; his Cloudflare login
+      was already on this PC). `npm run deploy` from `Game Developer\`. Opened in the pane: it plays, no error,
+      the offline cache is filled
     - `[ ]` installed on his phone from that page and played with the network off
 
 12. `[x] Built 2026-11-20` `[ ] Checked` · AD · **Wave 1 art** (`art-demands.md`). **Where it stands,
@@ -190,7 +191,7 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
   judging of the Warrior, the monsters, the island, the town, the chart, the glass and the icon is this play. The
   look and the chart would each have been three to pick from. And the size: he finds the Warrior small and offers
   the camera a quarter closer; kept as it is until Robin has seen it (`docs\state\art.md`).
-- The deploy to Cloudflare Pages (item 11), so it installs and plays offline.
+- Installing it on his phone from `https://drok-game.pages.dev/` and playing with the network off (item 11).
 - Starting Hugh, SD's chat (item 13).
 - The felt numbers: how long a level takes, how hard the monsters bite, what things cost (`lessons.md`). The long
   balance run says the island is too kind: even a clumsy bot never falls in ten runs, it only drinks more

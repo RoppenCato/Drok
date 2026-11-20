@@ -131,7 +131,9 @@ Victor, GD's first guess of 2026-11-20 and is pending until Robin has played the
     every time. And a change to how a place is drawn is tested by coming to the place twice.
 19. The link died a second time the same day, eleven minutes before Robin's next message: the app stops the dev
     server when the chat has been quiet. Rule: until the public page exists, every reply to Robin starts by
-    fetching the link, and says so when it had to be started again.
+    fetching the link, and says so when it had to be started again. (The public page exists since that evening;
+    the login it had waited for all day was already on this PC from the other games. Rule: before a thing is
+    put on the "waits for Robin" list for a login, look whether the login is already there.)
 20. A picture of the stopped page kept timing out in the pane: the page draws only when it is stepped, and the
     picture waits for a frame. Rule: start a timer that steps the page a few times a second, then take the picture.
 21. The three ways to show his own bars were judged in stills, and each put his bar on whole units of the field

@@ -43,7 +43,8 @@ public page and Robin's own play wait for Robin. The list is `plan-chapter-1.md`
 - Bag, chart and hero at the top; export and import of the save in the settings; the built page works offline.
 - One way to steer (Robin, 2026-11-20, after playing): a tap walks him there, a thumb that drags is a stick. The
   skills in the middle at the bottom, his health and the target's over them.
-- **Still to do**: the public page on Cloudflare Pages (Robin's login); the audio layer when the first sounds land.
+- **Still to do**: the audio layer when the first sounds land. The public page is up since 2026-11-20:
+  `https://drok-game.pages.dev/`.
 
 **Art** (wave 1): the look (three stills, Robin picks); the Warrior with cutlass and buckler; the island's ground kit;
 three monsters; the harbour's ground kit and the shop; loot on the ground and the rarity effects; the UI kit; the sea

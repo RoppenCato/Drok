@@ -97,7 +97,8 @@ which the later chapters' upgrading is meant to answer. All three are Robin's to
 - Sixty frames a second on his phone: the frame log (settings, "Save the log") says.
 - Export and import through the phone's own file picker: the save's text was sent out and back by a script; the
   picker itself was not opened.
-- Installing from a real web address: needs the public page.
+- Installing from the public page on a real phone, and playing it there with the network off (in the pane on
+  2026-11-20 the public page played with no error and its offline cache was filled).
 
 ## Before a commit
 
