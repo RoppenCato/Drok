@@ -1,5 +1,10 @@
 # The change to the house: the plan
 
+**Left on 2026-11-20.** Robin, after seeing it built on stand-in shapes: "I think i like pirate more. Lets expand on
+pirate". The house is not the game. What was built for it and is worth keeping whatever comes: one world walked
+without a break, a safe home in it, monsters that sleep far from him, floors (biomes) with their own levels, the
+map. It plays at `https://house.drok-game.pages.dev/`. The rest of this file is the record.
+
 Robin, 2026-11-20: "I think I like it more if its an open world and not tied to islands. Instead it should be
 biomes." "A shrunk person and enemies are insects"; "Lets do 1, but inside a house." "I really liked the color and
 aestethic of what we have now tho." Of Leonard, AD's three sizes, in the Art Director's chat: "Go for 2" (bean size:
