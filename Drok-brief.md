@@ -29,22 +29,26 @@ rare drops, in a top-down world."
 
 ## The theme and the world
 
-- **A new direction, being drawn** (Robin, 2026-11-20): "I think I like it more if its an open world and not tied
-  to islands. Instead it should be biomes." "A shrunk person and enemies are insects"; then, of that idea: "Lets do
-  1, but inside a house." And: "I really liked the color and aestethic of what we have now tho." He asked "Does it
-  really work well im 2D tho? Scale can be tricky", so Leonard, AD draws three concepts first and Robin judges
-  them. **Until he has, the pirate lines below are what the game is built as**; when he picks, they are rewritten
-  (the theme, the hero's aim, his weapons, the world, the towns, the monsters, the names).
-- **The theme** (Robin, 2026-11-20, his pick): vibrant pirate. "Bright seas, green islands, colourful crews and
-  beasts. Nothing of dark fantasy comes back." It replaces "Dark fantasy" (Robin, 2026-11-19); he first wrote "Maybe
-  vibrant pirate is a better theme", then picked it.
-- **The hero and what he is after** (Robin, 2026-11-20, his pick): "Make a name". A nobody from a harbour town hunts
-  the islands' beasts for bounty and loot, on his way to captain. Open-ended, so the grind never has to end.
-- **What the Warrior fights with** (Robin, 2026-11-20, his pick): cutlass and buckler.
-- **The world** (Robin, 2026-11-19): "A big world map." (Robin, 2026-11-20, his pick): a sea chart of islands. Each
-  island is a hunting ground with its own levels. He travels by tapping the chart; there is no ship to steer.
-- **Day and night, weather** (Robin, 2026-11-20, his pick): always day for now. Each island has its own fixed light and
-  mood.
+- **The theme** (Robin, 2026-11-20): a shrunk person in a house, and the enemies are insects. His words: "A shrunk
+  person and enemies are insects"; "Lets do 1, but inside a house." It replaces vibrant pirate (his pick earlier
+  the same day), which replaced "Dark fantasy" (Robin, 2026-11-19). The colours stay: "I really liked the color and
+  aestethic of what we have now tho."
+- **His size** (Robin, 2026-11-20, in the Art Director's chat, of three stills by Leonard, AD: thumb, bean and ant
+  size): "Go for 2". Bean size: he is about 1.5 cm tall. Each thing on the floor is whole and bigger than he is: a
+  coin, a dice, a toy brick, a button, the end of a pencil. An ant is the size of a dog to him, a ladybird a sheep,
+  a cockroach twice his length, a spider a boss. The picture is `Art Director\out\house-concepts\2.jpg`.
+- **The world** (Robin, 2026-11-19): "A big world map." (Robin, 2026-11-20): "I think I like it more if its an open
+  world and not tied to islands. Instead it should be biomes." So one world he walks through, with no sea chart and
+  no sailing; the floors and rooms of the house are the biomes. This replaces the sea chart of islands (his pick
+  earlier the same day). How the rooms join and which come first is the Game Developer's, for him to judge.
+- **Day and night, weather** (Robin, 2026-11-20, his pick, made for the islands): always day for now. Each biome
+  has its own fixed light and mood.
+- **Not decided for the house yet** (open questions 8 to 11): who the shrunk person is and what he is after (the
+  pirate pick was "Make a name", a nobody on his way to captain); what the Warrior fights with (the pirate pick was
+  cutlass and buckler; Leonard, AD's still shows a pin and a shirt button as stand-ins); what the town is; whether
+  spiders are in.
+- **"Grounded" is another game.** Only the idea of a shrunk person is shared; nothing of its look, names or
+  creatures is taken.
 
 ## How it plays
 
@@ -97,7 +101,8 @@ rare drops, in a top-down world."
 ## The look and the sound
 
 - **The look** (Robin, 2026-11-20, his picks in the Art Director's chat, from choices Leonard, AD wrote; the full
-  record is `Art Director\docs\direction.md`): vibrant pirate, in "Clean line, flat colour": "One clear outline and a
+  record is `Art Director\docs\direction.md`): made for vibrant pirate and kept for the house (Robin, 2026-11-20:
+  "I really liked the color and aestethic of what we have now tho"), in "Clean line, flat colour": "One clear outline and a
   few strong, flat colours, like a print or a cartoon. Reads best when things are small on a phone." Games he loves
   the look of: Zelda: The Wind Waker, MapleStory, World of Warcraft. Not this: "Pale pastel phone-game look", "Grim
   and realistic", "Pixel art". The Art Director's three stills come next, and Robin picks.
@@ -106,7 +111,8 @@ rare drops, in a top-down world."
   own look. Boots, gloves and rings show only in the bag." Rare drops: "No glow on the hero": "The rarity colour shows
   only on the ground and in the bag."
 - **The music** (Robin, 2026-11-20, his pick): no reference. The Sound Director writes three different one-minute
-  pieces for the title in a vibrant pirate mood, and Robin picks the direction.
+  pieces for the title, and Robin picks the direction. The mood was "vibrant pirate" when he picked; what it is
+  for the house is open (question 12).
 - **The sound effects** (Robin, 2026-11-20, his pick): the common library of recorded sounds from his other games
   first; new ones only for what it lacks.
 
@@ -120,7 +126,8 @@ rare drops, in a top-down world."
 - **Chapter 1** (Robin, 2026-11-20, his pick): "Harbour town plus island". One island with three monsters, levelling 1
   to 5, loot on the ground with rarities, one chest, death that costs money, and the save; plus a small harbour town
   with a shop to walk back to, and the sea chart between the two. Real art and sound for just that. The chapters are
-  in `Game Developer\docs\chapters.md`.
+  in `Game Developer\docs\chapters.md`. Since the house (Robin, 2026-11-20) the same loop is rebuilt as a home and
+  the floor around it, in one world; the cut is Victor, GD's (`Game Developer\docs\plan-house.md`), his to change.
 - **What the Game Developer may do alone** (Robin, 2026-11-20, his pick): anything on the chapter's checklist that
   needs no decision of his: build, test, ask the studios, commit each item, report in the morning. The list is
   `Game Developer\docs\autonomous.md`.
@@ -152,6 +159,10 @@ A line each, newest at the bottom: the date, the decision, Robin's words.
   fight, and the screen as clean as it can be. He asked for suggestions; three are in the game to try.
 - 2026-11-20: his own bar is way 4: health over rage in one small piece over his head, no heart, and rage a red
   clearly other than health's ("I think 4, but the heart isnt needed. Also rage is traditionally red").
+- 2026-11-20: an open world of biomes, not islands ("I think I like it more if its an open world and not tied to
+  islands. Instead it should be biomes."); the theme is a shrunk person among insects, in a house ("Lets do 1, but
+  inside a house"); the colours and the look stay. Of Leonard, AD's three sizes he took the bean size, in the Art
+  Director's chat: "Go for 2".
 
 ## Open questions
 
@@ -168,3 +179,8 @@ in `Game Developer\docs\idea-bank.md`:
    of the row the potion sits.)
 7. Answered 2026-11-20: his health and rage are one small piece over his head ("The screen"). Still open from it:
    whether the monster's name plate at the bottom stays.
+8. Who the shrunk person is and what he is after.
+9. What the Warrior fights with at bean size.
+10. What the town is in a house.
+11. Whether spiders are in the game.
+12. The mood of the music for the house.

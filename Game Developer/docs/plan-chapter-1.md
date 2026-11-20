@@ -6,6 +6,9 @@ you are done. Let AD handle the art you need. I approve."). In the order it is b
 SD), what it needs, its sub-items, **Built** when it works with its tests, **Checked** when Robin has tried it on his
 phone and said so (with the date). A change to a checked item re-opens it. "What's next" reads this list top down.
 
+**Since 2026-11-20 the work goes by `plan-house.md`**: Robin changed the theme to a shrunk person in a house, in
+one open world. This list is the pirate game as built; its open items (Robin's play, the sound, alpha 1) move there.
+
 Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until a drop lands, so nothing here waits.
 
 ## Before chapter 1: the control test
