@@ -251,7 +251,10 @@ export class Figure {
     this.frame = f;
     this.image.setFrame(f.name, true, false);
     this.image.setFlipX(this.flip);
-    this.image.setOrigin(this.flip ? 1 - f.origin.x / f.w : f.origin.x / f.w, f.origin.y / f.h);
+    // A mirrored picture is mirrored about its own origin (this engine's way), so the origin is the frame's own
+    // either way. Mirroring the origin too put a running body 13 units off its feet, and his hat beside his head
+    // (Robin, 2026-11-20: "The hat hovers weird to the left of the character when running left").
+    this.image.setOrigin(f.origin.x / f.w, f.origin.y / f.h);
   }
 }
 
@@ -326,7 +329,7 @@ export class HeroFigure {
         continue;
       }
       image.setVisible(true).setFrame(name, true, false).setFlipX(b.flip);
-      image.setOrigin(b.flip ? 1 - info.origin.x / info.w : info.origin.x / info.w, info.origin.y / info.h);
+      image.setOrigin(info.origin.x / info.w, info.origin.y / info.h);
       image.setPosition(o.x + p.x * k, o.y + p.y * k).setRotation((p.r * Math.PI) / 180);
       if (o.size !== undefined) image.setScale(k / this.gear.meta.filePx);
       image.setDepth(o.depth + (p.front ? 0.5 : -0.5));
