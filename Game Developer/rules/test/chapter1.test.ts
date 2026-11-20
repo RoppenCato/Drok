@@ -543,24 +543,26 @@ describe('the chest', () => {
     expect(sim.act({ type: 'openChest' })).toEqual([{ type: 'rejected', action: 'openChest', reason: 'too far' }]);
     sim.walkTo('chest');
     expect(chestFull(sim.state)).toBe(true);
+    const potions = sim.state.hero.potions;
     const events = sim.act({ type: 'openChest' });
-    const dropped = sim.of('dropped').map((e) => e.drop);
-    expect(dropped.map((d) => d.kind).sort()).toEqual(['gold', 'item', 'potion']);
-    const gear = dropped.find((d) => d.kind === 'item')!.item!;
+    // The prizes are his at once (the screen shows them while the game stands still): nothing lies on the ground.
+    const opened = events[0]!;
+    if (opened.type !== 'chestOpened') throw new Error('the chest did not open');
+    expect(opened).toMatchObject({ x: chest.x, y: chest.y });
+    expect(opened.prizes.map((p) => p.kind)).toEqual(['gold', 'potion', 'item']);
+    const gear = opened.prizes[2]!.item!;
+    expect(opened.rarity).toBe(gear.rarity);
     expect(gear.rarity).not.toBe('common');
     expect(BASES[gear.base]!.tier).toBe(chest.itemTier);
-    // It charges before it pops, the longer the rarer its best piece; until then its loot is inside.
-    const charge = N.chest.chargeSeconds[gear.rarity];
-    expect(events[0]).toEqual({ type: 'chestOpened', x: chest.x, y: chest.y, rarity: gear.rarity, charge });
-    expect(N.chest.chargeSeconds.epic).toBeGreaterThan(N.chest.chargeSeconds.uncommon);
-    for (const d of sim.state.drops) expect(d.age).toBe(-charge);
-    sim.run(charge + N.drops.settleSeconds - 0.1);
-    expect(sim.count('picked')).toBe(0);
-    expect(sim.state.hero.gold).toBe(0);
-    sim.run(1);
+    expect(sim.state.drops).toHaveLength(0);
+    expect(sim.state.hero.gold).toBe(opened.prizes[0]!.amount);
     expect(sim.state.hero.gold).toBeGreaterThanOrEqual(chest.goldMin);
-    // The piece is his: in his bag, or on him if that part of him was bare.
-    expect([...sim.state.hero.bag, ...Object.values(sim.state.hero.worn)]).toContainEqual(gear);
+    expect(sim.state.hero.potions).toBe(potions + chest.potions);
+    // The piece is on him if that part of him was bare, else in his bag.
+    const where = opened.prizes[2]!.kept;
+    if (where === 'worn') expect(Object.values(sim.state.hero.worn)).toContainEqual(gear);
+    else expect(sim.state.hero.bag).toEqual([gear]);
+    expect(N.chest.chargeSeconds.epic).toBeGreaterThan(N.chest.chargeSeconds.uncommon);
     expect(chestFull(sim.state)).toBe(false);
     expect(sim.act({ type: 'openChest' })).toEqual([{ type: 'rejected', action: 'openChest', reason: 'chest is empty' }]);
     // The real clock moves on while the game is closed: one step that carries a later time is enough.
@@ -568,6 +570,20 @@ describe('the chest', () => {
     expect(chestFull(sim.state)).toBe(true);
     expect(sim.act({ type: 'openChest' })[0]).toMatchObject({ type: 'chestOpened' });
     say(`the chest gave ${sim.state.hero.gold} money, ${chest.potions} potions and a ${gear.rarity} ${BASES[gear.base]!.name}; it fills again ${chest.refillMinutes} minutes later by the clock`);
+  });
+
+  it('what he cannot carry lies by the chest: a piece when his bag is full, potions when his belt is', () => {
+    const sim = Sim.empty();
+    sim.walkTo('chest');
+    for (const slot of SLOTS) if (!sim.state.hero.worn[slot]) sim.state = { ...sim.state, hero: { ...sim.state.hero, worn: { ...sim.state.hero.worn, [slot]: { id: 7000 + SLOTS.indexOf(slot), base: KINDS.includes(slot as never) ? Object.keys(BASES).find((id) => BASES[id]!.slot === slot)! : 'lucky-doubloon', rarity: 'common' } } } };
+    for (let i = 0; i < N.bagSize; i++) sim.give('bandana');
+    sim.hero({ potions: N.potion.carry });
+    const opened = sim.act({ type: 'openChest' })[0]!;
+    if (opened.type !== 'chestOpened') throw new Error('the chest did not open');
+    expect(opened.prizes[2]!.kept).toBe('ground');
+    expect(sim.state.drops.map((d) => d.kind).sort()).toEqual(['item', 'potion']);
+    expect(sim.state.hero.bag).toHaveLength(N.bagSize);
+    expect(sim.state.hero.potions).toBe(N.potion.carry);
   });
 
   it('is not to be had from the other end of the island', () => {

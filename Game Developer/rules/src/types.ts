@@ -36,6 +36,17 @@ export interface Item {
   rarity: Rarity;
 }
 
+/**
+ * One thing out of a chest: money, potions or a piece of gear. `kept` says where a piece went: on him (that part of
+ * him was bare), into his bag, or on the ground by the chest because the bag was full.
+ */
+export interface Prize {
+  kind: 'gold' | 'potion' | 'item';
+  amount: number;
+  item: Item | null;
+  kept?: 'worn' | 'bag' | 'ground';
+}
+
 /** Something lying on the ground: money, a potion or a piece of gear. */
 export interface Drop {
   id: number;
@@ -220,8 +231,8 @@ export type GameEvent =
   | { type: 'dropped'; drop: Drop }
   | { type: 'picked'; drop: Drop }
   | { type: 'bagFull' }
-  /** The chest starts to open: it charges for `charge` seconds, then its loot pops out. `rarity` is the best piece inside. */
-  | { type: 'chestOpened'; x: number; y: number; rarity: Rarity; charge: number }
+  /** The chest is opened and its prizes are his. `rarity` is that of the best piece inside. */
+  | { type: 'chestOpened'; x: number; y: number; rarity: Rarity; prizes: Prize[] }
   | { type: 'sailed'; from: string; to: string }
   | { type: 'potionUsed' }
   | { type: 'equipped'; item: Item }

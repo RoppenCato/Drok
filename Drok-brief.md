@@ -51,7 +51,9 @@ rare drops, in a top-down world."
   easy to read"; to Leonard, AD's choice of Nunito, extra bold: "Yes, download it".
 - **The starter monsters** (Robin, 2026-11-20): "I think the birds are weird starting mobs." The reef gull goes;
   Leonard, AD shows candidates for the grove and Robin says which.
-- **Chests** (Robin, 2026-11-20): "chests should have a cool effect when you open them like in zite."
+- **Chests** (Robin, 2026-11-20): "chests should have a cool effect when you open them like in zite." (Robin,
+  2026-11-20, after seeing the effect in the field): "I think the chests should open like in zite where its a big
+  pop up screen and the game pauses".
 - **Loot** (Robin, 2026-11-20): "items should pop out of monsters when dropped."
 - **The inventory** (Robin, 2026-11-20): "you need to make a proper inventory system like my other games, look at
   zite for example." Zite's is the hero sheet he picked there on 2026-11-02: the hero wearing his gear, a slot for

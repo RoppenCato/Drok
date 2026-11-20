@@ -6,6 +6,8 @@ import { DESIGN_HEIGHT, DESIGN_WIDTH, RES } from '../layout.ts';
 import type { Intent, LocalGame } from '../local-game.ts';
 import { sounds } from '../sound.ts';
 import { Hud } from '../view/hud.ts';
+import { ART } from '../art.ts';
+import { Reveal } from '../view/reveal.ts';
 import { Panels } from '../view/panels.ts';
 import { FOOT, WorldView, type Thing } from '../view/world-view.ts';
 
@@ -36,6 +38,8 @@ export class PlayScene extends Phaser.Scene {
   private hud!: Hud;
   private panels!: Panels;
   private controls!: Controls;
+  /** The chest's opening: a screen over the game, which stands still while it is up. */
+  private reveal!: Reveal;
   private place = '';
   /** The ground he stands on, by its id: when it changes, the glass says where he is. */
   private biome = '';
@@ -91,6 +95,7 @@ export class PlayScene extends Phaser.Scene {
       startOver: () => this.startOver(),
       toast: (text) => this.hud.toast(text),
     });
+    this.reveal = new Reveal(this, onGlass);
     this.world.build(state);
     this.hud.build(state);
     this.controls = new Controls({ holder: this.holder, camera: field, hud: this.hud, world: this.world });
@@ -101,6 +106,10 @@ export class PlayScene extends Phaser.Scene {
     this.input.on(Phaser.Input.Events.POINTER_DOWN, (p: Phaser.Input.Pointer) => {
       const x = p.x / RES;
       const y = p.y / RES;
+      if (this.reveal.open) {
+        this.reveal.tap();
+        return;
+      }
       if (this.panels.kind) {
         this.panels.down(x, y);
         return;
@@ -119,8 +128,15 @@ export class PlayScene extends Phaser.Scene {
   }
 
   override update(time: number, delta: number): void {
-    this.controls.update();
-    this.holder.advance(delta);
+    // While a chest opens on its own screen the game stands still (Robin, 2026-11-20): no step of the world, no
+    // steering; the screen runs on the frame's own time.
+    if (this.reveal.open) {
+      this.reveal.update(delta);
+      this.holder.hold();
+    } else {
+      this.controls.update();
+      this.holder.advance(delta);
+    }
     const state = this.holder.state;
     const events = this.holder.takeEvents();
 
@@ -131,7 +147,12 @@ export class PlayScene extends Phaser.Scene {
       if (e.type === 'sailed') this.log.note(`sailed to ${e.to}`);
       else if (e.type === 'levelUp') this.log.note(`level ${e.level} at ${(state.time / 60).toFixed(1)} min`);
       else if (e.type === 'heroDown') this.log.note(`down in ${state.place}; lost ${e.lost} gold; ${state.deaths} falls`);
-      else if (e.type === 'chestOpened') this.log.note('chest opened');
+      else if (e.type === 'chestOpened') {
+        this.log.note(`chest opened: ${e.rarity}`);
+        this.controls.letGo();
+        this.panels.close();
+        this.reveal.show(e.rarity, e.prizes, ART.places[state.place] ?? '');
+      }
       // A bite with a window open: the window gets out of the way.
       else if (e.type === 'heroHit' && this.panels.kind) this.panels.close();
     }

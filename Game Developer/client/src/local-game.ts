@@ -81,6 +81,12 @@ export class LocalGame {
     if (this.sinceSave >= SAVE_EVERY_MS) this.save();
   }
 
+  /** The game stands still this frame (a chest opens on its own screen): no time is owed when it goes on. */
+  hold(): void {
+    this.pending = 0;
+    this.alpha = 1;
+  }
+
   /** Exactly `n` steps, whatever the clock says: for scripts in the pane. */
   step(n = 1): void {
     for (let i = 0; i < n; i++) this.stepOnce();

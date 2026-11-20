@@ -82,7 +82,7 @@
     "awake": 1500
   },
   "chest": {
-    "_about": "A chest charges before it pops (Robin, 2026-11-20: 'chests should have a cool effect when you open them like in zite'; in Zite, 2026-11-02: the highest rarity 'should really shake a lot and charge for a big pop 2-4 seconds later'). chargeSeconds is how long, by the rarity of the best piece inside: Zite's own numbers. Its loot is inside until then: it cannot be seen or picked up.",
+    "_about": "A chest charges before it pops (Robin, 2026-11-20: 'chests should have a cool effect when you open them like in zite'; in Zite, 2026-11-02: the highest rarity 'should really shake a lot and charge for a big pop 2-4 seconds later'). chargeSeconds is how long, by the rarity of the best piece inside: Zite's own numbers. Since Robin's word of the same day ('the chests should open like in zite where its a big pop up screen and the game pauses') the charge is the screen's: the rules hand the prizes over at once, and the screen shows them while the game stands still.",
     "chargeSeconds": { "common": 0.7, "uncommon": 1, "rare": 1.5, "epic": 2.3 }
   },
   "bagSize": 20,

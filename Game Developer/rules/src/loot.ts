@@ -5,7 +5,7 @@ import { clone, newItem, pick, putDrop, reject, roll, rollRarity, setTarget, nea
 import { BASES, CHEST_WEIGHTS, N, RARITIES, chestFull, heroMaxHp, kindOf, placeOf, wearSlot, xpToNext } from './data.ts';
 import { dist, stepToward } from './geometry.ts';
 import type { Rng } from './rng.ts';
-import type { ApplyResult, GameEvent, GameState, Monster, Rarity, Vec } from './types.ts';
+import type { ApplyResult, GameEvent, GameState, Monster, Prize, Rarity, Vec } from './types.ts';
 
 const DROP_WEIGHTS: Record<Rarity, number> = { common: RARITIES.common.weight, uncommon: RARITIES.uncommon.weight, rare: RARITIES.rare.weight, epic: RARITIES.epic.weight };
 
@@ -130,15 +130,34 @@ export function openChest(state: GameState, rng: Rng): ApplyResult {
   const s = clone(state);
   const ev: GameEvent[] = [];
   s.chests[s.place] = s.now;
-  // What is inside is rolled now; it comes out when the chest has charged, the longer the rarer its best piece.
+  // What is inside is rolled and handed to him at once (Robin, 2026-11-20: a pop-up screen, and the game pauses):
+  // the screen shows the prizes one by one while the world stands still. Only what he cannot carry lies on the
+  // ground by the chest.
+  const h = s.hero;
+  const side: Vec = { x: chest.x + (h.x - chest.x) * 0.5, y: chest.y + (h.y - chest.y) * 0.5 };
   const gold = roll(rng, chest.goldMin, chest.goldMax);
   const piece = rollGear(s, rng, chest.itemTier, CHEST_WEIGHTS);
-  const charge = N.chest.chargeSeconds[piece.rarity];
-  ev.push({ type: 'chestOpened', x: chest.x, y: chest.y, rarity: piece.rarity, charge });
-  // The loot spills out on his side of the chest.
-  const side: Vec = { x: chest.x + (s.hero.x - chest.x) * 0.5, y: chest.y + (s.hero.y - chest.y) * 0.5 };
-  putDrop(s, 'gold', gold, null, side, 30, rng, ev, -charge);
-  if (chest.potions > 0) putDrop(s, 'potion', chest.potions, null, side, 30, rng, ev, -charge);
-  putDrop(s, 'item', 1, piece, side, 30, rng, ev, -charge);
+  const prizes: Prize[] = [{ kind: 'gold', amount: gold, item: null }];
+  h.gold += gold;
+  if (chest.potions > 0) {
+    const room = Math.max(0, N.potion.carry - h.potions);
+    const taken = Math.min(room, chest.potions);
+    h.potions += taken;
+    prizes.push({ kind: 'potion', amount: chest.potions, item: null });
+    if (taken < chest.potions) putDrop(s, 'potion', chest.potions - taken, null, side, 30, rng, ev);
+  }
+  const place = wearSlot(h, piece);
+  let kept: Prize['kept'] = 'bag';
+  if (h.worn[place] === null) {
+    h.worn[place] = piece;
+    kept = 'worn';
+  } else if (h.bag.length < N.bagSize) {
+    h.bag.push(piece);
+  } else {
+    kept = 'ground';
+    putDrop(s, 'item', 1, piece, side, 30, rng, ev);
+  }
+  prizes.push({ kind: 'item', amount: 1, item: piece, kept });
+  ev.unshift({ type: 'chestOpened', x: chest.x, y: chest.y, rarity: piece.rarity, prizes });
   return { state: s, events: ev };
 }

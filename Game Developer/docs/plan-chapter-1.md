@@ -244,7 +244,8 @@ Legend: `[ ]` open, `[x]` done. Who: GD, AD, SD. A stand-in holds a place until 
     - `[x]` it charges before it pops: it shakes harder and harder and glows in the colour of the best piece inside, the longer the rarer (0.7, 1, 1.5 and 2.3 s: Zite's numbers); the rarest makes the ground rumble
     - `[x]` the pop: a squash, a white flash, rays, sparkles and petals in the colour, a jolt from rare up, a chime; then the loot flies out of it
     - `[x]` its loot is inside until the pop (a drop's age below 0); no window over the game as in Zite, since this game does not stop: mine
-    - not there: Zite's cards one by one, its flying lid, its own sounds (the chime and coins are from the basic set)
+    - `[x]` **changed the same day to a screen of its own** (Robin: "I think the chests should open like in zite where its a big pop up screen and the game pauses"): a dark veil over the game, which stands still; the chest big in the middle charging and popping as above; then each prize on a card of its own, a tap or two seconds apart; then the game goes on. The prizes are his at once (a piece on him if that part was bare, else in his bag; what he cannot carry lies by the chest). The effect in the field is out
+    - not there: Zite's flying lid and its own chest sounds (the chime, the page and the coins are from the basic set)
 
 28. `[ ]` · AD · **A monster in the gull's place** (Robin, 2026-11-20: "I think the birds are weird starting mobs"): candidates with pictures for Robin, asked 2026-11-20
 
