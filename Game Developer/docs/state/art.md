@@ -36,6 +36,14 @@ and its frames with `w`, `h`, `origin` (the feet, in the frame's own pixels), `f
 (`hand`, `off`, `head`: x and y from the origin, `r` the turn in degrees, `front`). The game stands a figure on its
 feet at the point the rules give, so the rules' "where he is" is where his feet are.
 
+From Leonard, AD's message of 2026-11-20 (his choices, marked "mine" by him): a point's `r` is the turn in degrees
+clockwise from pointing up; a cutlass is drawn with its grip at its origin and its blade pointing up, so the game
+puts it at `hand` and turns it by `r` (which is what `figures.ts` does, mirrored when the body is); a buckler and a
+hat are flipped with the body. Figures are seen from 35 degrees above the ground, lit from above and in front, so
+a mirrored figure does not show it. The Warrior is 54 units tall on the rules' footprint of 32. The look is his
+"look 1" (small models rendered flat in two tones with a dark line; the ground painted without a line) until Robin
+judges it.
+
 The gear atlas has one frame a cutlass (`cutlass-rusty`) and one a facing for bucklers and hats
 (`hat-tricorn/se`), with each frame's `origin` under `items`. The icons are `icon/<name>`. The game's names for
 gear differ from the art's; the table is `GEAR_ART` in `client\src\art.ts`.
