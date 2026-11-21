@@ -106,8 +106,28 @@ function paint(L) {
   if (L.inlet) { const ip = curve(L.inlet), il = poly(ip); ring(g, il, C.foam, 12); fill(g, il, C.shallow); g.save(); il(g); g.clip(); fill(g, poly(ip.map(([x, y]) => [x, y - 46])), C.sea); g.restore(); }
   if (T) { if (T.square) { const sp = curve(T.square, 0.5), sq = poly(sp), b = box(sp); fill(g, sq, C.cobbleLo); g.save(); sq(g); g.clip(); g.translate(0, -4); fill(g, sq, C.cobble); g.translate(0, 4);      // the town's square: cobbles, drawn a little heavier than at one pixel a unit so they hold
     g.strokeStyle = C.cobbleLo; g.lineWidth = 2.6; for (let y = b[1] - 20; y < b[1] + b[3] + 20; y += 22) for (let x = b[0] - 20 + (Math.round(y / 22) % 2) * 17; x < b[0] + b[2] + 20; x += 34) { g.beginPath(); g.ellipse(x + (r() - 0.5) * 5, y + (r() - 0.5) * 4, 12 + r() * 3, 7 + r() * 2, 0, 0, 7); g.stroke(); } g.restore(); }
-    for (const p of T.paths) { g.beginPath(); p.forEach((v, k) => k ? g.lineTo(v[0], v[1]) : g.moveTo(v[0], v[1])); g.lineJoin = 'round'; g.lineCap = 'round'; g.strokeStyle = C.sandLo; g.lineWidth = 46; g.stroke(); g.strokeStyle = C.path; g.lineWidth = 38; g.stroke(); } }
-  for (const p of L.paths || []) { const q = curve(p.concat(p.slice(1, -1).reverse()), 0.5, 6).slice(0, (p.length - 1) * 6 + 1); g.beginPath(); q.forEach((v, k) => k ? g.lineTo(v[0], v[1]) : g.moveTo(v[0], v[1])); g.lineJoin = 'round'; g.lineCap = 'round'; g.strokeStyle = C.sandLo; g.lineWidth = 46; g.stroke(); g.strokeStyle = C.path; g.lineWidth = 38; g.stroke(); }
+  }
+  // the ways: trodden earth, never a drawn road (Robin, 2026-11-20, of the swamp: "Looks good except the roads. They clip over each
+  // other and doesnt look natural"; of doing the same here, 2026-11-21: "Yeah"). As tools/mire.js lays them: close dabs that wander
+  // a little, wider on the main way, paler down the middle, a ragged rim with no line, the ground creeping in from the side, a worn
+  // patch where ways meet or end. The town's way and the island's are laid together in the same passes, so none lies on another.
+  { const wr = P.rng(L.seed + 7), gp = L.grass ? curve(L.grass) : null, rp = L.rock ? curve(L.rock, 0.55) : null, on = (x, y) => rp && inside(rp, x, y) ? 'rock' : gp && inside(gp, x, y) ? 'grass' : 'sand';
+    const RIM = { sand: '#d9bf86', grass: '#5fae4c', rock: C.rockLo }, CREEP = { sand: [C.sand, C.sandHi], grass: [C.grass, C.grassLo], rock: [C.rock, C.rockHi] };
+    const all = (T ? T.paths.map(p => [p, 20, 0]) : []).concat((L.paths || []).map((p, n) => [p, n === 0 ? 21 : 16, 1]));
+    const starts = (L.paths || []).map(p => p[0]), townPts = T ? T.paths.flat() : [];
+    const ways = all.map(([p, wide, bend]) => { const q = p.length < 3 ? [...Array(41)].map((_, k) => [p[0][0] + (p[1][0] - p[0][0]) * k / 40, p[0][1] + (p[1][1] - p[0][1]) * k / 40]) : curve(p.concat(p.slice(1, -1).reverse()), 0.5, 40).slice(0, (p.length - 1) * 40 + 1), ph = wr() * 6.283, out = [];
+      if (!bend) { const k = q.findIndex(v => starts.some(e => Math.hypot(e[0] - v[0], e[1] - v[1]) < 24)); if (k > 0) q.length = k + 1; }      // the town's way stops where the island's takes over: one track, not two
+      for (let k = 0; k < q.length; k++) { const t = k / (q.length - 1), a = q[Math.max(0, k - 1)], b = q[Math.min(q.length - 1, k + 1)], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1, end = Math.min(1, Math.min(t, 1 - t) * 6), off = bend * (Math.sin(t * 9 + ph) * 9 + Math.sin(t * 23 + ph * 2) * 4) * end;      // it wanders, but not where it meets the deck or another way
+        out.push([q[k][0] - dy / d * off, q[k][1] + dx / d * off, wide * (1 + 0.16 * Math.sin(t * 13 + ph * 3))]); }
+      return out; });
+    const aprons = []; for (const p of L.paths || []) for (const e of [p[0], p[p.length - 1]]) if (!aprons.some(a => Math.hypot(a[0] - e[0], a[1] - e[1]) < 40) && !townPts.some(a => Math.hypot(a[0] - e[0], a[1] - e[1]) < 60)) aprons.push([e[0], e[1], 30 + wr() * 8]);
+    const dab = (x, y, rx, ry, col, al = 1) => { g.globalAlpha = al; g.fillStyle = col; g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, 7); g.fill(); g.globalAlpha = 1; };
+    for (const w of ways) for (const [x, y, r0] of w) { const c = RIM[on(x, y)]; dab(x + (wr() - 0.5) * 5, y + 3 + (wr() - 0.5) * 4, r0 + 5 + wr() * 4, (r0 + 5) * 0.8, c, 0.5); if (wr() < 0.07) dab(x + (wr() - 0.5) * (r0 * 2.6), y + (wr() - 0.5) * (r0 * 2), 5 + wr() * 6, 3 + wr() * 3, c, 0.45); }      // the rim: darker, ragged, with stray patches
+    for (const [x, y, r0] of aprons) { g.globalAlpha = 0.5; fill(g, blob(x, y + 3, r0 + 6, (r0 + 6) * 0.72, 10, 0.3, wr), RIM[on(x, y)]); g.globalAlpha = 1; }
+    for (const w of ways) for (const [x, y, r0] of w) dab(x + (wr() - 0.5) * 4, y + (wr() - 0.5) * 3, r0, r0 * 0.8, C.path);      // the earth
+    for (const [x, y, r0] of aprons) fill(g, blob(x, y, r0, r0 * 0.72, 10, 0.3, wr), C.path);
+    for (const w of ways) for (let k = 0; k < w.length; k += 2) { const [x, y, r0] = w[k]; dab(x + (wr() - 0.5) * 5, y - 1 + (wr() - 0.5) * 3, r0 * 0.5, r0 * 0.32, '#fbeccb', 0.35); }      // paler down the middle, where the feet fall
+    for (const w of ways) for (const [x, y, r0] of w) { const cc = CREEP[on(x, y)]; if (wr() < 0.045) fill(g, blob(x + (wr() < 0.5 ? -1 : 1) * r0 * (0.7 + wr() * 0.4), y + (wr() - 0.5) * 8, 6 + wr() * 7, 3 + wr() * 3, 7, 0.4, wr), cc[wr() < 0.5 ? 0 : 1]); if (wr() < 0.03) dab(x + (wr() - 0.5) * r0 * 1.4, y + (wr() - 0.5) * r0, 1.8, 1.3, '#c9ad74', 0.8); } }      // the ground creeping in from the side, a pebble
   if (T) for (const d of T.decks) if (!d.sea) deck(g, d);
   g.restore();
   if (T) for (const d of T.decks) if (d.sea) deck(g, d);      // a deck over the water is painted last: it lies on the sea and on the shore alike

@@ -57,7 +57,7 @@ big, has several grounds with their own levels and monsters, and is walked witho
   dabs of bare ground laid close, wandering a little, wider where more feet go, paler down the middle, a ragged rim
   and no line round it, the green creeping in. Ways join and share one ground; where several meet there is a worn
   patch. All the ways of a place are painted together, rims first, so none lies on another. Crab Cay's ways are
-  still the old drawn kind.
+  painted the same way (Robin, 2026-11-21, asked whether to redo them: "Yeah").
 - **The first one is Crab Cay, the starter island** (`out\crab-cay\`). Robin, 2026-11-20: "Make the starter island a
   pirate town, and the other part of the island beginner friendly with low level mobs." So the town stands at the
   landing as its safe part (`home`), and round it lie the beach with its tide flats, the grove and the cove.
