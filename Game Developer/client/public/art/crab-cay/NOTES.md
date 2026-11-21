@@ -23,6 +23,14 @@ them. Theres also no contrast to the floor so it all kinda melts together." Of t
   level 1 on the beach, `wharf-rat` at 2 on the tide flats, `bristle-piglet` at 3 and `palm-monkey` at 4 in the grove,
   `coconut-crab` at 5 in the cove. The boxes are the ones there were; `reef-gull` is gone.
 
+**The ways, 2026-11-21.** Robin said of the swamp's roads "They clip over each other and doesnt look natural"; asked
+whether Crab Cay's should be redone the same way, he said "Yeah". They were drawn roads with a line round them. Now
+they are trodden earth, as on Mire Cay: close dabs that wander a little, paler down the middle, a ragged rim with no
+line, the grass, sand or rock creeping in, a worn patch where ways meet or end. The town's way and the island's are
+one track. **Only `ground.png` changed** (93 KB) and the look pictures; `look-ways.jpg` is three spots before and
+now. `paths` in `place.json` is the same list and the ways still run through its points, wandering up to 13 units
+to either side between them.
+
 ## The numbers
 
 | File | What | Size | Decoded | On disk |
